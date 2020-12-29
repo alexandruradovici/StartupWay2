@@ -6,7 +6,7 @@
   "typings": "lib/common/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc --build compile.tsconfig.json"
+    "prepare": "tsc --build compile.tsconfig.json"
   },
   "files": [
     "lib",
