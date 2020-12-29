@@ -1,0 +1,17 @@
+{
+    "private": true,
+    "name": "@startupway/startupway",
+    "version": "0.0.0",
+    "license": "APL-2.0",
+    "dependencies": {
+      "@startupway/main": "*",
+      "@startupway/users": "*"
+    },
+    "devDependencies": {
+      
+    },
+    "scripts": {
+        "build": "tsc --build compile.tsconfig.json",
+        "start": "node lib/index.js"
+    }
+  }

@@ -1,0 +1,23 @@
+{
+  "name": "@startupway/users",
+  "version": "1.0.0",
+  "description": "",
+  "main": "lib/common/index.js",
+  "typings": "lib/common/index.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc --build compile.tsconfig.json"
+  },
+  "files": [
+    "lib",
+    "src"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@startupway/main":"*"
+  },
+  "devDependencies": {
+    
+  }
+}

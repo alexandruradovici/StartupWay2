@@ -1,0 +1,22 @@
+{
+    "README": [
+      "THIS FILE SHOULD NOT BE USED FOR COMPILATION.",
+      "THIS FILE IS WRITTEN FOR TSSERVER TO UNDERSTAND OUR MONOREPO.",
+      "SEE `compile.tsconfig.json` FOR COMPILATION CONFIGURATION."
+    ],
+    "extends": "./configs/base.tsconfig.json",
+    "include": [
+        "packages/*/src",
+        "distributions/*/src",
+    ],
+    "compilerOptions": {
+      "allowJs": true,
+      "noEmit": true,
+      "baseUrl": ".",
+      "paths": {
+        "@startupway/main": [
+            "packages/main"
+        ],
+      }
+    }
+  }
