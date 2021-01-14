@@ -2,11 +2,16 @@
   "name": "@startupway/main",
   "version": "1.0.0",
   "description": "",
-  "main": "lib/common/index.js",
-  "typings": "lib/common/index.d.ts",
+  "main": "lib/server/index.js",
+  "typings": "lib/server/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prepare": "tsc --build compile.tsconfig.json"
+    "prepare": "webpack --config=webpack.server.config.js && webpack --config=webpack.ui.config.js",
+    "ui": "ebpack --config=webpack.ui.config.js",
+    "server": "webpack --config=webpack.server.config.js"
+  },
+  "directories": {
+    "lib": "lib"
   },
   "files": [
     "lib",
@@ -18,8 +23,31 @@
     "express": "^4.17.1"
   },
   "devDependencies": {
+    "@mdi/font": "^5.8.55",
+    "@mdi/js": "^5.8.55",
+    "@types/vue": "^2.0.0",
+    "@types/axios": "^0.14.0",
     "@types/express": "^4.17.9",
+    "axios": "^0.21.0",
+    "copy-webpack-plugin": "^5.1.2",
+    "css-loader": "^3.6.0",
+    "deepmerge": "^4.2.2",
+    "html-webpack-plugin": "^3.2.0",
+    "raw-loader": "^4.0.0",
+    "sass": "^1.32.4",
+    "sass-loader": "^10.1.1",
+    "style-loader": "^2.0.0",
+    "ts-loader": "^6.2.2",
+    "typescript": "^3.9.7",
+    "vue-loader": "^15.9.3",
+    "vue-router": "^3.4.3",
+    "vue-template-compiler": "^2.6.12",
+    "vuetify-loader": "^1.6.0",
+    "vuex": "^3.5.1",
+    "webpack": "^4.44.1",
+    "webpack-cli": "^3.3.12",
     "vue": "^2.6.12",
-    "vuetify": "^2.4.0"
+    "vuetify": "^2.4.2",
+    "webpack-node-externals": "^1.7.2"
   }
 }

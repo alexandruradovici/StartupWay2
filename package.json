@@ -6,5 +6,6 @@
   },
   "scripts": {
     "bootstrap": "lerna bootstrap"
-  }
+  },
+  "dependencies": {}
 }
