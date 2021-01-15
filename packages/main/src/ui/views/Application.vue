@@ -1,5 +1,7 @@
 <template>
-	<v-app id="app">
+	<v-app>
+		StartupWay
+		<v-main></v-main>
 		<router-view></router-view>
 	</v-app>
 </template>

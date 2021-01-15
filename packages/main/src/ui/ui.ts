@@ -20,6 +20,7 @@ export class Ui {
 	public readonly api: AxiosInstance = axios.create();
 	public store: Store<RootState>;
 	private static instance: Ui;
+	private router: VueRouter = new VueRouter ();
 	public vifyOpts: any = {
 		theme: {
 			themes: {
@@ -63,10 +64,6 @@ export class Ui {
 		};
 		this.store = new Store(storeData);
 
-		let router = new VueRouter({
-			routes:this.routes
-		});
-
 		let vuetify = new Vuetify(this.vifyOpts);
 
 		Vue.use(VueRouter);
@@ -77,7 +74,7 @@ export class Ui {
 		new Vue ({
 			el: '#app',
 			vuetify,
-			router,
+			router: this.router,
 			render: function (render) {
 				return render(Application);
 			}
@@ -110,9 +107,7 @@ export class Ui {
 		// 		this.registerView((route as any).component);
 		// 	}
 		// }
-		console.log("Pushing routes");
-		this.routes.push(...newRoutes);
-		console.log(this);
+		this.router.addRoutes (newRoutes);
 	}
 	
 	registerView (view: VueConstructor<Vue>) {
@@ -127,6 +122,7 @@ export class Ui {
 	public static getInstance(): Ui {
 		if(!Ui.instance) {
 			Ui.instance = new Ui();
+			Ui.instance.start ();
 		}
 		return Ui.instance;
 	}

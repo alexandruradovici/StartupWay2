@@ -1,4 +1,4 @@
-import express from "express";
+import express, { RequestHandler, Router } from "express";
 import {createServer} from "http";
 import {networkInterfaces} from "os";
 import { AddressInfo } from "net";
@@ -14,9 +14,8 @@ export class Server {
     protected routers: express.Router[] = [];
     protected routersApi: RouterApi[] = [];
 
-    registerRoute (route: ServerRoute): boolean {
-		
-        return false;
+    registerRoute (route: Router | RequestHandler): void {
+        this.app.use (route);
     }
 
 	registerNewRouter(router: express.Router): void {

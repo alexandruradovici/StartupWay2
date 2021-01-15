@@ -7,12 +7,14 @@
     "extends": "./configs/base.tsconfig.json",
     "include": [
         "packages/*/src",
-        "distributions/*/src",
+        "distributions/*/src", "packages/users/declaration.d.ts",
+        "declaration.d.ts"
     ],
     "compilerOptions": {
       "allowJs": true,
       "noEmit": true,
       "baseUrl": ".",
+      "module": "es2015",
       "paths": {
         "@startupway/main/*": [
             "packages/main/*"

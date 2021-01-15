@@ -6,9 +6,9 @@
   "typings": "lib/server/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prepare": "webpack --config=webpack.server.config.js && webpack --config=webpack.ui.config.js",
-    "ui": "ebpack --config=webpack.ui.config.js",
-    "server": "webpack --config=webpack.server.config.js"
+    "prepare": "npm run server && npm run ui",
+    "ui": "rollup --config rollup.config.js",
+    "server": "tsc --build compile.tsconfig.json"
   },
   "directories": {
     "lib": "lib"
@@ -28,30 +28,15 @@
     "@mdi/js": "^5.8.55",
     "@types/axios": "^0.14.0",
     "@types/express": "^4.17.9",
-    "axios": "^0.21.0",
-    "copy-webpack-plugin": "^5.1.2",
-    "css-loader": "^3.6.0",
-    "deepmerge": "^4.2.2",
-    "html-webpack-plugin": "^3.2.0",
-    "less": "^4.1.0",
-    "less-loader": "^7.2.1",
-    "raw-loader": "^4.0.0",
-    "sass": "^1.32.4",
-    "sass-loader": "^10.1.1",
-    "style-loader": "^2.0.0",
-    "ts-loader": "^6.2.2",
-    "typescript": "^3.9.7",
-    "vue-loader": "^15.9.3",
-    "vue-router": "^3.4.3",
-    "vue-template-compiler": "^2.6.12",
-    "vuetify": "^2.4.2",
-    "vuetify-loader": "^1.6.0",
-    "webpack": "^4.44.1",
-    "webpack-cli": "^3.3.12",
-    "webpack-node-externals": "^1.7.2",
     "@types/vue": "^2.0.0",
+    "@vue/compiler-sfc": "^3.0.5",
+    "axios": "^0.21.0",
+    "rollup": "^2.36.1",
+    "typescript": "^4.1.3",
     "vue": "^2.6.12",
     "vue-recaptcha": "^1.3.0",
+    "vue-router": "^3.4.3",
+    "vuetify": "^2.4.2",
     "vuex": "^3.6.0"
   }
 }

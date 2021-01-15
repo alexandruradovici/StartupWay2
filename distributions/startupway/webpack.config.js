@@ -1,6 +1,6 @@
 const path = require('path');
-const nodeExternals = require('webpack-node-externals');
-const package_json = require('./package.json');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+// const VuetifyLoaderPlugin = require('vuetify-loader/lib/plugin')
 
 module.exports = env => {
 	if (!env) env = {};
@@ -19,44 +19,44 @@ module.exports = env => {
 	}
 	return {
 		entry: {
-			index: './src/server/index.ts'
+			index: './src/ui/index.ts'
 		},
 		devtool: 'inline-source-map',
 		output: {
-			path: path.resolve(__dirname, './lib/server'),
+			path: path.resolve(__dirname, './lib/ui'),
 			filename: '[name].js',
 			libraryTarget: 'umd',
 			library: 'startupway',
 			umdNamedDefine: true
 		},
+		watch: false,
 		resolve: {
 			extensions: ['.ts', '.js', '.json'],
+			// plugins: [new TsconfigPathsPlugin({ configFile: path.resolve(__dirname, './compile.tsconfig.json') })]
 		},
 		module:
 		{
 			rules: [
 				{
-					test: /\.ts?$/,
-					use: [
-						{
-							loader: 'ts-loader',
-							options: {
-								//transpileOnly: true
-								configFile:'compile.tsconfig.json'
-							}
-						}
-					],
-					exclude: /node_modules/
-				},
+					test: /\.css$/i,
+        			use: ["style-loader", "css-loader"],
+				  },
 			],
 		},
-		externals: [nodeExternals({
-			whitelist: [...Object.keys(package_json.devDependencies)]
-		})],
 		mode: mode,
 		node: {
 			__dirname: false
 		},
-		target: 'node'
+		plugins: [
+			// new VueLoaderPlugin({
+			// 	esModule: false
+			// }),
+			new HtmlWebpackPlugin({
+				title: 'StartupWay',
+				template: path.resolve(__dirname,'src/ui/index.html')
+			}),
+			// new VuetifyLoaderPlugin()
+		],
+		target: 'web'
 	};
 };

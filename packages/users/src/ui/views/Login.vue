@@ -1,5 +1,4 @@
 <template>
-	<v-app>
 		<v-main style="background-color: rgba(25, 126, 129, 0.1)">
 			<v-container fluid fill-height>
 				<v-layout align-center justify-center> 
@@ -14,6 +13,7 @@
 								<!-- <v-img contain src="img/welcome-startupway-white-668px.png" max-height="170"></v-img>								 								 -->
 							</v-toolbar>
 							<v-card-text style="margin-top: 50px;">
+								<v-img :src="loginImage"/>
 								<v-form>
 									<v-text-field
 										id="login"
@@ -81,30 +81,14 @@
 			</v-container>
 			<!-- <Snackbar :options="snackOptions" :snackbar="snackbar" @update-prop="update"></Snackbar> -->
 		</v-main>
-	</v-app>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
-// import { VCard, VCardText, VContainer, VMain, VApp, VFlex, VCol, VRow } from "vuetify/lib"
-// import { mapGetters } from "vuex";
-// import { NO_TOKEN /*, SnackBarOptions, SnackBarTypes*/ } from "@startupway/users/src/common/types";
-// import axios from "axios";
-// import { getUsersUi } from "@startupway/users/lib/ui";
-// import VueRecaptcha from 'vue-recaptcha';
+import login from "../img/login.jpeg";
+
 export default Vue.extend({
 	name: "Login",
-	components: {
-		// VueRecaptcha
-		// VCard,
-		// VCardText,
-		// VContainer,
-		// VMain,
-		// VApp,
-		// VFlex,
-		// VCol,
-		// VRow
-	},
 	data() {
 		return {
 			// api: getUsersUi().main.api,
@@ -122,7 +106,8 @@ export default Vue.extend({
 			email:"",
 			lightOff: true,
 			lightOn: false,
-			aKey:"6Le6Jq4ZAAAAAEf_TFh2ZR-3tv3wycflW7ctlEeF"
+			aKey:"6Le6Jq4ZAAAAAEf_TFh2ZR-3tv3wycflW7ctlEeF",
+			loginImage: login
 		};
 	},
 	watch: {
