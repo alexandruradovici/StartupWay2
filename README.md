@@ -6,3 +6,10 @@
 npm install
 npm run bootstrap
 ```
+
+## Clean
+
+```bash
+npm run clean
+```
+

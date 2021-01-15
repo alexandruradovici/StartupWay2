@@ -19,7 +19,7 @@
   },
   "scripts": {
     "bootstrap": "lerna bootstrap --hoist",
-    "clean": "lerna clean"
+    "clean": "lerna clean -y && lerna run clean"
   },
   "dependencies": {}
 }
