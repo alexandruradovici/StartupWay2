@@ -7,8 +7,7 @@
     "extends": "./configs/base.tsconfig.json",
     "include": [
         "packages/*/src",
-        "distributions/*/src", "packages/users/declaration.d.ts",
-        "declaration.d.ts"
+        "distributions/*/src", "packages/users/image.d.ts",
     ],
     "compilerOptions": {
       "allowJs": true,
