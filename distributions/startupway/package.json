@@ -26,9 +26,9 @@
 		"webpack-cli": "^4.3.1"
 	},
 	"scripts": {
-		"build": "npm run server && npm run ui",
-		"server": "tsc --build compile.tsconfig.json",
-		"ui": "webpack",
+		"build": "npm run build-server && npm run build-ui",
+		"build-server": "tsc --build compile.tsconfig.json",
+		"build-ui": "webpack",
 		"start": "node lib/server/index.js",
 		"clean": "rm -rf lib compile.tsconfig.tsbuildinfo"
 	}

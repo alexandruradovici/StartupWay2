@@ -6,9 +6,9 @@
   "typings": "lib/server/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prepare": "npm run server && npm run ui",
-    "ui": "rollup --config rollup.config.js",
-    "server": "tsc --build compile.tsconfig.json",
+    "build": "npm run build-server && npm run build-ui",
+    "build-ui": "rollup --config rollup.config.js",
+    "build-server": "tsc --build compile.tsconfig.json",
     "clean": "rm -rf lib compile.tsconfig.tsbuildinfo"
   },
   "directories": {
