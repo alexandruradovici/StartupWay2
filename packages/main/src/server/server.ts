@@ -2,34 +2,41 @@ import express, { RequestHandler, Router } from "express";
 import {createServer} from "http";
 import {networkInterfaces} from "os";
 import { AddressInfo } from "net";
-export interface ServerRoute {
 
-}
-export interface RouterApi {
-    version: number,
-    router: express.Router
-}
 export class Server {
     public app: express.Application = express();
-    protected routers: express.Router[] = [];
-    protected routersApi: RouterApi[] = [];
+	private apiv1 = express.Router();
 
-    registerRoute (route: Router | RequestHandler): void {
-        this.app.use (route);
+	private static INSTANCE?: Server;
+
+    registerRouterUI (router: Router | RequestHandler, prefix?: string): void {
+        if (prefix === undefined)
+		{
+			this.app.use (router);
+		}
+		else
+		{
+			this.app.use (prefix, router);
+		}
     }
-
-	registerNewRouter(router: express.Router): void {
-		this.routers.push (router);
-	}
 	
-	registerRouterApi(version: number, router: express.Router): void {
-		this.routersApi.push ({
-			version, 
-			router
-		});
+	registerRouterAPI (version: number, router: Router | RequestHandler, prefix?: string): void {
+		if (version === 1)
+		{
+			if (prefix === undefined)
+			{
+				this.apiv1.use (router);
+			}
+			else
+			{
+				this.apiv1.use (prefix, router);
+			}
+		}
 	}
 
     async start (port:number = 8080):Promise<void> {
+		this.app.use ('/api/v1', this.apiv1);
+
 		var server = createServer(this.app);
 		let serverListener = server.listen (port , function () {
 			let n = 0;
@@ -49,26 +56,19 @@ export class Server {
 				console.log ("StartupWay running at http://127.0.0.1:"+(serverListener.address() as AddressInfo).port);
 			}
 		});
-		
-		for (let router of this.routers.reverse ())
-		{
-			this.app.use (router);
-		}
-
-		for (let routerApi of this.routersApi.reverse ())
-		{
-			this.app.use ('/api/v'+routerApi.version, routerApi.router);
-		}
 
 		serverListener.on ("error", (err) => {
 			console.error (err);
 		});
 	}
+
+	public static getInstance (): Server
+	{
+		if (!this.INSTANCE)
+		{
+			this.INSTANCE = new Server ();
+		}
+		return this.INSTANCE;
+	}
 	
-}
-
-const SERVER = new Server ();
-
-export function getServer (): Server {
-    return SERVER;
 }

@@ -1,26 +1,17 @@
-import { getUi } from '@startupway/main/lib/ui';
+import { UI } from '@startupway/main/lib/ui';
 import Login from "./views/Login.vue";
 export * from "./ui";
 export * from "../common/common";
+import { RouteConfig } from "vue-router";
 
 console.log("running");
-let main = getUi();
-let routes = [
-	// {
-	// 	path: "*",
-	// 	redirect: "/login", 
-	// 	beforeEnter: (to:any, from:any, next:any) => { 
-	// 		console.log(to);
-	// 		console.log(window.location);
-	// 		window.location.href = to.fullPath.substring(1); 
-	// 	}
-	// },
+let ui = UI.getInstance();
+let routes: RouteConfig[] = [
 	{
 		path: '/login',
-		name:"Login",	
+		name: "Login",	
 		component: Login
 	}
-]
+];
 
-main.registerRoutes(routes);
-console.log("registered");
+ui.registerRoutes(routes);

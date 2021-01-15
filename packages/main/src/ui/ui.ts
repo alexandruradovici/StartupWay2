@@ -2,7 +2,7 @@ import Vue, { VueConstructor } from "vue";
 import VueRouter, { RouteConfig } from "vue-router";
 import Vuex, { Module, StoreOptions, Store } from "vuex";
 
-import Vuetify from "vuetify";
+import Vuetify, { UserVuetifyPreset } from "vuetify";
 import 'vuetify/dist/vuetify.min.css';
 
 import axios, {AxiosInstance} from "axios";
@@ -16,12 +16,14 @@ export interface RootState {
     version: string;
 }
 
-export class Ui {
+export class UI {
 	public readonly api: AxiosInstance = axios.create();
+	
 	public store: Store<RootState>;
-	private static instance: Ui;
+	private static instance: UI;
 	private router: VueRouter = new VueRouter ();
-	public vifyOpts: any = {
+
+	private vuetifyOptions: Partial<UserVuetifyPreset> = {
 		theme: {
 			themes: {
 				light: {
@@ -48,7 +50,7 @@ export class Ui {
 	//private vue:Vue ;
 	
 
-    async start (vuePage?:VueConstructor<Vue>) {
+    private start (vuePage?:VueConstructor<Vue>) {
 		// start the ui instance	
 			
 		console.log("Started App");
@@ -64,7 +66,7 @@ export class Ui {
 		};
 		this.store = new Store(storeData);
 
-		let vuetify = new Vuetify(this.vifyOpts);
+		let vuetify = new Vuetify(this.vuetifyOptions);
 
 		Vue.use(VueRouter);
 		Vue.use(Vuetify, {
@@ -79,7 +81,6 @@ export class Ui {
 				return render(Application);
 			}
 		});
-		console.log(this);
     }
 	
 	registerPlugin (plugin: any) /* TODO TYPE */ {
@@ -102,11 +103,6 @@ export class Ui {
 	}
 
 	registerRoutes (newRoutes: RouteConfig[]) {
-		// for(let route of newRoutes) {
-		// 	if ((route as any).component !== undefined) {
-		// 		this.registerView((route as any).component);
-		// 	}
-		// }
 		this.router.addRoutes (newRoutes);
 	}
 	
@@ -119,16 +115,12 @@ export class Ui {
 		console.error (err);
 	}
 
-	public static getInstance(): Ui {
-		if(!Ui.instance) {
-			Ui.instance = new Ui();
-			Ui.instance.start ();
+	public static getInstance(): UI {
+		if(!UI.instance) {
+			UI.instance = new UI();
+			UI.instance.start ();
 		}
-		return Ui.instance;
+		return UI.instance;
 	}
 
-}
-
-export function getUi (): Ui {
-    return Ui.getInstance();
 }

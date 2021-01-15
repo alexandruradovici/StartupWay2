@@ -1,13 +1,8 @@
-//import express from "express";
-export class UsersServer {
-    async start (port:number = 8080):Promise<void> {
-		
-	}
-	
-}
+import { Server } from "@startupway/main/lib/server";
+import express from "express";
 
-const SERVER = new UsersServer ();
+let server = Server.getInstance ();
 
-export function getUsersServer (): UsersServer {
-    return SERVER;
-}
+let router = express.Router ();
+
+server.registerRouterAPI (1, router, "/users");

@@ -1,9 +1,8 @@
-
-import { getServer } from "@startupway/main/lib/server";
-import "@startupway/users/lib/server";
+import { Server } from "@startupway/main/lib/server";
+import path from "path";
 import express from "express";
-import * as path from "path";
-let server = getServer();
-server.registerRoute (express.static (path.resolve(__dirname, "../ui")))
+
+let server = Server.getInstance();
+server.registerRouterUI (express.static (path.resolve(__dirname, "../ui")))
 server.start();
 
