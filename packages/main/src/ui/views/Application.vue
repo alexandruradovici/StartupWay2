@@ -1,6 +1,5 @@
 <template>
 	<v-app>
-		StartupWay
 		<v-main></v-main>
 		<router-view></router-view>
 	</v-app>

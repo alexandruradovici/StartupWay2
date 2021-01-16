@@ -18,10 +18,10 @@ export interface RootState {
 
 export class UI {
 	public readonly api: AxiosInstance = axios.create();
-	
-	public store: Store<RootState>;
+
 	private static instance: UI;
 	private router: VueRouter = new VueRouter ();
+	private store: Store<RootState>;
 
 	private vuetifyOptions: Partial<UserVuetifyPreset> = {
 		theme: {
@@ -46,8 +46,6 @@ export class UI {
 	};;
 
 	public routes: RouteConfig[] = [];
-
-	//private vue:Vue ;
 	
 
     private start (vuePage?:VueConstructor<Vue>) {
@@ -76,16 +74,13 @@ export class UI {
 		new Vue ({
 			el: '#app',
 			vuetify,
+			store:this.store,
 			router: this.router,
 			render: function (render) {
 				return render(Application);
 			}
 		});
     }
-	
-	registerPlugin (plugin: any) /* TODO TYPE */ {
-		Vue.use(plugin, {});
-	}
 
 	registerStore<T>(namespace: string, store: Module<T, RootState>) {
 		if (this.store) {

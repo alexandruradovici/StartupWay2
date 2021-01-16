@@ -1,5 +1,7 @@
 export const NO_TOKEN = "";
-
+export interface RootState {
+    version: string;
+}
 export const universities = [
 	"N/A",
 	"Universitatea Politehnica Bucuresti",

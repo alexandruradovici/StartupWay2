@@ -1,6 +1,6 @@
 import express, { RequestHandler, Router } from "express";
-import {createServer} from "http";
-import {networkInterfaces} from "os";
+import { createServer } from "http";
+import { networkInterfaces } from "os";
 import { AddressInfo } from "net";
 
 export class Server {
@@ -35,8 +35,8 @@ export class Server {
 	}
 
     async start (port:number = 8080):Promise<void> {
+		this.app.use ('/api/v1', express.json());
 		this.app.use ('/api/v1', this.apiv1);
-
 		var server = createServer(this.app);
 		let serverListener = server.listen (port , function () {
 			let n = 0;
@@ -56,7 +56,6 @@ export class Server {
 				console.log ("StartupWay running at http://127.0.0.1:"+(serverListener.address() as AddressInfo).port);
 			}
 		});
-
 		serverListener.on ("error", (err) => {
 			console.error (err);
 		});

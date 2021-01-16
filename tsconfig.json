@@ -20,6 +20,9 @@
         ],
         "@startupway/users/*": [
             "packages/users/*"
+        ],
+        "@startupway/database/*": [
+            "packages/database/*"
         ]
       }
     }

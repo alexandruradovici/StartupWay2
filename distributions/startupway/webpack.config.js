@@ -1,6 +1,5 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-// const VuetifyLoaderPlugin = require('vuetify-loader/lib/plugin')
 
 module.exports = env => {
 	if (!env) env = {};
@@ -32,7 +31,6 @@ module.exports = env => {
 		watch: false,
 		resolve: {
 			extensions: ['.ts', '.js', '.json'],
-			// plugins: [new TsconfigPathsPlugin({ configFile: path.resolve(__dirname, './compile.tsconfig.json') })]
 		},
 		module:
 		{
@@ -48,14 +46,10 @@ module.exports = env => {
 			__dirname: false
 		},
 		plugins: [
-			// new VueLoaderPlugin({
-			// 	esModule: false
-			// }),
 			new HtmlWebpackPlugin({
 				title: 'StartupWay',
 				template: path.resolve(__dirname,'src/ui/index.html')
 			}),
-			// new VuetifyLoaderPlugin()
 		],
 		target: 'web'
 	};
