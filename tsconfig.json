@@ -18,11 +18,17 @@
         "@startupway/main/*": [
             "packages/main/*"
         ],
+        "@startupway/menu/*": [
+            "packages/menu/*"
+        ],
         "@startupway/users/*": [
             "packages/users/*"
         ],
         "@startupway/database/*": [
             "packages/database/*"
+        ],
+        "@startupway/workspace/*": [
+            "packages/workspace/*"
         ]
       }
     }

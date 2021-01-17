@@ -102,7 +102,6 @@ export class UI {
 	}
 	
 	registerView (view: VueConstructor<Vue>) {
-		console.log ((view as any).options.name);
 		Vue.component ((view as any).options.name, view);
 	}
 	

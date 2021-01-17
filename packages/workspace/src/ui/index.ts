@@ -2,13 +2,12 @@
 export * from "./ui";
 export * from "../common/common";
 import { UI } from '@startupway/main/lib/ui';
+import { WorkspaceUI } from './ui';
 import store from "./store";
 import { RouteConfig } from "vue-router";
-
-import Login from "./views/Login.vue";
+import Workspace from "./views/Workspace.vue";
+import Recovery from "./views/Recovery.vue";
 // import UserMenu from "./views/UserMenu.vue";
-import EditAccount from "./views/EditAccount.vue";
-import EditSecuritySettings from "./views/EditSecuritySettings.vue";
 
 // let workspaceUi = workspaceUi.getInstance()	;
 
@@ -18,26 +17,20 @@ import EditSecuritySettings from "./views/EditSecuritySettings.vue";
 // });
 
 let ui = UI.getInstance();
+let workspaceUI: WorkspaceUI = WorkspaceUI.getInstance();
 
-let routes: RouteConfig[] = [
-	{
-		path: '/login',
-		name: "Login",	
-		component: Login
+let routes: RouteConfig[] = [{
+		path: '/workspace',
+		children: workspaceUI.routes,
+		component: Workspace
 	},
 	{
-		path: "/user/security",
-		name:"Edit Security Settings",
-		component: EditSecuritySettings
+		path: '/recovery/:token',
+		name:"Recovery",	
+		component: Recovery
 	},
-	{
-		path: "/user/account",
-		name:"Edit Account",
-		component: EditAccount
-	},
-	
 ];
 
 
 ui.registerRoutes(routes);
-ui.registerStore("users",store());
+ui.registerStore("workspace",store());

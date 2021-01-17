@@ -1,5 +1,5 @@
 {
-  "name": "@startupway/users",
+  "name": "@startupway/menu",
   "version": "1.0.0",
   "description": "",
   "main": "lib/server/index.js",
@@ -21,22 +21,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@startupway/main": "*",
-    "@startupway/database": "*",
-    "@startupway/menu": "*",
-    "express": "^4.17.1"
+    "@startupway/main": "*"
   },
   "devDependencies": {
     "@mdi/font": "^5.8.55",
     "@mdi/js": "^5.8.55",
-    "@types/axios": "^0.14.0",
-    "@types/express": "^4.17.9",
-    "@types/randomstring": "^1.1.6",
     "@types/vue": "^2.0.0",
     "@vue/compiler-sfc": "^3.0.5",
-    "axios": "^0.21.0",
-    "crypto": "^1.0.1",
-    "randomstring": "^1.1.5",
     "rollup": "^2.36.1",
     "typescript": "^4.1.3",
     "vue": "^2.6.12",
