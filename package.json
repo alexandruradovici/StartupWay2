@@ -21,6 +21,8 @@
   "scripts": {
     "bootstrap": "lerna bootstrap --hoist",
     "build": "lerna run build",
+    "build-server": "lerna run build-server",
+    "build-ui": "lerna run build-ui",
     "format": "npx tslint -c tslint.json --fix  'packages/**/src/**/*.ts' && npx tslint -c tslint.json --fix  'distributions/**/src/**/*.ts'",
     "clean": "lerna clean -y && lerna run clean"
   },
