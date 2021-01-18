@@ -1,5 +1,5 @@
 import { Module } from "vuex";
-import { ToolbarButton } from "../common/common";
+import { ToolbarButton } from "../common";
 import { RootState} from "@startupway/users/lib/ui";
 
 export interface WorkspaceState {

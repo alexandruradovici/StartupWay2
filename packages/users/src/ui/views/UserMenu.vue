@@ -10,7 +10,7 @@
 import Vue from "vue";
 import { UI } from '@startupway/main/lib/ui';
 import { SnackBarOptions, SnackBarTypes, SimpleMenuOptions } from "@startupway/menu/lib/ui"
-import { User } from "../../common/common";
+import { User } from "../../common";
 import { mapGetters } from "vuex";
 enum MenuOptions {
 	MY_ACCOUNT, LOGOUT

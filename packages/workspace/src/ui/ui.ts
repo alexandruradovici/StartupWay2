@@ -1,4 +1,4 @@
-import { ToolbarButton, ToolbarButtonPosition, ToolbarButtonOptions } from "../common/common";
+import { ToolbarButton, ToolbarButtonPosition, ToolbarButtonOptions } from "../common";
 import Vue from "vue";
 import { VueConstructor } from "vue";
 import { UI } from "@startupway/main/lib/ui";

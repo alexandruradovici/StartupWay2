@@ -40,7 +40,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { SimpleMenuOptions, SimpleMenuItem } from "../../common/common"
+import { SimpleMenuOptions, SimpleMenuItem } from "../../common"
 
 export default Vue.extend({
 	name: "SimpleMenu",

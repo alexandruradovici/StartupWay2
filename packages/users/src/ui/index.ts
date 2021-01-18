@@ -1,6 +1,6 @@
 
 export * from "./ui";
-export * from "../common/common";
+export * from "../common";
 import { UI } from '@startupway/main/lib/ui';
 import store from "./store";
 import { RouteConfig } from "vue-router";

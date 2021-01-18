@@ -1,5 +1,5 @@
 
-import { Session, NO_SESSION, User, NO_USER, NO_TOKEN } from '../common/common';
+import { Session, NO_SESSION, User, NO_USER, NO_TOKEN } from '../common';
 import { Server } from "@startupway/main/lib/server";
 import { DatabaseServer } from '@startupway/database/lib/server';
 import express from "express";

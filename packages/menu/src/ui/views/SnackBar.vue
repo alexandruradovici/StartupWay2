@@ -21,9 +21,9 @@
 <script lang="ts">
 import Vue from "vue";
 
-import { SnackBarOptions } from "../../common/common"
+import { SnackBarOptions } from "../../common"
 export default Vue.extend({
-	name: "Snackbar",
+	name: "SnackBar",
 	props: {
 		options: {
 			required: true,

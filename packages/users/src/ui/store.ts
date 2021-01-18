@@ -1,5 +1,5 @@
 import { Module } from "vuex";
-import { RootState, NO_TOKEN, NO_USER, Session, User} from "../common/common";
+import { RootState, NO_TOKEN, NO_USER, Session, User} from "../common";
 import { UI } from "@startupway/main/lib/ui"
 
 const STARTUPWAY_TOKEN = "startupway:token";

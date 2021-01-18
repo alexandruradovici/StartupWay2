@@ -1,6 +1,6 @@
 
 export * from "./ui";
-export * from "../common/common";
+export * from "../common";
 import { UI } from '@startupway/main/lib/ui';
 import { WorkspaceUI } from './ui';
 import store from "./store";

@@ -126,7 +126,7 @@ import Vue from "vue";
 import login from "../img/login.jpeg";
 import { UI } from '@startupway/main/lib/ui';
 import { SnackBarOptions, SnackBarTypes } from '@startupway/menu/lib/ui';
-import { NO_TOKEN } from '../../common/common';
+import { NO_TOKEN } from '../../common';
 import { mapGetters } from "vuex";
 export default Vue.extend({
 	name: "Login",
