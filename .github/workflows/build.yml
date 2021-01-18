@@ -9,6 +9,7 @@ on:
 
 jobs:
   format:
+    name: Format
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -21,7 +22,8 @@ jobs:
         run: npm install
       - name: Format
         run: npm run format
-  build:
+  build-server:
+    name: Build Server
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -35,4 +37,21 @@ jobs:
       - name: Bootstrap
         run: npm run bootstrap
       - name: Build
-        run: npm run build
+        run: npm run build-server
+
+  build-ui:
+    name: Build UI
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v1.4.4
+        with:
+          # Version Spec of the version to use.  Examples: 10.x, 10.15.1, >=10.15.0
+          node-version: 12.x
+      - name: Install
+        run: npm install
+      - name: Bootstrap
+        run: npm run bootstrap
+      - name: Build
+        run: npm run build-ui
