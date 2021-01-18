@@ -7,7 +7,7 @@ export interface WorkspaceState {
 }
 
 export default function workspaceStore () {
-	let store: Module<WorkspaceState, RootState> = {
+	const store: Module<WorkspaceState, RootState> = {
 		namespaced: true,
 		state: {
 			toolbarButtons: []

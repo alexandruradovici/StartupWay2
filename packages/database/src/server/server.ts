@@ -48,7 +48,7 @@ export class DatabaseServer {
 			} else {
 				query = "SELECT "+ columns.toString() + " from " + from;
 			}
-			let response = await this.conn.query(query);
+			const response = await this.conn.query(query);
 			if(response) {
 				return response[0];
 			} else {
@@ -66,7 +66,7 @@ export class DatabaseServer {
 			columns1 = columns1.map((value)=>{ return table1+"."+value});
 			columns2 = columns2.map((value)=>{ return table2+"."+value+ " as "+table2+"_"+value});
 			query = "SELECT "+ columns1.toString() + columns2.toString() + " from " + table1 + " INNER JOIN " + table2 + " ON " + onCondition;
-			let response = await this.conn.query(query);
+			const response = await this.conn.query(query);
 			if(response) {
 				return response[0];
 			} else {
@@ -85,7 +85,7 @@ export class DatabaseServer {
 				query = "INSERT INTO "+table+" ("+JSON.stringify(columns).slice(1,-1)+") values("+JSON.stringify(values).slice(1,-1)+")";
 			else
 				query = "INSERT INTO "+table+" values("+JSON.stringify(values).slice(1,-1)+") ";
-			let response = await this.conn.query(query);
+			const response = await this.conn.query(query);
 			if(response) {
 				return response;
 			} else {
@@ -100,8 +100,8 @@ export class DatabaseServer {
 	async update(table:string, rowObject:object, whereCondition:string):Promise<object|undefined> {
 		try {
 			let updateStatement:string = "";
-			for(let column in rowObject) {
-				let value = (rowObject as any)[column];
+			for(const column in rowObject) {
+				const value = (rowObject as any)[column];
 				if(typeof value === "number") {
 					updateStatement +=column+"="+value+","
 				} else {
@@ -112,7 +112,7 @@ export class DatabaseServer {
 			let query:string = "";
 			query = "UPDATE " + table + " SET " + updateStatement + " WHERE " + whereCondition;
 
-			let response = await this.conn.query(query);
+			const response = await this.conn.query(query);
 			if(response) {
 				return response;
 			} else {
@@ -128,7 +128,7 @@ export class DatabaseServer {
 			let query:string = "";
 			query = "DELETE FROM " + table + " WHERE " + whereCondition;
 
-			let response = await this.conn.query(query);
+			const response = await this.conn.query(query);
 			if(response) {
 				return response;
 			} else {
@@ -149,7 +149,7 @@ export class DatabaseServer {
 		return this.INSTANCE;
 	}
 
-	
+
 }
 
 
@@ -159,12 +159,12 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 
-let server = Server.getInstance ();
-let dbserver = DatabaseServer.getInstance();
+const server = Server.getInstance ();
+const dbserver = DatabaseServer.getInstance();
 
 dbserver.createPool();
 dbserver.createConnection();
-let router = express.Router ();
+const router = express.Router ();
 
 router.get("/get", async (req, res) => {
 	res.status(200).send({});

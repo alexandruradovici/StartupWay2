@@ -25,12 +25,12 @@ export interface User {
     userId: number;
     firstName: string;
     lastName: string;
-    username: string; 
-    password: string; 
+    username: string;
+    password: string;
     email: string;
     phone: string;
-    socialMedia: UserSocialMedia; 
-    birthDate: Date; 
+    socialMedia: UserSocialMedia;
+    birthDate: Date;
     userDetails: UserDetails;
     role: Roles;
     avatarUu:string;

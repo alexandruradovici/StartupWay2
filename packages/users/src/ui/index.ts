@@ -17,12 +17,12 @@ import EditSecuritySettings from "./views/EditSecuritySettings.vue";
 // 	priority: 3
 // });
 
-let ui = UI.getInstance();
+const ui = UI.getInstance();
 
-let routes: RouteConfig[] = [
+const routes: RouteConfig[] = [
 	{
 		path: '/login',
-		name: "Login",	
+		name: "Login",
 		component: Login
 	},
 	{
@@ -35,7 +35,7 @@ let routes: RouteConfig[] = [
 		name:"Edit Account",
 		component: EditAccount
 	},
-	
+
 ];
 
 

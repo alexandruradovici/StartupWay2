@@ -19,7 +19,7 @@ export class Server {
 			this.app.use (prefix, router);
 		}
     }
-	
+
 	registerRouterAPI (version: number, router: Router | RequestHandler, prefix?: string): void {
 		if (version === 1)
 		{
@@ -37,17 +37,20 @@ export class Server {
     async start (port:number = 8080):Promise<void> {
 		this.app.use ('/api/v1', express.json());
 		this.app.use ('/api/v1', this.apiv1);
-		var server = createServer(this.app);
-		let serverListener = server.listen (port , function () {
+		const server = createServer(this.app);
+		const serverListener = server.listen (port, () => {
 			let n = 0;
-			let networks = networkInterfaces();
-			for (let network in networks) {
-				for (let networkAddress of networks[network]!)
+			const networks = networkInterfaces();
+			for (const network in networks) {
+				if (network.hasOwnProperty(network))
 				{
-					if (networkAddress.family === "IPv4" && !networkAddress.address.startsWith ("127"))
+					for (const networkAddress of networks[network]!)
 					{
-						n = n + 1;
-						console.log ("StartupWay running at http://"+networkAddress.address+":"+(serverListener.address() as AddressInfo).port);
+						if (networkAddress.family === "IPv4" && !networkAddress.address.startsWith ("127"))
+						{
+							n = n + 1;
+							console.log ("StartupWay running at http://"+networkAddress.address+":"+(serverListener.address() as AddressInfo).port);
+						}
 					}
 				}
 			}
@@ -69,5 +72,5 @@ export class Server {
 		}
 		return this.INSTANCE;
 	}
-	
+
 }

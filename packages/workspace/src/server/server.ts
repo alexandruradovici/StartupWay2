@@ -1,7 +1,7 @@
 export class WorkspaceServer {
 
 	private static INSTANCE?: WorkspaceServer;
-  
+
 	public static getInstance (): WorkspaceServer
 	{
 		if (!this.INSTANCE)
@@ -10,5 +10,5 @@ export class WorkspaceServer {
 		}
 		return this.INSTANCE;
 	}
-	
+
 }

@@ -10,16 +10,16 @@ export interface UsersState {
 }
 
 export default function usersStore () {
-	let ui = UI.getInstance();
+	const ui = UI.getInstance();
     ui.api.interceptors.request.use ((config:any) => {
         if (window.localStorage.getItem (STARTUPWAY_TOKEN))
         {
-            config.headers['Authorization'] = 'Bearer ' + window.localStorage.getItem (STARTUPWAY_TOKEN);
+            config.headers.Authorization = 'Bearer ' + window.localStorage.getItem (STARTUPWAY_TOKEN);
         }
         return config;
     });
 
-	let store: Module<UsersState, RootState> = {
+	const store: Module<UsersState, RootState> = {
 		namespaced: true,
 		state: {
 			token: NO_TOKEN,
@@ -43,7 +43,7 @@ export default function usersStore () {
                 // axios to login => session
                 try
                 {
-                    let r = await ui.api.post<Session>("/api/v1/users/login", {
+                    const r = await ui.api.post<Session>("/api/v1/users/login", {
                         username,
 						password,
 						lastLogin: new Date()
@@ -57,7 +57,7 @@ export default function usersStore () {
                 catch (e)
                 {
 					console.error(e);
-					let errorToken = "error";
+					const errorToken = "error";
                     return errorToken;
                 }
             },
@@ -79,7 +79,7 @@ export default function usersStore () {
 			async load(store) {
 				let user = NO_USER;
 				try {
-					let response = await ui.api.get("/api/v1/user");
+					const response = await ui.api.get("/api/v1/user");
 					user = response.data;
 				} catch(e) {
 					console.error(e);

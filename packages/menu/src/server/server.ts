@@ -1,7 +1,7 @@
 export class MenuServer {
 
 	private static INSTANCE?: MenuServer;
-   
+
 	public static getInstance (): MenuServer
 	{
 		if (!this.INSTANCE)
@@ -10,5 +10,5 @@ export class MenuServer {
 		}
 		return this.INSTANCE;
 	}
-	
+
 }

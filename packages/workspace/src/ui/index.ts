@@ -16,17 +16,17 @@ import Recovery from "./views/Recovery.vue";
 // 	priority: 3
 // });
 
-let ui = UI.getInstance();
-let workspaceUI: WorkspaceUI = WorkspaceUI.getInstance();
+const ui = UI.getInstance();
+const workspaceUI: WorkspaceUI = WorkspaceUI.getInstance();
 
-let routes: RouteConfig[] = [{
+const routes: RouteConfig[] = [{
 		path: '/workspace',
 		children: workspaceUI.routes,
 		component: Workspace
 	},
 	{
 		path: '/recovery/:token',
-		name:"Recovery",	
+		name:"Recovery",
 		component: Recovery
 	},
 ];

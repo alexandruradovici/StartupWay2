@@ -11,13 +11,13 @@ export class WorkspaceUI {
 		message.forEach((msg, index) => {
 			console.log(msg, object[index]);
 		})
-		
+
 	}
-	registerToolbarButton(view: VueConstructor<Vue>, options: ToolbarButtonOptions = {}) 
+	registerToolbarButton(view: VueConstructor<Vue>, options: ToolbarButtonOptions = {})
 	{
 		console.log ((view as any).options.name);
 		Vue.component ((view as any ).options.name, view);
-		let toolbarButton: ToolbarButton = {
+		const toolbarButton: ToolbarButton = {
 			view: (view as any).options.name,
 			priority: options.priority || 1,
 			position: options.position || ToolbarButtonPosition.LEFT,
@@ -32,7 +32,7 @@ export class WorkspaceUI {
 		// TODO throw exception if routes are registered after the start of the application
 		this.routes.push (...newRoutes);
 	}
-	
+
 
 	public static getInstance(): WorkspaceUI {
 		if(!WorkspaceUI.instance) {
@@ -42,7 +42,7 @@ export class WorkspaceUI {
 	}
 }
 
-let ui:WorkspaceUI = WorkspaceUI.getInstance();
+const ui:WorkspaceUI = WorkspaceUI.getInstance();
 export function getWorkspaceUI (): WorkspaceUI {
     return ui;
 }

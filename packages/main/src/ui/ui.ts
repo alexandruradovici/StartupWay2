@@ -46,16 +46,16 @@ export class UI {
 	};;
 
 	public routes: RouteConfig[] = [];
-	
+
 
     private start (vuePage?:VueConstructor<Vue>) {
-		// start the ui instance	
-			
+		// start the ui instance
+
 		console.log("Started App");
-		
+
 		Vue.use(Vuex);
 
-		let storeData: StoreOptions<RootState> = {
+		const storeData: StoreOptions<RootState> = {
 			state: {
 				version: "1.0.0"
 			},
@@ -64,7 +64,7 @@ export class UI {
 		};
 		this.store = new Store(storeData);
 
-		let vuetify = new Vuetify(this.vuetifyOptions);
+		const vuetify = new Vuetify(this.vuetifyOptions);
 
 		Vue.use(VueRouter);
 		Vue.use(Vuetify, {
@@ -76,7 +76,7 @@ export class UI {
 			vuetify,
 			store:this.store,
 			router: this.router,
-			render: function (render) {
+			render (render) {
 				return render(Application);
 			}
 		});
@@ -100,11 +100,11 @@ export class UI {
 	registerRoutes (newRoutes: RouteConfig[]) {
 		this.router.addRoutes (newRoutes);
 	}
-	
+
 	registerView (view: VueConstructor<Vue>) {
 		Vue.component ((view as any).options.name, view);
 	}
-	
+
 	error (err: string) {
 		console.error (err);
 	}
