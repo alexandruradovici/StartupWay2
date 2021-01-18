@@ -23,6 +23,7 @@
     "build": "lerna run build",
     "build-server": "lerna run build-server",
     "build-ui": "lerna run build-ui",
+    "format-no-fix": "npx tslint -c tslint.json 'packages/**/src/**/*.ts' && npx tslint -c tslint.json 'distributions/**/src/**/*.ts'",
     "format": "npx tslint -c tslint.json --fix  'packages/**/src/**/*.ts' && npx tslint -c tslint.json --fix  'distributions/**/src/**/*.ts'",
     "clean": "lerna clean -y && lerna run clean"
   },
