@@ -21,7 +21,7 @@ jobs:
       - name: Install
         run: npm install
       - name: Format
-        run: npm run format
+        run: npm run format-no-fix
   build-server:
     name: Build Server
     runs-on: ubuntu-latest
