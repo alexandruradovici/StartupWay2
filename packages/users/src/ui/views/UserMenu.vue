@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<SimpleMenu :options="options" @click="click" ></SimpleMenu>
-		<Snackbar :options="snackOptions" :snackbar="snackbar" @update-prop="update"></Snackbar>
+		<SnackBar :options="snackOptions" :snackbar="snackbar" @update-prop="update"></Snackbar>
 	</div>
 	
 </template>

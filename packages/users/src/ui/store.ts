@@ -79,7 +79,7 @@ export default function usersStore () {
 			async load(store) {
 				let user = NO_USER;
 				try {
-					const response = await ui.api.get("/api/v1/user");
+					const response = await ui.api.get("/api/v1/users/user");
 					user = response.data;
 				} catch(e) {
 					console.error(e);

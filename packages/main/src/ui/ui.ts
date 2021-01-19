@@ -100,7 +100,6 @@ export class UI {
 	registerRoutes (newRoutes: RouteConfig[]) {
 		this.router.addRoutes (newRoutes);
 	}
-
 	registerView (view: VueConstructor<Vue>) {
 		Vue.component ((view as any).options.name, view);
 	}

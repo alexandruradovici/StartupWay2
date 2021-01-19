@@ -38,6 +38,14 @@ export interface User {
 
 }
 
+
+export interface UserTeams {
+    userProductId: number,
+    teamId: number,
+    userId: number,
+    role: string
+}
+
 export interface UserExtended extends User {
 	programmingDetails:UserDetails;
 }

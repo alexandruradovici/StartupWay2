@@ -1,6 +1,6 @@
 
 import dotenv from 'dotenv';
-import {createPool} from "mariadb";
+import {createPool, QueryOptions} from "mariadb";
 
 dotenv.config();
 
@@ -17,7 +17,16 @@ export async function dbcreate() {
 		let r:any[][] = await conn.query('SELECT schema_name FROM information_schema.schemata where schema_name = ?', [process.env.DB_NAME]);
 	
 		if(r[0] === undefined || r[0].length < 1) {
-			await conn.query('CREATE DATABASE '+ process.env.DB_NAME +' CHARACTER SET '+ process.env.DB_CHARSET +' COLLATE ' + process.env.DB_COLLATE);
+			let queryOptions:QueryOptions = {
+				namedPlaceholders:true,
+				sql:"CREATE DATABASE :db CHARACTER SET :charset COLLATe :collate"
+			};
+			let values = {
+				db:process.env.DB_NAME,
+				charset:process.env.DB_CHARSET,
+				collate:process.env.DB_COLLATE
+			};
+			await conn.query(queryOptions,values);
 			pool = createPool({
 				host:process.env.DB_HOST,
 				user:process.env.DB_USER,

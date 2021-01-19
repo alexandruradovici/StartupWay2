@@ -1,14 +1,27 @@
 
 import { Session, NO_SESSION, User, NO_USER, NO_TOKEN } from '../common';
 import { Server } from "@startupway/main/lib/server";
-import { DatabaseServer } from '@startupway/database/lib/server';
-import express from "express";
+import { getPool } from '@startupway/database/lib/server';
+import {QueryOptions, Connection} from 'mariadb';
+import {Router} from "express";
 import { createHash } from 'crypto';
 import { generate } from 'randomstring';
 export class UsersServer {
 
 	private static INSTANCE?: UsersServer;
-	private static dbserver: DatabaseServer = DatabaseServer.getInstance();
+	private conn: Connection;
+
+ 	constructor() {
+		let that = this;
+		getPool().getConnection()
+		.then(conn => {
+			console.log("Connected to database");
+			that.conn = conn;
+		})
+		.catch(err => {
+			console.log("Not connected due to error: " + err);
+		})
+	}
 
 	_passwordGenerator (password: string): string {
 		const hash = createHash('sha256');
@@ -20,12 +33,16 @@ export class UsersServer {
 		try {
 			user.password = this._passwordGenerator (user.password);
 
-			// TODO SEE IF YOU CAN REPLACE WITH FOR (Object.entries -> split in two arrays -> push both as values and columns)
-			const response = await UsersServer.dbserver.insert(
-				"users",
-				[user.firstName, user.lastName, user.username, user.password, user.email, user.phone, user.birthDate, user.avatarUu, user.socialMedia, user.userDetails, user.role, user.lastLogin],
-				["firstName","lastName","username","password","email","phone","birthDate","avatarUu","socialMedia","userDetails","role","lastLogin"]
-			);
+			let queryOptions:QueryOptions = {
+				sql: "INSERT INTO users columns(firstName,lastName,username,password,email,phone,birthDate,avatarUu,socialMedia,userDetails,role,lastLogin) values(?,?,?,?,?,?,?,?,?,?,?,?)"
+			}
+			let values = [
+				user.firstName, user.lastName, user.username, 
+				user.password, user.email, user.phone, 
+				user.birthDate, user.avatarUu, user.socialMedia, 
+				user.userDetails, user.role, user.lastLogin
+			];
+			const response = await this.conn.query(queryOptions,values);
 			if(response) {
 				const newUser = await this.getUserByUsername(user.username);
 				if(newUser)
@@ -40,11 +57,12 @@ export class UsersServer {
 			return NO_USER;
 		}
 	}
-
-	async getAllUserTeams(): Promise<any[]> {
+	async getAllUserTeams(): Promise<User[]> {
 		try {
-			const onCondition:string= "users.userId!=userTeams.userId";
-			const allUserTeams = await UsersServer.dbserver.selectInnerJoin(["*"],["teamId","role"],"users","userTeams",onCondition) as any[];
+			let queryOptions:QueryOptions = {
+				sql: "SELECT users.*, userTeams.teamId as userTeams_teamID, userTeams.role as userTeams_role FROM users INNER JOIN userTeams ON user.userId!=:userTeams.userId"
+			}
+			const allUserTeams = await this.conn.query(queryOptions);
 			if(allUserTeams)
 				return allUserTeams;
 			else
@@ -57,11 +75,14 @@ export class UsersServer {
 
 	async deleteUser(user: User): Promise<void> {
 		try {
-			const where:string = "userId=\""+user.userId+"\"";
-			await UsersServer.dbserver.delete("users",where);
+			let queryOptions:QueryOptions = {
+				sql: "DELETE FROM users where userId=?"
+			}
+			let values:number[] = [user.userId];
+			await this.conn.query(queryOptions,values);
 		} catch (error) {
 			// TODO add user back if failed
-			// await UsersServer.dbserver.insert("users",[],[]);
+			await this.addUser(user);
 			console.error(error);
 		}
 	}
@@ -69,20 +90,33 @@ export class UsersServer {
 	async createSession(username: string, password: string): Promise<Session> {
 		password = this._passwordGenerator (password);
 		try {
-			const where:string = "username=\""+username+"\"";
-			const res:{username:string} = await UsersServer.dbserver.select(["username"],"users",where) as {username:string};
-			if(res) {
-				const where:string = "username=\""+username+"\"" + "AND password=\""+password+"\"";
-				const user:User = await UsersServer.dbserver.select(['*'],'users',where) as User;
-				if(user) {
-					const userId:string = user.userId.toString();
-					const token:string = "\'" + generate({ length: 100 }) + "\'";
-					const res = await UsersServer.dbserver.insert('sessions',[userId,token],['userId','token'])
+			let queryOptions:QueryOptions = {
+				sql: "SELECT username FROM users WHERE username=?"
+			}
+			let values:string[] = [username];
+			const res:{username:string}[] = <{username:string}[]> await this.conn.query(queryOptions,values);
+			if(res[0]) {
+				let queryOptions:QueryOptions = {
+					sql: "SELECT * FROM users WHERE username=? AND password=?"
+				}
+				let values:string[] = [username, password];
+				const user:User[] =<User[]> await this.conn.query(queryOptions,values);
+				if(user[0]!== undefined && user[0].userId !== 0) {
+					const userId:number = user[0].userId;
+					const token:string =generate({ length: 100 });
+					let queryOptions:QueryOptions = {
+						sql: "INSERT INTO sessions (userId, token) values(?,?)"
+					}
+					let values = [userId, token];
+					const res:Session[] = <Session[]> await this.conn.query(queryOptions,values);
 					if(res) {
-						const where:string = "userId=\""+user.userId+"\"";
-						const session:Session = await UsersServer.dbserver.select(['*'],'sessions',where) as Session;
-						if(session)
-							return session;
+						let queryOptions:QueryOptions = {
+							sql: "SELECT * FROM sessions WHERE userId=?"
+						}
+						let values:number[] = [userId];
+						const session:Session[] = <Session[]> await this.conn.query(queryOptions,values);
+						if(session[0])
+							return session[0];
 						else
 							return NO_SESSION;
 					} else {
@@ -95,6 +129,7 @@ export class UsersServer {
 				return {sessionId:0,token:"cred",userId:0,createdAt: new Date(0)};
 			}
 		} catch(e) {
+			console.error(e);
 			const errorSession = NO_SESSION;
 			errorSession.token = "error";
 			return errorSession;
@@ -103,8 +138,17 @@ export class UsersServer {
 
 	async modifyUser(user: User) {
 		try {
-			const whereCondition = "userId="+user.userId;
-			await UsersServer.dbserver.update("users",user,whereCondition);
+			let queryOptions:QueryOptions = {
+				sql: "UPDATE users SET firstName=?, lastName=?, username=?, password=?,email=?,phone=?,socialMedia=?,birthDate=?,userDetails=?,role=?,avatarUu=?,lastLogin=? where userId=?"
+			}
+			let values:(string|number|Date|{[key:string]:string})[] = [
+				user.firstName,user.lastName,user.username,
+				user.password,user.email,user.phone,
+				user.socialMedia,user.birthDate,user.userDetails,
+				user.role,user.avatarUu,user.lastLogin,
+				user.userId
+			];
+			await this.conn.query(queryOptions,values);
 		} catch (error) {
 			console.error(error);
 		}
@@ -112,12 +156,19 @@ export class UsersServer {
 
 	async getUserByUsername(username: string): Promise<User> {
 		try {
-			const where:string = "username=\""+username+"\"";
-			const user:User = await UsersServer.dbserver.select(["*"],"users",where) as User;
-			if (user)
-				return user;
-			else
+			let queryOptions:QueryOptions = {
+				sql: "SELECT * FROM users WHERE username=?"
+			}
+			let values:string[] = [username];
+			const user:User[] = <User[]> await this.conn.query(queryOptions,values);
+			if(user.length > 0) {
+				if (user[0].userId !== 0)
+					return user[0];
+				else
+					return NO_USER;
+			} else {
 				return NO_USER;
+			}
 		} catch (error) {
 			console.error(error);
 			return NO_USER;
@@ -125,8 +176,11 @@ export class UsersServer {
 	}
 	async getUserByEmail(email: string): Promise<User> {
 		try {
-			const where:string = "email=\""+email+"\"";
-			const user:User = await UsersServer.dbserver.select(["*"],"users",where) as User;
+			let queryOptions:QueryOptions = {
+				sql: "SELECT * FROM users WHERE email=?"
+			}
+			let values:string[] = [email];
+			const user:User = <User> await this.conn.query(queryOptions,values);
 			if (user)
 				return user;
 			else
@@ -140,8 +194,11 @@ export class UsersServer {
 
 	async getUserById(userId: number): Promise<User> {
 		try {
-			const where:string = "userId=\""+userId+"\"";
-			const user:User = await UsersServer.dbserver.select(["*"],"users",where) as User;
+			let queryOptions:QueryOptions = {
+				sql: "SELECT * FROM users WHERE userId=?"
+			}
+			let values:number[] = [userId];
+			const user:User = <User> await this.conn.query(queryOptions,values);
 			if (user)
 				return user;
 			else
@@ -154,14 +211,19 @@ export class UsersServer {
 
 	async deleteSession(token: string, sessionId?: number): Promise<void> {
 		try {
-			if(sessionId) {
-				const where:string = "token=\""+token+"\" AND sessionId=\""+sessionId+"\"";
-				await UsersServer.dbserver.delete("session",where);
+			let queryOptions:QueryOptions = {
+				sql: ""
+			}
+			let values:(string|number)[] = [];
+			if(sessionId){
+				queryOptions.sql = "DELETE FROM users WHERE token=? AND sessionID=?";
+				values.push(token,sessionId);
 			}
 			else {
-				const where:string = "token=\""+token;
-				await UsersServer.dbserver.delete("session",where);
+				queryOptions.sql = "DELETE FROM users WHERE token=?";
+				values.push(token);
 			}
+			await this.conn.query(queryOptions,values);
 		} catch (error) {
 			console.error(error);
 		}
@@ -170,8 +232,11 @@ export class UsersServer {
 
 	async getUserLastSession(userId: number): Promise<Session> {
 		try {
-			const where:string = "userId=\""+userId+"\"";
-			const session:Session = await UsersServer.dbserver.select(["*"],"sessions",where) as Session;
+			let queryOptions:QueryOptions = {
+				sql: "SELECT * FROM session where userId=?"
+			}
+			let values:(number)[] = [userId];
+			const session:Session = <Session> await this.conn.query(queryOptions,values);
 			if(session)
 				return session;
 			return NO_SESSION;
@@ -183,8 +248,10 @@ export class UsersServer {
 
 	async getUsers():Promise<User[]> {
 		try {
-			const where:string = "role !='{\"Mentor\":true}' AND role !='{\"Admin\":true}'";
-			const users:User[] = await UsersServer.dbserver.select(["*"],"users",where) as User[];
+			let queryOptions:QueryOptions = {
+				sql: "SELECT * FROM users where role!='{\"Mentor\":true}' AND role!='{\"Admin\":true}'"
+			}
+			const users:User[] = <User[]> await this.conn.query(queryOptions);
 			if(users) {
 				return users;
 			} else {
@@ -198,7 +265,10 @@ export class UsersServer {
 	}
 	async getAllUsers():Promise<User[]> {
 		try {
-			const users:User[] = await UsersServer.dbserver.select(["*"],"users") as User[];
+			let queryOptions:QueryOptions = {
+				sql: "SELECT * FROM users"
+			}
+			const users:User[] = <User[]> await this.conn.query(queryOptions);
 			if(users) {
 				return users;
 			} else {
@@ -213,13 +283,19 @@ export class UsersServer {
 
 	async getSessionUser(token: string): Promise<User> {
 		try {
-			const where:string = "token=\""+token+"\"";
-			const session:Session = await UsersServer.dbserver.select(["userId"],"sessions",where) as Session;
-			if(session) {
-				const where:string = "userId=\""+session.userId+"\"";
-				const user:User = await UsersServer.dbserver.select(["*"],"users",where) as User; // where data de azi mai noua decat expirare
-				if(user)
-					return user;
+			let queryOptions:QueryOptions = {
+				sql: "SELECT userId FROM sessions where token=?"
+			}
+			let values:(string)[] = [token];
+			const session:{userId:number}[] = <{userId:number}[]> await this.conn.query(queryOptions,values);
+			if(session[0]) {
+				let queryOptions:QueryOptions = {
+					sql: "SELECT * FROM users WHERE userId=?"
+				}
+				let values:(number)[] = [session[0].userId];
+				const user:User[] = <User[]> await this.conn.query(queryOptions,values);// where data de azi mai noua decat expirare
+				if(user[0])
+					return user[0];
 			}
 			return NO_USER;
 		} catch (error) {
@@ -243,7 +319,7 @@ export class UsersServer {
 
 const server = Server.getInstance ();
 const usersServer = UsersServer.getInstance();
-const router = express.Router ();
+const router = Router ();
 router.use((req, res, next) => {
 	(req as any).user = NO_USER;
 	(req as any).token = NO_TOKEN;
@@ -254,7 +330,7 @@ router.post("/login", async (req, res) => {
 	try {
 		const session:Session = await usersServer.createSession(req.body.username, req.body.password);
 		const user = await usersServer.getUserByUsername(req.body.username);
-		if(user.userId !== 0) {
+		if(user.userId && user.userId !== 0) {
 			user.lastLogin = req.body.lastLogin
 			await usersServer.modifyUser(user)
 		}
