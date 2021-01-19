@@ -197,7 +197,7 @@
 ///TODO Adaugat camp poza de profil dupa 1 aprilie
 import Vue from "vue";
 import { UI } from "@startupway/main/lib/ui";
-import { User, UserSocialMedia, UserDetails, universities} from "../../common";
+import { User, UserSocialMedia, UserDetails, universities} from "@startupway/users/lib/ui";
 import { mapGetters } from "vuex";
 export default Vue.extend({
 	name: "EditAccount",

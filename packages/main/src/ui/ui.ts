@@ -8,9 +8,7 @@ import 'vuetify/dist/vuetify.min.css';
 import axios, {AxiosInstance} from "axios";
 
 import Application from "./views/Application.vue";
-export interface UiRoute {
-
-}
+export interface UiRoute {}
 
 export interface RootState {
     version: string;
@@ -100,6 +98,7 @@ export class UI {
 	registerRoutes (newRoutes: RouteConfig[]) {
 		this.router.addRoutes (newRoutes);
 	}
+
 	registerView (view: VueConstructor<Vue>) {
 		Vue.component ((view as any).options.name, view);
 	}

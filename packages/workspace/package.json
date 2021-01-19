@@ -22,8 +22,8 @@
   "license": "ISC",
   "dependencies": {
     "@startupway/main": "*",
-    "@startupway/users": "*",
     "@startupway/menu": "*",
+    "@startupway/users": "*",
     "express": "^4.17.1"
   },
   "devDependencies": {

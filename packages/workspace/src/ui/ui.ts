@@ -28,9 +28,12 @@ export class WorkspaceUI {
 		WorkspaceUI.ui.storeDispatch ("workspace/registerToolbarButton", toolbarButton);
 	}
 
-	registerWorkspaceRoutes (newRoutes: RouteConfig[]) {
-		// TODO throw exception if routes are registered after the start of the application
+	addWorkspaceRoutes(newRoutes: RouteConfig[]) {
 		this.routes.push(...newRoutes);
+	}
+
+	registerWorkspaceRoutes () {
+		// TODO throw exception if routes are registered after the start of the application
 		WorkspaceUI.ui.registerRoutes([
 			{
 				name:"workspace",
