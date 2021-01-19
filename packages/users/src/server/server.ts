@@ -98,7 +98,7 @@ export class UsersServer {
 				queryOptions = {
 					sql: "SELECT * FROM users WHERE username=? AND password=?"
 				}
-				const user:User[] =<User[]> await this.conn.query(queryOptions,[username, password]);
+				const user:User[] = await this.conn.query(queryOptions,[username, password]) as User[];
 				if(user[0]!== undefined && user[0].userId !== 0) {
 					const userId:number = user[0].userId;
 					const token:string =generate({ length: 100 });
@@ -287,17 +287,15 @@ export class UsersServer {
 
 	async getSessionUser(token: string): Promise<User> {
 		try {
-			const queryOptions:QueryOptions = {
+			let queryOptions:QueryOptions = {
 				sql: "SELECT userId FROM sessions where token=?"
 			}
-			const values:(string)[] = [token];
-			const session:{userId:number}[] = <{userId:number}[]> await this.conn.query(queryOptions,values);
+			const session:{userId:number}[] =  await this.conn.query(queryOptions,[token]) as {userId:number}[];
 			if(session[0]) {
-				const queryOptions:QueryOptions = {
+				queryOptions = {
 					sql: "SELECT * FROM users WHERE userId=?"
 				}
-				const values:(number)[] = [session[0].userId];
-				const user:User[] = <User[]> await this.conn.query(queryOptions,values);// where data de azi mai noua decat expirare
+				const user:User[] = await this.conn.query(queryOptions,[session[0].userId]) as User[];// where data de azi mai noua decat expirare
 				if(user[0])
 					return user[0];
 			}

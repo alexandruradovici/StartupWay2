@@ -21,8 +21,8 @@ export default function workspaceStore () {
 			},
 		},
 		actions: {
-			registerToolbarButton (store, toolbarButton: ToolbarButton) {
-				store.commit ("registerToolbarButton", toolbarButton);
+			registerToolbarButton (storeParam, toolbarButton: ToolbarButton) {
+				storeParam.commit ("registerToolbarButton", toolbarButton);
 			},
 		}
 	};
