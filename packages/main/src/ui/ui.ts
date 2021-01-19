@@ -8,8 +8,6 @@ import 'vuetify/dist/vuetify.min.css';
 import axios, {AxiosInstance} from "axios";
 
 import Application from "./views/Application.vue";
-export interface UiRoute {}
-
 export interface RootState {
     version: string;
 }

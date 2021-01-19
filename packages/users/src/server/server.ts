@@ -12,7 +12,7 @@ export class UsersServer {
 	private conn: Connection;
 
  	constructor() {
-		let that = this;
+		const that = this;
 		getPool().getConnection()
 		.then(conn => {
 			console.log("Connected to database");
@@ -33,13 +33,13 @@ export class UsersServer {
 		try {
 			user.password = this._passwordGenerator (user.password);
 
-			let queryOptions:QueryOptions = {
+			const queryOptions:QueryOptions = {
 				sql: "INSERT INTO users columns(firstName,lastName,username,password,email,phone,birthDate,avatarUu,socialMedia,userDetails,role,lastLogin) values(?,?,?,?,?,?,?,?,?,?,?,?)"
 			}
-			let values = [
-				user.firstName, user.lastName, user.username, 
-				user.password, user.email, user.phone, 
-				user.birthDate, user.avatarUu, user.socialMedia, 
+			const values = [
+				user.firstName, user.lastName, user.username,
+				user.password, user.email, user.phone,
+				user.birthDate, user.avatarUu, user.socialMedia,
 				user.userDetails, user.role, user.lastLogin
 			];
 			const response = await this.conn.query(queryOptions,values);
@@ -59,7 +59,7 @@ export class UsersServer {
 	}
 	async getAllUserTeams(): Promise<User[]> {
 		try {
-			let queryOptions:QueryOptions = {
+			const queryOptions:QueryOptions = {
 				sql: "SELECT users.*, userTeams.teamId as userTeams_teamID, userTeams.role as userTeams_role FROM users INNER JOIN userTeams ON user.userId!=:userTeams.userId"
 			}
 			const allUserTeams = await this.conn.query(queryOptions);
@@ -75,10 +75,10 @@ export class UsersServer {
 
 	async deleteUser(user: User): Promise<void> {
 		try {
-			let queryOptions:QueryOptions = {
+			const queryOptions:QueryOptions = {
 				sql: "DELETE FROM users where userId=?"
 			}
-			let values:number[] = [user.userId];
+			const values:number[] = [user.userId];
 			await this.conn.query(queryOptions,values);
 		} catch (error) {
 			// TODO add user back if failed
@@ -93,28 +93,24 @@ export class UsersServer {
 			let queryOptions:QueryOptions = {
 				sql: "SELECT username FROM users WHERE username=?"
 			}
-			let values:string[] = [username];
-			const res:{username:string}[] = <{username:string}[]> await this.conn.query(queryOptions,values);
-			if(res[0]) {
-				let queryOptions:QueryOptions = {
+			const resUsername:{username:string}[] = await this.conn.query(queryOptions,[username]) as {username:string}[];
+			if(resUsername[0]) {
+				queryOptions = {
 					sql: "SELECT * FROM users WHERE username=? AND password=?"
 				}
-				let values:string[] = [username, password];
-				const user:User[] =<User[]> await this.conn.query(queryOptions,values);
+				const user:User[] =<User[]> await this.conn.query(queryOptions,[username, password]);
 				if(user[0]!== undefined && user[0].userId !== 0) {
 					const userId:number = user[0].userId;
 					const token:string =generate({ length: 100 });
-					let queryOptions:QueryOptions = {
+					queryOptions = {
 						sql: "INSERT INTO sessions (userId, token) values(?,?)"
 					}
-					let values = [userId, token];
-					const res:Session[] = <Session[]> await this.conn.query(queryOptions,values);
-					if(res) {
-						let queryOptions:QueryOptions = {
+					const resSession:Session[] =await this.conn.query(queryOptions,[userId, token]) as Session[];
+					if(resSession) {
+						queryOptions = {
 							sql: "SELECT * FROM sessions WHERE userId=?"
 						}
-						let values:number[] = [userId];
-						const session:Session[] = <Session[]> await this.conn.query(queryOptions,values);
+						const session:Session[] = await this.conn.query(queryOptions,[userId]) as Session[];
 						if(session[0])
 							return session[0];
 						else
@@ -138,10 +134,10 @@ export class UsersServer {
 
 	async modifyUser(user: User) {
 		try {
-			let queryOptions:QueryOptions = {
+			const queryOptions:QueryOptions = {
 				sql: "UPDATE users SET firstName=?, lastName=?, username=?, password=?,email=?,phone=?,socialMedia=?,birthDate=?,userDetails=?,role=?,avatarUu=?,lastLogin=? where userId=?"
 			}
-			let values:(string|number|Date|{[key:string]:string})[] = [
+			const values:(string|number|Date|{[key:string]:string})[] = [
 				user.firstName,user.lastName,user.username,
 				user.password,user.email,user.phone,
 				user.socialMedia,user.birthDate,user.userDetails,
@@ -156,11 +152,11 @@ export class UsersServer {
 
 	async getUserByUsername(username: string): Promise<User> {
 		try {
-			let queryOptions:QueryOptions = {
+			const queryOptions:QueryOptions = {
 				sql: "SELECT * FROM users WHERE username=?"
 			}
-			let values:string[] = [username];
-			const user:User[] = <User[]> await this.conn.query(queryOptions,values);
+			const values:string[] = [username];
+			const user:User[] = await this.conn.query(queryOptions,values) as User[];
 			if(user.length > 0) {
 				if (user[0].userId !== 0)
 					return user[0];
@@ -176,15 +172,19 @@ export class UsersServer {
 	}
 	async getUserByEmail(email: string): Promise<User> {
 		try {
-			let queryOptions:QueryOptions = {
+			const queryOptions:QueryOptions = {
 				sql: "SELECT * FROM users WHERE email=?"
 			}
-			let values:string[] = [email];
-			const user:User = <User> await this.conn.query(queryOptions,values);
-			if (user)
-				return user;
-			else
+			const values:string[] = [email];
+			const user:User[] = await this.conn.query(queryOptions,values) as User[];
+			if(user.length > 0) {
+				if (user[0].userId !== 0)
+					return user[0];
+				else
+					return NO_USER;
+			} else {
 				return NO_USER;
+			}
 		}
 		catch (error) {
 			console.error(error);
@@ -194,15 +194,19 @@ export class UsersServer {
 
 	async getUserById(userId: number): Promise<User> {
 		try {
-			let queryOptions:QueryOptions = {
+			const queryOptions:QueryOptions = {
 				sql: "SELECT * FROM users WHERE userId=?"
 			}
-			let values:number[] = [userId];
-			const user:User = <User> await this.conn.query(queryOptions,values);
-			if (user)
-				return user;
-			else
+			const values:number[] = [userId];
+			const user:User[] = await this.conn.query(queryOptions,values) as User[];
+			if(user.length > 0) {
+				if (user[0].userId !== 0)
+					return user[0];
+				else
+					return NO_USER;
+			} else {
 				return NO_USER;
+			}
 		} catch (error) {
 			console.error(error);
 			return NO_USER;
@@ -211,10 +215,10 @@ export class UsersServer {
 
 	async deleteSession(token: string, sessionId?: number): Promise<void> {
 		try {
-			let queryOptions:QueryOptions = {
+			const queryOptions:QueryOptions = {
 				sql: ""
 			}
-			let values:(string|number)[] = [];
+			const values:(string|number)[] = [];
 			if(sessionId){
 				queryOptions.sql = "DELETE FROM users WHERE token=? AND sessionID=?";
 				values.push(token,sessionId);
@@ -232,13 +236,13 @@ export class UsersServer {
 
 	async getUserLastSession(userId: number): Promise<Session> {
 		try {
-			let queryOptions:QueryOptions = {
+			const queryOptions:QueryOptions = {
 				sql: "SELECT * FROM session where userId=?"
 			}
-			let values:(number)[] = [userId];
-			const session:Session = <Session> await this.conn.query(queryOptions,values);
-			if(session)
-				return session;
+			const values:(number)[] = [userId];
+			const session:Session[] = await this.conn.query(queryOptions,values) as Session[];
+			if(session[0])
+				return session[0];
 			return NO_SESSION;
 		} catch (error) {
 			console.error(error);
@@ -248,10 +252,10 @@ export class UsersServer {
 
 	async getUsers():Promise<User[]> {
 		try {
-			let queryOptions:QueryOptions = {
+			const queryOptions:QueryOptions = {
 				sql: "SELECT * FROM users where role!='{\"Mentor\":true}' AND role!='{\"Admin\":true}'"
 			}
-			const users:User[] = <User[]> await this.conn.query(queryOptions);
+			const users:User[] = await this.conn.query(queryOptions) as User[];
 			if(users) {
 				return users;
 			} else {
@@ -265,10 +269,10 @@ export class UsersServer {
 	}
 	async getAllUsers():Promise<User[]> {
 		try {
-			let queryOptions:QueryOptions = {
+			const queryOptions:QueryOptions = {
 				sql: "SELECT * FROM users"
 			}
-			const users:User[] = <User[]> await this.conn.query(queryOptions);
+			const users:User[] = await this.conn.query(queryOptions) as User[];
 			if(users) {
 				return users;
 			} else {
@@ -283,16 +287,16 @@ export class UsersServer {
 
 	async getSessionUser(token: string): Promise<User> {
 		try {
-			let queryOptions:QueryOptions = {
+			const queryOptions:QueryOptions = {
 				sql: "SELECT userId FROM sessions where token=?"
 			}
-			let values:(string)[] = [token];
+			const values:(string)[] = [token];
 			const session:{userId:number}[] = <{userId:number}[]> await this.conn.query(queryOptions,values);
 			if(session[0]) {
-				let queryOptions:QueryOptions = {
+				const queryOptions:QueryOptions = {
 					sql: "SELECT * FROM users WHERE userId=?"
 				}
-				let values:(number)[] = [session[0].userId];
+				const values:(number)[] = [session[0].userId];
 				const user:User[] = <User[]> await this.conn.query(queryOptions,values);// where data de azi mai noua decat expirare
 				if(user[0])
 					return user[0];
@@ -396,7 +400,7 @@ router.post("/user/update", async (req,res) => {
 	if(changedPass) {
 		user.password = usersServer._passwordGenerator(user.password);
 	}
-	// let options = admin.createMailOptions(
+	// const options = admin.createMailOptions(
 	// 	(process.env.MAIL_USER as string),
 	// 	user.email,
 	// 	"Innovation Labs Platform Password",
@@ -407,7 +411,7 @@ router.post("/user/update", async (req,res) => {
 	// 	+ "Use these credidentials to login on "+ process.env.HOSTNAME +"\n\n"
 	// 	+ "Regards, Innovation Labs Team\n"
 	// );
-	// let transporter = admin.createMailTransporter()
+	// const transporter = admin.createMailTransporter()
 	// admin.sendMail(transporter,options);
 
 	if(user) {
@@ -463,7 +467,7 @@ router.post("/users/logout", async (req, res, next) => {
 });
 router.get("/session/:userId", async (req,res) => {
 	try {
-		// let userId = req.params.userId;
+		// const userId = req.params.userId;
 		const session: Session = await usersServer.getUserLastSession(Number(req.params.userId));
 		if(session) {
 			res.status(200).send(session);

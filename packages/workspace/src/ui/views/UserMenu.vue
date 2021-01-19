@@ -97,7 +97,7 @@ export default Vue.extend({
 			if (id === MenuOptions.LOGOUT) {
 				try {
 					await this.ui.storeDispatch ('users/logout', {});
-					await this.ui.storeDispatch("teams/selectTeam", 0);
+					// await this.ui.storeDispatch("teams/selectTeam", 0);
 					if(this.$route.path !== "/login")
 							this.$router.push("/login");
 				} catch (error) {
