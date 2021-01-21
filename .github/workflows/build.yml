@@ -5,6 +5,7 @@ name: Build
 
 on:
   push:
+    branches-ignore: [ staging.tmp, trying.tmp ]
   pull_request:
 
 jobs:
