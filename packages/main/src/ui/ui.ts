@@ -8,10 +8,6 @@ import 'vuetify/dist/vuetify.min.css';
 import axios, {AxiosInstance} from "axios";
 
 import Application from "./views/Application.vue";
-export interface UiRoute {
-
-}
-
 export interface RootState {
     version: string;
 }
@@ -49,10 +45,6 @@ export class UI {
 
 
     private start (vuePage?:VueConstructor<Vue>) {
-		// start the ui instance
-
-		console.log("Started App");
-
 		Vue.use(Vuex);
 
 		const storeData: StoreOptions<RootState> = {
@@ -71,7 +63,7 @@ export class UI {
 			font: 'mdi',
 			iconfont: 'mdi'
 		});
-		new Vue ({
+		const v = new Vue ({
 			el: '#app',
 			vuetify,
 			store:this.store,
@@ -80,6 +72,10 @@ export class UI {
 				return render(Application);
 			}
 		});
+		if(v !== undefined) {
+			// start the ui instance
+			console.log("Started App");
+		}
     }
 
 	registerStore<T>(namespace: string, store: Module<T, RootState>) {

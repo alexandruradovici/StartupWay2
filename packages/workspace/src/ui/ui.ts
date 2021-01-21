@@ -1,8 +1,9 @@
-import { ToolbarButton, ToolbarButtonPosition, ToolbarButtonOptions } from "../common";
+import { ToolbarButton, ToolbarButtonPosition, ToolbarButtonOptions } from "../common/common";
 import Vue from "vue";
 import { VueConstructor } from "vue";
 import { UI } from "@startupway/main/lib/ui";
 import { RouteConfig } from 'vue-router';
+import Workspace from "./views/Workspace.vue";
 export class WorkspaceUI {
 	public routes:RouteConfig[] = [];
 	private static instance:WorkspaceUI;
@@ -15,7 +16,6 @@ export class WorkspaceUI {
 	}
 	registerToolbarButton(view: VueConstructor<Vue>, options: ToolbarButtonOptions = {})
 	{
-		console.log ((view as any).options.name);
 		Vue.component ((view as any ).options.name, view);
 		const toolbarButton: ToolbarButton = {
 			view: (view as any).options.name,
@@ -28,9 +28,20 @@ export class WorkspaceUI {
 		WorkspaceUI.ui.storeDispatch ("workspace/registerToolbarButton", toolbarButton);
 	}
 
-	registerWorkspaceRoutes (newRoutes: RouteConfig[]) {
+	addWorkspaceRoutes(newRoutes: RouteConfig[]) {
+		this.routes.push(...newRoutes);
+	}
+
+	registerWorkspaceRoutes () {
 		// TODO throw exception if routes are registered after the start of the application
-		this.routes.push (...newRoutes);
+		WorkspaceUI.ui.registerRoutes([
+			{
+				name:"workspace",
+				path: '/workspace',
+				children: this.routes,
+				component: Workspace
+			}
+		]);
 	}
 
 

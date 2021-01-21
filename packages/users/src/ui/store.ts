@@ -39,7 +39,7 @@ export default function usersStore () {
 			}
 		},
 		actions: {
-			async login (store, { username, password }: { username: string, password: string }) {
+			async login (storeParam, { username, password }: { username: string, password: string }) {
                 // axios to login => session
                 try
                 {
@@ -51,7 +51,7 @@ export default function usersStore () {
 					if(r.data.sessionId === 0) {
 						return r.data.token;
 					}
-                    store.commit ('token', r.data.token);
+                    storeParam.commit ('token', r.data.token);
                     return r.data.token;
                 }
                 catch (e)
@@ -61,12 +61,12 @@ export default function usersStore () {
                     return errorToken;
                 }
             },
-            async logout (store) {
+            async logout (storeParam) {
                 // axios to logout
                 try
                 {
                     await ui.api.post<Session>("/api/v1/users/logout");
-                    store.commit ('token', NO_TOKEN);
+                    storeParam.commit ('token', NO_TOKEN);
 
                     return true;
                 }
@@ -76,16 +76,16 @@ export default function usersStore () {
                 }
                 // store.commit ('token', session.token);
 			},
-			async load(store) {
+			async load(storeParam) {
 				let user = NO_USER;
 				try {
-					const response = await ui.api.get("/api/v1/user");
+					const response = await ui.api.get("/api/v1/users/user");
 					user = response.data;
 				} catch(e) {
 					console.error(e);
 					return false;
 				}
-				store.commit("user",user);
+				storeParam.commit("user",user);
 				return true;
 			}
 		}

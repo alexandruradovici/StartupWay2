@@ -15,9 +15,6 @@ export interface ToolbarButtonOptions {
 	enabled?: ToolbarButtonEnabledFunction;
 }
 
-import { RouteConfig } from "vue-router";
-import { VueConstructor } from 'vue';
-
 export interface ToolbarButton {
 	view: string,
 	priority: number;
@@ -25,11 +22,4 @@ export interface ToolbarButton {
 	action: ToolbarButtonActionFunction | undefined;
 	visible: ToolbarButtonVisibleFunction;
 	enabled: ToolbarButtonEnabledFunction;
-}
-
-export interface workspace
-{
-	debugFunction(message:string[], object:any[]):void;
-	registerToolbarButton(view: VueConstructor<Vue>, options: ToolbarButtonOptions): void;
-	registerWorkspaceRoutes (newRoutes: RouteConfig[]): void;
 }

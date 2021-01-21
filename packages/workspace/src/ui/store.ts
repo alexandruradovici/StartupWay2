@@ -1,6 +1,6 @@
 import { Module } from "vuex";
-import { ToolbarButton } from "../common";
-import { RootState} from "@startupway/users/lib/ui";
+import { ToolbarButton } from "../common/common";
+import { RootState } from "@startupway/main/lib/ui";
 
 export interface WorkspaceState {
     toolbarButtons: ToolbarButton[],
@@ -21,8 +21,8 @@ export default function workspaceStore () {
 			},
 		},
 		actions: {
-			registerToolbarButton (store, toolbarButton: ToolbarButton) {
-				store.commit ("registerToolbarButton", toolbarButton);
+			registerToolbarButton (storeParam, toolbarButton: ToolbarButton) {
+				storeParam.commit ("registerToolbarButton", toolbarButton);
 			},
 		}
 	};

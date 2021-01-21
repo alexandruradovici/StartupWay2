@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<SimpleMenu :options="options" @click="click" ></SimpleMenu>
-		<Snackbar :options="snackOptions" :snackbar="snackbar" @update-prop="update"></Snackbar>
+		<SnackBar :options="snackOptions" :snackbar="snackbar" @update-prop="update"></Snackbar>
 	</div>
 	
 </template>
@@ -10,7 +10,7 @@
 import Vue from "vue";
 import { UI } from '@startupway/main/lib/ui';
 import { SnackBarOptions, SnackBarTypes, SimpleMenuOptions } from "@startupway/menu/lib/ui"
-import { User } from "../../common";
+import { User } from "@startupway/users/lib/ui";
 import { mapGetters } from "vuex";
 enum MenuOptions {
 	MY_ACCOUNT, LOGOUT
@@ -97,7 +97,7 @@ export default Vue.extend({
 			if (id === MenuOptions.LOGOUT) {
 				try {
 					await this.ui.storeDispatch ('users/logout', {});
-					await this.ui.storeDispatch("teams/selectTeam", 0);
+					// await this.ui.storeDispatch("teams/selectTeam", 0);
 					if(this.$route.path !== "/login")
 							this.$router.push("/login");
 				} catch (error) {

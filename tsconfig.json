@@ -15,20 +15,20 @@
       "baseUrl": ".",
       "module": "es2015",
       "paths": {
+        "@startupway/database/*": [
+            "packages/database/*"
+        ],
         "@startupway/main/*": [
             "packages/main/*"
+        ],
+        "@startupway/workspace/*": [
+            "packages/workspace/*"
         ],
         "@startupway/menu/*": [
             "packages/menu/*"
         ],
         "@startupway/users/*": [
             "packages/users/*"
-        ],
-        "@startupway/database/*": [
-            "packages/database/*"
-        ],
-        "@startupway/workspace/*": [
-            "packages/workspace/*"
         ]
       }
     }
