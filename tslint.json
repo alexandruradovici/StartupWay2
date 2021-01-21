@@ -5,7 +5,12 @@
     ],
     "jsRules": {},
     "rules": {
-        "no-console": [true, "warning"]
+        "no-console": [true, "warning"],
+        "typedef": [
+            true,
+            "call-signature",
+            "property-declaration"
+          ]          
     },
     "rulesDirectory": []
 }
