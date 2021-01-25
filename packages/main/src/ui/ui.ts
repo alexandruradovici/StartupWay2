@@ -44,7 +44,7 @@ export class UI {
 	public routes: RouteConfig[] = [];
 
 
-    private start (vuePage?:VueConstructor<Vue>) {
+    private start () {
 		Vue.use(Vuex);
 
 		const storeData: StoreOptions<RootState> = {

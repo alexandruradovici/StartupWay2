@@ -420,8 +420,8 @@ import Vue from "vue";
 import moment from "moment";
 import { mapGetters } from "vuex";
 import { UI } from "@startupway/main/lib/ui";
-import { NO_TOKEN,User } from "@startupway/users/lib/ui";
-import { ToolbarButton, ToolbarButtonPosition } from "../../common/common";
+// import { NO_TOKEN,User } from "@startupway/users/lib/ui";
+import { ToolbarButton, ToolbarButtonPosition } from "../../common/";
 // import { Team, Product, BusinessTrack, WorkshopDay, TeamType, Feed, FeedText, FeedTypes } from "../../feed/ui/ui_types";
 export default Vue.extend({
 	name: "Workspace",
@@ -655,7 +655,7 @@ export default Vue.extend({
 		_token: {
 			immediate:true,
 			handler (newToken:string) {
-				if(newToken === NO_TOKEN){
+				if(newToken === null){
 					if(this.$route.path !== "/login")
 						this.$router.push("/login");
 				} else {
@@ -666,7 +666,7 @@ export default Vue.extend({
 		},
 		user: {
 			immediate: true,
-			async handler (newUser: User) {
+			async handler (newUser: any) {
 		// 		if(newUser.userId !== 0) {
 		// 			if(newUser.role["Mentor"]) {
 		// 				this.type="mentor";

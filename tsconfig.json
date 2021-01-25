@@ -29,6 +29,12 @@
         ],
         "@startupway/users/*": [
             "packages/users/*"
+        ],
+        "@startupway/bmodelcanvas/*": [
+            "packages/bmodelcanvas/*"
+        ],
+        "@startupway/feed/*": [
+            "packages/feed/*"
         ]
       }
     }

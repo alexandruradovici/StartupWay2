@@ -5,8 +5,8 @@ import { UI } from "@startupway/main/lib/ui"
 const STARTUPWAY_TOKEN = "startupway:token";
 
 export interface UsersState {
-	token: string,
-	user:User
+	token: string | null,
+	user: User | null
 }
 
 export default function usersStore () {
@@ -22,8 +22,8 @@ export default function usersStore () {
 	const store: Module<UsersState, RootState> = {
 		namespaced: true,
 		state: {
-			token: NO_TOKEN,
-			user: NO_USER
+			token: null,
+			user: null
 		},
 		getters: {
 			token: (state) => state.token,

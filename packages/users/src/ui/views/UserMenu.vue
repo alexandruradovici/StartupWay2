@@ -10,7 +10,7 @@
 import Vue from "vue";
 import { UI } from '@startupway/main/lib/ui';
 import { SnackBarOptions, SnackBarTypes, SimpleMenuOptions } from "@startupway/menu/lib/ui"
-import { User } from "@startupway/users/lib/ui";
+import { User } from "../../common";
 import { mapGetters } from "vuex";
 enum MenuOptions {
 	MY_ACCOUNT, LOGOUT
@@ -57,7 +57,7 @@ export default Vue.extend({
 			async handler (user: User) {
 				this.options.menuName = user.firstName + " " + user.lastName;
 				try {
-					if(user.userId !== 0 && user.userId !== undefined) {
+					if(user) {
 						let response = await this.ui.api.post("/api/v1/get/file/user/avatar", {userId:user.userId});
 
 						if(response.status === 200) {

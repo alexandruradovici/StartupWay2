@@ -1,4 +1,4 @@
-import "./script"
+// import "./script"
 import { Server } from "@startupway/main/lib/server";
 import "@startupway/database/lib/server";
 import "@startupway/users/lib/server";
@@ -7,4 +7,3 @@ import express from "express";
 const server = Server.getInstance();
 server.registerRouterUI (express.static (path.resolve(__dirname, "../ui")));
 server.start();
-

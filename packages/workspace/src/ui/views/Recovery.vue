@@ -50,7 +50,7 @@ import { mapGetters } from "vuex";
 import Vue from "vue";
 import axios from "axios";
 import VueRecaptcha from 'vue-recaptcha';
-import { NO_TOKEN } from "@startupway/users/lib/ui";
+// import { NO_TOKEN } from "@startupway/users/lib/ui";
 import { UI } from "@startupway/main/lib/ui";
 export default Vue.extend({
 	name: "Recovery",
@@ -125,7 +125,7 @@ export default Vue.extend({
 							password: this.password,
 							lastLogin: new Date()
 						});
-						if(token !== NO_TOKEN)
+						if(token !== null)
 							await this.ui.api.post("/api/v1/deleteRecovery",{token:this.token});
                     } else {
                         console.error("Couldn't reset password");

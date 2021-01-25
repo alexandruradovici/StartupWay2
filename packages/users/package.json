@@ -24,6 +24,7 @@
     "@startupway/main": "*",
     "@startupway/database": "*",
     "@startupway/menu": "*",
+    "@startupway/workspace": "*",
     "express": "^4.17.1"
   },
   "devDependencies": {
