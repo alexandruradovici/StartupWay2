@@ -23,11 +23,11 @@ export class FeedServer {
 
 	async addFeed(feedParam: Feed): Promise<Feed | null> {
 		try {
-			let queryOptions:QueryOptions = {
+			const queryOptions:QueryOptions = {
 				namedPlaceholders:true,
 				sql:"SELECT feeds.* FROM feeds WHERE feed.teamId=:teamId AND DATE(feed.date)=DATE(NOW()",
 			}
-			const values = { 
+			const values = {
 				teamId: feedParam.teamId
 			}
 			const feeds: Feed[] = await this.conn.query(queryOptions,values);
@@ -97,10 +97,7 @@ export class FeedServer {
 				namedPlaceholders:true,
 				sql:"SELECT feeds.* FROM feeds WHERE feed.teamId=:teamId ORDER BY feeds.date",
 			}
-			const values = {
-				teamId: teamId
-			}
-			const feeds: Feed[] = await this.conn.query(queryOptions,values);
+			const feeds: Feed[] = await this.conn.query(queryOptions,{teamId});
 			if(feeds.length > 0 && feeds[0] !== undefined) {
 				return feeds;
 			} else {

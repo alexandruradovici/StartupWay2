@@ -25,7 +25,7 @@ export default function feedStore ():Module<FeedState, RootState> {
 		},
 		actions: {
 			async loadFeed(storeParam, teamId):Promise<boolean> {
-					//TODO LOAD feed from server
+					// TODO LOAD feed from server
 					let newFeed: Feed[] = [];
 					try {
 						const r = await ui.api.get<Feed[]>("/api/v1/feed/"+teamId);

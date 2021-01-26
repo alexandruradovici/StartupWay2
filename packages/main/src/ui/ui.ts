@@ -1,4 +1,4 @@
-import Vue, { VueConstructor } from "vue";
+import Vue, { VueConstructor, VNode } from "vue";
 import VueRouter, { RouteConfig } from "vue-router";
 import Vuex, { Module, StoreOptions, Store } from "vuex";
 
@@ -68,7 +68,7 @@ export class UI {
 			vuetify,
 			store:this.store,
 			router: this.router,
-			render (render) {
+			render (render):VNode {
 				return render(Application);
 			}
 		});
