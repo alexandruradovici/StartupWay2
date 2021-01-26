@@ -50,7 +50,6 @@ import { mapGetters } from "vuex";
 import Vue from "vue";
 import axios from "axios";
 import VueRecaptcha from 'vue-recaptcha';
-// import { NO_TOKEN } from "@startupway/users/lib/ui";
 import { UI } from "@startupway/main/lib/ui";
 export default Vue.extend({
 	name: "Recovery",
@@ -74,7 +73,7 @@ export default Vue.extend({
 		_token: {
 			immediate: true,
 			async handler(value: string) {
-				if (value !== "") {
+				if (value && value !== "") {
 					let serverResponse = await axios.get("/api/v1/user", {
 						headers: { Authorization: `Bearer ${this._token}` }
 					});
@@ -91,7 +90,7 @@ export default Vue.extend({
 		},
         $route: {
             immediate:true,
-			async handler(newRoute) {
+			async handler(newRoute?:string) {
 				this.token = this.$route.params.token;
                 try {
                     let response = await this.ui.api.post("/api/v1/checkToken",{token:this.token});
@@ -125,7 +124,7 @@ export default Vue.extend({
 							password: this.password,
 							lastLogin: new Date()
 						});
-						if(token !== null)
+						if(token)
 							await this.ui.api.post("/api/v1/deleteRecovery",{token:this.token});
                     } else {
                         console.error("Couldn't reset password");

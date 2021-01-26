@@ -44,7 +44,7 @@ export class UI {
 	public routes: RouteConfig[] = [];
 
 
-    private start () {
+    private start ():void {
 		Vue.use(Vuex);
 
 		const storeData: StoreOptions<RootState> = {
@@ -78,7 +78,7 @@ export class UI {
 		}
     }
 
-	registerStore<T>(namespace: string, store: Module<T, RootState>) {
+	registerStore<T>(namespace: string, store: Module<T, RootState>):void {
 		if (this.store) {
 			// TODO check if it is already registered
 			this.store.registerModule(namespace, store);
@@ -93,15 +93,15 @@ export class UI {
 		return this.store.dispatch (action, obj);
 	}
 
-	registerRoutes (newRoutes: RouteConfig[]) {
+	registerRoutes (newRoutes: RouteConfig[]):void {
 		this.router.addRoutes (newRoutes);
 	}
 
-	registerView (view: VueConstructor<Vue>) {
+	registerView (view: VueConstructor<Vue>):void {
 		Vue.component ((view as any).options.name, view);
 	}
 
-	error (err: string) {
+	error (err: string):void {
 		console.error (err);
 	}
 

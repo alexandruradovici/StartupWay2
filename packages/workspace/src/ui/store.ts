@@ -6,7 +6,7 @@ export interface WorkspaceState {
     toolbarButtons: ToolbarButton[],
 }
 
-export default function workspaceStore () {
+export default function workspaceStore ():Module<WorkspaceState, RootState> {
 	const store: Module<WorkspaceState, RootState> = {
 		namespaced: true,
 		state: {
@@ -16,12 +16,12 @@ export default function workspaceStore () {
 			toolbarButtons: (state) => state.toolbarButtons
 		},
 		mutations: {
-			registerToolbarButton (state, toolbarButton: ToolbarButton) {
+			registerToolbarButton (state, toolbarButton: ToolbarButton):void {
 				state.toolbarButtons.push (toolbarButton);
 			},
 		},
 		actions: {
-			registerToolbarButton (storeParam, toolbarButton: ToolbarButton) {
+			registerToolbarButton (storeParam, toolbarButton: ToolbarButton):void {
 				storeParam.commit ("registerToolbarButton", toolbarButton);
 			},
 		}

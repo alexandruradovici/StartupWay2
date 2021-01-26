@@ -87,7 +87,6 @@ import Vue from "vue";
 import login from "../img/welcome-startupway-white-668px.png";
 import { UI } from '@startupway/main/lib/ui';
 import { SnackBarOptions, SnackBarTypes } from '@startupway/menu/lib/ui';
-import { NO_TOKEN } from '../../common';
 import { mapGetters } from "vuex";
 export default Vue.extend({
 	name: "Login",
@@ -95,11 +94,11 @@ export default Vue.extend({
 	// 	"SnackBar": SnackBar
 	// },
 	mounted() {
-		this.ui = UI.getInstance()
+		// this.ui = UI.getInstance();
 	},
 	data() {
 		return {
-			ui: {} as UI,
+			ui: UI.getInstance(),
 			login: "" as string,
 			pass: "" as string,
 			snackOptions: {
@@ -122,7 +121,7 @@ export default Vue.extend({
 		_token: {
 			immediate: true,
 			async handler(value: string) {
-				if (value !== NO_TOKEN) {
+				if (value) {
 					let serverResponse = await this.ui.api.get("/api/v1/users/user", {
 						headers: { Authorization: `Bearer ${this._token}` }
 					});

@@ -239,7 +239,7 @@ export default Vue.extend({
 					phone: this.phone,
 					socialMedia: socialMedia,
 					avatarUu: this.user.avatarUu,
-					birthDate: (this.date as any) as Date,
+					birthDate: new Date(this.date),
 					lastLogin: this.user.lastLogin,
 					userDetails: userDetails
 				} as User;
@@ -256,7 +256,7 @@ export default Vue.extend({
 					phone: this.phone,
 					socialMedia: socialMedia,
 					avatarUu: this.user.avatarUu,
-					birthDate: (this.date as any) as Date,
+					birthDate: new Date(this.date),
 					lastLogin: this.user.lastLogin,
 					userDetails: userDetails
 				} as User;

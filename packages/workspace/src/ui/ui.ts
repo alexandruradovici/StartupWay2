@@ -14,7 +14,7 @@ export class WorkspaceUI {
 		})
 
 	}
-	registerToolbarButton(view: VueConstructor<Vue>, options: ToolbarButtonOptions = {})
+	registerToolbarButton(view: VueConstructor<Vue>, options: ToolbarButtonOptions = {}):void
 	{
 		Vue.component ((view as any ).options.name, view);
 		const toolbarButton: ToolbarButton = {
@@ -28,11 +28,11 @@ export class WorkspaceUI {
 		WorkspaceUI.ui.storeDispatch ("workspace/registerToolbarButton", toolbarButton);
 	}
 
-	addWorkspaceRoutes(newRoutes: RouteConfig[]) {
+	addWorkspaceRoutes(newRoutes: RouteConfig[]):void {
 		this.routes.push(...newRoutes);
 	}
 
-	registerWorkspaceRoutes () {
+	registerWorkspaceRoutes ():void {
 		// TODO throw exception if routes are registered after the start of the application
 		WorkspaceUI.ui.registerRoutes([
 			{

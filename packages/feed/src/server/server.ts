@@ -21,14 +21,14 @@ export class FeedServer {
 		})
 	}
 
-	async addFeed(feed: Feed): Promise<Feed | null> {
+	async addFeed(feedParam: Feed): Promise<Feed | null> {
 		try {
 			let queryOptions:QueryOptions = {
 				namedPlaceholders:true,
 				sql:"SELECT feeds.* FROM feeds WHERE feed.teamId=:teamId AND DATE(feed.date)=DATE(NOW()",
 			}
 			const values = { 
-				teamId: feed.teamId
+				teamId: feedParam.teamId
 			}
 			const feeds: Feed[] = await this.conn.query(queryOptions,values);
 			if(feeds[0] !== undefined && feeds.length > 0) {
@@ -36,7 +36,7 @@ export class FeedServer {
 					return null;
 				} else {
 					queryOptions.sql = "INSERT INTO feeds values(:teamId,:feedType,:text,:date)";
-					await this.conn.query(queryOptions,feed);
+					await this.conn.query(queryOptions,feedParam);
 					queryOptions.sql="SELECT feeds.* FROM feeds WHERE feed.teamId=:teamId AND DATE(feed.date)=DATE(NOW()";
 					const resp: Feed[] = await this.conn.query(queryOptions,values);
 					if(resp[0] !== undefined) {
@@ -54,18 +54,18 @@ export class FeedServer {
 		}
 	}
 
-	async updateFeed(feed: Feed): Promise<Feed|null> {
+	async updateFeed(feedParam: Feed): Promise<Feed|null> {
 		try {
 			let queryOptions:QueryOptions = {
 				namedPlaceholders:true,
 				sql:"UPDATE feeds set teamId=:teamId, feedType=:feedType, text=:text, date=:date WHERE feeds.feedId=:feedId",
 			}
-			await this.conn.query(queryOptions,feed);
+			await this.conn.query(queryOptions,feedParam);
 			queryOptions = {
 				namedPlaceholders:true,
 				sql:"SELECT feeds.* FROM feeds WHERE feeds.feedID=:feedID",
 			}
-			const resp:Feed[] = await this.conn.query(queryOptions,{feedId:feed.feedId});
+			const resp:Feed[] = await this.conn.query(queryOptions,{feedId:feedParam.feedId});
 			if(resp[0]!==undefined) {
 				return resp[0];
 			} else {
@@ -77,13 +77,13 @@ export class FeedServer {
 		}
 	}
 
-	async deleteFeed(feed: Feed): Promise<boolean> {
+	async deleteFeed(feedParam: Feed): Promise<boolean> {
 		try {
 			const queryOptions:QueryOptions = {
 				namedPlaceholders:true,
 				sql:"DELETE FROM feeds WHERE feed.feedId=:feedId",
 			}
-			await this.conn.query(queryOptions,{feedId:feed.feedId});
+			await this.conn.query(queryOptions,{feedId:feedParam.feedId});
 			return true;
 		} catch (e) {
 			console.error(e);
@@ -93,11 +93,11 @@ export class FeedServer {
 
 	async getFeedByTeamId(teamId: number): Promise<Feed[]> {
 		try {
-			let queryOptions:QueryOptions = {
+			const queryOptions:QueryOptions = {
 				namedPlaceholders:true,
 				sql:"SELECT feeds.* FROM feeds WHERE feed.teamId=:teamId ORDER BY feeds.date",
 			}
-			const values = { 
+			const values = {
 				teamId: teamId
 			}
 			const feeds: Feed[] = await this.conn.query(queryOptions,values);
@@ -122,15 +122,15 @@ export class FeedServer {
 	}
 
 }
-let router = Router();
-let feed = FeedServer.getInstance();
+const router = Router();
+const feed = FeedServer.getInstance();
 router.use((req, res, next) => {
 	req.feed = [];
 	next();
 });
 
 router.get("/feed/:teamId", async (req, res) => {
-	let userFeed = await feed.getFeedByTeamId(parseInt(req.params.teamId));
+	const userFeed = await feed.getFeedByTeamId(parseInt(req.params.teamId,10));
 	if (userFeed)
 		res.send(userFeed);
 	else
@@ -138,7 +138,7 @@ router.get("/feed/:teamId", async (req, res) => {
 });
 
 router.post("/feed/add", async (req, res) => {
-	let response = await feed.addFeed(req.body.feed);
+	const response = await feed.addFeed(req.body.feed);
 	if (response)
 		res.send(response);
 	else
@@ -146,8 +146,8 @@ router.post("/feed/add", async (req, res) => {
 })
 router.post("/feed/update", async(req,res) =>{
 	try {
-		let feedResp: Feed | null = await feed.updateFeed(req.body.newFeed);
-		if(feedResp) 
+		const feedResp: Feed | null = await feed.updateFeed(req.body.newFeed);
+		if(feedResp)
 			res.status(200).send(feedResp);
 		else
 			res.status(204).send({});
@@ -158,9 +158,9 @@ router.post("/feed/update", async(req,res) =>{
 });
 router.post("/feed/delete", async(req, res) => {
 	try {
-		let toRemove = req.body.feed;
+		const toRemove = req.body.feed;
 		if(toRemove) {
-			let resp = await feed.deleteFeed(toRemove);
+			const resp = await feed.deleteFeed(toRemove);
 			if(resp)
 				res.status(200).send(true);
 			else

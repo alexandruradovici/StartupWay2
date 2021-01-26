@@ -7,9 +7,9 @@ export interface FeedState {
 	feed: Feed[],
 }
 
-export default function feedStore () {
+export default function feedStore ():Module<FeedState, RootState> {
 	const ui = UI.getInstance();
-	let store: Module<FeedState, RootState> = {
+	const store: Module<FeedState, RootState> = {
 		namespaced: true,
 		state: {
 			feed: [] as Feed[]
@@ -19,16 +19,16 @@ export default function feedStore () {
 
 		},
 		mutations: {
-			setFeed(state, newFeed:Feed[]) {
+			setFeed(state, newFeed:Feed[]):void {
 				state.feed = newFeed
 			}
 		},
 		actions: {
-			async loadFeed(storeParam, teamId) {
+			async loadFeed(storeParam, teamId):Promise<boolean> {
 					//TODO LOAD feed from server
 					let newFeed: Feed[] = [];
 					try {
-						let r = await ui.api.get<Feed[]>("/api/v1/feed/"+teamId);
+						const r = await ui.api.get<Feed[]>("/api/v1/feed/"+teamId);
 						newFeed = r.data;
 					} catch(e) {
 						console.error(e);
@@ -37,33 +37,39 @@ export default function feedStore () {
 					storeParam.commit("setFeed", newFeed);
 					return true;
 			},
-			async addFeed(storeParam, feed:Feed) {
+			async addFeed(storeParam, feed:Feed):Promise<boolean> {
 				try {
-					let response = await ui.api.post("/api/v1/feed/add", {feed:feed});
+					const response = await ui.api.post("/api/v1/feed/add", {feed});
 					if(response.status === 200) {
 						return true;
+					} else {
+						return false;
 					}
 				} catch(e) {
 					console.error(e);
 					return false;
 				}
 			},
-			async updateFeed(storeParam, feed:Feed) {
+			async updateFeed(storeParam, feed:Feed):Promise<boolean> {
 				try {
-					let response = await ui.api.post("/api/v1/feed/update", {feed:feed});
+					const response = await ui.api.post("/api/v1/feed/update", {feed});
 					if(response.status === 200) {
 						return true;
+					} else {
+						return false;
 					}
 				} catch(e) {
 					console.error(e);
 					return false;
 				}
 			},
-			async deleteFeed(storeParam, feed:Feed) {
+			async deleteFeed(storeParam, feed:Feed):Promise<boolean> {
 				try {
-					let response = await ui.api.post("/api/v1/feed/delete", {feed:feed});
+					const response = await ui.api.post("/api/v1/feed/delete", {feed});
 					if(response.status === 200) {
 						return true;
+					} else {
+						return false;
 					}
 				} catch(e) {
 					console.error(e);

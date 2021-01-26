@@ -21,8 +21,7 @@ export class BModelCanvasServer {
 			console.log("Not connected due to error: " + err);
 		})
 	}
-	
-		
+
 	async addCanvas (canvas: BModelCanvas): Promise<BModelCanvas | null> {
 		try {
 			let queryOptions:QueryOptions = {
@@ -51,7 +50,7 @@ export class BModelCanvasServer {
 				const canvasResult:BModelCanvas[] = await this.conn.query(queryOptions);
 				if(canvasResult[0] !== undefined)
 					return canvases[0];
-				else 
+				else
 					return null;
 			} else {
 				queryOptions = {
@@ -87,7 +86,7 @@ export class BModelCanvasServer {
 			}
 			const values = {
 				tId:teamId
-			} 
+			}
 			const canvases:BModelCanvas[][] =  await this.conn.query(queryOptions, values);
 			if(canvases[0] !== undefined && canvases[0].length > 0) {
 				return canvases[0];
@@ -127,29 +126,30 @@ const server = Server.getInstance ();
 const bModelCanvasServer = BModelCanvasServer.getInstance();
 const router = Router ();
 const authFunct = getAuthorizationFunction();
+
 if(authFunct)
 	router.use((authFunct as any));
 	// Bypass params dictionary and send authorization Function
 
 
-router.get("/:teamId", async(req,res) => {	
-	let result = await bModelCanvasServer.getCanvasesForTeam(parseInt(req.params.teamId));
-	if(result) 
+router.get("/:teamId", async(req,res) => {
+	const result = await bModelCanvasServer.getCanvasesForTeam(parseInt(req.params.teamId,10));
+	if(result)
 		res.send(result);
 	else
 		res.status(401).send({err:401});
 });
-//TODO: add addCanvas(canvas) function
+// TODO: add addCanvas(canvas) function
 router.post("/:teamId", async(req,res) => {
-	let newCanvas = await bModelCanvasServer.addCanvas(req.body.canvas);
-	if(newCanvas) 
+	const newCanvas = await bModelCanvasServer.addCanvas(req.body.canvas);
+	if(newCanvas)
 		res.send(newCanvas);
 	else
 		res.status(401).send({err:401});
 });
 router.post("/update:teamId", async(req,res) => {
-	let newCanvas = req.body.canvas;
-	if(newCanvas) 
+	const newCanvas = req.body.canvas;
+	if(newCanvas)
 		res.send(newCanvas);
 	else
 		res.status(401).send({err:401});

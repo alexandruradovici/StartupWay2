@@ -5,11 +5,11 @@ import { UI } from "@startupway/main/lib/ui"
 const STARTUPWAY_TOKEN = "startupway:token";
 
 export interface UsersState {
-	token: string | null,
-	user: User | null
+	token?: string | null,
+	user?: User | null
 }
 
-export default function usersStore () {
+export default function usersStore ():Module<UsersState, RootState> {
 	const ui = UI.getInstance();
     ui.api.interceptors.request.use ((config:any) => {
         if (window.localStorage.getItem (STARTUPWAY_TOKEN))
@@ -39,7 +39,7 @@ export default function usersStore () {
 			}
 		},
 		actions: {
-			async login (storeParam, { username, password }: { username: string, password: string }) {
+			async login (storeParam, { username, password }: { username: string, password: string }):Promise<string> {
                 // axios to login => session
                 try
                 {
@@ -61,7 +61,7 @@ export default function usersStore () {
                     return errorToken;
                 }
             },
-            async logout (storeParam) {
+            async logout (storeParam):Promise<boolean> {
                 // axios to logout
                 try
                 {
@@ -72,11 +72,11 @@ export default function usersStore () {
                 }
                 catch (e)
                 {
-                    return NO_TOKEN;
+                    return false;
                 }
                 // store.commit ('token', session.token);
 			},
-			async load(storeParam) {
+			async load(storeParam):Promise<boolean> {
 				let user = NO_USER;
 				try {
 					const response = await ui.api.get("/api/v1/users/user");

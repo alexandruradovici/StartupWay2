@@ -94,13 +94,13 @@ export class UsersServer {
 				namedPlaceholders:true,
 				sql: "SELECT username FROM users WHERE username=:username"
 			}
-			const resUsername:{username:string}[] = await this.conn.query(queryOptions,{username:username}) as {username:string}[];
+			const resUsername:{username:string}[] = await this.conn.query(queryOptions,{username}) as {username:string}[];
 			if(resUsername[0]) {
 				queryOptions = {
 					namedPlaceholders:true,
 					sql: "SELECT * FROM users WHERE username=:username AND password=:password"
 				}
-				const user:User[] = await this.conn.query(queryOptions,{username:username,password:password}) as User[];
+				const user:User[] = await this.conn.query(queryOptions,{username,password}) as User[];
 				if(user[0]!== undefined && user[0].userId !== 0) {
 					const userId:number = user[0].userId;
 					const token:string =generate({ length: 100 });
@@ -108,13 +108,13 @@ export class UsersServer {
 						namedPlaceholders:true,
 						sql: "INSERT INTO sessions (userId, token) values(:userId,:token)"
 					}
-					const resSession:Session[] =await this.conn.query(queryOptions,{userId:userId, token:token}) as Session[];
+					const resSession:Session[] =await this.conn.query(queryOptions,{userId, token}) as Session[];
 					if(resSession) {
 						queryOptions = {
 							namedPlaceholders:true,
 							sql: "SELECT * FROM sessions WHERE userId=:userId"
 						}
-						const session:Session[] = await this.conn.query(queryOptions,{userId:userId}) as Session[];
+						const session:Session[] = await this.conn.query(queryOptions,{userId}) as Session[];
 						if(session[0])
 							return session[0];
 						else
@@ -136,7 +136,7 @@ export class UsersServer {
 		}
 	}
 
-	async modifyUser(user: User, changedPass?: string) {
+	async modifyUser(user: User, changedPass?: string):Promise<void> {
 		try {
 			if(changedPass) {
 				user.password = this.passwordGenerator(user.password);
@@ -155,12 +155,9 @@ export class UsersServer {
 		try {
 			const queryOptions:QueryOptions = {
 				namedPlaceholders:true,
-				sql: "SELECT * FROM users WHERE username=?"
-			}
-			const values = {
-				username:username
+				sql: "SELECT * FROM users WHERE username=:username"
 			};
-			const user:User[] = await this.conn.query(queryOptions,values) as User[];
+			const user:User[] = await this.conn.query(queryOptions,{username}) as User[];
 			if(user.length > 0) {
 				if (user[0].userId !== 0)
 					return user[0];
@@ -179,11 +176,8 @@ export class UsersServer {
 			const queryOptions:QueryOptions = {
 				namedPlaceholders:true,
 				sql: "SELECT * FROM users WHERE email=?"
-			}
-			const values= {
-				email:email
 			};
-			const user:User[] = await this.conn.query(queryOptions,values) as User[];
+			const user:User[] = await this.conn.query(queryOptions,{email}) as User[];
 			if(user.length > 0) {
 				if (user[0].userId !== 0)
 					return user[0];
@@ -204,11 +198,8 @@ export class UsersServer {
 			const queryOptions:QueryOptions = {
 				namedPlaceholders:true,
 				sql: "SELECT * FROM users WHERE userId=?"
-			}
-			const values = {
-				userId:userId
-			}
-			const user:User[] = await this.conn.query(queryOptions,values) as User[];
+			};
+			const user:User[] = await this.conn.query(queryOptions,{userId}) as User[];
 			if(user.length > 0) {
 				if (user[0].userId !== 0)
 					return user[0];
@@ -228,19 +219,19 @@ export class UsersServer {
 			const queryOptions:QueryOptions = {
 				namedPlaceholders:true,
 				sql: ""
-			}
+			};
 			let values:{token?:string,sessionId?:number} = {};
 			if(sessionId){
-				queryOptions.sql = "DELETE FROM users WHERE token=:token AND sessionID=:sessionID";
+				queryOptions.sql = "DELETE FROM sessions WHERE sessions.token=:token AND sessions.sessionID=:sessionID";
 				values = {
-					token:token,
-					sessionId:sessionId
+					token,
+					sessionId
 				}
 			}
 			else {
-				queryOptions.sql = "DELETE FROM users WHERE token=:token";
+				queryOptions.sql = "DELETE FROM sessions WHERE sessions.token=:token";
 				values = {
-					token:token,
+					token,
 				}
 			}
 			await this.conn.query(queryOptions,values);
@@ -256,10 +247,7 @@ export class UsersServer {
 				namedPlaceholders:true,
 				sql: "SELECT * FROM session where userId=:userId"
 			}
-			const values = {
-				userId:userId
-			}
-			const session:Session[] = await this.conn.query(queryOptions,values) as Session[];
+			const session:Session[] = await this.conn.query(queryOptions,{userId}) as Session[];
 			if(session[0])
 				return session[0];
 			return null;
@@ -310,7 +298,7 @@ export class UsersServer {
 				namedPlaceholders:true,
 				sql: "SELECT userId FROM sessions where token=:token"
 			}
-			const session:{userId:number}[] =  await this.conn.query(queryOptions,{token:token}) as {userId:number}[];
+			const session:{userId:number}[] =  await this.conn.query(queryOptions,{token}) as {userId:number}[];
 			if(session[0]) {
 				queryOptions = {
 					namedPlaceholders:true,
@@ -484,9 +472,9 @@ router.get("/session/:userId", async (req,res) => {
 server.registerRouterAPI (1, router, "/users");
 
 
-export function getAuthorizationFunction(): Function | null {
+export function getAuthorizationFunction(): ((req:Request,res:Response,next:NextFunction) => Promise<void>) | null {
 	try {
-		let f = async (req:Request, res:Response, next:NextFunction)=> {
+		const f = async (req:Request, res:Response, next:NextFunction)=> {
 			const authorization = req.header("Authorization");
 			let token = NO_TOKEN;
 			if(authorization){
