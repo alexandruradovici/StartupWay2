@@ -5,11 +5,11 @@ import { UI } from "@startupway/main/lib/ui"
 const STARTUPWAY_TOKEN = "startupway:token";
 
 export interface UsersState {
-	token: string,
-	user:User
+	token?: string | null,
+	user?: User | null
 }
 
-export default function usersStore () {
+export default function usersStore ():Module<UsersState, RootState> {
 	const ui = UI.getInstance();
     ui.api.interceptors.request.use ((config:any) => {
         if (window.localStorage.getItem (STARTUPWAY_TOKEN))
@@ -22,8 +22,8 @@ export default function usersStore () {
 	const store: Module<UsersState, RootState> = {
 		namespaced: true,
 		state: {
-			token: NO_TOKEN,
-			user: NO_USER
+			token: null,
+			user: null
 		},
 		getters: {
 			token: (state) => state.token,
@@ -39,7 +39,7 @@ export default function usersStore () {
 			}
 		},
 		actions: {
-			async login (store, { username, password }: { username: string, password: string }) {
+			async login (storeParam, { username, password }: { username: string, password: string }):Promise<string> {
                 // axios to login => session
                 try
                 {
@@ -51,7 +51,7 @@ export default function usersStore () {
 					if(r.data.sessionId === 0) {
 						return r.data.token;
 					}
-                    store.commit ('token', r.data.token);
+                    storeParam.commit ('token', r.data.token);
                     return r.data.token;
                 }
                 catch (e)
@@ -61,31 +61,31 @@ export default function usersStore () {
                     return errorToken;
                 }
             },
-            async logout (store) {
+            async logout (storeParam):Promise<boolean> {
                 // axios to logout
                 try
                 {
                     await ui.api.post<Session>("/api/v1/users/logout");
-                    store.commit ('token', NO_TOKEN);
+                    storeParam.commit ('token', NO_TOKEN);
 
                     return true;
                 }
                 catch (e)
                 {
-                    return NO_TOKEN;
+                    return false;
                 }
                 // store.commit ('token', session.token);
 			},
-			async load(store) {
+			async load(storeParam):Promise<boolean> {
 				let user = NO_USER;
 				try {
-					const response = await ui.api.get("/api/v1/user");
+					const response = await ui.api.get("/api/v1/users/user");
 					user = response.data;
 				} catch(e) {
 					console.error(e);
 					return false;
 				}
-				store.commit("user",user);
+				storeParam.commit("user",user);
 				return true;
 			}
 		}

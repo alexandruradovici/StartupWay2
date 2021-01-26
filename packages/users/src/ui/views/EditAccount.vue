@@ -217,7 +217,7 @@ export default Vue.extend({
 				this.faculty = this.user.userDetails.faculty;
 				this.group = this.user.userDetails.group;
 				this.details = this.user.userDetails.details;
-				if(this.user.userId !== 0) {
+				if(this.user) {
 					try {
 						let response = await this.ui.api.post("/api/v1/get/file/user/avatar", {userId:this.user.userId});
 						if(response.status !== 500) {
@@ -404,7 +404,9 @@ export default Vue.extend({
 					email: this.email,
 					phone: this.phone,
 					socialMedia: socialMedia,
+					avatarUu: this.user.avatarUu,
 					birthDate: (this.date as any) as Date,
+					lastLogin: this.user.lastLogin,
 					userDetails: userDetails
 				} as User;
 				changedPass = false;
@@ -419,13 +421,15 @@ export default Vue.extend({
 					email: this.email,
 					phone: this.phone,
 					socialMedia: socialMedia,
+					avatarUu: this.user.avatarUu,
 					birthDate: (this.date as any) as Date,
+					lastLogin: this.user.lastLogin,
 					userDetails: userDetails
 				} as User;
 				changedPass = true;
 			}
 			try {
-				let response = await this.ui.api.post("/api/v1/user/update", {
+				let response = await this.ui.api.post("/api/v1/users/user/update", {
 					newUser:newUser,
 					changedPass:changedPass	
 				});

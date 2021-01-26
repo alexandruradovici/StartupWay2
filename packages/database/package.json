@@ -7,7 +7,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npm run build-server && npm run build-ui",
-    "build-ui": "rollup --config rollup.config.js",
+    "build-ui": "echo 'No UI'",
     "build-server": "tsc --build compile.tsconfig.json",
     "clean": "rm -rf lib compile.tsconfig.tsbuildinfo"
   },

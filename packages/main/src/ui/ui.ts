@@ -1,4 +1,4 @@
-import Vue, { VueConstructor } from "vue";
+import Vue, { VueConstructor, VNode } from "vue";
 import VueRouter, { RouteConfig } from "vue-router";
 import Vuex, { Module, StoreOptions, Store } from "vuex";
 
@@ -8,10 +8,6 @@ import 'vuetify/dist/vuetify.min.css';
 import axios, {AxiosInstance} from "axios";
 
 import Application from "./views/Application.vue";
-export interface UiRoute {
-
-}
-
 export interface RootState {
     version: string;
 }
@@ -48,11 +44,7 @@ export class UI {
 	public routes: RouteConfig[] = [];
 
 
-    private start (vuePage?:VueConstructor<Vue>) {
-		// start the ui instance
-
-		console.log("Started App");
-
+    private start ():void {
 		Vue.use(Vuex);
 
 		const storeData: StoreOptions<RootState> = {
@@ -71,18 +63,22 @@ export class UI {
 			font: 'mdi',
 			iconfont: 'mdi'
 		});
-		new Vue ({
+		const v = new Vue ({
 			el: '#app',
 			vuetify,
 			store:this.store,
 			router: this.router,
-			render (render) {
+			render (render):VNode {
 				return render(Application);
 			}
 		});
+		if(v !== undefined) {
+			// start the ui instance
+			console.log("Started App");
+		}
     }
 
-	registerStore<T>(namespace: string, store: Module<T, RootState>) {
+	registerStore<T>(namespace: string, store: Module<T, RootState>):void {
 		if (this.store) {
 			// TODO check if it is already registered
 			this.store.registerModule(namespace, store);
@@ -97,15 +93,15 @@ export class UI {
 		return this.store.dispatch (action, obj);
 	}
 
-	registerRoutes (newRoutes: RouteConfig[]) {
+	registerRoutes (newRoutes: RouteConfig[]):void {
 		this.router.addRoutes (newRoutes);
 	}
 
-	registerView (view: VueConstructor<Vue>) {
+	registerView (view: VueConstructor<Vue>):void {
 		Vue.component ((view as any).options.name, view);
 	}
 
-	error (err: string) {
+	error (err: string):void {
 		console.error (err);
 	}
 

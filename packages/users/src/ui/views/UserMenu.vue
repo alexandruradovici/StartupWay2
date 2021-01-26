@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<SimpleMenu :options="options" @click="click" ></SimpleMenu>
-		<Snackbar :options="snackOptions" :snackbar="snackbar" @update-prop="update"></Snackbar>
+		<SnackBar :options="snackOptions" :snackbar="snackbar" @update-prop="update"></Snackbar>
 	</div>
 	
 </template>
@@ -18,14 +18,15 @@ enum MenuOptions {
 
 export default Vue.extend({
 	name: "UserMenu",
-	mounted() {
-		this.ui = UI.getInstance()
+	async mounted() {
+		this.ui = UI.getInstance();
+		await this.ui.storeDispatch("users/load", {});
 	},
 	data () {
 		return {
 			ui: {} as UI,
 			options: {
-				menuName: "",
+				menuName: "User Menu",
 				menuIcon: "mdi-account",
 				img:"",
 				menuTooltip:"Your Account",
@@ -55,9 +56,10 @@ export default Vue.extend({
 		user: {
 			immediate: true,
 			async handler (user: User) {
-				this.options.menuName = user.firstName + " " + user.lastName;
+				console.log(user);
 				try {
-					if(user.userId !== 0 && user.userId !== undefined) {
+					if(user) {
+						this.options.menuName = user.firstName + " " + user.lastName;
 						let response = await this.ui.api.post("/api/v1/get/file/user/avatar", {userId:user.userId});
 
 						if(response.status === 200) {
@@ -97,7 +99,7 @@ export default Vue.extend({
 			if (id === MenuOptions.LOGOUT) {
 				try {
 					await this.ui.storeDispatch ('users/logout', {});
-					await this.ui.storeDispatch("teams/selectTeam", 0);
+					// await this.ui.storeDispatch("teams/selectTeam", 0);
 					if(this.$route.path !== "/login")
 							this.$router.push("/login");
 				} catch (error) {

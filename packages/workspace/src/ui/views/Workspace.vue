@@ -401,16 +401,16 @@
 								</v-row>
 							</div>
 						</div>
-					</transition>
-					<transition @after-leave="currentContent=true">
-						<div v-if="router">
-							<router-view ></router-view>
-						</div>
 					</transition> 
+					<transition @after-leave="currentContent=true">-->
+						<!-- <div v-if="router"> -->
+							<router-view ></router-view>
+						<!-- </div> -->
+				<!-- 	</transition> 
 				</div>
 				 
-			</v-container> -->
-			
+			</v-container>
+			 -->
 		</v-main>
 	</v-app>
 </template>
@@ -418,18 +418,18 @@
 <script lang="ts">
 import Vue from "vue";
 import moment from "moment";
-// import { mapGetters } from "vuex";
+import { mapGetters } from "vuex";
 import { UI } from "@startupway/main/lib/ui";
-import { NO_TOKEN } from "@startupway/users/lib/ui";
-// import { ToolbarButton, ToolbarButtonPosition } from "../ui_types";
-// import { User,Team, Product, BusinessTrack, WorkshopDay, TeamType, NO_TOKEN, Feed, FeedText, FeedTypes } from "../../feed/ui/ui_types";
+// import { NO_TOKEN,User } from "@startupway/users/lib/ui";
+import { ToolbarButton, ToolbarButtonPosition } from "../../common/";
+// import { Team, Product, BusinessTrack, WorkshopDay, TeamType, Feed, FeedText, FeedTypes } from "../../feed/ui/ui_types";
 export default Vue.extend({
 	name: "Workspace",
 	components: {},
 	async mounted() {
 		try {
 			this.ui = UI.getInstance();
-			await this.ui.storeDispatch("feed/loadFeed", this.teamId);
+			// await this.ui.storeDispatch("feed/loadFeed", this.teamId);
 		} catch (e) {
 			console.error(e);
 		}
@@ -441,7 +441,7 @@ export default Vue.extend({
 		// name = _varToString({ WorkshopDay });
 		// this._enumToData(WorkshopDay, name);
 		try {
-			await this.ui.storeDispatch("teams/loadProduct", this.teamId);
+			// await this.ui.storeDispatch("teams/loadProduct", this.teamId);
 		} catch (e) {
 			console.error(e);
 		}
@@ -630,32 +630,32 @@ export default Vue.extend({
 		// 		}
 		// 	}
 		// },
-		// async $route (to, from){
-		// 	if(to.path == "/workspace") {
-		// 		this.router=false;
-		// 	} else if(to.path == "/login") {
-		// 		this.tabs=[];
-		// 	} else {
-		// 		this.currentContent = false;
-		// 	}
-		// 	this.currentRoute=to.name;
-		// 	if (this.role === "Mentor") {
-		// 		let response = await this.ui.api.get("/api/v1/mentor/teamsAndProduct/" + this.user.userId);
-		// 		if (response) {
-		// 			this.mentoredTeams = this.modifyTeams(response.data);
+		async $route (to, from){
+			if(to.path == "/workspace") {
+				this.router=false;
+			} else if(to.path == "/login") {
+				this.tabs=[];
+			} else {
+				this.currentContent = false;
+			}
+			this.currentRoute=to.name;
+			// if (this.role === "Mentor") {
+			// 	let response = await this.ui.api.get("/api/v1/mentor/teamsAndProduct/" + this.user.userId);
+			// 	if (response) {
+			// 		this.mentoredTeams = this.modifyTeams(response.data);
 					
-		// 		}
-		// 	} else if (this.role === "Admin" || this.role === "SuperAdmin") {
-		// 		let response = await this.ui.api.get("/api/v1/admin/teams/" + this.user.userDetails["location"]);
-		// 		if (response) {
-		// 			this.mentoredTeams = this.modifyTeams(response.data);
-		// 		}
-		// 	}
-    	// },
+			// 	}
+			// } else if (this.role === "Admin" || this.role === "SuperAdmin") {
+			// 	let response = await this.ui.api.get("/api/v1/admin/teams/" + this.user.userDetails["location"]);
+			// 	if (response) {
+			// 		this.mentoredTeams = this.modifyTeams(response.data);
+			// 	}
+			// }
+    	},
 		_token: {
 			immediate:true,
 			handler (newToken:string) {
-				if(newToken === NO_TOKEN){
+				if(newToken === null){
 					if(this.$route.path !== "/login")
 						this.$router.push("/login");
 				} else {
@@ -664,9 +664,9 @@ export default Vue.extend({
 				}
 			}
 		},
-		// user: {
-		// 	immediate: true,
-		// 	async handler (newUser: User) {
+		user: {
+			immediate: true,
+			async handler (newUser: any) {
 		// 		if(newUser.userId !== 0) {
 		// 			if(newUser.role["Mentor"]) {
 		// 				this.type="mentor";
@@ -806,8 +806,8 @@ export default Vue.extend({
 		// 			this.loadingPage = false;
 					
 		// 		}
-		// 	}
-		// },
+			}
+		},
 		// mentoredTeams: {
 		// 	immediate: true,
 		// 	async handler (newTeams: any[]) {
@@ -850,25 +850,17 @@ export default Vue.extend({
 		// }
 	},
 	computed: {
-		// ...mapGetters({
-		// 	toolbarButtons: "workspace/toolbarButtons",
-		// 	_token: "users/token",
-		// 	currentTeam: "teams/currentTeam",
-		// 	mentoredTeam: "teams/mentoredTeam",
-		// 	user: "users/user",
-		// 	_teams: "teams/teams",
-		// 	feed: "feed/feed"
-		// }),
+		...mapGetters({
+			toolbarButtons: "workspace/toolbarButtons",
+			_token: "users/token",
+			user: "users/user"
+			// currentTeam: "teams/currentTeam",
+			// mentoredTeam: "teams/mentoredTeam",
+			// _teams: "teams/teams",
+			// feed: "feed/feed"
+		}),
 		// teams (): Team[] {
 		// 	return this._teams as Team[];
-		// },
-		// toolbarButtonsLeft(): ToolbarButton[] {
-		// 	return this["toolbarButtons"]
-		// 		.filter((toolbarButton: ToolbarButton) => toolbarButton.position === ToolbarButtonPosition.LEFT)
-		// 		.sort(
-		// 			(toolbarButton1: ToolbarButton, toolbarButton2: ToolbarButton) =>
-		// 				toolbarButton1.priority - toolbarButton2.priority
-		// 		);
 		// },
 		// filteredReviews():any[] {
 		// 	let filteredRev:any[] = [];
@@ -886,14 +878,22 @@ export default Vue.extend({
 		// 	}
 		// 	return filteredRev;
 		// },
-		// toolbarButtonsRight(): ToolbarButton[] {
-		// 	return this["toolbarButtons"]
-		// 		.filter((toolbarButton: ToolbarButton) => toolbarButton.position === ToolbarButtonPosition.RIGHT)
-		// 		.sort(
-		// 			(toolbarButton1: ToolbarButton, toolbarButton2: ToolbarButton) =>
-		// 				toolbarButton1.priority - toolbarButton2.priority
-		// 		);
-		// }
+		toolbarButtonsRight(): ToolbarButton[] {
+			return this["toolbarButtons"]
+				.filter((toolbarButton: ToolbarButton) => toolbarButton.position === ToolbarButtonPosition.RIGHT)
+				.sort(
+					(toolbarButton1: ToolbarButton, toolbarButton2: ToolbarButton) =>
+						toolbarButton1.priority - toolbarButton2.priority
+				);
+		},
+		toolbarButtonsLeft(): ToolbarButton[] {
+			return this["toolbarButtons"]
+				.filter((toolbarButton: ToolbarButton) => toolbarButton.position === ToolbarButtonPosition.LEFT)
+				.sort(
+					(toolbarButton1: ToolbarButton, toolbarButton2: ToolbarButton) =>
+						toolbarButton1.priority - toolbarButton2.priority
+				);
+		}
 	},
 	methods: {
 		moment() {

@@ -15,6 +15,7 @@
 		"@startupway/users": "*",
 		"@startupway/database": "*",
 		"@startupway/menu":"*",
+		"@startupway/workspace":"*",
 		"dotenv": "^8.2.0",
 		"express": "^4.17.1"
 	},
