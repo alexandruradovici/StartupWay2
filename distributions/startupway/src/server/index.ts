@@ -15,7 +15,7 @@ const setup = async () => {
 		}
 		server.registerRouterUI (express.static (path.resolve(__dirname, "../ui")));
 		await server.start();
-		
+
 	} catch (error) {
 		console.log("Connection error");
 		console.error(error);
