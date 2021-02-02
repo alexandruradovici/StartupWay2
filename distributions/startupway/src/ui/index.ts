@@ -1,6 +1,12 @@
 import "@startupway/main/lib/ui";
 import "@startupway/workspace/lib/ui";
 import "@startupway/menu/lib/ui";
+import "@startupway/uploadDownload/lib/ui";
+import "@startupway/workshop/lib/ui";
+import "@startupway/admin/lib/ui";
+import "@startupway/teams/lib/ui";
+import "@startupway/feed/lib/ui";
+import "@startupway/bmodelcanvas/lib/ui";
 import "@startupway/users/lib/ui";
 // import { getUi } from "@startupway/main/lib/ui";
 // getUi().start();

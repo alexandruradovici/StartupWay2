@@ -1,6 +1,5 @@
 export * from "./ui";
 export * from "../common";
-
 import SimpleMenu from "./views/SimpleMenu.vue";
 import SnackBar from "./views/SnackBar.vue";
 // export { SimpleMenu, SnackBar }

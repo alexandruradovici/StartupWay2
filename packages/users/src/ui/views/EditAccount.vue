@@ -219,7 +219,7 @@ export default Vue.extend({
 				this.details = this.user.userDetails.details;
 				if(this.user) {
 					try {
-						let response = await this.ui.api.post("/api/v1/get/file/user/avatar", {userId:this.user.userId});
+						let response = await this.ui.api.post("/api/v1/uploadDownload/get/file/user/avatar", {userId:this.user.userId});
 						if(response.status !== 500) {
 							this.imgData = response.data;
 						}
@@ -339,7 +339,7 @@ export default Vue.extend({
 		},
 		async uploadImage() {
 			try {
-				let response = await this.ui.api.post("/api/v1/upload/file/user/avatar", {
+				let response = await this.ui.api.post("/api/v1/uploadDownload/upload/file/user/avatar", {
 					userId:this.user.userId,
 					base64Encode:this.base64Encode	
 				});
@@ -358,7 +358,7 @@ export default Vue.extend({
 						this.details = this.user.userDetails.details;
 						this.faculty = this.user.userDetails.faculty;
 						this.group = this.user.userDetails.group;
-						let response = await this.ui.api.post("/api/v1/get/file/user/avatar", {userId:this.user.userId});
+						let response = await this.ui.api.post("/api/v1/uploadDownload/get/file/user/avatar", {userId:this.user.userId});
 						if(response.status !== 500) {
 							this.imgData = response.data;
 						}

@@ -3,9 +3,7 @@ import Vue from "vue";
 import { VueConstructor } from "vue";
 import { UI } from "@startupway/main/lib/ui";
 import { RouteConfig } from 'vue-router';
-import Workspace from "./views/Workspace.vue";
 export class WorkspaceUI {
-	public routes:RouteConfig[] = [];
 	private static instance:WorkspaceUI;
 	private static ui:UI = UI.getInstance();
 	debugFunction(message:string[], object:any[]):void {
@@ -28,20 +26,9 @@ export class WorkspaceUI {
 		WorkspaceUI.ui.storeDispatch ("workspace/registerToolbarButton", toolbarButton);
 	}
 
-	addWorkspaceRoutes(newRoutes: RouteConfig[]):void {
-		this.routes.push(...newRoutes);
-	}
-
-	registerWorkspaceRoutes ():void {
+	registerWorkspaceRoutes (newRoute:RouteConfig):void {
 		// TODO throw exception if routes are registered after the start of the application
-		WorkspaceUI.ui.registerRoutes([
-			{
-				name:"workspace",
-				path: '/workspace',
-				children: this.routes,
-				component: Workspace
-			}
-		]);
+		WorkspaceUI.ui.registerRoute(newRoute, "Workspace");
 	}
 
 

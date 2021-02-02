@@ -4,7 +4,7 @@
 			<v-container fluid fill-height>
 				<v-layout align-center justify-center>
 					<v-flex xs12 sm8 md4>
-						<v-img src="img/startupway-668px.png" contain></v-img>
+						<v-img :src="logoImage" contain></v-img>
 						<v-spacer></v-spacer>
 						<v-card class="elevation-12">
 							<v-toolbar color="primary" dark flat>
@@ -49,6 +49,7 @@
 import { mapGetters } from "vuex";
 import Vue from "vue";
 import axios from "axios";
+import logo from "../img/startupway-668px.png";
 import VueRecaptcha from 'vue-recaptcha';
 import { UI } from "@startupway/main/lib/ui";
 export default Vue.extend({
@@ -66,7 +67,8 @@ export default Vue.extend({
             newPassword:"",
 			token:"",
 			match:false,
-			email:""
+			email:"",
+			logoImage:logo
 		};
     },
 	watch: {

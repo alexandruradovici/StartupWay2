@@ -28,22 +28,27 @@ const workspaceRoutes: RouteConfig[] = [
 		path: "/user/account",
 		name:"Edit Account",
 		component: EditAccount
-	}
+	},
 ]
-workspaceUi.addWorkspaceRoutes(workspaceRoutes);
-workspaceUi.registerWorkspaceRoutes();
+for(const route of workspaceRoutes) {
+	workspaceUi.registerWorkspaceRoutes(route);
+}
 
 const ui = UI.getInstance();
 
-const routes: RouteConfig[] = [
-	{
-		path: '/login',
-		name: "Login",
-		component: Login
-	},
+const route: RouteConfig = {
+	path: '/login',
+	name: "Login",
+	component: Login
+};
 
-];
-
-
-ui.registerRoutes(routes);
+const redirect: RouteConfig = {
+	path: "/",
+	redirect: "/login",
+	beforeEnter: (to, from, next) => {
+		window.location.href = to.fullPath.substring(1); 
+	} 
+};
+ui.registerRoute(route);
+ui.registerRoute(redirect);
 ui.registerStore("users",store());

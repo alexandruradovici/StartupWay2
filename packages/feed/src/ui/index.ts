@@ -16,5 +16,6 @@ const workspaceRoutes: RouteConfig[] = [
 	}
 ];
 ui.registerStore("feed",store());
-workspaceUi.addWorkspaceRoutes(workspaceRoutes);
-workspaceUi.registerWorkspaceRoutes();
+for(const route of workspaceRoutes) {
+	workspaceUi.registerWorkspaceRoutes(route);
+}

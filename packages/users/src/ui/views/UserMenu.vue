@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<SimpleMenu :options="options" @click="click" ></SimpleMenu>
-		<SnackBar :options="snackOptions" :snackbar="snackbar" @update-prop="update"></Snackbar>
+		<SnackBar :options="snackOptions" :snackbar="snackbar" @update-prop="update"></SnackBar>
 	</div>
 	
 </template>
@@ -56,11 +56,10 @@ export default Vue.extend({
 		user: {
 			immediate: true,
 			async handler (user: User) {
-				console.log(user);
 				try {
 					if(user) {
 						this.options.menuName = user.firstName + " " + user.lastName;
-						let response = await this.ui.api.post("/api/v1/get/file/user/avatar", {userId:user.userId});
+						let response = await this.ui.api.post("/api/v1/uploadDownload/get/file/user/avatar", {userId:user.userId});
 
 						if(response.status === 200) {
 							let aux = this.options;

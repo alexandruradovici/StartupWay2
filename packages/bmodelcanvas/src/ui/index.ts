@@ -12,5 +12,7 @@ const workspaceRoutes: RouteConfig[] = [
 		component: Canvas
 	}
 ]
-workspaceUi.addWorkspaceRoutes(workspaceRoutes);
-workspaceUi.registerWorkspaceRoutes();
+
+for(const route of workspaceRoutes) {
+	workspaceUi.registerWorkspaceRoutes(route);
+}

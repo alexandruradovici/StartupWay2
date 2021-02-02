@@ -25,7 +25,7 @@ export class MariaDBServer {
 				user:process.env.DB_USER,
 				password:process.env.DB_PASS,
 				database:process.env.DB_NAME,
-				connectionLimit:5,
+				connectionLimit:10,
 				rowsAsArray:false
 			});
 			return true;
@@ -110,7 +110,8 @@ export class MariaDBServer {
 				await tableConn.query("CREATE TABLE `uploadDownload` (`uuid` varchar(100) NOT NULL,`productId` int(11) NOT NULL,`fileType` varchar(255) NOT NULL,`extension` varchar(255) NOT NULL,`uploadTime` datetime NOT NULL,PRIMARY KEY (`uuid`),KEY `FK_0af268615f35d00781c400254ae` (`productId`),CONSTRAINT `FK_0af268615f35d00781c400254ae` FOREIGN KEY (`productId`) REFERENCES `products` (`productId`) ON DELETE NO ACTION ON UPDATE NO ACTION) ENGINE=InnoDB");
 				// recoveries
 				await tableConn.query("CREATE TABLE `recoveries` (`recoveryId` int(11) NOT NULL AUTO_INCREMENT,`userId` int(11) NOT NULL,`email` varchar(100) NOT NULL,`recoveryLink` varchar(100) NOT NULL,PRIMARY KEY (`recoveryId`),UNIQUE KEY `token` (`recoveryLink`),KEY `FK_7902dfcee5a16cb1377e04d3d7a` (`userId`),CONSTRAINT `FK_7902dfcee5a16cb1377e04d3d7a` FOREIGN KEY (`userId`) REFERENCES `users` (`userId`) ON DELETE NO ACTION ON UPDATE NO ACTION) ENGINE=InnoDB AUTO_INCREMENT=70");
-
+				// feeds
+				await tableConn.query("CREATE TABLE `feeds` (`feedId` int(11) NOT NULL AUTO_INCREMENT, `teamId` int(11) NOT NULL, `feedType` varchar(30) NOT NULL, `text` text NOT NULL, `date` datetime NOT NULL, PRIMARY KEY (`feedId`), KEY `FK_87caf98485e27800f1e171ccf6c` (`teamId`), CONSTRAINT `FK_87caf98485e27800f1e171ccf6c` FOREIGN KEY (`teamId`) REFERENCES `teams` (`teamId`) ON DELETE NO ACTION ON UPDATE NO ACTION) ENGINE=InnoDB AUTO_INCREMENT=63")
 				await tableConn.end();
 				await tablePool.end();
 			}

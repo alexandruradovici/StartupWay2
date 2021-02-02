@@ -82,6 +82,7 @@ export class BModelCanvasServer {
 		try {
 			const queryOptions:QueryOptions = {
 				namedPlaceholders:true,
+				nestTables:"_",
 				sql: "SELECT bModelCanvas.* FROM bModelCanvas INNER JOIN teams ON team.productId=bModelCanvas.productId AND team.teamId=:tId"
 			}
 			const values = {

@@ -1,10 +1,9 @@
 import Vue, { VueConstructor, VNode } from "vue";
 import VueRouter, { RouteConfig } from "vue-router";
 import Vuex, { Module, StoreOptions, Store } from "vuex";
-
 import Vuetify, { UserVuetifyPreset } from "vuetify";
 import 'vuetify/dist/vuetify.min.css';
-
+// import '@mdi/font/css/materialdesignicons.css';
 import axios, {AxiosInstance} from "axios";
 
 import Application from "./views/Application.vue";
@@ -92,9 +91,12 @@ export class UI {
 	{
 		return this.store.dispatch (action, obj);
 	}
-
-	registerRoutes (newRoutes: RouteConfig[]):void {
-		this.router.addRoutes (newRoutes);
+	registerRoute (newRoute: RouteConfig, parent?:string):void {
+		if(parent && typeof parent === "string") {
+				this.router.addRoute (parent,newRoute);
+		} else {
+				this.router.addRoute (newRoute);
+		}
 	}
 
 	registerView (view: VueConstructor<Vue>):void {

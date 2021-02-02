@@ -259,11 +259,11 @@ export default Vue.extend({
 		// 		console.error(e);
 		// 	}
 		// 	try {
-		// 		let product = await this.ui.api.get("/api/v1/product/" + this.teamId);
+		// 		let product = await this.ui.api.get("/api/v1/teams/product/" + this.teamId);
 		// 		if(product.data) {
 		// 			product.data.updatedAt = (this.formatDate(new Date()) as unknown as Date) ;
 		// 			try {
-		// 				await this.ui.api.post("/api/v1/product/update", {
+		// 				await this.ui.api.post("/api/v1/teams/product/update", {
 		// 					product: product.data,
 		// 					upload: "",
 		// 					ext: ".pptx",

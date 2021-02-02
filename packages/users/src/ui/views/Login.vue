@@ -3,11 +3,6 @@
 			<v-container fluid fill-height>
 				<v-layout align-center justify-center> 
 					<v-flex xs12 sm8 md4>
-						<!-- <p class="text-center display-2">
-							Welcome to
-						</p>
-						<v-img src="img/startupway-668px.png" contain></v-img>
-						<v-spacer></v-spacer> -->
 						<v-card class="elevation-12">
 							<v-toolbar color="primary" dark flat height="170px" style="padding">
 								<v-img contain :src="loginImage" max-height="170"></v-img>								 								

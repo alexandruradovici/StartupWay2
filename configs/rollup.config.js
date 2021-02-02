@@ -2,6 +2,7 @@ import vue from 'rollup-plugin-vue'; // Handle .vue SFC files
 import commonjs from '@rollup/plugin-commonjs';
 import typescript from "rollup-plugin-typescript2";
 import image from '@rollup/plugin-image';
+import css from 'rollup-plugin-css-only';
 import fs from "fs";
 
 function rename () {
@@ -33,6 +34,7 @@ export default {
                 },
                 include: ['src/ui', 'src/common']
             }
-          }),
+		  }),  
+  		css({ output: false })
     ],
 };

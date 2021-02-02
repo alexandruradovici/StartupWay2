@@ -1,0 +1,90 @@
+#app {
+    background-color: #fcfcfc;
+}
+.v-data-table-header {
+    background-color: #c7ebe1;
+    font-size: 15px;
+}
+.v-data-table__wrapper {
+    /* width: 1000px; */
+    margin-top: 100px;
+    margin: auto;
+}
+.v-list-item__title {
+    font-size: 16px;
+    font-weight: 900;
+    font-family: Georgia, serif;
+}
+.component-title {
+    text-align: center;
+    font-weight: 800;
+    font-size: 22px;
+    font-family: Georgia, serif;
+    margin-top: 70px;
+}
+.active-element {
+    color: #197E81;
+    font-family: Georgia, serif;
+    font-size: 20px;
+    letter-spacing: 0.6px;
+    word-spacing: 2px;
+    font-weight: bolder;
+    text-decoration: none;
+    font-style: normal;
+    font-variant: normal;
+    text-transform: uppercase;
+}
+#user-title {
+    font-family: Georgia, serif;
+    font-size: 20px;
+    letter-spacing: 0.6px;
+    word-spacing: 2px;
+    font-weight: bold;   
+}
+.content {
+    margin: 0;
+    position: absolute;
+}
+.user-name {
+    font-family: Georgia, serif;
+    font-size: 20px;
+    font-weight: 700;
+}
+.user-details {
+    font-family: Georgia, serif;
+    font-size: 15px;
+    font-weight: 550;
+}
+.details {
+    color: black;
+    font-family: Georgia, serif;
+    font-size: 17px;   
+}
+.landing-message {
+    font-size:35px;
+    font-weight: 600;
+    font-family: Georgia, serif;
+    text-align: center;
+    margin-top: 50px;
+}
+.image-area {
+    /* position: relative; */
+    max-width: 250px;
+}
+.delete-image {
+    position: absolute;
+    /* top: -100%; */
+    left: 80%;
+    /* transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%); */
+    
+}
+.nav {
+    position: fixed;
+}
+@media only screen and (max-width: 768px) {
+    /* For mobile phones: */
+    .nav {
+      position: relative;
+    }
+}

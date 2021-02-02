@@ -25,7 +25,7 @@ export class UsersServer {
 		})
 	}
 
-	private passwordGenerator (password: string): string {
+	public passwordGenerator (password: string): string {
 		const hash = createHash('sha256');
 		hash.update(password);
 		return hash.digest('hex');
@@ -34,10 +34,9 @@ export class UsersServer {
 	async addUser(user: User): Promise<User | null> {
 		try {
 			user.password = this.passwordGenerator (user.password);
-
 			const queryOptions:QueryOptions = {
 				namedPlaceholders:true,
-				sql: `INSERT INTO ${TABLE_USERS} COLUMNS(firstName,lastName,username,password,email,phone,birthDate,avatarUu,socialMedia,userDetails,role,lastLogin) values(:firstName,:lastName,username,password,email,phone,birthDate,avatarUu,socialMedia,userDetails,role,lastLogin)`
+				sql: `INSERT INTO ${TABLE_USERS} (firstName,lastName,username,password,email,phone,birthDate,avatarUu,socialMedia,userDetails,role,lastLogin) VALUES(:firstName,:lastName,:username,:password,:email,:phone,:birthDate,:avatarUu,:socialMedia,:userDetails,:role,:lastLogin)`
 			}
 			const response = await this.conn.query(queryOptions,user);
 			if(response) {
@@ -57,6 +56,7 @@ export class UsersServer {
 	async getAllUserTeams(): Promise<User[]> {
 		try {
 			const queryOptions:QueryOptions = {
+				nestTables:"_",
 				sql: "SELECT users.*, userTeams.teamId as userTeams_teamID, userTeams.role as userTeams_role FROM users INNER JOIN userTeams ON user.userId!=:userTeams.userId"
 			}
 			const allUserTeams = await this.conn.query(queryOptions);
@@ -103,7 +103,7 @@ export class UsersServer {
 				const user:User[] = await this.conn.query(queryOptions,{username,password}) as User[];
 				if(user[0]!== undefined && user[0].userId !== 0) {
 					const userId:number = user[0].userId;
-					const token:string =generate({ length: 100 });
+					const token:string = generate({ length: 100 });
 					queryOptions = {
 						namedPlaceholders:true,
 						sql: "INSERT INTO sessions (userId, token) values(:userId,:token)"
@@ -175,7 +175,7 @@ export class UsersServer {
 		try {
 			const queryOptions:QueryOptions = {
 				namedPlaceholders:true,
-				sql: "SELECT * FROM users WHERE email=?"
+				sql: "SELECT * FROM users WHERE email=:email"
 			};
 			const user:User[] = await this.conn.query(queryOptions,{email}) as User[];
 			if(user.length > 0) {
@@ -197,7 +197,7 @@ export class UsersServer {
 		try {
 			const queryOptions:QueryOptions = {
 				namedPlaceholders:true,
-				sql: "SELECT * FROM users WHERE userId=?"
+				sql: "SELECT * FROM users WHERE userId=:userId"
 			};
 			const user:User[] = await this.conn.query(queryOptions,{userId}) as User[];
 			if(user.length > 0) {
@@ -260,7 +260,7 @@ export class UsersServer {
 	async getUsers():Promise<User[]> {
 		try {
 			const queryOptions:QueryOptions = {
-				sql: "SELECT * FROM users where role!='{\"Mentor\":true}' AND role!='{\"Admin\":true}'"
+				sql: "SELECT * FROM users WHERE role!='{\"Mentor\":true}' AND role!='{\"Admin\":true}'"
 			}
 			const users:User[] = await this.conn.query(queryOptions) as User[];
 			if(users) {
@@ -389,7 +389,6 @@ router.post("/user/update", async (req,res) => {
 	const user:User = req.body.newUser;
 	const changedPass = req.body.changedPass;
 	console.log("Changed" + changedPass);
-	console.log(user);
 	// const options = admin.createMailOptions(
 	// 	(process.env.MAIL_USER as string),
 	// 	user.email,

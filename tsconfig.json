@@ -7,7 +7,7 @@
     "extends": "./configs/base.tsconfig.json",
     "include": [
         "packages/*/src",
-        "distributions/*/src", "packages/users/image.d.ts",
+        "distributions/*/src", "packages/users/image.d.ts", "packages/teams/image.d.ts",
     ],
     "compilerOptions": {
       "allowJs": true,
@@ -35,6 +35,18 @@
         ],
         "@startupway/feed/*": [
             "packages/feed/*"
+        ],
+        "@startupway/workshop/*": [
+            "packages/workshop/*"
+        ],
+        "@startupway/uploaddownload/*": [
+            "packages/uploaddownload/*"
+        ],
+        "@startupway/teams/*": [
+            "packages/teams/*"
+        ],
+        "@startupway/admin/*": [
+            "packages/admin/*"
         ]
       }
     }

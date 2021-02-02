@@ -1,9 +1,9 @@
 import { Feed} from "../common";
 import { Router } from "express";
 import { Server } from "@startupway/main/lib/server";
-import { getPool } from '@startupway/database/lib/server';
-import { QueryOptions, Connection } from 'mariadb';
-
+import { getPool } from "@startupway/database/lib/server";
+import { QueryOptions, Connection } from "mariadb";
+import { getAuthorizationFunction } from "@startupway/users/lib/server";
 export class FeedServer {
 
 	private static INSTANCE?: FeedServer;
@@ -35,7 +35,7 @@ export class FeedServer {
 				if(feeds.length > 3) {
 					return null;
 				} else {
-					queryOptions.sql = "INSERT INTO feeds values(:teamId,:feedType,:text,:date)";
+					queryOptions.sql = "INSERT INTO feeds (teamId, feedType, text, date) VALUES(:teamId,:feedType,:text,:date)";
 					await this.conn.query(queryOptions,feedParam);
 					queryOptions.sql="SELECT feeds.* FROM feeds WHERE feed.teamId=:teamId AND DATE(feed.date)=DATE(NOW()";
 					const resp: Feed[] = await this.conn.query(queryOptions,values);
@@ -126,7 +126,12 @@ router.use((req, res, next) => {
 	next();
 });
 
-router.get("/feed/:teamId", async (req, res) => {
+const authFunct = getAuthorizationFunction();
+if(authFunct)
+	router.use((authFunct as any));
+	// Bypass params dictionary and send authorization Function
+	
+router.get("/:teamId", async (req, res) => {
 	const userFeed = await feed.getFeedByTeamId(parseInt(req.params.teamId,10));
 	if (userFeed)
 		res.send(userFeed);
@@ -134,14 +139,14 @@ router.get("/feed/:teamId", async (req, res) => {
 		res.status(401).send({ err: 401 });
 });
 
-router.post("/feed/add", async (req, res) => {
+router.post("/add", async (req, res) => {
 	const response = await feed.addFeed(req.body.feed);
 	if (response)
 		res.send(response);
 	else
 		res.status(401).send({ err: 401 });
 })
-router.post("/feed/update", async(req,res) =>{
+router.post("/update", async(req,res) =>{
 	try {
 		const feedResp: Feed | null = await feed.updateFeed(req.body.newFeed);
 		if(feedResp)
@@ -153,7 +158,7 @@ router.post("/feed/update", async(req,res) =>{
 		res.status(500).send({err: 500});
 	}
 });
-router.post("/feed/delete", async(req, res) => {
+router.post("/delete", async(req, res) => {
 	try {
 		const toRemove = req.body.feed;
 		if(toRemove) {

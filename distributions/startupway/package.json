@@ -16,6 +16,12 @@
 		"@startupway/database": "*",
 		"@startupway/menu":"*",
 		"@startupway/workspace":"*",
+		"@startupway/uploaddownload":"*",
+		"@startupway/workshop":"*",
+		"@startupway/admin":"*",
+		"@startupway/teams":"*",
+		"@startupway/feed":"*",
+		"@startupway/bmodelcanvas":"*",
 		"dotenv": "^8.2.0",
 		"express": "^4.17.1"
 	},

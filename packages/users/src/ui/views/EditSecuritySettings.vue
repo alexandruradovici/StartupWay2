@@ -112,7 +112,7 @@ export default Vue.extend({
 				this.details = this.user.userDetails.details;
 				if(this.user) {
 					try {
-						let response = await this.ui.api.post("/api/v1/get/file/user/avatar", {userId:this.user.userId});
+						let response = await this.ui.api.post("/api/v1/uploadDownload/get/file/user/avatar", {userId:this.user.userId});
 						if(response.status !== 500) {
 							this.imgData = response.data;
 						}

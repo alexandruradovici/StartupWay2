@@ -1,6 +1,6 @@
 import { Module } from "vuex";
-import { RootState, NO_TOKEN, NO_USER, Session, User} from "../common";
-import { UI } from "@startupway/main/lib/ui"
+import { RootState, Session, User} from "../common";
+import { UI } from "@startupway/main/lib/ui";
 
 const STARTUPWAY_TOKEN = "startupway:token";
 
@@ -66,7 +66,7 @@ export default function usersStore ():Module<UsersState, RootState> {
                 try
                 {
                     await ui.api.post<Session>("/api/v1/users/logout");
-                    storeParam.commit ('token', NO_TOKEN);
+                    storeParam.commit ('token', null);
 
                     return true;
                 }
@@ -77,7 +77,7 @@ export default function usersStore ():Module<UsersState, RootState> {
                 // store.commit ('token', session.token);
 			},
 			async load(storeParam):Promise<boolean> {
-				let user = NO_USER;
+				let user = null;
 				try {
 					const response = await ui.api.get("/api/v1/users/user");
 					user = response.data;
