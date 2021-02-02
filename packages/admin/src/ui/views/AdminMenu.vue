@@ -48,7 +48,7 @@ export default Vue.extend({
 	watch: {
 		user: {
 			immediate: true,
-			async handler(newUser: User) {
+			async handler(newUser: User):Promise<void> {
 				if(newUser) {
 					const role = JSON.parse(this.user.role);
 					if (role["Admin"]) {
@@ -61,9 +61,7 @@ export default Vue.extend({
 		},
 	},
 	methods: {
-		async click (id: number) {
-			
-			
+		async click (id: number):Promise<void> {
 		}
 	}
 });

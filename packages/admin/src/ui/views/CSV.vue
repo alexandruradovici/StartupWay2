@@ -34,7 +34,7 @@ export default Vue.extend({
 	watch: {
 		user: {
 			immediate:true,
-			async handler (newUser:User) {
+			async handler (newUser:User):Promise<void> {
 				if(newUser) {
 					const role = JSON.parse(this.user.role);
 					if(!role["Admin"] && !role["SuperAdmin"]) {
@@ -46,7 +46,7 @@ export default Vue.extend({
 		},
 		base64Encode: {
 			immediate:true,
-			handler (base64Encode) {
+			handler (base64Encode):void {
 				if(base64Encode !== '' && base64Encode !== undefined) {
 					this.encoded = false;
 				} else {
@@ -56,7 +56,7 @@ export default Vue.extend({
 		},
 		file: {
 			immediate:false,
-			handler(newFile) {
+			handler(newFile):void {
 				if(newFile !== undefined) {
 					this.toBase64(newFile);
 				} else {
@@ -71,14 +71,14 @@ export default Vue.extend({
 		}),
 	},
 	methods: {
-		async submitFile() {
+		async submitFile():Promise<void> {
 			try {
-				await this.ui.api.post("/api/v1/admin/uploadCSV", {encode: this.base64Encode});		
+				await this.ui.api.post<unknown>("/api/v1/admin/uploadCSV", {encode: this.base64Encode});		
 			} catch (e) {
 				console.error(e);
 			}
 		},
-		toBase64(file:File) {
+		toBase64(file:File):boolean {
 			const reader = new FileReader();
 			reader.readAsDataURL(file);
 			reader.onload = () => {

@@ -42,8 +42,8 @@
 <script lang="ts">
 import { mapGetters } from "vuex";
 import Vue from "vue";
-import { User } from "@startupway/users/lib/ui";
-import { Team } from "@startupway/teams/lib/ui";
+import { User, UserTeams } from "@startupway/users/lib/ui";
+import { Team, Product } from "@startupway/teams/lib/ui";
 import { UI } from "@startupway/main/lib/ui";
 export default Vue.extend({
 	name: "TeamsEdit",
@@ -51,8 +51,11 @@ export default Vue.extend({
 		return {
 			ui: UI.getInstance(),
 			teams:[] as Team[],
-			viewTeams:[] as any[],
-			users:[] as User[],
+			viewTeams:[] as {
+				"name":string,
+				"value":number
+			}[],
+			users:[] as (User & UserTeams)[],
 			selectedTeam:0 as number,
 			search:"",
 			headers: [
@@ -60,7 +63,7 @@ export default Vue.extend({
 					text: "Role",
 					align: "left",
 					sortable: false,
-					value: "UserTeams_role"
+					value: "role"
 				},
 				{ text: "First Name", value: "firstName" },
 				{ text: "Last Name", value: "lastName" },
@@ -71,7 +74,7 @@ export default Vue.extend({
 	watch: {
 		selectedTeam: {
 			immediate:true,
-			async handler (newTeamId:number) {
+			async handler (newTeamId:number):Promise<void> {
 				try {
 					await this.getUsers(newTeamId);
 				} catch (e) {
@@ -81,10 +84,10 @@ export default Vue.extend({
 		},
 		user: {
 			immediate:true,
-			async handler (newUser:User) {
+			async handler (newUser:User):Promise<void>  {
 				if(newUser.role["SuperAdmin"] || newUser.role["Admin"]){
 					try {
-						const response = await this.ui.api.get("/api/v1/admin/teams/"+newUser.userDetails["location"]);
+						const response = await this.ui.api.get<(Team & Product)[]>("/api/v1/admin/teams/"+newUser.userDetails["location"]);
 						if(response) {
 							this.teams = response.data;
 						}
@@ -100,11 +103,11 @@ export default Vue.extend({
 		},
 		teams: {
 			immediate: true,
-			handler (newTeams: Team[]) {
-				newTeams.forEach((team:any) => {
+			handler (newTeams: (Team & Product)[]):void {
+				newTeams.forEach((team:(Team & Product)) => {
 					this.viewTeams.push({
-						"name":team.teams_teamName,
-						"value":team.teams_teamId
+						"name":team.teamName,
+						"value":team.teamId
 					})
 				})
 			},
@@ -116,9 +119,9 @@ export default Vue.extend({
 		})
 	},
 	methods: {
-		async getUsers(teamId:number){
+		async getUsers(teamId:number):Promise<void>{
 			try {
-				const response = await this.ui.api.get("/api/v1/teams/team/users/" + teamId);
+				const response = await this.ui.api.get<(User & UserTeams)[]>("/api/v1/teams/team/users/" + teamId);
 				if(response) {
 					this.users = this.modifyUsers(response.data);
 				}
@@ -126,7 +129,7 @@ export default Vue.extend({
 				console.error(e);
 			}
 		},
-		modifyUsers(users:User[]):User[] {
+		modifyUsers(users:(User & UserTeams)[]):(User & UserTeams)[] {
 			users.forEach(element => {
 				if(element.role){
 					const roleObj = element.role;

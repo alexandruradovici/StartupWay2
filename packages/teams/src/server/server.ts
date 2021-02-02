@@ -176,14 +176,14 @@ export class TeamsServer {
 		}
 	}
 
-	async getTeams(): Promise<Team[]> {
+	async getTeams(): Promise<(Team & Product)[]> {
 		try{
 			const queryOptions:QueryOptions = {
 				namedPlaceholders:true,
 				nestTables:"_",
 				sql: "SELECT teams.*, products.* FROM teams INNER JOIN products ON teams.productId = products.productId"
 			};
-			const teamsReponse:Team[] = await this.conn.query(queryOptions);
+			const teamsReponse:(Team & Product)[] = await this.conn.query(queryOptions);
 			console.log(teamsReponse);
 			if(teamsReponse.length > 0)
 				return teamsReponse;
@@ -194,14 +194,14 @@ export class TeamsServer {
 			return [];
 		}
 	}
-	async getTeamsByLocation(location:string): Promise<Team[]> {
+	async getTeamsByLocation(location:string): Promise<(Team & Product)[]> {
 		try{
 			const queryOptions:QueryOptions = {
 				namedPlaceholders:true,
 				nestTables:"_",
 				sql: "SELECT teams.*, products.* FROM teams INNER JOIN products ON teams.productId = products.productId and teams.location=:location"
 			};
-			const teamsReponse:Team[] = await this.conn.query(queryOptions,{location});
+			const teamsReponse:(Team & Product)[] = await this.conn.query(queryOptions,{location});
 			console.log(teamsReponse);
 			if(teamsReponse.length > 0)
 				return teamsReponse;

@@ -743,7 +743,7 @@ router.post("/newUserActivity", async (req:ApiRequest<UserActivity[]>,res:ApiRes
 /**
  * 	Route on which information about users/uploads/teams is sent to be downloaded 
  */
-router.post("/download/udc/data", async (req:ApiRequest<undefined>,res:ApiResponse<string>) => {
+router.post("/download/udc/data", async (req:ApiRequest<undefined>,res:ApiResponse<string | null>) => {
 	try {
 		const usersString = await admin.getUDCData();
 		const array = [];
@@ -756,19 +756,19 @@ router.post("/download/udc/data", async (req:ApiRequest<undefined>,res:ApiRespon
 		} else {
 			console.error("Error on route \"/download/udc/data\" in \"admin\" router");
 			console.error("No csv unparsed!");
-			res.status(401).send({err:401});
+			res.status(401).send({err:401, data:null});
 		}
 	} catch (error) {
 		console.error("Error on route \"/download/udc/data\" in \"admin\" router");
 		console.error(error);
-		res.status(401).send({err:401});
+		res.status(401).send({err:401, data:null});
 	}
 });
 
 /**
  * 	Route on which information about specific teams is sent to be downloaded 
  */
-router.post("/download/team/data", async (req:ApiRequest<undefined>,res:ApiResponse<string>) => {
+router.post("/download/team/data", async (req:ApiRequest<undefined>,res:ApiResponse<string | null>) => {
 	try {
 		const usersString = await admin.getTeamData();
 		const array = [];
@@ -781,12 +781,12 @@ router.post("/download/team/data", async (req:ApiRequest<undefined>,res:ApiRespo
 		} else {
 			console.error("Error on route \"/download/team/data\" in \"admin\" router");
 			console.error("No csv unparsed!");
-			res.status(401).send({err:401});
+			res.status(401).send({err:401, data:null});
 		}
 	} catch (error) {
 		console.error("Error on route \"/download/team/data\" in \"admin\" router");
 		console.error(error);
-		res.status(401).send({err:401});
+		res.status(401).send({err:401, data:null});
 	}
 });
 
@@ -795,8 +795,8 @@ router.post("/download/team/data", async (req:ApiRequest<undefined>,res:ApiRespo
  */
 router.get("/users/:location", async (req:ApiRequest<undefined>,res:ApiResponse<(User & UserTeams)[]>) => {
 	
-	/** @type {Team[]} array containing all the teams to be sent back to the frontend */
-	let teamsArray = [];
+	/** @type {(Team & Product)[]} array containing all the teams to be sent back to the frontend */
+	let teamsArray:(Team & Product)[] = [];
 
 	try {
 		if(req.params.location === "all") {
@@ -852,9 +852,9 @@ router.get("/users", async (req:ApiRequest<undefined>,res:ApiResponse<(User & Us
 /**
  * 	Route on which we get all the teams from the database based on a specified location 
  */
-router.get("/teams/:location", async (req:ApiRequest<undefined>,res:ApiResponse<Team[]>) => {
+router.get("/teams/:location", async (req:ApiRequest<undefined>,res:ApiResponse<(Team & Product)[]>) => {
 	try {
-		let teamsArray:Team[] = [];
+		let teamsArray:(Team & Product)[] = [];
 		if(req.params.location === "all") {
 			teamsArray = await teams.getTeams();
 		} else {
@@ -903,9 +903,9 @@ router.post("/teams/review", async (req:ApiRequest<{type:string,location:string,
 	const location = req.body.location;
 
 	try {
-		let teamsArray:any[] =[];
+		let teamsArray:(Team & Product)[] =[];
 		if(type === "admin") 
-			(teamsArray) = await teams.getTeamsByLocation(location);
+			teamsArray = await teams.getTeamsByLocation(location);
 		else if(type === "mentor")
 			teamsArray = await teams.getTeamAndProductByMentorId(req.body.id);
 		else if(type === "superAdmin") {

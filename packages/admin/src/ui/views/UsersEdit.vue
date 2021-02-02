@@ -220,7 +220,7 @@ export default Vue.extend({
 	watch: {
 		user: {
 			immediate: true,
-			async handler(newUser: User) {
+			async handler(newUser: User):Promise<void> {
 				let userRole = newUser.role["Admin"];
 				if(!userRole) {
 					userRole = newUser.role["SuperAdmin"];
@@ -234,39 +234,39 @@ export default Vue.extend({
 		})
 	},
 	methods: {
-		formatDate(date: Date) {
+		formatDate(date: Date):string {
 			const time  = (new Date(date)).toTimeString().split(" ");
 			return (new Date(date)).toDateString() + " " + time[0];
 		},
-		async modifyUsers(users: any[]) {
+		async modifyUsers(users: (User)[]):Promise<(User)[]> {
 			for(const index in users) {
 				if(typeof users[index].userDetails === "string") {
-					users[index].userDetails = JSON.parse(users[index].userDetails);
-					users[index].socialMedia = JSON.parse(users[index].socialMedia);
+					users[index].userDetails = JSON.parse((users as any)[index].userDetails);
+					users[index].socialMedia = JSON.parse((users as any)[index].socialMedia);
 				}
-				if ((users[index] as any).userDetails["faculty"] !== undefined) {
-					(users[index] as any).faculty = (users[index] as any).userDetails["faculty"]; 
+				if (users[index].userDetails["faculty"] !== undefined) {
+					(users as any)[index].faculty = users[index].userDetails["faculty"]; 
 				} else {
-					(users[index] as any).faculty = "";
+					(users as any)[index].faculty = "";
 				}
-				if ((users[index] as any).userDetails["group"] !== undefined) {
-					(users[index] as any).group = (users[index] as any).userDetails["group"];
+				if (users[index].userDetails["group"] !== undefined) {
+					(users[index] as any).group = users[index].userDetails["group"];
 				} else {
 					(users[index] as any).group = "";
 				}
-				if ((users[index] as any).role) {
-					const roleObj = (users[index] as any).role;
+				if (users[index].role) {
+					const roleObj = users[index].role;
 					for (const prop in roleObj) {
 						if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
-							((users[index] as any).role as any) = prop;
+							(users as any)[index].role = prop;
 							break;
 						}
 					}
-				} else if ((users[index] as any).User_role) {
-					const roleObj = (users[index] as any).User_role;
+				} else if (users[index].role) {
+					const roleObj = users[index].role;
 					for (const prop in roleObj) {
 						if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
-							(users[index] as any).User_role = prop;
+							(users as any)[index].role = prop;
 							break;
 						}
 					}
@@ -284,9 +284,9 @@ export default Vue.extend({
 			}
 			return users;
 		},
-		async getAllUsers() {
+		async getAllUsers():Promise<boolean> {
 			try {
-				const response = await this.ui.api.get("/api/v1/users");
+				const response = await this.ui.api.get<User[]>("/api/v1/users/users");
 				if (response.status === 200) {
 					this.allUsers = await this.modifyUsers(response.data);
 					// this.allUsers = this.allUsers.filter((user:User) => { return !this.hasUser(user)});
@@ -296,8 +296,9 @@ export default Vue.extend({
 				console.error(e);
 				return false;
 			}
+			return false;
 		},
-		async addUser() {
+		async addUser():Promise<void> {
 			const user = {
 				firstName: this.item.firstName,
 				lastName: this.item.lastName,
@@ -319,12 +320,12 @@ export default Vue.extend({
 				console.error(e);
 			}
 		},
-		openDialog(user: any) {
+		openDialog(user: any):void {
 			this.item = user;
 			this.item.newPassword = "";
 			this.dialog = true;
 		},
-		async editUser() {
+		async editUser():Promise<void> {
 			let newUser: User = {} as User;
 			let bolean = false;
 			if (this.item.newPassword != "") {
@@ -397,7 +398,7 @@ export default Vue.extend({
 			}
 			
 		},
-		exitDialog() {
+		exitDialog():void {
 			(this.item as any) = {
 				userId: 0,
 				firstName: "",

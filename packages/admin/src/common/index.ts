@@ -1,3 +1,4 @@
+import { BusinessTrack, TeamType } from '@startupway/teams/lib/common/';
 export interface Recovery {
 	recoveryId:number,
 	userId:number,
@@ -20,4 +21,19 @@ export interface Review {
 	assessment12Oct:string,
 	updatedAt:string,
 	lastMentorUpdate:string
+}
+
+export interface ModifiedTeam {
+	teamId:number,
+	productId:number,
+	year:number,
+	location:string,
+	teamName:string,
+	teamDetails:{[key:string]:string},
+	businessTrack:BusinessTrack,
+	teamType:TeamType,
+	pendingDescriptionRO: string,
+	pendingDescriptionEN: string,
+	updatedAt: Date,
+	lastMentorUpdate: Date
 }

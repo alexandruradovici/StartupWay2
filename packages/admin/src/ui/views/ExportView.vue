@@ -173,6 +173,7 @@
 import Vue from "vue";
 import { mapGetters } from "vuex";
 import { User } from "@startupway/users/lib/ui"; 
+import { Team } from "@startupway/teams/lib/ui"; 
 import { SnackBarOptions, SnackBarTypes } from "@startupway/menu/lib/ui";
 import { UI } from "@startupway/main/lib/ui";
 export default Vue.extend({
@@ -184,7 +185,7 @@ export default Vue.extend({
 		return {
 			ui: UI.getInstance(),
 			preset:'',
-			presetTeams:[] as any[],
+			presetTeams:[] as {text:string,value:number[]}[],
 			city:'',
 			cities:[
 				"Bucharest",
@@ -211,7 +212,7 @@ export default Vue.extend({
 				}
 			],
 			team:'',
-			teams:[],
+			teams:[] as Team[],
 			loadingPage:false,
 			//SnackBar popup
 			snackOptions: {
@@ -251,26 +252,29 @@ export default Vue.extend({
 	watch: {
 		user: {
 			immediate:true,
-			async handler (newUser:User) {
-				if(!newUser.role["Admin"] && !newUser.role["SuperAdmin"]) {
-					if(this.$route.path!=="/workspace")
-						this.$router.push("/workspace");
-				} else {
-					try {
-						let response = await this.ui.api.get("/api/v1/admin/teams/all"); 
-						if(response) {
-							this.teams = response.data;
-							
-						} 
-						response = await this.ui.api.get("/api/v1/teams/teams/demoDay");
-						if(response) {
-							this.presetTeams.push({
-								text:"DemoDay Teams",
-								value:response.data
-							})
+			async handler (newUser:User):Promise<void> {
+				if(newUser) {
+					const role = JSON.parse(this.user.role);
+					if(!role["Admin"] && !role["SuperAdmin"]) {
+						if(this.$route.path!=="/workspace")
+							this.$router.push("/workspace");
+					} else {
+						try {
+							const response = await this.ui.api.get<Team[]>("/api/v1/admin/teams"); 
+							if(response) {
+								this.teams = response.data;
+								
+							}
+							const demoResponse = await this.ui.api.get<number[]>("/api/v1/teams/teams/demoDay");
+							if(demoResponse.data) {
+								this.presetTeams.push({
+									text:"DemoDay Teams",
+									value:demoResponse.data
+								})
+							}
+						} catch (e) {
+							console.error(e);
 						}
-					} catch (e) {
-						console.error(e);
 					}
 				}
 			}
@@ -288,10 +292,10 @@ export default Vue.extend({
 		})
 	},
 	methods: {
-		update(prop:boolean) {
+		update(prop:boolean):void {
 			this.snackbar = prop;
 		},
-		async exportTeamZip(type:string,option?:string) {
+		async exportTeamZip(type:string,option?:string):Promise<void> {
 			try {
 				this.loadingPage = true;
 				let body = {};
@@ -322,7 +326,7 @@ export default Vue.extend({
 						option:option
 					};  
 				
-				const response = await this.ui.api.post("/api/v1/uploadDownload/download/zip/",body);
+				const response = await this.ui.api.post<string | null>("/api/v1/uploadDownload/download/zip/",body);
 				if(response.status === 200) {
 					// let url = response.data.url;
 					this.toStop = false;
@@ -346,8 +350,8 @@ export default Vue.extend({
 					}
 					const statusFunction = async () => {
 						try {
-							const response = await this.ui.api.post("/api/v1/uploadDownload/check/zip/status/",body);
-							if(response) {
+							const response = await this.ui.api.post<string | null>("/api/v1/uploadDownload/check/zip/status/",body);
+							if(response.data) {
 								if(response.data === "ERROR") {
 									this.snackOptions.text = "Server ERROR; Please contact teams@tech-lounge.ro for more information";
 									this.snackOptions.type = SnackBarTypes.ERROR;
@@ -395,9 +399,9 @@ export default Vue.extend({
 		async exportZip(type:string) {
 			try {
 				this.loadingPage = true;
-				const response = await this.ui.api.get("/api/v1/uploadDownload/download/zip/" + type + "/" + this.date);
-				if(response.status === 200) {
-					const url = response.data.url;
+				const response = await this.ui.api.get<string | null>("/api/v1/uploadDownload/download/zip/" + type + "/" + this.date);
+				if(response.status === 200 && response.data) {
+					const url = response.data;
 					window.open(url, '_blank');
 				} else if(response.status === 204) {
 					this.snackOptions.text = "There are no files uploaded for any of the teams";
@@ -415,10 +419,10 @@ export default Vue.extend({
 			}
 			this.loadingPage = false;
 		},
-		async exportUDC() {
+		async exportUDC():Promise<void> {
 			try {
-				const response = await this.ui.api.post("/api/v1/admin/download/udc/data");	
-				if(response) {
+				const response = await this.ui.api.post<string | null>("/api/v1/admin/download/udc/data");	
+				if(response.data) {
 					const hiddenElement = document.createElement('a');
 					hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(response.data);
 					hiddenElement.target = '_blank';
@@ -429,10 +433,10 @@ export default Vue.extend({
 				console.error(e);
 			}
 		},
-		async exportTDD() {
+		async exportTDD():Promise<void> {
 			try {
-				const response = await this.ui.api.post("/api/v1/admin/download/team/data");	
-				if(response) {
+				const response = await this.ui.api.post<string | null>("/api/v1/admin/download/team/data");	
+				if(response.data) {
 					const hiddenElement = document.createElement('a');
 					hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(response.data);
 					hiddenElement.target = '_blank';
@@ -443,7 +447,7 @@ export default Vue.extend({
 				console.error(e);
 			}
 		},
-		openUrl(url:string) {
+		openUrl(url:string):void {
 			try {
 				clearInterval(this.checkInterval);
 				window.open(url, '_blank');

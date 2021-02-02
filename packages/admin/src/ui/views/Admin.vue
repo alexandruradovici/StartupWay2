@@ -107,9 +107,8 @@
 <script lang="ts">
 import { mapGetters } from "vuex";
 import Vue from "vue";
-// import { ApiResponse, ApiRequest } from "@startupway/main/lib/ui";
 import { User } from "@startupway/users/lib/ui";
-import { Team } from "@startupway/teams/lib/ui";
+import { Team,Product } from "@startupway/teams/lib/ui";
 import { UI } from '@startupway/main/lib/ui';
 export default Vue.extend({
 	name: "Admin",
@@ -117,7 +116,7 @@ export default Vue.extend({
 		return {
 			ui: UI.getInstance(),
 			allUsers: [] as User[],
-			teams: [] as Team[],
+			teams: [] as (Team & Product)[],
 			viewTeams: [] as any[],
 			loadingPage:false,
 		};
@@ -130,7 +129,7 @@ export default Vue.extend({
 					const role = JSON.parse(this.user.role);
 					if (role["Admin"] || role["SuperAdmin"]) {
 						try {
-							const response = await this.ui.api.get("/api/v1/teams/mentor/teams/" + newUser.userId);
+							const response = await this.ui.api.get<(Team & Product)[]>("/api/v1/teams/mentor/teams/" + newUser.userId);
 							if (response) {
 								this.teams = response.data;
 							}
@@ -181,7 +180,7 @@ export default Vue.extend({
 		},
 		async getAllUsers():Promise<boolean> {
 			try {
-				const response = await this.ui.api.get("/api/v1/users/users/all");
+				const response = await this.ui.api.get<User[]>("/api/v1/users/users/all");
 				if (response) {
 					this.allUsers = this.modifyUsers(response.data);
 				}

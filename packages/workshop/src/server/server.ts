@@ -229,7 +229,7 @@ router.get("/workshops", async (req:ApiRequest<undefined>, res:ApiResponse<Works
 		res.status(500).send({err:500,data:[]});
 	}
 });
-router.get("/workshop/attendance/:workshopId", async (req:ApiRequest<undefined>, res:ApiResponse<WorkshopAttendances[]>) => {
+router.get("/attendance/:workshopId", async (req:ApiRequest<undefined>, res:ApiResponse<WorkshopAttendances[]>) => {
 	try {
 		let attendanceList: WorkshopAttendances[] = await workshop.listWorkshopAttendancesByWorkshopId(parseInt(req.params.workshopId));
 		if (attendanceList) {
@@ -242,7 +242,7 @@ router.get("/workshop/attendance/:workshopId", async (req:ApiRequest<undefined>,
 		res.status(500).send({err:500});
 	}
 })
-router.post("/workshop/attendance", async (req:ApiRequest<{workshopId:number,attendance:WorkshopAttendances[]}>, res:ApiResponse<WorkshopAttendances[]>) => {
+router.post("/attendance", async (req:ApiRequest<{workshopId:number,attendance:WorkshopAttendances[]}>, res:ApiResponse<WorkshopAttendances[]>) => {
 	try {
 		const workshopId: number = req.body.workshopId;
 		const attendance: WorkshopAttendances[] = req.body.attendance;
@@ -272,7 +272,7 @@ router.post("/workshop/attendance", async (req:ApiRequest<{workshopId:number,att
 	}
 });
 
-router.get("/workshop/mentor/instances/:workshopId", async (req:ApiRequest<undefined>, res:ApiResponse<WorkshopInstances[]>) => {
+router.get("/mentor/instances/:workshopId", async (req:ApiRequest<undefined>, res:ApiResponse<WorkshopInstances[]>) => {
 	try {
 		let workshopInstancesList: WorkshopInstances[] = await workshop.listWorkshopInstancesByWorkshopId(parseInt(req.params.workshopId));
 		let newArray = _.groupBy(workshopInstancesList, "workshopDate");
@@ -287,7 +287,7 @@ router.get("/workshop/mentor/instances/:workshopId", async (req:ApiRequest<undef
 	}
 });
 
-router.post("/workshop/add", async (req:ApiRequest<Workshop>, res:ApiResponse<Workshop | null>) => {
+router.post("/add", async (req:ApiRequest<Workshop>, res:ApiResponse<Workshop | null>) => {
 	try {
 		let newWorkshop = await workshop.addWorkshop(req.body);
 		if (newWorkshop)
@@ -299,7 +299,7 @@ router.post("/workshop/add", async (req:ApiRequest<Workshop>, res:ApiResponse<Wo
 		res.status(500).send({err:500});
 	}
 });
-router.post("/workshop/add/instance", async (req:ApiRequest<{workshopId:number,teamIds:number[],date:Date,details:{[key:string]:any},trainer:string}>, res:ApiResponse<WorkshopInstances[]>) => {
+router.post("/add/instance", async (req:ApiRequest<{workshopId:number,teamIds:number[],date:Date,details:{[key:string]:any},trainer:string}>, res:ApiResponse<WorkshopInstances[]>) => {
 	try {
 		const workshopId = req.body.workshopId;
 		const teamIds = req.body.teamIds;

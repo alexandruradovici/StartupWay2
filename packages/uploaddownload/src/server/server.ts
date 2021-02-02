@@ -413,17 +413,17 @@ export class UploadDownloadServer {
 			if(type === "all") {
 				const products = await teams.getTeams();
 				for(const product of products) {
-					const prId = (product as any).products_productId;
+					const prId = product.productId;
 					const links = await uploadDownload.getLinksByProductId(prId.toString(), date);
-					const usersArr = await teams.getUsersByTeamId((product as any).teams_teamId);
-					const folder = (product as any).teams_location+'/'+(product as any).teams_teamName;
+					const usersArr = await teams.getUsersByTeamId(product.teamId);
+					const folder = product.location+'/'+product.teamName;
 					const d = await teams.isTeamInDate(date,prId);
 					if(usersArr.length !== 0 && d) {
 						for(const user of usersArr) {
 							if(user)
 							if(user.avatarUu !== '' && user.avatarUu !== null) {
 								const obj:string = await uploadDownload.getS3Object(user.avatarUu);
-								let name = folder+'/UserImages/'+(product as any).teams_location + "_" + (product as any).teams_teamName+'_profile_photo_'+user.firstName + "_" + user.lastName + '.png';
+								let name = folder+'/UserImages/'+product.location + "_" + product.teamName+'_profile_photo_'+user.firstName + "_" + user.lastName + '.png';
 								if(obj !== "") {
 									zip.file(name, obj, {base64:true});
 								} else {
@@ -442,15 +442,15 @@ export class UploadDownloadServer {
 								const date = uploadDownload.formatDate(link.uploadTime);
 								let name = "";
 								if(link.fileType === "demoVid") {
-									name = folder+'/Videos/'+(product as any).teams_location + "_" + (product as any).teams_teamName + "_tehnic_demo_video_" + date + "." + link.extension;
+									name = folder+'/Videos/'+product.location + "_" + product.teamName + "_tehnic_demo_video_" + date + "." + link.extension;
 								} else if(link.fileType ==="presVid") {
-									name = folder+'/Videos/'+(product as any).teams_location + "_" + (product as any).teams_teamName + "_products_presentation_video_" + date + "." + link.extension;
+									name = folder+'/Videos/'+product.location + "_" + product.teamName + "_products_presentation_video_" + date + "." + link.extension;
 								} else if(link.fileType ==="pres") {
-									name = folder+'/PowerPoint/'+(product as any).teams_location + "_" + (product as any).teams_teamName + "_powerpoint_presentation_" + date + "."  + link.extension;
+									name = folder+'/PowerPoint/'+product.location + "_" + product.teamName + "_powerpoint_presentation_" + date + "."  + link.extension;
 								} else if(link.fileType ==="image") {
-									name = folder+'/Images/'+(product as any).teams_location + "_" + (product as any).teams_teamName + "_products_image_"+ link.uuid[0] +link.uuid[1] + link.uuid[2] + "_" + date + "."  + link.extension;
+									name = folder+'/Images/'+product.location + "_" + product.teamName + "_products_image_"+ link.uuid[0] +link.uuid[1] + link.uuid[2] + "_" + date + "."  + link.extension;
 								} else if(link.fileType ==="logo") {
-									name = folder+'/Images/'+(product as any).teams_location + "_" + (product as any).teams_teamName + "_logo_" + date + "."  + link.extension;
+									name = folder+'/Images/'+product.location + "_" + product.teamName + "_logo_" + date + "."  + link.extension;
 								} else {
 									console.error("Unidentified link");
 								}
@@ -470,16 +470,16 @@ export class UploadDownloadServer {
 				if(typeof param === "string") {
 					const products = await teams.getTeamsByLocation(param);
 					for(const product of products) {
-						const prId = (product as any).products_productId;
+						const prId = product.productId;
 						const links = await uploadDownload.getLinksByProductId(prId.toString(), date);
-						const users = await teams.getUsersByTeamId((product as any).teams_teamId);
+						const users = await teams.getUsersByTeamId(product.teamId);
 						const d = await teams.isTeamInDate(date,prId);
 						if(users.length !== 0 && d) {
 							for(const user of users) {
 								if(user)
 								if(user.avatarUu !== '' && user.avatarUu !== null) {
 									const obj:string = await uploadDownload.getS3Object(user.avatarUu);
-									let name = (product as any).teams_teamName+'/UserImages/'+(product as any).teams_location + "_" + (product as any).teams_teamName+'_profile_photo_'+user.firstName + "_" + user.lastName + '.png';
+									let name = product.teamName+'/UserImages/'+product.location + "_" + product.teamName+'_profile_photo_'+user.firstName + "_" + user.lastName + '.png';
 									if(obj !== "") {
 										zip.file(name, obj, {base64:true});
 									} else {
@@ -489,25 +489,25 @@ export class UploadDownloadServer {
 							}
 						}
 						if(links.length !== 0) {
-							zip.folder((product as any).teams_teamName);
-							zip.folder((product as any).teams_teamName + "/Videos");
-							zip.folder((product as any).teams_teamName + "/Images");
-							zip.folder((product as any).teams_teamName + "/PowerPoint");
+							zip.folder(product.teamName);
+							zip.folder(product.teamName + "/Videos");
+							zip.folder(product.teamName + "/Images");
+							zip.folder(product.teamName + "/PowerPoint");
 							for(const link of links) {
 								if(prId !== 0 && product !== undefined) {
 									const date = uploadDownload.formatDate(link.uploadTime);
 									let name = "";
 
 									if(link.fileType === "demoVid") {
-										name = (product as any).teams_teamName+'/Videos/'+(product as any).teams_location + "_" + (product as any).teams_teamName + "_tehnic_demo_video_" + date + "." + link.extension;
+										name = product.teamName+'/Videos/'+product.location + "_" + product.teamName + "_tehnic_demo_video_" + date + "." + link.extension;
 									} else if(link.fileType ==="presVid") {
-										name = (product as any).teams_teamName+'/Videos/'+(product as any).teams_location + "_" + (product as any).teams_teamName + "_products_presentation_video_" + date + "." + link.extension;
+										name = product.teamName+'/Videos/'+product.location + "_" + product.teamName + "_products_presentation_video_" + date + "." + link.extension;
 									} else if(link.fileType ==="pres") {
-										name = (product as any).teams_teamName+'/PowerPoint/'+(product as any).teams_location + "_" + (product as any).teams_teamName + "_powerpoint_presentation_" + date + "."  + link.extension;
+										name = product.teamName+'/PowerPoint/'+product.location + "_" + product.teamName + "_powerpoint_presentation_" + date + "."  + link.extension;
 									} else if(link.fileType ==="image") {
-										name = (product as any).teams_teamName+'/Images/'+(product as any).teams_location + "_" + (product as any).teams_teamName + "_products_image_"+ link.uuid[0] +link.uuid[1] + link.uuid[2] + "_" + date + "."  + link.extension;
+										name = product.teamName+'/Images/'+product.location + "_" + product.teamName + "_products_image_"+ link.uuid[0] +link.uuid[1] + link.uuid[2] + "_" + date + "."  + link.extension;
 									} else if(link.fileType ==="logo") {
-										name = (product as any).teams_teamName+'/Images/'+(product as any).teams_location + "_" + (product as any).teams_teamName + "_logo_" + date + "."  + link.extension;
+										name = product.teamName+'/Images/'+product.location + "_" + product.teamName + "_logo_" + date + "."  + link.extension;
 									} else {
 										console.error('Unidentified link');
 									}
@@ -1122,15 +1122,15 @@ router.post("/download/team/zip/:type/:date", async(req:ApiRequest<{type:string,
 			} else {
 				const products = await teams.getTeamsByLocation(city);
 				for(const product of products) {
-					const prId = (product as any).products_productId;
+					const prId = product.productId;
 					let links = await uploadDownload.getLinksByProductId(prId.toString(), date);
-					const users = await teams.getUsersByTeamId((product as any).teams_teamId);
+					const users = await teams.getUsersByTeamId(product.teamId);
 					if(users.length !== 0) {
 						for(const user of users) {
 							if(user)
 							if(user.avatarUu !== '' && user.avatarUu !== null) {
 								const obj:string = await uploadDownload.getS3Object(user.avatarUu);
-								let name = (product as any).teams_teamName+'/UserImages/'+(product as any).teams_location + "_" + (product as any).teams_teamName+'_profile_photo_'+user.firstName + "_" + user.lastName + '.png';
+								let name = product.teamName+'/UserImages/'+product.location + "_" + product.teamName+'_profile_photo_'+user.firstName + "_" + user.lastName + '.png';
 								if(obj !== "") {
 									zip.file(name, obj, {base64:true});
 								} else {
@@ -1140,25 +1140,25 @@ router.post("/download/team/zip/:type/:date", async(req:ApiRequest<{type:string,
 						}
 					}
 					if(links.length !== 0) {
-						zip.folder((product as any).teams_teamName);
-						zip.folder((product as any).teams_teamName + "/Videos");
-						zip.folder((product as any).teams_teamName + "/Images");
-						zip.folder((product as any).teams_teamName + "/PowerPoint");
+						zip.folder(product.teamName);
+						zip.folder(product.teamName + "/Videos");
+						zip.folder(product.teamName + "/Images");
+						zip.folder(product.teamName + "/PowerPoint");
 						for(const link of links) {
 							if(prId !== 0 && product !== undefined) {
 								const date = uploadDownload.formatDate(link.uploadTime);
 								let name = "";
 
 								if(link.fileType === "demoVid") {
-									name = (product as any).teams_teamName+'/Videos/'+(product as any).teams_location + "_" + (product as any).teams_teamName + "_tehnic_demo_video_" + date + "." + link.extension;
+									name = product.teamName+'/Videos/'+product.location + "_" + product.teamName + "_tehnic_demo_video_" + date + "." + link.extension;
 								} else if(link.fileType ==="presVid") {
-									name = (product as any).teams_teamName+'/Videos/'+(product as any).teams_location + "_" + (product as any).teams_teamName + "_products_presentation_video_" + date + "." + link.extension;
+									name = product.teamName+'/Videos/'+product.location + "_" + product.teamName + "_products_presentation_video_" + date + "." + link.extension;
 								} else if(link.fileType ==="pres") {
-									name = (product as any).teams_teamName+'/PowerPoint/'+(product as any).teams_location + "_" + (product as any).teams_teamName + "_powerpoint_presentation_" + date + "."  + link.extension;
+									name = product.teamName+'/PowerPoint/'+product.location + "_" + product.teamName + "_powerpoint_presentation_" + date + "."  + link.extension;
 								} else if(link.fileType ==="image") {
-									name = (product as any).teams_teamName+'/Images/'+(product as any).teams_location + "_" + (product as any).teams_teamName + "_products_image_"+ link.uuid[0] +link.uuid[1] + link.uuid[2] + "_" + date + "."  + link.extension;
+									name = product.teamName+'/Images/'+product.location + "_" + product.teamName + "_products_image_"+ link.uuid[0] +link.uuid[1] + link.uuid[2] + "_" + date + "."  + link.extension;
 								} else if(link.fileType ==="logo") {
-									name = (product as any).teams_teamName+'/Images/'+(product as any).teams_location + "_" + (product as any).teams_teamName + "_logo_" + date + "."  + link.extension;
+									name = product.teamName+'/Images/'+product.location + "_" + product.teamName + "_logo_" + date + "."  + link.extension;
 								} else {
 									res.status(400).send('Unidentified link');
 								}
@@ -1184,16 +1184,16 @@ router.post("/download/team/zip/:type/:date", async(req:ApiRequest<{type:string,
 			} else {
 				const products = await teams.getTeams();
 				for(const product of products) {
-					const prId = (product as any).products_productId;
+					const prId = product.productId;
 					let links = await uploadDownload.getLinksByProductId(prId.toString(), date);
-					const users = await teams.getUsersByTeamId((product as any).teams_teamId);
-					const folder = (product as any).teams_location+'/'+(product as any).teams_teamName;
+					const users = await teams.getUsersByTeamId(product.teamId);
+					const folder = product.location+'/'+product.teamName;
 					if(users.length !== 0) {
 						for(const user of users) {
 							if(user)
 							if(user.avatarUu !== '' && user.avatarUu !== null) {
 								const obj:string = await uploadDownload.getS3Object(user.avatarUu);
-								let name = folder+'/UserImages/'+(product as any).teams_location + "_" + (product as any).teams_teamName+'_profile_photo_'+user.firstName + "_" + user.lastName + '.png';
+								let name = folder+'/UserImages/'+product.location + "_" + product.teamName+'_profile_photo_'+user.firstName + "_" + user.lastName + '.png';
 								if(obj !== "") {
 									zip.file(name, obj, {base64:true});
 								} else {
@@ -1212,15 +1212,15 @@ router.post("/download/team/zip/:type/:date", async(req:ApiRequest<{type:string,
 								const date = uploadDownload.formatDate(link.uploadTime);
 								let name = "";
 								if(link.fileType === "demoVid") {
-									name = folder+'/Videos/'+(product as any).teams_location + "_" + (product as any).teams_teamName + "_tehnic_demo_video_" + date + "." + link.extension;
+									name = folder+'/Videos/'+product.location + "_" + product.teamName + "_tehnic_demo_video_" + date + "." + link.extension;
 								} else if(link.fileType ==="presVid") {
-									name = folder+'/Videos/'+(product as any).teams_location + "_" + (product as any).teams_teamName + "_products_presentation_video_" + date + "." + link.extension;
+									name = folder+'/Videos/'+product.location + "_" + product.teamName + "_products_presentation_video_" + date + "." + link.extension;
 								} else if(link.fileType ==="pres") {
-									name = folder+'/PowerPoint/'+(product as any).teams_location + "_" + (product as any).teams_teamName + "_powerpoint_presentation_" + date + "."  + link.extension;
+									name = folder+'/PowerPoint/'+product.location + "_" + product.teamName + "_powerpoint_presentation_" + date + "."  + link.extension;
 								} else if(link.fileType ==="image") {
-									name = folder+'/Images/'+(product as any).teams_location + "_" + (product as any).teams_teamName + "_products_image_"+ link.uuid[0] +link.uuid[1] + link.uuid[2] + "_" + date + "."  + link.extension;
+									name = folder+'/Images/'+product.location + "_" + product.teamName + "_products_image_"+ link.uuid[0] +link.uuid[1] + link.uuid[2] + "_" + date + "."  + link.extension;
 								} else if(link.fileType ==="logo") {
-									name = folder+'/Images/'+(product as any).teams_location + "_" + (product as any).teams_teamName + "_logo_" + date + "."  + link.extension;
+									name = folder+'/Images/'+product.location + "_" + product.teamName + "_logo_" + date + "."  + link.extension;
 								} else {
 									res.status(400).send('Unidentified link');
 								}

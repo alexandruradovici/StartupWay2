@@ -54,14 +54,14 @@
 																rounded
 																color="primary"
 																:rules="startupRules"
-																v-model="updated.products_startupName"
+																v-model="updated.startupName"
 															></v-text-field>
 															<div>Pending English Description</div>
 															<v-textarea
 																outlined
 																rounded
 																color="primary"
-																v-model="updated.products_pendingDescriptionEN"
+																v-model="updated.pendingDescriptionEN"
 																:rules="rulesDesc"
 																no-resize counter="600"
 															></v-textarea>
@@ -70,7 +70,7 @@
 																outlined
 																rounded
 																color="primary"
-																v-model="updated.products_pendingDescriptionRO"
+																v-model="updated.pendingDescriptionRO"
 																:rules="rulesDesc"
 																no-resize counter="600"
 															></v-textarea>
@@ -309,12 +309,19 @@ import Vue from "vue";
 import moment from "moment";
 import { mapGetters } from "vuex";
 import { UI } from "@startupway/main/lib/ui";
-// import { User } from "@startupway/users/lib/ui";
+import { User } from "@startupway/users/lib/ui";
 import { Team, Product, TeamType, WorkshopDay, BusinessTrack } from "@startupway/teams/lib/ui";
+import { ModifiedTeam, Review } from "../../common";
+interface Tab {
+	key:number,
+	title:string,
+	icon:string,
+	link:string
+}
 export default Vue.extend({
 	name: "Dashboard",
 	components: {},
-	async mounted() {
+	async mounted():Promise<void> {
 		let _varToString = (varObj: Object): string => Object.keys(varObj)[0];
 		let name = _varToString({ BusinessTrack });
 		this._enumToData(BusinessTrack, name);
@@ -331,7 +338,7 @@ export default Vue.extend({
 	data() {
 		return {
 			ui:UI.getInstance(),
-			allTeams: [] as any[],
+			allTeams: [] as (Team & Product)[],
 			startupRules: [
 				(value: string) => {
 					if(value && value.length > 0) 
@@ -354,25 +361,13 @@ export default Vue.extend({
 			show:true,
 			currentContent:true,
 			currentRoute:"" as string,
-			mentoredTeams:[] as any[],
+			mentoredTeams:[] as (ModifiedTeam)[],
 			selectedMentoredTeam: {} as Team,
 			id:0 as number,
-			tabs: [] as any,
+			tabs: [] as Tab[],
 			editElement: true,
 			dialog: false,
-			team: {
-				workshopNr:"",
-				mentor:"",
-				teamTrack:"",
-				businessTrack:"",
-				startupName:"",
-				description:"",
-				webLink:"",
-				mentorNotes:"",
-				adminNotes:"",
-				assesment20May:"",
-				assesment12Oct:""
-			},
+			team: (null as any) as (Team & Product),
 			values:[
 				"Yes",
 				"Maybe",
@@ -401,7 +396,7 @@ export default Vue.extend({
 				"Sibiu",
 				"Timisoara"
 			],
-			reviews: [],
+			reviews: [] as Review[],
 			type: "",
 			loadingPage:false,
 			loading:false,
@@ -435,63 +430,51 @@ export default Vue.extend({
 				{ text: "Last Mentor Update", value: "lastMentorUpdate", sortable: false}
 			],
 			existsUpdate: false,
-			approveDescriptions: [] as any,
-			updated: {
-				products_businessTrack: "",
-				products_descriptionEN: "",
-				products_descriptionRO: "",
-				products_mentorId: 0,
-				products_pendingDescriptionEN: "",
-				products_pendingDescriptionRO: "",
-				products_productDetails: {},
-				products_productId: 0,
-				products_startupName: "",
-				products_teamType: "",
-				products_workshopDay: "",
-				products_updatedAt: new Date(),
-				products_lastMentorUpdate: new Date(),
-				teams_location: "",
-				teams_productId: 0,
-				teams_teamDetails: {},
-				teams_teamId: 0,
-				teams_teamName: "",
-				teams_year: 0
-			},
+			approveDescriptions: [] as (Team & Product)[],
+			updated: (null as any) as (Team & Product),
 			approveDialog: false,
 			selectedTeam: 0,
-			allDescriptions: {} as any
+			allDescriptions: {} as {[key:string]:string}
 		};
 	},
-	created() {},
 	filters: {
-		moment(date: Date) {
+		moment(date: Date):string {
 			return moment(date).format("MMMM Do YYYY, h:mm:ss a");
 		}
 	},
 	watch: {
 		mentoredTeam: {
 			immediate:true,
-			async handler(newTeam:number) {
+			async handler(newTeam:number):Promise<void> {
 				if(this.mentoredTeams.length > 0){
-					(this.selectedMentoredTeam as any) = this.mentoredTeams.find( team => {
+					const resp = this.mentoredTeams.find( team => {
 						return team.teamId == newTeam;
 					});
+					if(resp) {
+						this.selectedMentoredTeam = resp;
+					}
 					this.id = newTeam;
 				}
 			}
 		},
 		selectedMentoredTeam: {
 			immediate:true,
-			async handler(newTeam:Team) {
+			async handler(newTeam:Team & Product):Promise<void> {
 				if(newTeam) {
-					let response = await this.ui.api.get("/api/v1/teams/product/" + newTeam.teamId);
-					let product:Product = response.data;
-					(newTeam as any).businessTrack = product.businessTrack;
-					(newTeam as any).teamType = product.teamType;
+					try {
+						let response = await this.ui.api.get<Product | null>("/api/v1/teams/product/" + newTeam.teamId);
+						let product:Product | null = response.data;
+						if(product) {
+							newTeam.businessTrack = product.businessTrack;
+							newTeam.teamType = product.teamType;
+						}
+					} catch (error) {
+						console.error(error);
+					}
 				}
 			}
 		},
-		async $route (to, from){
+		async $route (to, from):Promise<void> {
 			if(to.path == "/workspace") {
 				this.router=false;
 			} else if(to.path == "/login") {
@@ -501,13 +484,13 @@ export default Vue.extend({
 			}
 			this.currentRoute=to.name;
 			if (this.role === "Mentor") {
-				let response = await this.ui.api.get("/api/v1/teams/mentor/teamsAndProduct/" + this.user.userId);
+				let response = await this.ui.api.get<(Team & Product)[]>("/api/v1/teams/mentor/teamsAndProduct/" + this.user.userId);
 				if (response) {
 					this.mentoredTeams = this.modifyTeams(response.data);
 					
 				}
 			} else if (this.role === "Admin" || this.role === "SuperAdmin") {
-				let response = await this.ui.api.get("/api/v1/admin/teams/" + this.user.userDetails["location"]);
+				let response = await this.ui.api.get<(Team & Product)[]>("/api/v1/admin/teams/" + this.user.userDetails["location"]);
 				if (response) {
 					this.mentoredTeams = this.modifyTeams(response.data);
 				}
@@ -515,7 +498,7 @@ export default Vue.extend({
     	},
 		_token: {
 			immediate:true,
-			handler (newToken:string) {
+			handler (newToken:string):void {
 				if(newToken === null){
 					if(this.$route.path !== "/login")
 						this.$router.push("/login");
@@ -524,7 +507,7 @@ export default Vue.extend({
 		},
 		user: {
 			immediate: true,
-			async handler (newUser: any) {
+			async handler (newUser: User):Promise<void> {
 				if(newUser) {
 					const role = JSON.parse(this.user.role);
 					if(role["Mentor"]) {
@@ -546,25 +529,25 @@ export default Vue.extend({
 								this.role="Admin";
 							else
 								this.role="SuperAdmin";
-							let response = await this.ui.api.get("/api/v1/admin/teams/"+newUser.userDetails["location"]);
+							let response = await this.ui.api.get<(Team & Product)[]>("/api/v1/admin/teams/"+newUser.userDetails["location"]);
 							if (response) {
 								this.mentoredTeams = this.modifyTeams(response.data);
 								for(let team in this.mentoredTeams) {
 									this.mentoredTeams[team].teamId;
-									this.mentoredTeams[team].description = response.data[team].products_descriptionEN;
-									this.mentoredTeams[team].mentor = JSON.parse(this.mentoredTeams[team].teamDetails).mentor;
+									(this.mentoredTeams[team] as any).description = response.data[team].descriptionEN;
+									(this.mentoredTeams[team] as any).mentor = JSON.parse((this.mentoredTeams[team] as any).teamDetails).mentor;
 								}
 							}
 							
 						} else if(role["Mentor"]) {
 							this.role="Mentor";
-							let response = await this.ui.api.get("/api/v1/teams/mentor/teamsAndProduct/" + newUser.userId);
+							let response = await this.ui.api.get<(Team & Product)[]>("/api/v1/teams/mentor/teamsAndProduct/" + newUser.userId);
 							if (response) {
 								
 								this.mentoredTeams = this.modifyTeams(response.data);
 								for(let team in this.mentoredTeams) {
 									this.mentoredTeams[team].teamId;
-									this.mentoredTeams[team].description = response.data[team].products_descriptionEN;
+									(this.mentoredTeams[team] as any).description = response.data[team].descriptionEN;
 								}
 							}
 						}
@@ -651,12 +634,11 @@ export default Vue.extend({
 					try {
 						let id = newUser.userId;
 						let location = newUser.userDetails.location;
-						let response = await this.ui.api.post("/api/v1/admin/teams/review", {
+						let response = await this.ui.api.post<Review[]>("/api/v1/admin/teams/review", {
 							type:this.type,
 							id:id,
 							location:location
 						});
-						console.log(response);
 						this.reviews = response.data;
 
 					} catch (e) {
@@ -670,13 +652,13 @@ export default Vue.extend({
 		},
 		mentoredTeams: {
 			immediate: true,
-			async handler (newTeams: any[]) {
+			async handler (newTeams: (Team & Product)[]):Promise<void> {
 				if (this.role==="Mentor") {
 					for(let team of newTeams) {
-						let response = await this.ui.api.get("/api/v1/teams/product/" + team.teamId);
+						let response = await this.ui.api.get<Product>("/api/v1/teams/product/" + team.teamId);
 						let product:Product = response.data;
-						(team as any).businessTrack = product.businessTrack;
-						(team as any).teamType = product.teamType;
+						team.businessTrack = product.businessTrack;
+						team.teamType = product.teamType;
 					}
 				}
 			},
@@ -694,19 +676,17 @@ export default Vue.extend({
 		teams (): Team[] {
 			return this._teams as Team[];
 		},
-		filteredReviews():any[] {
-			let filteredRev:any[] = [];
+		filteredReviews():Review[] {
+			let filteredRev:Review[] = [];
 			if(this.reviews.length > 0) {
-			filteredRev = this.reviews.filter((review:any) => {
-				return ((review as any).teamTrack as string).includes(this.teamTypeFilter) &&
-					((review as any).businessTrack as string).includes(this.businessTracksFilter) &&
-					((review as any).assessment20May as string).includes(this.may20Filter) &&
-					((review as any).location as string).includes(this.locationFilter) &&
-					((review as any).workshopNr as string).includes(this.workshopFilter) &&
-					((review as any).assessment12Oct as string).includes(this.oct12Filter);
-			}
-				 
-			)
+				filteredRev = this.reviews.filter((review:Review) => {
+					return review.teamTrack.includes(this.teamTypeFilter) &&
+						review.businessTrack.includes(this.businessTracksFilter) &&
+						review.assessment20May.includes(this.may20Filter) &&
+						review.location.includes(this.locationFilter) &&
+						review.workshopNr.includes(this.workshopFilter) &&
+						review.assessment12Oct.includes(this.oct12Filter);
+					});
 			}
 			return filteredRev;
 		}
@@ -715,42 +695,47 @@ export default Vue.extend({
 		moment() {
 			return moment();
 		},
-		formatDate(date: Date) {
+		formatDate(date: Date):string {
 			let time  = (new Date(date)).toTimeString().split(" ");
 			if(new Date(date).toString() === "Invalid Date")
 				return "";
 			else 
 			return (new Date(date)).toDateString() + " " + time[0];
 		},
-		openDialog(item: any) {
+		openDialog(item: (Team & Product)):void {
 			this.dialog = true;
 			this.team = item;
 		},
-		openForApprove(item: any) {
-			let toApprove = this.approveDescriptions.find((el : any) => el.teams_teamId === item.teamId);
-			this.approveDialog = true;
-			this.updated = toApprove;
-			this.selectedTeam = item.teamId;
+		openForApprove(item: (Team & Product)):void {
+			let toApprove = this.approveDescriptions.find((el : (Team & Product)) => el.teamId === item.teamId);
+			if(toApprove) {
+				this.approveDialog = true;
+				this.updated = toApprove;
+				this.selectedTeam = item.teamId;
+			}
 		},
-		updateColor(item: any) {
-			let found = this.approveDescriptions.find((element: any) => element.teams_teamId === item.teamId)
+		updateColor(item: (Team & Product)):string {
+			let found = this.approveDescriptions.find((element: (Team & Product)) => element.teamId === item.teamId)
 			if(found)
 				return "red";
 			return "green";
 		},
-		disabledIcon(item: any) {
-			let found = this.approveDescriptions.find((element: any) => element.teams_teamId === item.teamId)
-			if(found !== undefined)
-				return false;
-			return true;
+		disabledIcon(item: (Team & Product)):boolean {
+			if(item) {
+				let found = this.approveDescriptions.find((element: (Team & Product)) => element.teamId === item.teamId)
+				if(found !== undefined)
+					return false;
+				return true;
+			}
+			return false;
 		},
-		_enumToData(enumData: any, name: string) {
+		_enumToData(enumData: any, name: string):void {
 			name = name.replace(/^\w/, c => c.toLowerCase()) + "s";
 			for (let propName in enumData) {
 				if (propName !== "NONE") ((this as any)[name] as Array<Object>).push(enumData[propName]);
 			}
 		},
-		clearFilters(){
+		clearFilters():void {
 			this.oct12Filter = "";
 			this.may20Filter = "";
 			this.teamTypeFilter = "";
@@ -758,16 +743,14 @@ export default Vue.extend({
 			this.workshopFilter = "";
 			this.locationFilter = "";
 		},
-		debug(item:any) {
-		},
-		openLink(item:any) {
+		openLink(item:Review):void {
 			let webLink:string = item.webLink;
 			if(!webLink.includes("http://")) {
 				webLink = "http://" + webLink;
 			}
 			window.open(webLink, "_blank");
 		},
-		async goToTeam(item:any) {
+		async goToTeam(item:Review) {
 			let teamId = item.teamId;
 			const path = "/viewTeam/product/"
 			if(this.$route.path !== path)
@@ -778,9 +761,9 @@ export default Vue.extend({
 			if(this.team.startupName != "") {
 				// this.loading = true;
 				// this.loadingPage = true;
-				let productIndex = this.reviews.findIndex((el: any) => el.startupName === this.team.startupName);
-				(this.reviews[productIndex] as any).lastMentorUpdate = (this.formatDate(new Date()) as unknown as Date);
-				let response = await this.ui.api.post("/api/v1/admin/teams/review/update", 
+				let productIndex = this.reviews.findIndex((el: Review) => el.startupName === this.team.startupName);
+				this.reviews[productIndex].lastMentorUpdate = (this.formatDate(new Date()) as unknown as Date).toString();
+				let response = await this.ui.api.post<Review[]>("/api/v1/admin/teams/review/update", 
 				{
 					reviews:this.reviews,
 					type:this.type
@@ -788,18 +771,18 @@ export default Vue.extend({
 				if(response) {
 					this.reviews = response.data;
 					
-					let productToUpdate = this.allTeams.findIndex((el: any) => el.startupName === (this.allTeams[productIndex] as any).startupName);
+					let productToUpdate = this.allTeams.findIndex((el: Team & Product) => el.startupName === (this.allTeams[productIndex] as Team & Product).startupName);
 					if(productToUpdate !== undefined) {
 						try {
-							let product = await this.ui.api.get("/api/v1/teams/product/" + this.allTeams[productToUpdate].teams_teamId);
+							let product = await this.ui.api.get<Product | null>("/api/v1/teams/product/" + this.allTeams[productToUpdate].teamId);
 							if(product.data) {
 								product.data.lastMentorUpdate = (this.formatDate(new Date()) as unknown as Date) ;
 								try {
-									await this.ui.api.post("/api/v1/teams/product/update", {
+									await this.ui.api.post<Product | null>("/api/v1/teams/product/update", {
 										product: product.data,
 										upload: "",
 										ext: ".pptx",
-										teamId: this.allTeams[productToUpdate].teams_teamId
+										teamId: this.allTeams[productToUpdate].teamId
 									});
 								} catch (e) {
 									console.error(e);
@@ -807,7 +790,7 @@ export default Vue.extend({
 								try {
 									await this.ui.storeDispatch("teams/updateProduct", {
 										product: product.data,
-										teamId: this.allTeams[productToUpdate].teams_teamId
+										teamId: this.allTeams[productToUpdate].teamId
 									});
 								} catch (e) {
 									console.error(e);
@@ -817,23 +800,23 @@ export default Vue.extend({
 							console.error(e);
 						}
 						let Product = {
-							productId: this.allTeams[productToUpdate].teams_productId,
-							mentorId: this.allTeams[productToUpdate].products_mentorId,
-							startupName: this.allTeams[productToUpdate].products_startupName,
-							businessTrack: this.allTeams[productToUpdate].products_businessTrack,
-							teamType: this.allTeams[productToUpdate].products_teamType,
-							workshopDay: this.allTeams[productToUpdate].products_workshopDay,
-							descriptionRO: this.allTeams[productToUpdate].products_descriptionRO,
-							descriptionEN: this.allTeams[productToUpdate].products_descriptionRO,
-							pendingDescriptionEN: this.allTeams[productToUpdate].products_pendingDescriptionEN,
-							pendingDescriptionRO: this.allTeams[productToUpdate].products_PendingDescriptionRO,
-							productDetails: this.allTeams[productToUpdate].products_productDetails,
+							productId: this.allTeams[productToUpdate].productId,
+							mentorId: this.allTeams[productToUpdate].mentorId,
+							startupName: this.allTeams[productToUpdate].startupName,
+							businessTrack: this.allTeams[productToUpdate].businessTrack,
+							teamType: this.allTeams[productToUpdate].teamType,
+							workshopDay: this.allTeams[productToUpdate].workshopDay,
+							descriptionRO: this.allTeams[productToUpdate].descriptionRO,
+							descriptionEN: this.allTeams[productToUpdate].descriptionRO,
+							pendingDescriptionEN: this.allTeams[productToUpdate].pendingDescriptionEN,
+							pendingDescriptionRO: this.allTeams[productToUpdate].pendingDescriptionRO,
+							productDetails: this.allTeams[productToUpdate].productDetails,
 							lastMentorUpdate: (this.formatDate(new Date()) as unknown as Date)
 						} as Product;
 					try {
 						await this.ui.storeDispatch("teams/updateProduct", {
 							product: Product,
-							teamId: this.allTeams[productToUpdate].teams_teamId
+							teamId: this.allTeams[productToUpdate].teamId
 						});
 					} catch (e) {
 						console.error(e);
@@ -847,7 +830,7 @@ export default Vue.extend({
 				// this.loading = false;
 			}
 		},
-		editTeam(team: any) {
+		editTeam(team: Team & Product) {
 			this.team = team;
 			this.dialog = true;
 		},
@@ -867,50 +850,50 @@ export default Vue.extend({
 		},
 		async approveDescription() {
 			try {
-				let response = await this.ui.api.post("/api/v1/teams/product/approve/description", {
+				let response = await this.ui.api.post<Product | null>("/api/v1/teams/product/approve/description", {
 					product: {
-						productId: this.updated.products_productId,
-						startupName: this.updated.products_startupName,
-						businessTrack: this.updated.products_businessTrack,
-						teamType: this.updated.products_teamType,
-						workshopDay: this.updated.products_workshopDay,
-						mentorId: this.updated.products_mentorId,
-						descriptionRO: this.updated.products_pendingDescriptionRO,
-						descriptionEN: this.updated.products_pendingDescriptionEN,
+						productId: this.updated.productId,
+						startupName: this.updated.startupName,
+						businessTrack: this.updated.businessTrack,
+						teamType: this.updated.teamType,
+						workshopDay: this.updated.workshopDay,
+						mentorId: this.updated.mentorId,
+						descriptionRO: this.updated.pendingDescriptionRO,
+						descriptionEN: this.updated.pendingDescriptionEN,
 						pendingDescriptionRO: "",
 						pendingDescriptionEN: "",
-						productDetails: this.updated.products_productDetails,
-						lastMentorUpdate: (this.formatDate(new Date()) as unknown as Date)
-						// updatedAt: this.updated.products_updatedAt
+						productDetails: this.updated.productDetails,
+						lastMentorUpdate: (this.formatDate(new Date()) as unknown as Date),
+						updatedAt: this.updated.updatedAt
 					}
 				})
-				if(response) {
+				if(response.data) {
 					
-					let res = await this.ui.api.get("/api/v1/teams/product/" + this.selectedTeam);
+					let res = await this.ui.api.get<Product | null>("/api/v1/teams/product/" + this.selectedTeam);
 						if(res) {
 							let product = response.data;
-							this.updated.products_productId = product.productId;
-							this.updated.products_startupName = product.startupName;
-							this.updated.products_businessTrack = product.businessTrack;
-							this.updated.products_teamType = product.teamType;
-							this.updated.products_workshopDay = product.workshopDay;
-							this.updated.products_mentorId = product.mentorId;
-							this.updated.products_descriptionRO = product.descriptionRO;
-							this.updated.products_descriptionEN = product.descriptionEN;
-							this.updated.products_pendingDescriptionRO = product.pendingDescriptionRO;
-							this.updated.products_pendingDescriptionEN = product.pendingDescriptionEN;
-							this.updated.products_productDetails = product.productDetails;
-							this.updated.products_lastMentorUpdate = product.products_lastMentorUpdate;
-							// let found = this.filteredReviews.findIndex((el: any) => el.teamId === this.updated.teams_teamId);
+							this.updated.productId = product.productId;
+							this.updated.startupName = product.startupName;
+							this.updated.businessTrack = product.businessTrack;
+							this.updated.teamType = product.teamType;
+							this.updated.workshopDay = product.workshopDay;
+							this.updated.mentorId = product.mentorId;
+							this.updated.descriptionRO = product.descriptionRO;
+							this.updated.descriptionEN = product.descriptionEN;
+							this.updated.pendingDescriptionRO = product.pendingDescriptionRO;
+							this.updated.pendingDescriptionEN = product.pendingDescriptionEN;
+							this.updated.productDetails = product.productDetails;
+							this.updated.lastMentorUpdate = product.lastMentorUpdate;
+							// let found = this.filteredReviews.findIndex((el: any) => el.teamId === this.updated.teamId);
 							// this.filteredReviews[found] = this.updated;
-							let found2 = this.approveDescriptions.findIndex((el: any) => el.teamId === this.updated.teams_teamId);
+							let found2 = this.approveDescriptions.findIndex((el: Team & Product) => el.teamId === this.updated.teamId);
 							this.approveDescriptions.splice(found2, 1);
-							this.disabledIcon({});
+							this.disabledIcon((null as any) as Team & Product);
 							this.allDescriptions[product.productId] = product.descriptionEN;
 							// this.description = product.descriptionEN;
 
-							let productIndex = this.reviews.findIndex((el: any) => el.teamId === this.updated.teams_teamId);
-							(this.reviews[productIndex] as any).lastMentorUpdate = (this.formatDate(new Date()) as unknown as Date);
+							let productIndex = this.reviews.findIndex((el: Review) => el.teamId === this.updated.teamId);
+							(this.reviews[productIndex] as Review).lastMentorUpdate = (this.formatDate(new Date()) as unknown as Date).toString();
 						}
 					this.$forceUpdate();
 				}
@@ -919,87 +902,86 @@ export default Vue.extend({
 			}
 			this.approveDialog = false;
 		},
-		async selectTeam(team:Team) {
+		async selectTeam(team:Team):Promise<void> {
 			this.id = team.teamId;
 			await this.$store.dispatch("teams/mentorTeam", team.teamId);
 			this.changeRoute("/viewTeam/composition")
 		},
-		async editProduct(team:Team) {
+		async editProduct(team:Team):Promise<void> {
 			this.id = team.teamId;
 			await this.$store.dispatch("teams/mentorTeam", team.teamId);
 			this.changeRoute("/viewTeam/product")
 		},
-		async teamActivity(team:Team) {
+		async teamActivity(team:Team):Promise<void> {
 			this.id = team.teamId;
 			await this.$store.dispatch("teams/mentorTeam", team.teamId);
 			this.changeRoute("/viewTeam/activities")
 		},
-		async productNewUpdates(team:Team) {
+		async productNewUpdates(team:Team):Promise<void> {
 			this.id = team.teamId;
 			await this.$store.dispatch("teams/mentorTeam", team.teamId);
 			this.changeRoute("/viewTeam/feed")
 		},
-		async openCanvas(team:Team) {
+		async openCanvas(team:Team):Promise<void> {
 			this.id = team.teamId;
 			await this.$store.dispatch("teams/mentorTeam", team.teamId);
 			this.changeRoute("/viewTeam/canvas")
 		},
-		modifyTeams(newTeams:any[]) {
-			let newArray=[];
+		modifyTeams(newTeams:(Team & Product)[]):(ModifiedTeam)[] {
+			let newArray:ModifiedTeam[]=[];
 			for(let team of newTeams) {
-				team.products_updatedAt = this.formatDate(team.products_updatedAt);
-				team.products_lastMentorUpdate = this.formatDate(team.products_lastMentorUpdate);
-				team.products_productDetails = JSON.parse(team.products_productDetails);
+				team.updatedAt = new Date(this.formatDate(team.updatedAt));
+				team.lastMentorUpdate = new Date(this.formatDate(team.lastMentorUpdate));
 				this.allTeams.push(team);
-				if(team.products_pendingDescriptionEN !== "" || team.products_pendingDescriptionRO !=="") {
+				if(team.pendingDescriptionEN !== "" || team.pendingDescriptionRO !=="") {
 					this.existsUpdate = true;
 					this.approveDescriptions.push(team);
 				};
-				this.allDescriptions[team.teams_teamId] = team.products_descriptionEN;
-				let newTeam = {
-					teamId:team.teams_teamId,
-					productId:team.teams_productId,
-					year:team.teams_year,
-					location:team.teams_location,
-					teamName:team.teams_teamName,
-					teamDetails:team.teams_teamDetails,
-					businessTrack:team.products_businessTrack,
-					teamType:team.products_teamType,
-					pendingDescriptionRO: team.products_pendingDescriptionRO,
-					pendingDescriptionEN: team.products_pendingDescriptionEN,
-					updatedAt: team.products_updatedAt,
-					lastMentorUpdate: team.products_lastMentorUpdate
+				this.allDescriptions[team.teamId] = team.descriptionEN;
+				let newTeam:ModifiedTeam = {
+					teamId:team.teamId,
+					productId:team.productId,
+					year:team.year,
+					location:team.location,
+					teamName:team.teamName,
+					teamDetails:team.teamDetails,
+					businessTrack:team.businessTrack,
+					teamType:team.teamType,
+					pendingDescriptionRO: team.pendingDescriptionRO,
+					pendingDescriptionEN: team.pendingDescriptionEN,
+					updatedAt: team.updatedAt,
+					lastMentorUpdate: team.lastMentorUpdate
 				}
 				newArray.push(newTeam);
 			}
-			let found = this.allTeams.findIndex((el: any) => el.products_startupName === "");
+			let found = this.allTeams.findIndex((el: Team & Product) => el.startupName === "");
 			this.allTeams.splice(found, 1);
 			this.allTeams = this.allTeams.sort(function(a, b) {
-				var nameA = a.products_startupName.toUpperCase();
-				var nameB = b.products_startupName.toUpperCase();
+				var nameA = a.startupName.toUpperCase();
+				var nameB = b.startupName.toUpperCase();
 				if (nameA < nameB) {return -1;}
 				if (nameA > nameB) {return 1;}
 				return 0;
 			});
 			return newArray
 		},
-		pushToTabs(tab:any) {
-			if(this.tabs.find((item:any) => {
+		pushToTabs(tab:Tab):void {
+			if(this.tabs.find((item:Tab) => {
 				return item.link === tab.link
 			}) === undefined) {
 				this.tabs.push(tab);
 			}
 		},
-		checkRoute() {
+		checkRoute():boolean {
 			if(this.$router.currentRoute.path === "/workspace")
 				return true;
 			else
 				return false;
 		},
-		pushBack() {
+		pushBack():void {
 			this.$router.go(-1);
 		},
-		changeRoute(link:string) {
+		changeRoute(link:string):void {
 			if((this.role==="Mentor" || this.role==="Admin" || this.role ==="SuperAdmin") && this.selectedMentoredTeam.teamId !== 0 && link.split("/")[1] === "viewTeam") {
 				if(this.$route.path !== link + "/" + this.selectedMentoredTeam.teamId)
 					this.$router.push(link + "/" + this.selectedMentoredTeam.teamId);
