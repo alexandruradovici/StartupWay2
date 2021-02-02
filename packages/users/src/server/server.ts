@@ -1,5 +1,5 @@
 
-import { Session, NO_SESSION, User, NO_USER, NO_TOKEN } from '../common';
+import { Session, User} from '../common';
 import { Server } from "@startupway/main/lib/server";
 import { getPool } from '@startupway/database/lib/server';
 import { QueryOptions, Connection } from 'mariadb';
@@ -130,7 +130,13 @@ export class UsersServer {
 			}
 		} catch(e) {
 			console.error(e);
-			const errorSession = NO_SESSION;
+			let errorSession:Session = {
+				sessionId: 0,
+				token: "",
+				userId: 0,
+				createdAt: new Date(),
+
+			};
 			errorSession.token = "error";
 			return errorSession;
 		}
@@ -332,8 +338,8 @@ const usersServer = UsersServer.getInstance();
 const router = Router ();
 
 router.use((req, res, next) => {
-	(req as any).user = NO_USER;
-	(req as any).token = NO_TOKEN;
+	(req as any).user = null;
+	(req as any).token = "";
 	next();
 });
 
@@ -475,13 +481,13 @@ export function getAuthorizationFunction(): ((req:Request,res:Response,next:Next
 	try {
 		const f = async (req:Request, res:Response, next:NextFunction)=> {
 			const authorization = req.header("Authorization");
-			let token = NO_TOKEN;
+			let token = null;
 			if(authorization){
 				token = authorization.split(" ")[1];
 			}
-			if(token !==  NO_TOKEN) {
+			if(token !==  null) {
 				const user = await usersServer.getSessionUser(token);
-				if(user === NO_USER)
+				if(user === null)
 					res.status(401).send({err:401});
 				else
 				{

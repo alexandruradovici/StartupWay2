@@ -92,7 +92,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-// import { Team, Feed, FeedText, FeedTypes, NO_FEED } from "../ui_types";
+import { Feed, FeedText, FeedTypes } from "../../common";
 import { UI } from "@startupway/main/lib/ui";
 import { mapGetters } from "vuex";
 import moment from "moment";
@@ -111,29 +111,29 @@ export default Vue.extend({
 		}
 	},
 	watch: {
-		// currentTeam: {
-		// 	immediate: true,
-		// 	async handler(newTeam: Team) {
-		// 		this.teamId = newTeam.teamId;
-		// 		if (this.teamId === 0) {
-		// 			if(this.$route.path!=="/workspace")
-		// 				this.$router.push("/workspace");
-		// 			this.productUpdates = [];
-		// 		} else {
-		// 			try {
-		// 				await this.ui.application.storeDispatch("feed/loadFeed", this.teamId);
-		// 			} catch (e) {
-		// 				console.error(e);
-		// 			}
-		// 		}
-		// 	}
-		// },
-		// feed: {
-		// 	immediate: true,
-		// 	handler(newFeed: Feed[]) {
-		// 		this.productUpdates = newFeed;
-		// 	}
-		// }
+		currentTeam: {
+			immediate: true,
+			async handler(newTeam: any) {
+				this.teamId = newTeam.teamId;
+				if (this.teamId === 0) {
+					if(this.$route.path!=="/workspace")
+						this.$router.push("/workspace");
+					this.productUpdates = [];
+				} else {
+					try {
+						await this.ui.storeDispatch("feed/loadFeed", this.teamId);
+					} catch (e) {
+						console.error(e);
+					}
+				}
+			}
+		},
+		feed: {
+			immediate: true,
+			handler(newFeed: Feed[]) {
+				this.productUpdates = newFeed;
+			}
+		}
 	},
 	computed: {
 		...mapGetters({
@@ -144,89 +144,89 @@ export default Vue.extend({
 	data() {
 		return {
 			ui:{} as UI,
-			// productUpdates: [] as Feed[],
-			// items: [
-			// 	{
-			// 		name: "Investments",
-			// 		value: FeedTypes.INVESTMENT
-			// 	},
-			// 	{
-			// 		name: "Awards",
-			// 		value: FeedTypes.AWARD
-			// 	},
-			// 	{
-			// 		name: "Current Status",
-			// 		value: FeedTypes.UPDATE
-			// 	},
-			// 	{
-			// 		name: "Collaborations",
-			// 		value: FeedTypes.COLLABORATORS
-			// 	}
-			// ],
+			productUpdates: [] as Feed[],
+			items: [
+				{
+					name: "Investments",
+					value: FeedTypes.INVESTMENT
+				},
+				{
+					name: "Awards",
+					value: FeedTypes.AWARD
+				},
+				{
+					name: "Current Status",
+					value: FeedTypes.UPDATE
+				},
+				{
+					name: "Collaborations",
+					value: FeedTypes.COLLABORATORS
+				}
+			],
 			teamId: 0 as number,
 			value: "" as string,
 			text: "" as string,
 			amount: "" as string,
 			newFeedUpdate: 0 as number,
-			// FeedTypes: FeedTypes,
+			FeedTypes: FeedTypes,
 			editDialog: false,
-			edited: {},
+			edited: {} as any,
 			removeDialog: false
 		};
 	},
 	methods: {
-		// accept(feed: Feed){
-		// 	this.deleteFeed(feed);
-		// 	this.removeDialog = false;
-		// },
+		accept(feed: Feed){
+			this.deleteFeed(feed);
+			this.removeDialog = false;
+		},
 		deny(){
 			this.removeDialog = false;
 		},
-		// async deleteFeed(feed: Feed) {
-		// 	try {
-		// 		let response = await this.ui.storeDispatch("feed/deleteFeed", feed);
-		// 		if (response) {
-		// 			await this.ui.storeDispatch("feed/loadFeed", feed.teamId);
-		// 		}
-		// 	} catch (e) {
-		// 		console.error(e);
-		// 	}
-		// 	this.$forceUpdate();
+		async deleteFeed(feed: Feed) {
+			try {
+				let response = await this.ui.storeDispatch("feed/deleteFeed", feed);
+				if (response) {
+					await this.ui.storeDispatch("feed/loadFeed", feed.teamId);
+				}
+			} catch (e) {
+				console.error(e);
+			}
+			this.$forceUpdate();
 			
-		// },
-		// async updateFeed(feed: Feed){
-		// 	let details = {} as FeedText;
-		// 	if (this.amount !== "" && feed.feedType === FeedTypes.INVESTMENT) {
-		// 		details["amount"] = this.amount;
-		// 	}
-		// 	details["text"] = this.text;
-		// 	try {
-		// 		let response = await this.ui.api.post("/api/v1/feed/update", {
-		// 			newFeed: {
-		// 				feedId: feed.feedId,
-		// 				feedType: feed.feedType,
-		// 				teamId: feed.teamId,
-		// 				text: details,
-		// 				date: feed.date,
-		// 			} as Feed
-		// 		});	
-		// 		if (response) {
-		// 			await this.ui.storeDispatch("feed/loadFeed", feed.teamId);
-		// 		}
-		// 	} catch (e) {
-		// 		console.error(e);
-		// 	}
+		},
+		async updateFeed(feed: Feed){
+			let details = {} as FeedText;
+			if (this.amount !== "" && feed.feedType === FeedTypes.INVESTMENT) {
+				details["amount"] = this.amount;
+			}
+			details["text"] = this.text;
+			try {
+				let response = await this.ui.api.post("/api/v1/feed/update", {
+					newFeed: {
+						feedId: feed.feedId,
+						feedType: feed.feedType,
+						teamId: feed.teamId,
+						text: details,
+						date: feed.date,
+					} as Feed
+				});	
+				if (response) {
+					await this.ui.storeDispatch("feed/loadFeed", feed.teamId);
+				}
+			} catch (e) {
+				console.error(e);
+			}
 
-		// 		this.editDialog=false;
-		// 		this.edited = NO_FEED;
+				this.editDialog=false;
+				this.edited = null;
 			
-		// 	this.text = "";
-		// 	this.amount = "";
-		// },
-		// enableEdit(feed: Feed) {
-		// 	this.editDialog=true;
-		// 	this.edited = feed;
-		// },
+			this.text = "";
+			this.amount = "";
+		},
+		enableEdit(feed: Feed) {
+			this.editDialog=true;
+			this.edited = feed;
+		},
 		denyActivity() {
 			this.edited = {};
 			this.editDialog = false;
@@ -238,45 +238,45 @@ export default Vue.extend({
 			let time  = (new Date(date)).toTimeString().split(" ");
 			return (new Date(date)).toDateString() + " " + time[0];
 		},
-		// async addFeed() {
-		// 	let details = {} as FeedText;
-		// 	if (this.amount !== "" && this.value === "Investment") {
-		// 		details["amount"] = this.amount;
-		// 	}
-		// 	details["text"] = this.text;
-		// 	let feed = {
-		// 		teamId: this.teamId,
-		// 		feedType: this.value,
-		// 		text: details,
-		// 		date: new Date()
-		// 	} as Feed;
-		// 	try {
-		// 		let response = await this.ui.storeDispatch("feed/addFeed", feed);
-		// 		if (response) {
-		// 			await this.ui.storeDispatch("feed/loadFeed", this.teamId);
-		// 		}
-		// 	} catch (e) {
-		// 		console.error(e);
-		// 	}
-		// 	try {
-		// 		let product = await this.ui.api.get("/api/v1/teams/product/" + this.teamId);
-		// 		if(product.data) {
-		// 			product.data.updatedAt = (this.formatDate(new Date()) as unknown as Date) ;
-		// 			try {
-		// 				await this.ui.api.post("/api/v1/teams/product/update", {
-		// 					product: product.data,
-		// 					upload: "",
-		// 					ext: ".pptx",
-		// 					teamId: this.teamId
-		// 				});
-		// 			} catch (e) {
-		// 				console.error(e);
-		// 			}
-		// 		}
-		// 	} catch (e) {
-		// 		console.error(e);
-		// 	}
-		// }
+		async addFeed() {
+			let details = {} as FeedText;
+			if (this.amount !== "" && this.value === "Investment") {
+				details["amount"] = this.amount;
+			}
+			details["text"] = this.text;
+			let feed = {
+				teamId: this.teamId,
+				feedType: this.value,
+				text: details,
+				date: new Date()
+			} as Feed;
+			try {
+				let response = await this.ui.storeDispatch("feed/addFeed", feed);
+				if (response) {
+					await this.ui.storeDispatch("feed/loadFeed", this.teamId);
+				}
+			} catch (e) {
+				console.error(e);
+			}
+			try {
+				let product = await this.ui.api.get("/api/v1/teams/product/" + this.teamId);
+				if(product.data) {
+					product.data.updatedAt = (this.formatDate(new Date()) as unknown as Date) ;
+					try {
+						await this.ui.api.post("/api/v1/teams/product/update", {
+							product: product.data,
+							upload: "",
+							ext: ".pptx",
+							teamId: this.teamId
+						});
+					} catch (e) {
+						console.error(e);
+					}
+				}
+			} catch (e) {
+				console.error(e);
+			}
+		}
 	}
 });
 </script>

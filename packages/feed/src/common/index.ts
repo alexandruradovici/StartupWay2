@@ -16,11 +16,3 @@ export interface Feed {
     text: FeedText;
     date: Date;
 }
-
-export const NO_FEED: Feed = {
-    teamId: 0,
-    feedId: 0,
-    feedType: FeedTypes.UPDATE,
-    text: {},
-    date: new Date()
-};

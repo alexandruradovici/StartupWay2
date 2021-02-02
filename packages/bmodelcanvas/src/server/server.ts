@@ -108,7 +108,7 @@ export class BModelCanvasServer {
 	// 	if (updatedCanvas)
 	// 		return updatedCanvas;
 	// 	else
-	// 		return NO_MODEL_CANVAS;
+	// 		return null;
 	// }
 
 	public static getInstance (): BModelCanvasServer
