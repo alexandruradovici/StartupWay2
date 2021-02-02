@@ -1,6 +1,6 @@
 import { Feed} from "../common";
 import { Router } from "express";
-import { Server } from "@startupway/main/lib/server";
+import { Server, ApiRequest, ApiResponse } from "@startupway/main/lib/server";
 import { getPool } from "@startupway/database/lib/server";
 import { QueryOptions, Connection } from "mariadb";
 import { getAuthorizationFunction } from "@startupway/users/lib/server";
@@ -131,7 +131,7 @@ if(authFunct)
 	router.use((authFunct as any));
 	// Bypass params dictionary and send authorization Function
 	
-router.get("/:teamId", async (req, res) => {
+router.get("/:teamId", async (req:ApiRequest<undefined>, res:ApiResponse<Feed[]>) => {
 	const userFeed = await feed.getFeedByTeamId(parseInt(req.params.teamId,10));
 	if (userFeed)
 		res.send(userFeed);
@@ -139,16 +139,16 @@ router.get("/:teamId", async (req, res) => {
 		res.status(401).send({ err: 401 });
 });
 
-router.post("/add", async (req, res) => {
-	const response = await feed.addFeed(req.body.feed);
+router.post("/add", async (req:ApiRequest<Feed>, res:ApiResponse<Feed | null>) => {
+	const response = await feed.addFeed(req.body);
 	if (response)
 		res.send(response);
 	else
 		res.status(401).send({ err: 401 });
 })
-router.post("/update", async(req,res) =>{
+router.post("/update", async(req:ApiRequest<Feed>, res:ApiResponse<Feed | null>) =>{
 	try {
-		const feedResp: Feed | null = await feed.updateFeed(req.body.newFeed);
+		const feedResp: Feed | null = await feed.updateFeed(req.body);
 		if(feedResp)
 			res.status(200).send(feedResp);
 		else
@@ -158,9 +158,9 @@ router.post("/update", async(req,res) =>{
 		res.status(500).send({err: 500});
 	}
 });
-router.post("/delete", async(req, res) => {
+router.post("/delete", async(req:ApiRequest<Feed>, res:ApiResponse<boolean>) => {
 	try {
-		const toRemove = req.body.feed;
+		const toRemove = req.body;
 		if(toRemove) {
 			const resp = await feed.deleteFeed(toRemove);
 			if(resp)

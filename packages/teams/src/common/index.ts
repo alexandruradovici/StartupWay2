@@ -1,4 +1,3 @@
-
 export enum BusinessTrack {
 	NONE = "NONE",
     AGRICULTURE = "Agriculture",

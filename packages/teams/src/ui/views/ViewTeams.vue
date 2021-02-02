@@ -74,6 +74,7 @@ export default Vue.extend({
 
 				if(this.selectedTeam !== parseInt(this.$route.params.teamId,10)) {
 					this.selectedTeam = parseInt(this.$route.params.teamId,10);
+					console.log(this.selectedTeam);
 					try {
 						if(await this.getUsers(this.selectedTeam))
 							await this.getAllUsers();
@@ -117,7 +118,8 @@ export default Vue.extend({
 			immediate: true,
 			async handler(newUser: User) {
 				if(newUser) {
-					if(newUser.role["Admin"] || newUser.role["SuperAdmin"]) {
+					const role = JSON.parse(this.user.role);
+					if(role["Admin"] || role["SuperAdmin"]) {
 						try {
 							this.location = newUser.userDetails["location"];
 							const response = await this.ui.api.get("/api/v1/admin/teams/");
@@ -128,7 +130,7 @@ export default Vue.extend({
 						} catch (e) {
 							console.error(e);
 						}
-					} else if (newUser.role["Mentor"]) {
+					} else if (role["Mentor"]) {
 						try {
 							this.location = newUser.userDetails["location"];
 							const response = await this.ui.api.get("/api/v1/teams/mentor/teams/" + newUser.userId);
@@ -139,20 +141,17 @@ export default Vue.extend({
 						} catch (e) {
 							console.error(e);
 						}
-					} else {
-						if(this.$route.path !== "/workspace")
-							this.$router.push("/workspace");
 					}
-					if(newUser.role["Mentor"] !== undefined || newUser.role["Admin"] !== undefined || newUser.role["SuperAdmin"] !== undefined) {
+					if(role["Mentor"] !== undefined || role["Admin"] !== undefined || role["SuperAdmin"] !== undefined) {
 						if(this.tabs.length > 0) {
 							this.tabs = [];
 						}
-						if (newUser.role["Admin"] || newUser.role["SuperAdmin"]) {
-							if(newUser.role["Admin"])
+						if (role["Admin"] || role["SuperAdmin"]) {
+							if(role["Admin"])
 								this.role="Admin";
 							else
 								this.role="SuperAdmin"
-						} else if(newUser.role["Mentor"]) {
+						} else if(role["Mentor"]) {
 							this.role="Mentor";
 							await this.ui.api.get("/api/v1/teams/mentor/teams/" + newUser.userId);
 							
@@ -268,7 +267,7 @@ export default Vue.extend({
 			allUsers: [] as any[],
 			item: { },
 			loadingPage:false,
-			badeg:badgeImage
+			badge:badgeImage
 		};
 	},
 	methods: {

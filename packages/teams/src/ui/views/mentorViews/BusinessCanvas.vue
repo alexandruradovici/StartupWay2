@@ -40,7 +40,7 @@
 import Vue from "vue";
 import moment from "moment";
 import { mapGetters } from "vuex";
-import { Team } from "../../../common";
+import { Team, UserTeams } from "../../../common";
 import { User } from "@startupway/users/lib/ui";
 import { BModelCanvas } from "@startupway/bmodelcanvas/lib/ui";
 import { UI } from '@startupway/main/lib/ui';
@@ -74,30 +74,30 @@ export default Vue.extend({
 		user: {
 			immediate: true,
 			async handler(newUser: User) {
-				if(newUser.role["Admin"] || newUser.role["SuperAdmin"]) {
-					try {
-						this.location = newUser.userDetails["location"];
-						const response = await this.ui.api.get("/api/v1/admin/teams/");
-						if (response) {
-							this.teams = response.data;
+				if(newUser) {
+					const role = JSON.parse(this.user.role);
+					if(role["Admin"] || role["SuperAdmin"]) {
+						try {
+							this.location = newUser.userDetails["location"];
+							const response = await this.ui.api.get("/api/v1/admin/teams/");
+							if (response) {
+								this.teams = response.data;
+							}
+						} catch (e) {
+							console.error(e);
 						}
-					} catch (e) {
-						console.error(e);
-					}
-				} else if (newUser.role["Mentor"]) {
-					try {
-						this.location = newUser.userDetails["location"];
-						const response = await this.ui.api.get("/api/v1/teams/mentor/teams/" + newUser.userId);
-						if (response) {
-							this.teams = response.data;
+					} else if (role["Mentor"]) {
+						try {
+							this.location = newUser.userDetails["location"];
+							const response = await this.ui.api.get("/api/v1/teams/mentor/teams/" + newUser.userId);
+							if (response) {
+								this.teams = response.data;
+							}
+						} catch (e) {
+							console.error(e);
 						}
-					} catch (e) {
-						console.error(e);
 					}
-				} else {
-					if(this.$route.path!=="/workspace")
-						this.$router.push("/workspace");
-				} 
+				}
 			}
 		},
 	},
@@ -134,23 +134,24 @@ export default Vue.extend({
 			}
 			return false;
 		},
-		async getUsers(teamId: number) {
+		async getUsers(teamId: number):Promise<boolean> {
 			try {
-				const response = await this.ui.api.get("/api/v1/teams/team/users/" + teamId);
+				const response = await this.ui.api.get<Array<User&UserTeams>>("/api/v1/teams/team/users/" + teamId);
 				if (response) {
-					this.users = this.modifyUsers(response.data);
+					// this.users = this.modifyUsers(response.data);
 					return true;
 				}
 			} catch (e) {
 				console.error(e);
 				return false;
 			}
+			return false;
 		},
 		async getAllUsers() {
 			try {
 				const response = await this.ui.api.get("/api/v1/users");
 				if (response) {
-					this.allUsers = this.modifyUsers(response.data);
+					// this.allUsers = this.modifyUsers(response.data);
 					this.allUsers = this.allUsers.filter((user:User) => { return !this.hasUser(user)});
 					return true;
 				}
@@ -159,42 +160,42 @@ export default Vue.extend({
 				return false;
 			}
 		},
-		modifyUsers(users: any[]): any[] {
-			for(const index in users) {
-				if(typeof users[index].userDetails === "string") {
-					users[index].userDetails = JSON.parse(users[index].userDetails);
-					users[index].socialMedia = JSON.parse(users[index].socialMedia);
-				}
-				if ((users[index] as any).userDetails["faculty"] !== undefined) {
-					(users[index] as any).faculty = (users[index] as any).userDetails["faculty"]; 
-				} else {
-					(users[index] as any).faculty = "";
-				}
-				if ((users[index] as any).userDetails["group"] !== undefined) {
-					(users[index] as any).group = (users[index] as any).userDetails["group"];
-				} else {
-					(users[index] as any).group = "";
-				}
-				if ((users[index] as any).role) {
-					const roleObj = (users[index] as any).role;
-					for (const prop in roleObj) {
-						if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
-							((users[index] as any).role as any) = prop;
-							break;
-						}
-					}
-				} else if ((users[index] as any).User_role) {
-					const roleObj = (users[index] as any).User_role;
-					for (const prop in roleObj) {
-						if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
-							(users[index] as any).User_role = prop;
-							break;
-						}
-					}
-				}
-			}
-			return users;
-		},
+		// modifyUsers(users:Array<User&UserTeams>):Array<User&UserTeams> {
+		// 	for(const index in users) {
+		// 		if(typeof users[index].userDetails === "string") {
+		// 			users[index].userDetails = JSON.parse(users[index].userDetails);
+		// 			users[index].socialMedia = JSON.parse(users[index].socialMedia);
+		// 		}
+		// 		if ((users[index] as any).userDetails["faculty"] !== undefined) {
+		// 			(users[index] as any).faculty = (users[index] as any).userDetails["faculty"]; 
+		// 		} else {
+		// 			(users[index] as any).faculty = "";
+		// 		}
+		// 		if ((users[index] as any).userDetails["group"] !== undefined) {
+		// 			(users[index] as any).group = (users[index] as any).userDetails["group"];
+		// 		} else {
+		// 			(users[index] as any).group = "";
+		// 		}
+		// 		if ((users[index] as any).role) {
+		// 			const roleObj = (users[index] as any).role;
+		// 			for (const prop in roleObj) {
+		// 				if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
+		// 					((users[index] as any).role as any) = prop;
+		// 					break;
+		// 				}
+		// 			}
+		// 		} else if ((users[index] as any).User_role) {
+		// 			const roleObj = (users[index] as any).User_role;
+		// 			for (const prop in roleObj) {
+		// 				if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
+		// 					(users[index] as any).User_role = prop;
+		// 					break;
+		// 				}
+		// 			}
+		// 		}
+		// 	}
+		// 	return users;
+		// },
 	}
 });
 </script>

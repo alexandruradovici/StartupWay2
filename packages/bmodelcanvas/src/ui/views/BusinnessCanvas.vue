@@ -249,32 +249,32 @@ export default Vue.extend({
 		}
 	},
 	watch: {
-		// currentTeam: {
-		// 	immediate: true,
-		// 	async handler(newTeam: Team) {
-		// 		this.teamId = newTeam.teamId;
-		// 		if (this.teamId === 0) {
-		// 			if(this.$route.path!=="/workspace")
-		// 				this.$router.push("/workspace");
-		// 		} else {
-		// 			try {
-		// 				await this.ui.storeDispatch("teams/loadProduct", this.teamId);
-		// 				let response = await this.ui.api.get("/api/v1/canvas/" + this.teamId);
-		// 				if (response.data) {
-		// 					this.canvases = response.data;
-		// 				}
-		// 			} catch (e) {
-		// 				console.error(e);
-		// 			}
-		// 		}
-		// 	}
-		// },
-		// product: {
-		// 	immediate: true,
-		// 	handler(newProduct: Product) {
-		// 		this.productId = newProduct.productId;
-		// 	}
-		// },
+		currentTeam: {
+			immediate: true,
+			async handler(newTeam: any) {
+				this.teamId = newTeam.teamId;
+				if (this.teamId === 0) {
+					if(this.$route.path!=="/workspace")
+						this.$router.push("/workspace");
+				} else {
+					try {
+						await this.ui.storeDispatch("teams/loadProduct", this.teamId);
+						let response = await this.ui.api.get("/api/v1/canvas/" + this.teamId);
+						if (response.data) {
+							this.canvases = response.data;
+						}
+					} catch (e) {
+						console.error(e);
+					}
+				}
+			}
+		},
+		product: {
+			immediate: true,
+			handler(newProduct: any) {
+				this.productId = newProduct.productId;
+			}
+		},
 		canvases: {
 			immediate: true,
 			handler(newCanvases: BModelCanvas[]) {

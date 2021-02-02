@@ -166,6 +166,26 @@ export default Vue.extend({
 				
 			}
 		},
+		$route:{
+			immediate:true,
+			async handler(newRoute) {
+				if(newRoute.path === "/workspace") {
+					const role = JSON.parse(this.user.role);
+					if(role["Mentor"]) {
+						this.role=false;
+						this.type="mentor";
+					} else if(role["Admin"]) {
+						this.role=false;
+						this.type="admin";
+					} else if(role["SuperAdmin"]) {
+						this.role=false;
+						this.type="superAdmin";
+					} else {
+						this.role=true;
+					}
+				}
+			}
+		},
 	},
 	computed: {
 		...mapGetters({

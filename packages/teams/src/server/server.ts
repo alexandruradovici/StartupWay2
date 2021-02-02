@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { Server } from "@startupway/main/lib/server";
+import { Server, ApiRequest, ApiResponse } from "@startupway/main/lib/server";
 import { getPool } from "@startupway/database/lib/server";
 import { QueryOptions, Connection } from "mariadb";
 import { getAuthorizationFunction } from "@startupway/users/lib/server";
-import { Team, UserTeams, UserActivity, Product} from "../common";
+import { Team, UserTeams, UserActivity, Product } from "../common";
 import { User } from "@startupway/users/lib/server";
 
 export class TeamsServer {
@@ -447,14 +447,14 @@ export class TeamsServer {
 			return null;
 		}
 	}
-	async getTeamAndProductByMentorId(mentorId: number): Promise<Team & Product[]> {
+	async getTeamAndProductByMentorId(mentorId: number): Promise<(Team & Product)[]> {
 		try{
 			const queryOptions:QueryOptions = {
 				namedPlaceholders:true,
 				nestTables:"_",
 				sql: "SELECT teams.*, products.* FROM teams INNER JOIN products ON teams.productId=products.productId AND products.mentorId=:mentorId"
 			};
-			const teamResponse:Team & Product[] = await this.conn.query(queryOptions,{mentorId});
+			const teamResponse:(Team & Product)[] = await this.conn.query(queryOptions,{mentorId});
 			console.log(teamResponse);
 			if(teamResponse.length > 0)
 				return teamResponse;
@@ -465,14 +465,14 @@ export class TeamsServer {
 			return ([] as any);
 		}
 	}
-	async getTeamByMentorId(mentorId: number): Promise<Team & Product[]> {
+	async getTeamByMentorId(mentorId: number): Promise<(Team & Product)[]> {
 		try{
 			const queryOptions:QueryOptions = {
 				namedPlaceholders:true,
 				nestTables:"_",
 				sql: "SELECT teams.* FROM teams INNER JOIN products ON products.productId=teams.productId WHERE products.mentorId=:mentorId"
 			};
-			const teamResponse:Team & Product[] = await this.conn.query(queryOptions,{mentorId});
+			const teamResponse:(Team & Product)[] = await this.conn.query(queryOptions,{mentorId});
 			if(teamResponse.length > 0)
 				return teamResponse;
 			else
@@ -681,7 +681,7 @@ if(authFunct)
 	router.use((authFunct as any));
 	// Bypass params dictionary and send authorization Function
 
-router.get("/teams:userId", async(req, res) => {
+router.get("/teams:userId", async(req:ApiRequest<undefined>, res:ApiResponse<Team[]>) => {
 	try {
 		const all_teams: Team[] = await teams.getUserTeams(parseInt(req.params.userId));
 		if(all_teams)
@@ -694,9 +694,9 @@ router.get("/teams:userId", async(req, res) => {
 	}
 });
 // List all teams
-router.get("/mentor/teamsAndProduct/:mentorId", async(req, res) => {
+router.get("/mentor/teamsAndProduct/:mentorId", async(req:ApiRequest<undefined>, res:ApiResponse<(Team & Product)[]>) => {
 	try {
-		const allTeams: Team& Product[] = await teams.getTeamAndProductByMentorId(parseInt(req.params.mentorId));
+		const allTeams: (Team & Product)[] = await teams.getTeamAndProductByMentorId(parseInt(req.params.mentorId));
 		if(allTeams)
 			res.status(200).send(allTeams);
 		else
@@ -708,9 +708,9 @@ router.get("/mentor/teamsAndProduct/:mentorId", async(req, res) => {
 
 });
 
-router.get("/mentor/teams/:mentorId", async(req, res) => {
+router.get("/mentor/teams/:mentorId", async(req:ApiRequest<undefined>, res:ApiResponse<(Team & Product)[]>) => {
 	try { 
-		const allTeams: Team & Product[] = await teams.getTeamByMentorId(parseInt(req.params.mentorId));
+		const allTeams: (Team & Product)[] = await teams.getTeamByMentorId(parseInt(req.params.mentorId));
 		if(allTeams)
 			res.status(200).send(allTeams);
 		else
@@ -722,7 +722,7 @@ router.get("/mentor/teams/:mentorId", async(req, res) => {
 
 });
 
-router.get("/teams/demoDay", async(req,res) => {
+router.get("/teams/demoDay", async(req:ApiRequest<undefined>, res:ApiResponse<number[]>) => {
 	try { 
 		const demoDayTeams: number[] = await teams.tempF();
 		if(demoDayTeams)
@@ -735,19 +735,20 @@ router.get("/teams/demoDay", async(req,res) => {
 	}
 });
 
-router.get("/team/:teamId", async(req,res) => {
+router.get("/team/:teamId", async(req:ApiRequest<undefined>, res:ApiResponse<Team | null>) => {
 	try {
 		const team: Team | null = await teams.getTeamById(parseInt(req.params.teamId));
 		if(team) 
 			res.status(200).send(team);
 		else
-			res.status(204).send({});
+			res.status(204).send(null);
 	} catch (e) {
 		console.error(e);
 		res.status(500).send({err: 500});
 	}
 });
-router.get("/team/users/:teamId", async(req,res) => {
+
+router.get("/team/users/:teamId", async(req:ApiRequest<undefined>, res:ApiResponse<(User & UserTeams)[]>) => {
 	try {
 		const users: (User & UserTeams)[] = await teams.getUsersByTeamId(parseInt(req.params.teamId));
 		if(users) 
@@ -756,12 +757,12 @@ router.get("/team/users/:teamId", async(req,res) => {
 			res.status(204).send([]);
 	} catch (e) {
 		console.error(e);
-		res.status(500).send({err: 500});
+		res.status(500).send([]);
 	}
 
 });
 
-router.post("/team/activity", async(req,res) => {
+router.post("/team/activity", async(req:ApiRequest<{userId:number,teamId:number}>, res:ApiResponse<UserActivity[]>) => {
 	try {
 		const userActivities: UserActivity[] = await teams.getUserActivity(req.body.userId, req.body.teamId);
 		if(userActivities) 
@@ -773,26 +774,26 @@ router.post("/team/activity", async(req,res) => {
 		res.status(500).send({err: 500});
 	}
 });
-router.post("/team/activity/update", async(req,res) =>{
+router.post("/team/activity/update", async(req:ApiRequest<UserActivity>, res:ApiResponse<UserActivity | null>) =>{
 	try {
-		const userActivity: UserActivity | null = await teams.updateActivity(req.body.activity);
+		const userActivity: UserActivity | null = await teams.updateActivity(req.body);
 		if(userActivity) 
 			res.status(200).send(userActivity);
 		else
-			res.status(204).send({});
+			res.status(204).send(null);
 	} catch (e) {
 		console.error(e);
 		res.status(500).send({err: 500});
 	}
 });
-router.post("/team/remove/users", async(req, res) => {
+router.post("/team/remove/users", async(req:ApiRequest<{users:(User&UserTeams)[],teamId:number}>, res:ApiResponse<boolean>) => {
 	try {
 		const toRemove = req.body.users;
 		const teamId = req.body.teamId;
 		let r = false;
 		for(const user of toRemove) {
 			if(user.userId === undefined) 
-				user.userId = user.UserTeams_userId;
+				user.userId = user.teamId;
 			r = await teams.deleteUserFromTeam(user,{teamId:teamId} as Team);
 			if(!r){
 				break;
@@ -807,14 +808,14 @@ router.post("/team/remove/users", async(req, res) => {
 		res.status(500).send({err:500,data:false});
 	}
 });
-router.post("/team/add/users", async(req, res) => {
+router.post("/team/add/users", async(req:ApiRequest<{users:(User&UserTeams)[],teamId:number}>, res:ApiResponse<boolean>) => {
 	try{
 		const toAdd = req.body.users;
 		const teamId = req.body.teamId;
 		let userTeam:UserTeams | null = null;
 		for(const user of toAdd) {
 			if(user.userId === undefined) 
-				user.userId = user.UserTeams_userId;
+				user.userId = user.userId;
 			userTeam = await teams.addUserToTeam({userId:user.userId} as User,{teamId:teamId} as Team, "");
 			if(userTeam === null) {
 				break;
@@ -826,39 +827,39 @@ router.post("/team/add/users", async(req, res) => {
 			res.status(204).send(false);
 	} catch (e) {
 		console.error(e);
-		res.status(500).send({err: 500});
+		res.status(500).send({err: 500,data:false});
 	} 
 });
 
-router.post("/product", async(req,res) => {
+router.post("/product", async(req:ApiRequest<{team:Team,product:Product}>, res:ApiResponse<(Team & Product) | null>) => {
 	try {
-		const newProduct: Team & Product | null = await teams.addTeam(req.body.team, req.body.product);
+		const newProduct: (Team & Product) | null = await teams.addTeam(req.body.team, req.body.product);
 		if(newProduct) 
 			res.status(200).send(newProduct);
 		else
-			res.status(204).send({});
+			res.status(204).send(null);
 	} catch (e) {
 		console.error(e);
 		res.status(500).send({err: 500});
 	}
 });
 
-router.get("/product/:teamId", async(req,res) => {
+router.get("/product/:teamId", async(req:ApiRequest<undefined>, res:ApiResponse<Product | null>) => {
 	try { 
 		const product: Product | null = await teams.getProductByTeamId(parseInt(req.params.teamId));
 		if(product) 
 			res.status(200).send(product);
 		else
-			res.status(204).send({});
+			res.status(204).send(null);
 	} catch (e) {
 		console.error(e);
 		res.status(500).send({err: 500});
 	}
 });
 
-router.post ("/product/approve/description", async(req,res) => {
+router.post ("/product/approve/description", async(req:ApiRequest<Product>, res:ApiResponse<Product | null>) => {
 	try {
-		const product:Product = req.body.product;
+		const product:Product = req.body;
 		if(product.pendingDescriptionEN.trim() == "") {
 			product.pendingDescriptionEN = product.descriptionEN;
 		}
@@ -870,9 +871,9 @@ router.post ("/product/approve/description", async(req,res) => {
 			if(response)
 				res.status(200).send(response);
 			else
-				res.status(204).send({});
+				res.status(204).send(null);
 		} else 
-			res.status(204).send({});
+			res.status(204).send(null);
 	} catch (e) {
 		console.error(e);
 		res.status(500).send({err: 500});
@@ -880,7 +881,7 @@ router.post ("/product/approve/description", async(req,res) => {
 	
 });
 
-router.post("/product/update", async(req,res) => {
+router.post("/product/update", async(req:ApiRequest<{teamId:number,product:Product}>, res:ApiResponse<Product | null>) => {
 	try {
 		const product: Product = req.body.product;
 		const teamId: number = req.body.teamId;
@@ -894,16 +895,16 @@ router.post("/product/update", async(req,res) => {
 					if(newProduct)
 						res.status(200).send(newProduct);
 					else 
-						res.status(204).send({});
+						res.status(204).send(null);
 				} else {
-					res.status(204).send({});
+					res.status(204).send(null);
 				}
 			} else {
-				res.status(204).send({});
+				res.status(204).send(null);
 			}
 		}
 		else
-			res.status(204).send({});
+			res.status(204).send(null);
 	} catch (e) {
 		console.error(e);
 		res.status(500).send({err: 500});

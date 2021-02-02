@@ -93,9 +93,6 @@ export default Vue.extend({
 					this.userRole = newUser.role["Admin"];
 				} else if(newUser.role["SuperAdmin"]) {
 					this.userRole = newUser.role["SuperAdmin"];
-				} else {
-					if(this.$route.path !== "/workspace")
-						this.$router.push("/workspace");
 				}
 			}
 		},

@@ -237,30 +237,30 @@ export default Vue.extend({
 		user: {
 			immediate: true,
 			async handler(newUser: User) {
-				if(newUser.role["Admin"] || newUser.role["SuperAdmin"]) {
-					try {
-						this.location = newUser.userDetails["location"];
-						const response = await this.ui.api.get("/api/v1/admin/teams/");
-						if (response) {
-							this.teams = response.data;
+				if(newUser) {
+					const role = JSON.parse(this.user.role);
+					if(role["Admin"] || role["SuperAdmin"]) {
+						try {
+							this.location = newUser.userDetails["location"];
+							const response = await this.ui.api.get("/api/v1/admin/teams/");
+							if (response) {
+								this.teams = response.data;
+							}
+						} catch (e) {
+							console.error(e);
 						}
-					} catch (e) {
-						console.error(e);
-					}
-				} else if (newUser.role["Mentor"]) {
-					try {
-						this.location = newUser.userDetails["location"];
-						const response = await this.ui.api.get("/api/v1/teams/mentor/teams/" + newUser.userId);
-						if (response) {
-							this.teams = response.data;
+					} else if (role["Mentor"]) {
+						try {
+							this.location = newUser.userDetails["location"];
+							const response = await this.ui.api.get("/api/v1/teams/mentor/teams/" + newUser.userId);
+							if (response) {
+								this.teams = response.data;
+							}
+						} catch (e) {
+							console.error(e);
 						}
-					} catch (e) {
-						console.error(e);
 					}
-				} else {
-					if(this.$route.path!=="/workspace")
-						this.$router.push("/workspace");
-				} 
+				}
 			}
 		},
 	},

@@ -8,7 +8,7 @@ import ffmpeg from "fluent-ffmpeg";
 import fs from "fs-extra";
 import path from "path";
 import jszip from "JSZip";
-import { Server } from "@startupway/main/lib/server";
+import { Server, ApiRequest, ApiResponse } from "@startupway/main/lib/server";
 import { getPool } from "@startupway/database/lib/server";
 import { QueryOptions, Connection } from "mariadb";
 import { getAuthorizationFunction, UsersServer } from "@startupway/users/lib/server";
@@ -32,7 +32,7 @@ export class UploadDownloadServer {
 		})
 	}
 
-	private static zips:any = {
+	private static zips:{[key:string]:jszip} = {
 		"all_uploads_arhive_none":(null as any) as jszip,
 		"all_uploads_arhive_may":(null as any) as jszip,
 		"all_uploads_arhive_oct":(null as any) as jszip,
@@ -53,7 +53,7 @@ export class UploadDownloadServer {
 		"Timisoara_uploads_arhive_oct":(null as any) as jszip,
 		"demoday_uploads_arhive":(null as any) as jszip
 	};
-	formatDate(date: Date) {
+	formatDate(date: Date):string {
 		const year = date.getFullYear(); 
 		const month = date.getMonth() + 1;
 		const day = date.getDate()
@@ -69,7 +69,7 @@ export class UploadDownloadServer {
 				for(const link of links) {
 					if(link.uuid !== '') {
 						if(UploadDownloadServer.zips[link.uuid] === undefined) {
-							UploadDownloadServer.zips[link.uuid] = null;
+							UploadDownloadServer.zips[link.uuid] = (null as any) as jszip;
 						}
 					}
 				}
@@ -159,7 +159,7 @@ export class UploadDownloadServer {
 		}
 	}
 
-	async getLinksByProductIdAndFileType(productId:number, fileType:string): Promise<UploadDownloadLink[]> {
+	async getLinksByProductIdAndFileType(productId:string, fileType:string): Promise<UploadDownloadLink[]> {
 		try {
 			const queryOptions:QueryOptions = {
 				namedPlaceholders:true,
@@ -606,7 +606,7 @@ export class UploadDownloadServer {
 						}
 						let links = [] as any[];
 						if(option !== undefined)
-							links = await uploadDownload.getLinksByProductIdAndFileType(prId,option);
+							links = await uploadDownload.getLinksByProductIdAndFileType(prId.toString(),option);
 						else
 							links = await uploadDownload.getLinksByProductId(prId.toString(), 'none');
 						if(links.length !== 0) {
@@ -729,7 +729,7 @@ export class UploadDownloadServer {
 	async checkZip(type:string, date:string, param?:string|number|number[], option?:string):Promise<void> {
 		try {
 			let link:UploadDownloadLink | null = null;
-			if(link) {}
+			if(link) null
 			let uuid = '';
 			if(type === "all") {
 				uuid = "all_uploads_arhive_" + date;
@@ -837,12 +837,12 @@ const authFunct = getAuthorizationFunction();
 if(authFunct)
 	router.use((authFunct as any));
 
-router.get("/get/file/product/:fileType/:productId", async(req, res) => {
+router.get("/get/file/product/:fileType/:productId", async(req:ApiRequest<undefined>, res:ApiResponse<{data:string,type:string,ext:string,uuid:string}[] | null>) => {
 	try {
 		const type = req.params.fileType;
 		const productId = parseInt(req.params.productId);
 		if(productId !== 0 && productId !== undefined && type !== "" && type !== undefined) {
-			let links = await uploadDownload.getLinksByProductIdAndFileType(productId,type);
+			let links = await uploadDownload.getLinksByProductIdAndFileType(productId.toString(),type);
 			const results = [];
 			for(const link of (links as UploadDownloadLink[])) {
 				
@@ -858,16 +858,16 @@ router.get("/get/file/product/:fileType/:productId", async(req, res) => {
 			}
 			res.status(200).send(results);
 		} else {
-			res.status(204).send({err:204});
+			res.status(204).send({err:204,data:null});
 		}
 	} catch (e) {
 		console.error(e);
-		res.status(500).send({err:500});
+		res.status(500).send({err:500,data:null});
 
 	}
 });
 
-router.post("/delete/file/", async(req, res) => {
+router.post("/delete/file/", async(req:ApiRequest<{uuid:string}>, res:ApiResponse<boolean>) => {
 	try {
 		const uuid = req.body.uuid;
 		if(uuid !== "") {
@@ -876,43 +876,42 @@ router.post("/delete/file/", async(req, res) => {
 			if(rs && file !== undefined){
 				const rss = await uploadDownload.deleteLink(uuid);
 				if(rss) {
-					res.status(200).send();
+					res.status(200).send(true);
 				} else {
-					
 					let name = uiidv4();
 					const tmpFile = path.join("/tmp",name);
 					await fs.writeFile(tmpFile,file);
 					await uploadDownload.addS3File(uuid, tmpFile, "path");
 					await fs.remove(tmpFile);
-					res.status(500).send({err:500});
+					res.status(500).send({err:500,data:false});
 				}
 			}
 			else 
-				res.status(500).send({err:500});
+				res.status(500).send({err:500,data:false});
 		}
 			
 	} catch (e) {
 		console.error(e);
-		res.status(500).send({err:500});
+		res.status(500).send({err:500,data:false});
 	}
 });
-router.get("/download/file/:uuid", async(req, res) => {
+router.get("/download/file/:uuid", async(req:ApiRequest<undefined>, res:ApiResponse<string | null>) => {
 	try {
 		const uuid = req.params.uuid;
 		let url:string = "";
 		if(uuid !== "")
 			url = await uploadDownload.getS3Url(uuid);
 		if(url !== "") {
-			res.status(200).send({url:url});
+			res.status(200).send(url);
 		} else {
-			res.status(404).send({err:404});
+			res.status(404).send({err:404,data:null});
 		}
 	} catch (e) {
 		console.error(e);
-		res.status(500).send({err:500});
+		res.status(500).send({err:500,data:null});
 	}
 });
-router.get("/download/zip/:type/:date", async(req, res) => {
+router.get("/download/zip/:type/:date", async(req:ApiRequest<undefined>, res:ApiResponse<string | null>) => {
 	try {
 		const type = req.params.type;
 		const date = req.params.date;
@@ -945,7 +944,7 @@ router.get("/download/zip/:type/:date", async(req, res) => {
 						res.status(404).send('No obj GETS3OBJ');
 					}
 				} else {
-					res.status(500).send({err:500});
+					res.status(500).send({err:500,data:null});
 				}
 			}
 			const uuid= uiidv4();
@@ -969,7 +968,7 @@ router.get("/download/zip/:type/:date", async(req, res) => {
 						url = await uploadDownload.getS3Url(newLink.uuid);
 						if(url !== "") {
 							await fs.remove(tmpFile);
-							res.status(200).send({url:url});
+							res.status(200).send(url);
 						} else {
 							await uploadDownload.deleteLink(newLink.uuid);
 							await fs.remove(tmpFile);
@@ -985,15 +984,15 @@ router.get("/download/zip/:type/:date", async(req, res) => {
 				}
 			})
 		} else {
-			res.status(204).send({});
+			res.status(204).send(null);
 		}
 	} catch (e) {
 		console.error(e);
-		res.status(500).send({err:500});
+		res.status(500).send({err:500,data:null});
 	}
 });
 
-router.post("/download/zip/", async(req, res) => {
+router.post("/download/zip/", async(req:ApiRequest<{type:string,date:string,cityOrTeam:string|number,option:string}>, res:ApiResponse<string | null>) => {
 	try {
 		const type = req.body.type;
 		const date = req.body.date;
@@ -1004,11 +1003,11 @@ router.post("/download/zip/", async(req, res) => {
 		await uploadDownload.checkZip(type,date,cityOrTeam, option);
 	} catch (e) {
 		console.error(e);
-		res.status(500).send({err:500});
+		res.status(500).send({err:500,data:null});
 	}
 });
 
-router.post("/check/zip/status/", async(req, res) => {
+router.post("/check/zip/status/", async(req:ApiRequest<{type:string,date:string,cityOrTeam:string|number,option:string}>, res:ApiResponse<string | null>) => {
 	try {
 		const type = req.body.type;
 		const date = req.body.date;
@@ -1019,18 +1018,18 @@ router.post("/check/zip/status/", async(req, res) => {
 		if(response === "NOT_DONE") {
 			res.status(204).send(response);
 		} else if(response === "ERROR") {
-			res.status(500).send({err:500});
+			res.status(500).send({err:500,data:null});
 		} else {
 			res.status(200).send(response);
 		}
 	} catch (e) {
 		console.error(e);
-		res.status(500).send({err:500});
+		res.status(500).send({err:500,data:null});
 	}
 });
 
 
-router.post("/download/team/zip/:type/:date", async(req, res) => {
+router.post("/download/team/zip/:type/:date", async(req:ApiRequest<{type:string,date:string,productId:number,city:string}>, res:ApiResponse<string | null>) => {
 	try {
 		const type = req.params.type;
 		const date = req.params.date;
@@ -1052,7 +1051,7 @@ router.post("/download/team/zip/:type/:date", async(req, res) => {
 			if(link && newDate - oldDate <= 86400000) {
 				exists = true;
 			} else {
-				let links = await uploadDownload.getLinksByProductId(productId, date);
+				let links = await uploadDownload.getLinksByProductId(productId.toString(), date);
 				const team = await teams.getTeamByProductId(productId);
 				let users;
 				if(team)
@@ -1105,7 +1104,7 @@ router.post("/download/team/zip/:type/:date", async(req, res) => {
 						}
 					}
 				} else {
-					res.status(204).send({});
+					res.status(204).send(null);
 				}
 
 			}
@@ -1292,7 +1291,7 @@ router.post("/download/team/zip/:type/:date", async(req, res) => {
 				}
 			});
 			else {
-				res.status(204).send({});
+				res.status(204).send(null);
 			}
 		} else {
 			let url:string = "";
@@ -1317,7 +1316,7 @@ router.post("/download/team/zip/:type/:date", async(req, res) => {
 				url = await uploadDownload.getS3Url(newLink.uuid);
 
 			if(url !== "") {
-				res.status(200).send({url:url});
+				res.status(200).send(url);
 			} else {
 				if(newLink)
 					await uploadDownload.deleteLink(newLink.uuid);
@@ -1328,23 +1327,23 @@ router.post("/download/team/zip/:type/:date", async(req, res) => {
 		
 	} catch (e) {
 		console.error(e);
-		res.status(500).send({err:500});
+		res.status(500).send({err:500,data:null});
 	}
 });
 
-router.post("/upload/file/chunk", async(req, res) => {
+router.post("/upload/file/chunk", async(req:ApiRequest<{finish:string,fileName:string,base64Encode:string,fileType:string,productId:number,ext:string}>, res:ApiResponse<boolean>) => {
 	try{
 		const end = req.body.finish;
 		const fileName = req.body.fileName;
 		if(!end) {
 			const base64 = req.body.base64Encode;
-			const data = new Buffer(base64, "base64");
+			const data = Buffer.from(base64, "base64");
 			const checkDir = await fs.pathExists('./tmp');
 			if (!checkDir){
 				await fs.mkdir('./tmp');
 			}
 			await fs.appendFile(path.join("./tmp",fileName + "." + req.body.ext), data);
-			res.status(202).send();
+			res.status(202).send(true);
 		} else { 
 			const fileType = req.body.fileType;
 			const productId = req.body.productId;
@@ -1355,7 +1354,7 @@ router.post("/upload/file/chunk", async(req, res) => {
 				const checkFile = await fs.pathExists(filePath);
 				if(!checkFile) {
 					console.error("No file");
-					res.status(404).send({err:404});
+					res.status(404).send({err:404,data:false});
 				}
 				try { 
 					await ffmpeg(filePath).ffprobe(async function(err: any, metadata: any){
@@ -1378,7 +1377,7 @@ router.post("/upload/file/chunk", async(req, res) => {
 								uploadTime: new Date()
 							}
 							if(fileType === "demoVid" || fileType === "presVid" || fileType === "pres" || fileType === "logo") {
-								let links:UploadDownloadLink[] = await uploadDownload.getLinksByProductIdAndFileType(productId,fileType);
+								let links:UploadDownloadLink[] = await uploadDownload.getLinksByProductIdAndFileType(productId.toString(),fileType);
 								if(links.length > 0) {
 									const file = await uploadDownload.getS3Object(links[0].uuid);
 									
@@ -1391,12 +1390,12 @@ router.post("/upload/file/chunk", async(req, res) => {
 												await uploadDownload.addS3File(links[0].uuid, tmpFile,"path");
 												await fs.remove(filePath);
 												await fs.remove(tmpFile);
-												res.status(500).send({err:500});
+												res.status(500).send({err:500,data:false});
 											}
 										}
 										else {
 											await fs.remove(filePath);
-											res.status(500).send({err:500});
+											res.status(500).send({err:500,data:false});
 										}
 									}
 								}
@@ -1411,20 +1410,20 @@ router.post("/upload/file/chunk", async(req, res) => {
 								} else {
 									await uploadDownload.deleteLink(newLink.uuid);
 									await fs.remove(filePath);
-									res.status(404).send({err:404});
+									res.status(404).send({err:404,data:false});
 								}
 							} else {
 								await fs.remove(filePath);
-								res.status(404).send({err:404});
+								res.status(404).send({err:404,data:false});
 							}
 						} else {
 							await fs.remove(filePath);
-							res.status(406).send({err:406});
+							res.status(406).send({err:406,data:false});
 						}
 				});
 				} catch (e) {
 					console.error(e);
-					res.status(500).send({err:500});
+					res.status(500).send({err:500,data:false});
 				}
 			} else {
 				const link:UploadDownloadLink = {
@@ -1434,7 +1433,7 @@ router.post("/upload/file/chunk", async(req, res) => {
 					extension:req.body.ext,
 					uploadTime: new Date()
 				}
-				let links:UploadDownloadLink[] = await uploadDownload.getLinksByProductIdAndFileType(productId,fileType);
+				let links:UploadDownloadLink[] = await uploadDownload.getLinksByProductIdAndFileType(productId.toString(),fileType);
 				if(links.length > 0) {
 					const file = await uploadDownload.getS3Object(links[0].uuid);
 				
@@ -1447,12 +1446,12 @@ router.post("/upload/file/chunk", async(req, res) => {
 								await uploadDownload.addS3File(links[0].uuid, tmpFile,"path");
 								await fs.remove(filePath);
 								await fs.remove(tmpFile);
-								res.status(500).send({err:500});
+								res.status(500).send({err:500,data:false});
 							}
 						}
 						else {
 							await fs.remove(filePath);
-							res.status(500).send({err:500});
+							res.status(500).send({err:500,data:false});
 						}
 					}
 				}
@@ -1468,27 +1467,27 @@ router.post("/upload/file/chunk", async(req, res) => {
 						} else {
 							await uploadDownload.deleteLink(newLink.uuid);
 							await fs.remove(filePath);
-							res.status(404).send({err:404});
+							res.status(404).send({err:404,data:false});
 						}
 						
 					}
 					
 				} else {
 					await fs.remove(filePath);
-					res.status(404).send({err:404});
+					res.status(404).send({err:404,data:false});
 				}
 			
 			}
 		}
 	} catch(e) {
 		console.error(e);
-		res.status(500).send({err:500});
+		res.status(500).send({err:500,data:false});
 	}
 	
 });
 
 
-router.post("/upload/file/user/avatar", async(req, res) => {
+router.post("/upload/file/user/avatar", async(req:ApiRequest<{base64Encode:string,userId:number}>, res:ApiResponse<boolean>) => {
 	try {
 		const base64Encode = req.body.base64Encode;
 		const userId = req.body.userId;
@@ -1502,22 +1501,22 @@ router.post("/upload/file/user/avatar", async(req, res) => {
 						user.avatarUu = uuid;
 						await users.modifyUser(user);
 					}
-					res.status(200).send();   
+					res.status(200).send(true);   
 				} else {
-					res.status(500).send({err:500});
+					res.status(500).send({err:500,data:false});
 				}
 			} else {
-				res.status(500).send({err:500});
+				res.status(500).send({err:500,data:false});
 			}
 		} else {
-			res.status(400).send({err:400});
+			res.status(400).send({err:400,data:false});
 		}
 	} catch (e) {
 		console.error(e);
-		res.status(500).send({err:500});
+		res.status(500).send({err:500,data:false});
 	}
 });
-router.post("/get/file/user/avatar/", async(req, res) => {
+router.post("/get/file/user/avatar/", async(req:ApiRequest<{userId:number}>, res:ApiResponse<string | null>) => {
 	try {
 		const userId = req.body.userId;
 		if(userId !== 0 && userId !== undefined) {
@@ -1530,14 +1529,14 @@ router.post("/get/file/user/avatar/", async(req, res) => {
 				if(string !== "") {
 					res.status(200).send(string);
 				} else 
-					res.status(500).send({err:500});
+					res.status(500).send({err:500,data:null});
 			} else 
-				res.status(204).send();
+				res.status(204).send(null);
 		} else            
-			res.status(204).send();
+			res.status(204).send(null);
 	} catch (e) {
 		console.error(e);
-		res.status(500).send({err:500});
+		res.status(500).send({err:500,data:null});
 	}
 });
 

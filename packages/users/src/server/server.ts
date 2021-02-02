@@ -1,6 +1,6 @@
 
 import { Session, User} from '../common';
-import { Server } from "@startupway/main/lib/server";
+import { Server, ApiRequest, ApiResponse } from "@startupway/main/lib/server";
 import { getPool } from '@startupway/database/lib/server';
 import { QueryOptions, Connection } from 'mariadb';
 import { NextFunction, Router, Request, Response } from "express";
@@ -25,7 +25,7 @@ export class UsersServer {
 		})
 	}
 
-	public passwordGenerator (password: string): string {
+	public static passwordGenerator (password: string): string {
 		const hash = createHash('sha256');
 		hash.update(password);
 		return hash.digest('hex');
@@ -33,7 +33,7 @@ export class UsersServer {
 
 	async addUser(user: User): Promise<User | null> {
 		try {
-			user.password = this.passwordGenerator (user.password);
+			user.password = UsersServer.passwordGenerator (user.password);
 			const queryOptions:QueryOptions = {
 				namedPlaceholders:true,
 				sql: `INSERT INTO ${TABLE_USERS} (firstName,lastName,username,password,email,phone,birthDate,avatarUu,socialMedia,userDetails,role,lastLogin) VALUES(:firstName,:lastName,:username,:password,:email,:phone,:birthDate,:avatarUu,:socialMedia,:userDetails,:role,:lastLogin)`
@@ -76,10 +76,7 @@ export class UsersServer {
 				namedPlaceholders:true,
 				sql: "DELETE FROM users where userId=:userId"
 			}
-			const values = {
-				userId:user.userId
-			};
-			await this.conn.query(queryOptions,values);
+			await this.conn.query(queryOptions,user);
 		} catch (error) {
 			// TODO add user back if failed
 			await this.addUser(user);
@@ -88,7 +85,7 @@ export class UsersServer {
 	}
 
 	async createSession(username: string, password: string): Promise<Session | null> {
-		password = this.passwordGenerator (password);
+		password = UsersServer.passwordGenerator (password);
 		try {
 			let queryOptions:QueryOptions = {
 				namedPlaceholders:true,
@@ -142,18 +139,21 @@ export class UsersServer {
 		}
 	}
 
-	async modifyUser(user: User, changedPass?: string):Promise<void> {
+	async modifyUser(user: User, changedPass?: string):Promise<boolean> {
 		try {
 			if(changedPass) {
-				user.password = this.passwordGenerator(user.password);
+				user.password = UsersServer.passwordGenerator(user.password);
 			}
+			// TODO TRANSACTION
 			const queryOptions:QueryOptions = {
 				namedPlaceholders:true,
 				sql: "UPDATE users SET firstName=:firstName, lastName=:lastName, username=:username, password=:password, email=:email, phone=:phone, socialMedia=:socialMedia, birthDate=:birthDate, userDetails=:userDetails, role=:role, avatarUu=:avatarUu, lastLogin=:lastLogin WHERE userId=:userId"
 			}
 			await this.conn.query(queryOptions,user);
+			return true;
 		} catch (error) {
 			console.error(error);
+			return false;
 		}
 	}
 
@@ -343,7 +343,7 @@ router.use((req, res, next) => {
 	next();
 });
 
-router.post("/login", async (req, res) => {
+router.post("/login", async (req:ApiRequest<{username:string,password:string,lastLogin:Date}>, res:ApiResponse<Session | null>) => {
 	try {
 		const session:Session | null = await usersServer.createSession(req.body.username, req.body.password);
 		const user = await usersServer.getUserByUsername(req.body.username);
@@ -352,32 +352,32 @@ router.post("/login", async (req, res) => {
 			await usersServer.modifyUser(user)
 		}
 		if(session === null) {
-			res.send("");
+			res.send(null);
 		} else if(session.token === "error") {
-			res.status(500).send({err:500});
+			res.status(500).send({err:500,data:null});
 		} else {
 			res.send (session);
 		}
 	} catch (e) {
 		console.error(e);
-		res.status(500).send({err:500});
+		res.status(500).send({err:500,data:null});
 	}
 
 });
 
-router.get("/verify/:email", async(req,res) => {
+router.get("/verify/:email", async(req:ApiRequest<undefined>, res:ApiResponse<{accept:string}>) => {
 	try {
 		const email = req.params.email;
 		const user = await usersServer.getUserByEmail(email);
 		if(user) {
 			res.status(200).send({accept:"Yes"});
 		} else {
-			res.status(404).send({err:404});
+			res.status(404).send({err:404,data:{accept:"No"}});
 		}
 
 	} catch (e) {
 		console.error(e);
-		res.status(500).send({err:500});
+		res.status(500).send({err:500,data:{accept:"No"}});
 	}
 });
 
@@ -391,7 +391,7 @@ router.get("/user", async (req, res, next) => {
 });
 
 
-router.post("/user/update", async (req,res) => {
+router.post("/user/update", async (req:ApiRequest<{newUser:User,changedPass:string}>, res:ApiResponse<boolean>) => {
 	const user:User = req.body.newUser;
 	const changedPass = req.body.changedPass;
 	console.log("Changed" + changedPass);
@@ -410,23 +410,28 @@ router.post("/user/update", async (req,res) => {
 	// admin.sendMail(transporter,options);
 
 	if(user) {
-		await usersServer.modifyUser(user, changedPass);
+		const resp = await usersServer.modifyUser(user, changedPass);
+		if(resp) {
+			res.status(200).send(resp);
+		} else {
+			res.status(201).send(false);
+		}
 	} else {
-		res.status(401).send({err:401});
+		res.status(401).send({err:401,data:false});
 	}
-	res.status(201).send({});
+	res.status(201).send(false);
 });
 
-router.get("/user/:email", async (req,res) => {
+router.get("/user/:email", async (req:ApiRequest<undefined>, res:ApiResponse<User | null>) => {
 	const email = req.params.email;
 	const user = await usersServer.getUserByEmail(email);
 	if(user) {
 		res.send(user);
 	} else {
-		res.status(401).send({err:401});
+		res.status(401).send({err:401,data:null});
 	}
 });
-router.get("/users", async (req,res) => {
+router.get("/users", async (req:ApiRequest<undefined>, res:ApiResponse<User[]>) => {
 	try {
 		const usersList:User[] = await usersServer.getUsers();
 		if(usersList) {
@@ -436,10 +441,10 @@ router.get("/users", async (req,res) => {
 		}
 	} catch (e) {
 		console.error(e);
-		res.status(500).send({err: 500});
+		res.status(500).send({err: 500,data:[]});
 	}
 });
-router.get("/users/all", async (req,res) => {
+router.get("/users/all", async (req:ApiRequest<undefined>, res:ApiResponse<User[]>) => {
 	try {
 		const usersList:User[] = await usersServer.getAllUsers();
 		if(usersList) {
@@ -449,29 +454,29 @@ router.get("/users/all", async (req,res) => {
 		}
 	} catch (e) {
 		console.error(e);
-		res.status(500).send({err: 500});
+		res.status(500).send({err: 500,data:[]});
 	}
 });
 
-router.post("/logout", async (req, res, next) => {
+router.post("/logout", async (req:ApiRequest<{sessionId:number}>, res:ApiResponse<boolean>, next) => {
 	if(req.body.sessionId)
 		await usersServer.deleteSession((req as any).token, req.body.sessionId);
 	else
 		await usersServer.deleteSession((req as any).token);
-	res.send({});
+	res.send(true);
 });
-router.get("/session/:userId", async (req,res) => {
+router.get("/session/:userId", async (req:ApiRequest<undefined>, res:ApiResponse<Session | null>) => {
 	try {
 		// const userId = req.params.userId;
 		const session: Session | null = await usersServer.getUserLastSession(Number(req.params.userId));
 		if(session) {
 			res.status(200).send(session);
 		} else {
-			res.status(204).send({});
+			res.status(204).send(null);
 		}
 	} catch (e) {
 		console.error(e);
-		res.status(500).send({err: 500});
+		res.status(500).send({err: 500,data:null});
 	}
 });
 server.registerRouterAPI (1, router, "/users");

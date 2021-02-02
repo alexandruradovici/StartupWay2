@@ -1,4 +1,4 @@
-import { Server } from "@startupway/main/lib/server";
+import { Server,ApiRequest,ApiResponse } from "@startupway/main/lib/server";
 import { getPool } from '@startupway/database/lib/server';
 import { getAuthorizationFunction } from '@startupway/users/lib/server';
 import { QueryOptions, Connection } from 'mariadb';
@@ -216,33 +216,33 @@ if(authFunct)
 	router.use((authFunct as any));
 	// Bypass params dictionary and send authorization Function
 
-router.get("/workshops", async (req, res) => {
+router.get("/workshops", async (req:ApiRequest<undefined>, res:ApiResponse<Workshop[]>) => {
 	try {
 		let workshopsList: Workshop[] = await workshop.listWorkshops();
 		if (workshopsList.length > 0) {
 			res.send(workshopsList);
 		} else {
-			res.status(401).send({ err: 401 });
+			res.status(401).send({err:401,data:[]});
 		}
 	} catch (error) {
 		console.error(error);
-		res.status(500).send({err:500});
+		res.status(500).send({err:500,data:[]});
 	}
 });
-router.get("/workshop/attendance/:workshopId", async (req, res) => {
+router.get("/workshop/attendance/:workshopId", async (req:ApiRequest<undefined>, res:ApiResponse<WorkshopAttendances[]>) => {
 	try {
 		let attendanceList: WorkshopAttendances[] = await workshop.listWorkshopAttendancesByWorkshopId(parseInt(req.params.workshopId));
 		if (attendanceList) {
 			res.send(attendanceList);
 		} else {
-			res.status(401).send({ err: 401 });
+			res.status(401).send({err:401,data:[]});
 		}
 	} catch (error) {
 		console.error(error);
 		res.status(500).send({err:500});
 	}
 })
-router.post("/workshop/attendance", async (req, res) => {
+router.post("/workshop/attendance", async (req:ApiRequest<{workshopId:number,attendance:WorkshopAttendances[]}>, res:ApiResponse<WorkshopAttendances[]>) => {
 	try {
 		const workshopId: number = req.body.workshopId;
 		const attendance: WorkshopAttendances[] = req.body.attendance;
@@ -264,42 +264,42 @@ router.post("/workshop/attendance", async (req, res) => {
 		if (workshopsList) {
 			res.send(workshopsList);
 		} else {
-			res.status(401).send({ err: 401 });
+			res.status(401).send({err:401,data:[]});
 		}
 	} catch (error) {
 		console.error(error);
-		res.status(500).send({err:500});
+		res.status(500).send({err:500,data:[]});
 	}
 });
 
-router.get("/workshop/mentor/instances/:workshopId", async (req, res) => {
+router.get("/workshop/mentor/instances/:workshopId", async (req:ApiRequest<undefined>, res:ApiResponse<WorkshopInstances[]>) => {
 	try {
 		let workshopInstancesList: WorkshopInstances[] = await workshop.listWorkshopInstancesByWorkshopId(parseInt(req.params.workshopId));
 		let newArray = _.groupBy(workshopInstancesList, "workshopDate");
 		if (newArray) {
 			res.send(newArray);
 		} else {
-			res.status(401).send({ err: 401 });
+			res.status(401).send({err:401,data:[]});
 		}
 	} catch (error) {
 		console.error(error);
-		res.status(500).send({err:500});
+		res.status(500).send({err:500,data:[]});
 	}
 });
 
-router.post("/workshop/add", async (req, res) => {
+router.post("/workshop/add", async (req:ApiRequest<Workshop>, res:ApiResponse<Workshop | null>) => {
 	try {
 		let newWorkshop = await workshop.addWorkshop(req.body);
 		if (newWorkshop)
 			res.send(newWorkshop);
 		else
-			res.status(401).send({ err: 401 });
+			res.status(401).send({err:401,data:null});
 	} catch (error) {
 		console.error(error);
 		res.status(500).send({err:500});
 	}
 });
-router.post("/workshop/add/instance", async (req, res) => {
+router.post("/workshop/add/instance", async (req:ApiRequest<{workshopId:number,teamIds:number[],date:Date,details:{[key:string]:any},trainer:string}>, res:ApiResponse<WorkshopInstances[]>) => {
 	try {
 		const workshopId = req.body.workshopId;
 		const teamIds = req.body.teamIds;
@@ -323,10 +323,10 @@ router.post("/workshop/add/instance", async (req, res) => {
 		if (workshopInstances)
 			res.send(workshopInstances);
 		else
-			res.status(401).send({ err: 401 });
+			res.status(401).send({err:401,data:[]});
 	} catch (error) {
 		console.error(error);
-		res.status(500).send({err:500});
+		res.status(500).send({err:500,data:[]});
 	}
 });
 

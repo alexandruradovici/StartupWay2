@@ -1,13 +1,13 @@
 import { Transporter, createTransport, SendMailOptions} from "nodemailer";
 import AWS from "aws-sdk"
-import { Recovery } from "../common";
+import { Recovery, Review } from "../common";
 import * as _ from "lodash";
 import * as Papa from "papaparse";
 import moment from "moment";
 import randomstring from "randomstring";
 
 import { Router } from "express";
-import { Server } from "@startupway/main/lib/server";
+import { Server, ApiResponse, ApiRequest } from "@startupway/main/lib/server";
 import { getPool } from "@startupway/database/lib/server";
 import { QueryOptions, Connection } from "mariadb";
 import { getAuthorizationFunction, User, UsersServer } from "@startupway/users/lib/server";
@@ -207,7 +207,7 @@ export class AdminServer {
 			const queryOptions:QueryOptions = {
 				namedPlaceholders:true,
 				nestTables:"_",
-				sql:"SELECT IF(JSON_EXTRACT(productDetails,'$.assessment20May') = \"Yes\",\"DA\",\"NU\") as 'Calificati pe vara?',t.location as Oras,t.teamName as Echipa,JSON_EXTRACT(t.teamDetails,'$.mentor') as Mentor,IF((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"pres\")>0,\"DA\",\"NU\") as 'Au prezentare pptx incarcata?',IF((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"image\")>0,(SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"image\"),0) as 'Au poze la \"Product Images\"?',IF((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"demoVid\")>0,\"DA\",\"NU\") as 'Au \"Tehnic Demo Video\" incarcat?', IF((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"presVid\")>0,\"DA\",\"NU\") as 'Au \"Product Presentation Video\" incarcat?',IF((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"logo\")>0,\"DA\",\"NU\") as 'Au \"Logo\" incarcat?',IF((JSON_EXTRACT(p.productDetails,'$.website')=''),'NU','DA') as 'Au link catre pagina web a produsului?',IF((JSON_EXTRACT(p.productDetails,'$.facebook')=''),'NU','DA') as 'Au link catre pagina de facebook a produsului?',DATE_FORMAT(p.lastMentorUpdate, \"%d %M %Y\") as \"Ultima actualizare a descrierii RO\",DATE_FORMAT(p.lastMentorUpdate, \"%d %M %Y\") as \"Ultima actualizare a descrierii ENG\",CONCAT((SELECT count(*) from (SELECT u.avatarUu, t1.teamId,IF(u.avatarUu!='',\"Yes\",\"No\") as has from users u inner join userTeams uT on u.userId = uT.userId inner join teams t1 on t1.teamId = uT.teamId ) as t2 where t2.teamId = t.teamId and t2.has =\"Yes\" ),'|',(SELECT count(*) from (SELECT u.avatarUu, t1.teamId, IF(u.avatarUu!='',\"Yes\",\"No\") as has from users u inner join userTeams uT on u.userId = uT.userId inner join teams t1 on t1.teamId = uT.teamId ) as t2 where t2.teamId = t.teamId)) as \"Au toti membrii echipei poza incarcata?\", IFNULL(DATE_FORMAT(tab.date, '%d %M %Y'),'') as \"Ultima actualizare a Lean Model Canvas\",DATE_FORMAT(p.updatedAt, \"%d %M %Y\") as \"Ultima actualizare\" from teams t inner join products p on t.productId = p.productId and JSON_EXTRACT(productDetails,'$.assessment20May') = \"Yes\" left join (SELECT date, productId from bModelCanvas group by productId) as tab on p.productId = tab.productId;"
+				sql:"SELECT IF(JSON_EXTRACT(productDetails,'$.assessment20May') = \"Yes\",\"DA\",\ Echipa,JSON_EXTRACT(t.teamDetails,'$.mentor') as Mentor,IF((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"pres\")>0,\"DA\",\"NU\") as 'Au prezentare pptx incarcata?',IF((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"image\")>0,(SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"image\"),0) as 'Au poze la \"Product Images\"?',IF((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"demoVid\")>0,\"DA\",\"NU\") as 'Au \"Tehnic Demo Video\" incarcat?', IF((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"presVid\")>0,\"DA\",\"NU\") as 'Au \"Product Presentation Video\" incarcat?',IF((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"logo\")>0,\"DA\",\"NU\") as 'Au \"Logo\" incarcat?',IF((JSON_EXTRACT(p.productDetails,'$.website')=''),'NU','DA') as 'Au link catre pagina web a produsului?',IF((JSON_EXTRACT(p.productDetails,'$.facebook')=''),'NU','DA') as 'Au link catre pagina de facebook a produsului?',DATE_FORMAT(p.lastMentorUpdate, \"%d %M %Y\") as \"Ultima actualizare a descrierii RO\",DATE_FORMAT(p.lastMentorUpdate, \"%d %M %Y\") as \"Ultima actualizare a descrierii ENG\",CONCAT((SELECT count(*) from (SELECT u.avatarUu, t1.teamId,IF(u.avatarUu!='',\"Yes\",\"No\") as has from users u inner join userTeams uT on u.userId = uT.userId inner join teams t1 on t1.teamId = uT.teamId ) as t2 where t2.teamId = t.teamId and t2.has =\"Yes\" ),'|',(SELECT count(*) from (SELECT u.avatarUu, t1.teamId, IF(u.avatarUu!='',\"Yes\",\"No\") as has from users u inner join userTeams uT on u.userId = uT.userId inner join teams t1 on t1.teamId = uT.teamId ) as t2 where t2.teamId = t.teamId)) as \"Au toti membrii echipei poza incarcata?\", IFNULL(DATE_FORMAT(tab.date, '%d %M %Y'),'') as \"Ultima actualizare a Lean Model Canvas\",DATE_FORMAT(p.updatedAt, \"%d %M %Y\") as \"Ultima actualizare\" from teams t inner join products p on t.productId = p.productId and JSON_EXTRACT(productDetails,'$.assessment20May') = \"Yes\" left join (SELECT date, productId from bModelCanvas group by productId) as tab on p.productId = tab.productId;"
 			}
 			const response = await this.conn.query(queryOptions);
 			if(response)
@@ -448,16 +448,18 @@ const admin = AdminServer.getInstance();
 /**
  * Route on which a reset email is created
  */
-router.post("/createResetEmail", async (req,res) => {
+router.post("/createResetEmail", async (req:ApiRequest<{email:string}>,res:ApiResponse<Recovery>) => {
 	try {
 		/** @type {string} Email destination string */
 		const email = req.body.email;
-		const aux = {
+		const aux:Recovery = {
+			recoveryId:(null as any),
+			userId:(null as any),
 			email:email,
 			recoveryLink:"",
 		};
 		/** @type {Recovery} Recovery object */
-		const recovery = await admin.addRecovery((aux as Recovery));
+		const recovery:Recovery = await admin.addRecovery(aux);
 		if(recovery) {
 			res.send(recovery);	
 		} else {
@@ -476,7 +478,7 @@ router.post("/createResetEmail", async (req,res) => {
  * Can be accessed only by the unique token generated in the email
  * 
  */
-router.post("/resetPassword", async (req,res) => {
+router.post("/resetPassword", async (req:ApiRequest<{token:string,password:string}>,res:ApiResponse<{username:string}>) => {
 	
 	/** @type {string} Password reset token */
 	const token = req.body.token;
@@ -489,7 +491,7 @@ router.post("/resetPassword", async (req,res) => {
 		if(recovery) {
 			const user:User | null = await users.getUserByEmail(recovery.email);
 			if(user) {
-				user.password = await users.passwordGenerator(password);
+				user.password = await UsersServer.passwordGenerator(password);
 				await users.modifyUser(user);
 				res.status(200).send({username:user.username});
 			} else {
@@ -509,7 +511,7 @@ router.post("/resetPassword", async (req,res) => {
 /**
  * Route on which the generated token is beign verified to actually exist
  */
-router.post("/checkToken", async(req,res) => {
+router.post("/checkToken", async(req:ApiRequest<{token:string}>,res:ApiResponse<{matched:boolean}>) => {
 
 	/** @type {string} unique token */
 	const token = req.body.token;
@@ -530,7 +532,7 @@ router.post("/checkToken", async(req,res) => {
 /**
  * Route on which a recovery is deleted based on it's unique token
  */
-router.post("/deleteRecovery", async(req,res) => {
+router.post("/deleteRecovery", async(req:ApiRequest<{token:string}>,res:ApiResponse<{}>) => {
 
 	/** @type {string} unique token */
 	const token = req.body.token;
@@ -561,11 +563,11 @@ if(authFunct)
 /**
  * Route on which information found in a .csv file is being uploaded into the database 
  */
-router.post("/uploadCSV", async(req,res) => {
+router.post("/uploadCSV", async(req:ApiRequest<{encoded:string,buffer:Buffer,string:string,parsed:unknown}>,res:ApiResponse<{}>) => {
 	try {
 
 		/** @type {string} base64 string of the data found in the .csv */
-		const encoded = req.body.encode;
+		const encoded = req.body.encoded;
 		
 		/** @type {Buffer} Buffer with the data retrieved from the base64 string */
 		const buffer = Buffer.from(encoded,"base64");
@@ -573,7 +575,7 @@ router.post("/uploadCSV", async(req,res) => {
 		/** @type {string} string in utf8 format of the data */
 		const string  = buffer.toString("utf-8");
 		
-		/** @type {unkown} array with entries represented by each line of data in the .csv file */
+		/** @type {unknown} array with entries represented by each line of data in the .csv file */
 		const parsed = Papa.parse(string).data;
 
 		parsed.splice(0,1);
@@ -711,14 +713,14 @@ router.post("/uploadCSV", async(req,res) => {
 /**
  * Route on which a new user activity is added into the database
  */
-router.post("/newUserActivity", async (req, res) => {
+router.post("/newUserActivity", async (req:ApiRequest<UserActivity[]>,res:ApiResponse<Boolean>) => {
 	try {
-		/** @type {UserActivity} the user activity to be added */
-		const userActivity = req.body.userActivity;
+		/** @type {UserActivity[]} the user activity to be added */
+		const userActivities:UserActivity[] = req.body;
 
-		if(userActivity) {
-			for(const activity of userActivity) {
-				const response = await teams.addActivityForUser((activity as UserActivity));
+		if(userActivities) {
+			for(const activity of userActivities) {
+				const response:UserActivity | null = await teams.addActivityForUser((activity as UserActivity));
 				if(!response) {
 					console.error("Error on route \"/newUserActivity\" in \"admin\" router");
 					console.error("No user activity added!");
@@ -735,12 +737,13 @@ router.post("/newUserActivity", async (req, res) => {
 		console.error(error);
 		res.status(401).send({err:401});
 	}
+	res.status(200).send(true);
 });
 
 /**
  * 	Route on which information about users/uploads/teams is sent to be downloaded 
  */
-router.post("/download/udc/data", async (req, res) => {
+router.post("/download/udc/data", async (req:ApiRequest<undefined>,res:ApiResponse<string>) => {
 	try {
 		const usersString = await admin.getUDCData();
 		const array = [];
@@ -765,7 +768,7 @@ router.post("/download/udc/data", async (req, res) => {
 /**
  * 	Route on which information about specific teams is sent to be downloaded 
  */
-router.post("/download/team/data", async (req, res) => {
+router.post("/download/team/data", async (req:ApiRequest<undefined>,res:ApiResponse<string>) => {
 	try {
 		const usersString = await admin.getTeamData();
 		const array = [];
@@ -790,7 +793,7 @@ router.post("/download/team/data", async (req, res) => {
 /**
  * 	Route on which we get all the users from the database based on a specified location
  */
-router.get("/users/:location", async (req,res) => {
+router.get("/users/:location", async (req:ApiRequest<undefined>,res:ApiResponse<(User & UserTeams)[]>) => {
 	
 	/** @type {Team[]} array containing all the teams to be sent back to the frontend */
 	let teamsArray = [];
@@ -801,9 +804,9 @@ router.get("/users/:location", async (req,res) => {
 		} else {
 			teamsArray = await teams.getTeamsByLocation(req.params.location);
 		}
-		const users = [];
+		const users:(User & UserTeams)[] = [];
 		for(const team of teamsArray) {
-			const auxUsers = await teams.getUsersByTeamId((team as any).teams_teamId);
+			const auxUsers:(User & UserTeams)[] = await teams.getUsersByTeamId((team as any).teams_teamId);
 			users.push(...auxUsers);
 		}
 
@@ -824,10 +827,10 @@ router.get("/users/:location", async (req,res) => {
 /**
  * 	Route on which we get all the users from the database
  */
-router.get("/users", async (req,res) => {
+router.get("/users", async (req:ApiRequest<undefined>,res:ApiResponse<(User & UserTeams)[]>) => {
 	try {
-		let teamsArray = await teams.getTeams();
-		const users = [];
+		let teamsArray:Team[] = await teams.getTeams();
+		const users:(User & UserTeams)[] = [];
 		for(const team of teamsArray) {
 			const auxUsers = await teams.getUsersByTeamId((team as any).teams_teamId);
 			users.push(...auxUsers);
@@ -849,9 +852,9 @@ router.get("/users", async (req,res) => {
 /**
  * 	Route on which we get all the teams from the database based on a specified location 
  */
-router.get("/teams/:location", async (req,res) => {
+router.get("/teams/:location", async (req:ApiRequest<undefined>,res:ApiResponse<Team[]>) => {
 	try {
-		let teamsArray = [];
+		let teamsArray:Team[] = [];
 		if(req.params.location === "all") {
 			teamsArray = await teams.getTeams();
 		} else {
@@ -872,9 +875,9 @@ router.get("/teams/:location", async (req,res) => {
 /**
  * 	Route on which we get all the teams from the database
  */
-router.get("/teams", async (req,res) => {
+router.get("/teams", async (req:ApiRequest<undefined>,res:ApiResponse<Team[]>) => {
 	try {
-		const teamsArray = await teams.getTeams();
+		const teamsArray:Team[] = await teams.getTeams();
 		if(teamsArray) {
 			res.send(teamsArray);
 		} else {
@@ -890,7 +893,8 @@ router.get("/teams", async (req,res) => {
 /**
  * 	Route on which we get all the team reviews based on the type of user requesting them
  */
-router.post("/teams/review", async (req,res) => {
+
+router.post("/teams/review", async (req:ApiRequest<{type:string,location:string,id:number}>,res:ApiResponse<Review[]>) => {
 
 	/** @type {string} - the type of user requesting the teams reviews */
 	const type = req.body.type;
@@ -907,13 +911,13 @@ router.post("/teams/review", async (req,res) => {
 		else if(type === "superAdmin") {
 			teamsArray = await teams.getTeams();
 		}
-		const reviews = [];
+		const reviews:Review[] = [];
 		console.log(type);
 		console.log(teamsArray);
 		for (const team of teamsArray) {
 			const mentor:User | null = await users.getUserByEmail(JSON.parse((team as any).teams_teamDetails)["mentor"]);
 			const product = JSON.parse((team as any).products_productDetails);
-			let review;
+			let review:Review;
 			if(mentor && product) {
 				let asses20May = "";
 				let asses12Oct = "";
@@ -940,11 +944,11 @@ router.post("/teams/review", async (req,res) => {
 					updatedAt: admin.formatDate((team as any).products_updatedAt),
 					lastMentorUpdate: admin.formatDate((team as any).products_lastMentorUpdate)
 				}
+				reviews.push(review);
 			};
-			reviews.push(review);
 		}
 		if(reviews) {
-			reviews.sort((a:any,b:any) => {
+			reviews.sort((a:Review,b:Review) => {
 				return a.startupName.localeCompare(b.startupName);
 			})
 			res.send(reviews);
@@ -963,29 +967,29 @@ router.post("/teams/review", async (req,res) => {
 /**
  * Route on which we request the update of selected reviews
  */
-router.post("/teams/review/update", async (req,res) => {
-	/** @type {any} - teams reviews array */
+router.post("/teams/review/update", async (req:ApiRequest<{reviews:Review[],type:string}>,res:ApiResponse<Review[]>) => {
+	/** @type {Review[]} - teams reviews array */
 	const revRes = [];
 
-	/** @type {any} - reviews to be updated */
-	const reviews = req.body.reviews;
+	/** @type {Review[]} - reviews to be updated */
+	const reviews:Review[] = req.body.reviews;
 
 	/** @type {string} - type of user requesting the update*/
-	const type = req.body.type;
+	const type:string = req.body.type;
 
 	try {
 		for (const review of reviews) {
-			const product:(Product | null) = await teams.getProductByTeamId((review as any).teamId);
-			const team:(Team | null) = await teams.getTeamById((review as any).teamId);
+			const product:(Product | null) = await teams.getProductByTeamId(review.teamId);
+			const team:(Team | null) = await teams.getTeamById(review.teamId);
 			if(product && team) {
 				if(type && type === "mentor") {
-					product.productDetails["mentorNotes"] = (review as any).mentorNotes;
+					product.productDetails["mentorNotes"] = review.mentorNotes;
 				} else if(type && type === "admin") {
-					product.productDetails["adminNotes"] = (review as any).adminNotes;
+					product.productDetails["adminNotes"] = review.adminNotes;
 				}
-				team.location=(review as any).location;
-				team.teamName=(review as any).startupName;
-				team.teamDetails["mentor"] = (review as any).mentor;
+				team.location=review.location;
+				team.teamName=review.startupName;
+				team.teamDetails["mentor"] = review.mentor;
 	
 				const newTeam = await teams.modifyTeam(team);
 				if(newTeam) {
@@ -993,14 +997,14 @@ router.post("/teams/review/update", async (req,res) => {
 					console.error("Error, team not updated");
 					res.status(401).send({err:401});
 				}
-				product.startupName = (review as any).startupName;
-				product.teamType = (review as any).teamTrack;
-				product.businessTrack = (review as any).businessTrack;
-				product.workshopDay = (review as any).workshopNr;
-				product.descriptionEN = (review as any).description;
-				product.productDetails["website"] = (review as any).webLink;
-				product.productDetails["assessment20May"] = (review as any).assessment20May;
-				product.productDetails["assessment12Oct"] = (review as any).assessment12Oct;
+				product.startupName = review.startupName;
+				product.teamType = (review.teamTrack as TeamType);
+				product.businessTrack = (review.businessTrack  as BusinessTrack);
+				product.workshopDay = (review.workshopNr as WorkshopDay);
+				product.descriptionEN = review.description;
+				product.productDetails["website"] = review.webLink;
+				product.productDetails["assessment20May"] = review.assessment20May;
+				product.productDetails["assessment12Oct"] = review.assessment12Oct;
 				const prodRes:(Product | null) = await teams.updateProduct(product);
 				if(prodRes) {
 					revRes.push(review);
@@ -1024,7 +1028,7 @@ router.post("/teams/review/update", async (req,res) => {
 /**
  * Route on which we request the change of role for a selected user
  */
-router.post("/changeRole", async (req,res) => {
+router.post("/changeRole", async (req:ApiRequest<{user:User,userTeam:UserTeams}>,res:ApiResponse<UserTeams>) => {
 	
 	/** @type {User} - the user of which role should be changed */
 	const user:User = req.body.user;
@@ -1033,9 +1037,9 @@ router.post("/changeRole", async (req,res) => {
 
 	try {
 		if(user) {
-			await users.modifyUser((user as User));
+			await users.modifyUser(user);
 			if(userTeam)
-				await teams.updateUserTeamDetails(userTeam as UserTeams);
+				await teams.updateUserTeamDetails(userTeam);
 			else {
 				console.error("Error on route \"/changeRole\" in \"admin\" router");
 				console.error("Error, no userteam datatype");
@@ -1046,7 +1050,7 @@ router.post("/changeRole", async (req,res) => {
 			console.error("Error, no user to change role to");
 			res.status(204).send({});
 		}
-		res.status(200).send({});
+		res.status(200).send(userTeam);
 	} catch (error) {
 		console.error("Error on route \"/changeRole\" in \"admin\" router");
 		console.error(error);
@@ -1087,7 +1091,7 @@ router.post("/add/workshop/Instances", async (req,res) => {
 /**
  * Route on which we request to add new workshop instances in the database
  */
-router.post("/request/user", async (req,res) => {
+router.post("/request/user", async (req:ApiRequest<{from:string,email:string,firstName:string,lastName:string,teamId:number}>,res:ApiResponse<boolean>) => {
 	// const from = req.body.from;
 	// const email = req.body.email;
 	// const firstName = req.body.firstName;
@@ -1115,12 +1119,12 @@ router.post("/request/user", async (req,res) => {
 		// const transporter = admin.createMailTransporter();
 		// if(transporter)
 		// 	admin.sendMail(transporter,options);
-		res.status(200);
+		res.status(200).send(true);
 	} else {
-		res.status(400);
+		res.status(400).send(false);
 	}
 });
-router.post("/add/user", async (req,res) => {
+router.post("/add/user", async (req:ApiRequest<{user:User,option:string,teamId:number}>,res:ApiResponse<boolean>) => {
 	const user = req.body.user;
 	const option = req.body.option;
 	user.password = admin.randomPassword();
@@ -1180,19 +1184,20 @@ router.post("/add/user", async (req,res) => {
 					
 				}
 			}
+			res.status(200).send(true);
 		} else {
-			res.status(401).send({err:401});
+			res.status(401).send({data:false,err:401});
 		}
 	} else {
-		res.status(401).send({err:401});
+		res.status(401).send({data:false,err:401});
 	}
-	res.status(201).send({});
+	res.status(201).send(false);
 });
-router.post("/update/user", async (req,res) => {
+router.post("/update/user", async (req:ApiRequest<{user:User,changedPass:boolean}>,res:ApiResponse<boolean>) => {
 	const user = req.body.user;
 	const changedPass = req.body.changedPass;
 	if(changedPass) {
-		user.password = users.passwordGenerator(user.password);
+		user.password = UsersServer.passwordGenerator(user.password);
 		// const options = admin.createMailOptions(
 		// 	(process.env.MAIL_USER as string),
 		// 	user.email,
@@ -1210,23 +1215,28 @@ router.post("/update/user", async (req,res) => {
 	}
 	
 	if(user) {
-		await users.modifyUser((user as User));
+		let resp = await users.modifyUser(user);
+		if(resp) {
+			res.status(200).send(true);
+		} else {
+			res.status(401).send({err:401,data:false});
+		}
 	} else {
-		res.status(401).send({err:401});
+		res.status(401).send({err:401,data:false});
 	}
-	res.status(201).send({});
+	res.status(201).send(true);
 });
-router.post("/delete/user", async (req,res) => {
+router.post("/delete/user", async (req:ApiRequest<{user:User}>,res:ApiResponse<boolean>) => {
 	const user = req.body.user;
 	if(user) {
 		//TODO
-		res.send(user);
+		res.send(true);
 	} else {
-		res.status(401).send({err:401});
+		res.status(401).send({err:401, data:false});
 	}
-	res.status(201).send({});
+	res.status(201).send(true);
 });
-router.post("/request/user/team", async(req,res) => {
+router.post("/request/user/team", async(req:ApiRequest<{user:User,team:Team}>,res:ApiResponse<undefined>) => {
 	const user = req.body.user;
 	const team = req.body.team;
 	if(user && team) {

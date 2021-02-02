@@ -1,5 +1,4 @@
-
-import { Server } from "@startupway/main/lib/server";
+import { Server, ApiResponse, ApiRequest } from "@startupway/main/lib/server";
 import { getPool } from "@startupway/database/lib/server";
 import { getAuthorizationFunction } from "@startupway/users/lib/server";
 import { BModelCanvas } from "../common";
@@ -133,7 +132,7 @@ if(authFunct)
 	// Bypass params dictionary and send authorization Function
 
 
-router.get("/:teamId", async(req,res) => {
+router.get("/:teamId", async(req:ApiRequest<undefined>,res:ApiResponse<BModelCanvas[]>) => {
 	const result = await bModelCanvasServer.getCanvasesForTeam(parseInt(req.params.teamId,10));
 	if(result)
 		res.send(result);
@@ -141,15 +140,15 @@ router.get("/:teamId", async(req,res) => {
 		res.status(401).send({err:401});
 });
 // TODO: add addCanvas(canvas) function
-router.post("/:teamId", async(req,res) => {
-	const newCanvas = await bModelCanvasServer.addCanvas(req.body.canvas);
+router.post("/:teamId", async(req:ApiRequest<BModelCanvas>,res:ApiResponse<BModelCanvas|null>) => {
+	const newCanvas = await bModelCanvasServer.addCanvas(req.body);
 	if(newCanvas)
 		res.send(newCanvas);
 	else
 		res.status(401).send({err:401});
 });
-router.post("/update:teamId", async(req,res) => {
-	const newCanvas = req.body.canvas;
+router.post("/update:teamId", async(req:ApiRequest<BModelCanvas>,res:ApiResponse<BModelCanvas|null>) => {
+	const newCanvas = req.body;
 	if(newCanvas)
 		res.send(newCanvas);
 	else

@@ -107,6 +107,7 @@
 <script lang="ts">
 import { mapGetters } from "vuex";
 import Vue from "vue";
+// import { ApiResponse, ApiRequest } from "@startupway/main/lib/ui";
 import { User } from "@startupway/users/lib/ui";
 import { Team } from "@startupway/teams/lib/ui";
 import { UI } from '@startupway/main/lib/ui';
@@ -124,7 +125,7 @@ export default Vue.extend({
 	watch: {
 		user: {
 			immediate: true,
-			async handler(newUser: User) {
+			async handler(newUser: User):Promise<void> {
 				if(newUser) {
 					const role = JSON.parse(this.user.role);
 					if (role["Admin"] || role["SuperAdmin"]) {
@@ -136,16 +137,13 @@ export default Vue.extend({
 						} catch (e) {
 							console.error(e);
 						}
-					} else {
-						if(this.$route.path!=="/workspace")
-							this.$router.push("/workspace");
 					}
 				}
 			}
 		},
 		teams: {
 			immediate: true,
-			handler(newTeams: Team[]) {
+			handler(newTeams: Team[]):void {
 				newTeams.forEach((team: Team) => {
 					this.viewTeams.push({
 						name: team.teamName,
@@ -181,7 +179,7 @@ export default Vue.extend({
 			});
 			return users;
 		},
-		async getAllUsers() {
+		async getAllUsers():Promise<boolean> {
 			try {
 				const response = await this.ui.api.get("/api/v1/users/users/all");
 				if (response) {
@@ -189,7 +187,9 @@ export default Vue.extend({
 				}
 			} catch (e) {
 				console.error(e);
+				return false;
 			}
+			return true;
 		}
 	}
 });
