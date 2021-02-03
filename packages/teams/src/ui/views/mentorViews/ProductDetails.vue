@@ -438,7 +438,7 @@ export default Vue.extend({
 				const response = await this.ui.api.get<User[]>("/api/v1/users/users");
 				if (response.data) {
 					this.allUsers = this.modifyUsers(response.data);
-					this.allUsers = this.allUsers.filter((user:User) => { return !this.hasUser(user)});
+					this.allUsers = this.allUsers.filter((user:(User&UserTeams)) => { return !this.hasUser(user)});
 					return true;
 				}
 			} catch (e) {

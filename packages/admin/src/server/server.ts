@@ -923,8 +923,9 @@ router.post("/teams/review", async (req:ApiRequest<{type:string,location:string,
 		console.log(type);
 		console.log(teamsArray);
 		for (const team of teamsArray) {
-			const mentor:User | null = await users.getUserByEmail(JSON.parse(team.teamDetails)["mentor"]);
-			const product = JSON.parse(team.products_productDetails);
+			// as any because TODO parse json in backend
+			const mentor:User | null = await users.getUserByEmail(JSON.parse(team.teamDetails as any)["mentor"]);
+			const product = JSON.parse(team.productDetails as any);
 			let review:Review;
 			if(mentor && product) {
 				let asses20May = "";
@@ -937,20 +938,20 @@ router.post("/teams/review", async (req:ApiRequest<{type:string,location:string,
 				}
 				review = {
 					location:team.location,
-					workshopNr:team.products_workshopDay,
+					workshopNr:team.workshopDay,
 					mentor:mentor.email,
-					teamTrack:team.products_teamType,
-					businessTrack:team.products_businessTrack,
-					startupName:team.products_startupName,
-					description:team.products_descriptionEN,
+					teamTrack:team.teamType,
+					businessTrack:team.businessTrack,
+					startupName:team.startupName,
+					description:team.descriptionEN,
 					webLink:product.website,
 					teamId:team.teamId,
 					mentorNotes:product.mentorNotes,
 					adminNotes:product.adminNotes,
 					assessment20May:asses20May,
 					assessment12Oct:asses12Oct,
-					updatedAt: admin.formatDate(team.products_updatedAt),
-					lastMentorUpdate: admin.formatDate(team.products_lastMentorUpdate)
+					updatedAt: admin.formatDate(team.updatedAt),
+					lastMentorUpdate: admin.formatDate(team.lastMentorUpdate)
 				}
 				reviews.push(review);
 			};
