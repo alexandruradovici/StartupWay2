@@ -151,6 +151,7 @@ export default Vue.extend({
 		update(prop:boolean):void {
 			this.snackbar = prop;
 		},
+		// as any -> Google api, to reseach into response type.
 		validate(response:any):void {
 			if(response) {
 				this.verified = false;

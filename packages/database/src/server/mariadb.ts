@@ -63,7 +63,7 @@ export class MariaDBServer {
 			let values:{db?:string,charset?:string,collate?:string} = {
 				db:process.env.DB_NAME
 			};
-
+			// Get DB schemba name 
 			const r:any[] = await auxConn.query(queryOptions, values);
 			if(r[0] === undefined || r[0].length < 1) {
 				queryOptions = {

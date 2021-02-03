@@ -279,7 +279,8 @@ export class AdminServer {
 	sendMail(transporter:Transporter,mailOptions:SendMailOptions):boolean {
 		try {
 			let response = {};
-			transporter.sendMail(mailOptions, function(error:any, info:any){
+			// Documented as any
+			transporter.sendMail(mailOptions, function(error:Error | null, info:any){
 				if (error) {
 					console.log("Error in function \"sendMail(transporter, mailOptions)\"|\"admin\"");
 					console.error(error);

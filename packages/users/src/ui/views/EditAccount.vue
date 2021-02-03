@@ -325,8 +325,11 @@ export default Vue.extend({
 			const reader = new FileReader();
 			reader.readAsDataURL(file);
 			reader.onload = () => {
-				let result = (reader.result as any).toString().split(",");
-				(this.base64Encode as any) = result[1];
+				const result = reader.result;
+				if(result) {
+					const aux = result.toString().split(",");
+					this.base64Encode = aux[1];
+				}
 			};
 			reader.onerror = (err) => {
 				console.error(err);

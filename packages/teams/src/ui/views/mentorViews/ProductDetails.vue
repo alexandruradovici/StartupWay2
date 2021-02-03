@@ -402,6 +402,7 @@ export default Vue.extend({
 		moment() {
 			return moment();
 		},
+		// as any to tranform from enum to data property
 		_enumToData(enumData: any, name: string):void {
 			name = name.replace(/^\w/, c => c.toLowerCase()) + "s";
 			for (const propName in enumData) {
@@ -411,9 +412,9 @@ export default Vue.extend({
 				if (propName !== "NONE") ((this as any)[name] as Array<Object>).push(enumData[propName]);
 			}
 		},
-		hasUser(user:any):boolean{
+		hasUser(user:(User&UserTeams)):boolean{
 			for(const aux of this.users) {
-				if((aux as any).UserTeams_userId === user.userId) {
+				if(aux.userId === user.userId) {
 					return true;
 				}
 			}
@@ -450,6 +451,7 @@ export default Vue.extend({
 			for(const user of users) {
 				if(typeof user.userDetails === "string") {
 					user.userDetails = JSON.parse(user.userDetails);
+					// as any becuase TODO parse json in backend
 					user.socialMedia = JSON.parse((user as any).socialMedia);
 				}
 				if (user.userDetails["faculty"] !== undefined) {
@@ -466,14 +468,7 @@ export default Vue.extend({
 					const roleObj = user.role;
 					for (const prop in roleObj) {
 						if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
-							(user.role as any) = prop;
-							break;
-						}
-					}
-				} else if (user.role) {
-					const roleObj = user.role;
-					for (const prop in roleObj) {
-						if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
+							// as any to overwrite property from {"Role_Name":true} to "Role_Name" for visualizing in frontend
 							(user.role as any) = prop;
 							break;
 						}

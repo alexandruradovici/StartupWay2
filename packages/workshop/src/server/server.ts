@@ -179,15 +179,14 @@ export class WorkshopServer {
 		}
 	}
 
-	async listWorkshopAttendancesByWorkshopId(workshopId: number): Promise<WorkshopAttendances[]> {
+	async listWorkshopAttendancesByWorkshopId(workshopId: number): Promise<(WorkshopInstances & WorkshopAttendances)[]> {
 		try {
 			const queryOptions:QueryOptions = {
 				nestTables:"_",
 				sql: "SELECT workshopInstances.*, workshopAttendances.* FROM workshopInstances INNER JOIN ON workshopAttendances.workshopInstanceId=workshopInstances.workshopInstanceId WHERE workshopInstances.workshopId=:workshopId"
 			}
-			// using any beacause inner join between workshopInstances + workshopAttendances
-			const workshopInstances:any[] = await this.conn.query(queryOptions,{workshopId}) as WorkshopInstances[];
-			if(workshopInstances) {
+			const workshopInstances:(WorkshopInstances & WorkshopAttendances)[] = await this.conn.query(queryOptions,{workshopId});
+			if(workshopInstances.length > 0) {
 				return workshopInstances;
 			} else {
 				return [];
@@ -213,7 +212,7 @@ const workshop = WorkshopServer.getInstance();
 
 const authFunct = getAuthorizationFunction();
 if(authFunct)
-	router.use((authFunct as any));
+	router.use(authFunct);
 	// Bypass params dictionary and send authorization Function
 
 router.get("/workshops", async (req:ApiRequest<undefined>, res:ApiResponse<Workshop[]>) => {

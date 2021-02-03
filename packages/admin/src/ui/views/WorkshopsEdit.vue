@@ -164,7 +164,7 @@ export default Vue.extend({
 			dateMenu: false,
 			allUsers:[] as User[],
 			workshops:[] as Workshop[],
-			viewWorkshops:[] as any[],
+			viewWorkshops:[] as {"name":string,"value":number}[],
 			teams:[] as Team[],
 			viewTeams:[] as {"name":string,"value":number}[],
 			auxViewTeams:[] as {"name":string,"value":number}[],
@@ -177,10 +177,10 @@ export default Vue.extend({
 			details:"",
 			workshopName:"",
 			activeUsers: {} as UserDetails,
-			instances: [] as WorkshopInstances[],
+			instances: {} as {[key:string]:WorkshopInstances},
 			teamIds: [] as number[],
 			selected: 0 as number,
-			attendance: [] as any,
+			attendance: [] as WorkshopAttendances[],
 		};
 	},
 	watch: {
@@ -225,7 +225,7 @@ export default Vue.extend({
 				this.viewWorkshops = [];
 				newWorkshops.forEach((workshop:Workshop) => {
 					this.viewWorkshops.push({
-						"name":workshop.workshopName,
+						"name": workshop.workshopName,
 						"value":workshop.workshopId
 					})
 				});
@@ -239,17 +239,18 @@ export default Vue.extend({
 				for (var date in this.instances) {
 					this.activeUsers[date] = new Array();
 					if (Object.prototype.hasOwnProperty.call(this.instances, date)) {
+						// as any this.instances = _.Dictionary<WorkshopInstances> | {[key:string]:WorkshopInstances} ?
 						for (const workshop of (this.instances as any)[date]) {
 							const response = await this.ui.api.get("/api/v1/teams/team/users/" + workshop.teamId);
 							if (response) {
 								let name = "";
 								for (const team of this.teams) {
 									if (this.user.role["Admin"]) {
-										if((team as any).teamId === workshop.teamId)
-											name = (team as any).teamName;
+										if(team.teamId === workshop.teamId)
+											name = team.teamName;
 									} else if(this.user.role["Mentor"]) {
 										if(team.teamId === workshop.teamId)
-											name = (team as any ).teamName;
+											name = team.teamName;
 									}
 								}
 								const users = response.data;
@@ -259,7 +260,7 @@ export default Vue.extend({
 									tempUser.programmingDetails["team"] = name;
 									tempUser.programmingDetails["teamId"] = workshop.teamId;
 									const foundAttended = _.find(this.attendance, userAttendance => {
-										return userAttendance.userId === (user as any).UseruserId;
+										return userAttendance.userId === user.userId;
 									});
 									user.programmingDetails["present"] = foundAttended !== undefined ? true : false;
 									user = tempUser;
@@ -284,7 +285,7 @@ export default Vue.extend({
 				);
 				this.auxViewTeams = [];
 				for(const wInst of response.data) {
-					// ? To test not sure it works wInst should pe WorkshopInstances not WorkshopInstance[]
+					// as any this.instances = _.Dictionary<WorkshopInstances> | {[key:string]:WorkshopInstances} ?
 					instances.push(...(wInst as any));
 				}
 				for (const instance of instances) {
@@ -307,14 +308,8 @@ export default Vue.extend({
 					const roleObj = element.role;
 					for(const prop in roleObj) {
 						if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
+							// as any to replace role: {"Role_name":true} with "Role_name"
 							(element.role as any) = prop;
-						}
-					}
-				} else if((element as any).role) {
-					const roleObj = (element as any).role;
-					for(const prop in roleObj) {
-						if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
-							(element as any).role = prop;
 						}
 					}
 				}
@@ -335,7 +330,7 @@ export default Vue.extend({
 					for (const team of this.teams) {
 						this.teamIds.push((team as Team).teamId);
 					}
-					const response = await this.ui.api.get<WorkshopInstances[]>(
+					const response = await this.ui.api.get<_.Dictionary<WorkshopInstances>>(
 						"/api/v1/workshop/mentor/instances/" + newWorkshopId
 					);
 					if (response) {

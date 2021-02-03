@@ -296,6 +296,7 @@ export default Vue.extend({
 					this.revenue = this.canvas.fields["Revenue Streams"];
 				} else {
 					this.canvas = {
+						// as any because modelId:numebr not modleId:number | null -> needs to be autoIncremented
 						modelId: (null as any),
 						productId: this.productId,
 						date: new Date(),
@@ -329,7 +330,7 @@ export default Vue.extend({
 			ui:{} as UI,
 			checkLength: false,
 			types: [] as string[],
-			lengthRules: [(v: any) => (v || '' ).length <= 250 || 'Description must be 250 characters or less'],
+			lengthRules: [(v: string | null) => (v || '' ).length <= 250 || 'Description must be 250 characters or less'],
 			loadingPage:false,
 			edit: false as boolean,
 			teamId: 0 as number,

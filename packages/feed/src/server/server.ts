@@ -128,7 +128,7 @@ router.use((req, res, next) => {
 
 const authFunct = getAuthorizationFunction();
 if(authFunct)
-	router.use((authFunct as any));
+	router.use(authFunct);
 	// Bypass params dictionary and send authorization Function
 	
 router.get("/:teamId", async (req:ApiRequest<undefined>, res:ApiResponse<Feed[]>) => {

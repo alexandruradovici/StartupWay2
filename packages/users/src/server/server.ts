@@ -383,8 +383,7 @@ router.get("/verify/:email", async(req:ApiRequest<undefined>, res:ApiResponse<{a
 
 const authFunct = getAuthorizationFunction();
 if(authFunct)
-	router.use((authFunct as any));
-	// Bypass params dictionary and send authorization Function
+	router.use(authFunct);
 
 router.get("/user", async (req:ApiRequest<undefined>, res:ApiResponse<User|null>, next) => {
 	if((req as any).user) {

@@ -415,13 +415,13 @@ export class TeamsServer {
 				sql: "SELECT userTeams.*, users.* FROM userTeams INNER JOIN users ON users.userId=userTeams.userId WHERE userTeams.teamId=:teamId"
 			};
 			const teamResponse:(User & UserTeams) [] = await this.conn.query(queryOptions,{teamId});
-			if(teamResponse[0])
-				return (teamResponse as any)[0]; // weird error?
+			if(teamResponse.length > 0)
+				return teamResponse;
 			else
-				return ([] as any);
+				return [];
 		} catch (e) {
 			console.error(e);
-			return ([] as any);
+			return [];
 		}
 	}
 
@@ -459,10 +459,10 @@ export class TeamsServer {
 			if(teamResponse.length > 0)
 				return teamResponse;
 			else
-				return ([] as any);
+				return [];
 		} catch(error) {
 			console.error(error);
-			return ([] as any);
+			return [];
 		}
 	}
 	async getTeamByMentorId(mentorId: number): Promise<(Team & Product)[]> {
@@ -476,10 +476,10 @@ export class TeamsServer {
 			if(teamResponse.length > 0)
 				return teamResponse;
 			else
-				return ([] as any);
+				return [];
 		} catch(error) {
 			console.error(error);
-			return ([] as any);
+			return [];
 		}
 	}
 	async getProductByMentorId(mentorId: number): Promise<Product[]> {
@@ -492,10 +492,10 @@ export class TeamsServer {
 			if(teamResponse.length > 0)
 				return teamResponse;
 			else
-				return ([] as any);
+				return [];
 		} catch(error) {
 			console.error(error);
-			return ([] as any);
+			return [];
 		}
 	}
 	async updateProduct(product: Product): Promise<Product | null> {
@@ -678,7 +678,7 @@ const teams = TeamsServer.getInstance();
 
 const authFunct = getAuthorizationFunction();
 if(authFunct)
-	router.use((authFunct as any));
+	router.use(authFunct);
 	// Bypass params dictionary and send authorization Function
 
 router.get("/teams:userId", async(req:ApiRequest<undefined>, res:ApiResponse<Team[]>) => {

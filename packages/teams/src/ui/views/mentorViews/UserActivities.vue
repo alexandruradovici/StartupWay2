@@ -325,7 +325,7 @@ export default Vue.extend({
 			for(const user of users) {
 				if(typeof user.userDetails === "string") {
 					user.userDetails = JSON.parse(user.userDetails);
-					// TODO PArse json in backend
+					// as any TODO PArse json in backend
 					user.socialMedia = JSON.parse((user as any).socialMedia);
 				}
 				if (user.userDetails["faculty"] !== undefined) {
@@ -342,16 +342,7 @@ export default Vue.extend({
 					const roleObj = user.role;
 					for (const prop in roleObj) {
 						if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
-							// todo find way
-							(user.role as any) = prop;
-							break;
-						}
-					}
-				} else if (user.role) {
-					const roleObj = user.role;
-					for (const prop in roleObj) {
-						if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
-							// todo find way
+							// as any to overwrite property from {"Role_Name":true} to "Role_Name" for visualizing in frontend
 							(user.role as any) = prop;
 							break;
 						}

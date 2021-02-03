@@ -67,9 +67,9 @@ export default Vue.extend({
 						id: team.teamId,
 						title: team.teamName,
 						icon: "mdi-group",
-						img:(this.img as any).data
+						img:this.img.data
 					}
-					if(this.options.items.find((letter:any) => {
+					if(this.options.items.find((letter:{id:number}) => {
 						return letter.id === item.id;
 					}) === undefined) {
 						this.options.items.push(item)

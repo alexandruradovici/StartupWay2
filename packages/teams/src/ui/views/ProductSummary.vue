@@ -697,7 +697,7 @@ export default Vue.extend({
 			logoFile:undefined as File | undefined,
 			imgFiles:undefined as File | undefined,
 			uuidTemp:"",
-			partTotal:"",
+			partTotal:"" as number | string,
 			parts:0,
 			increment:0,
 			//File Display
@@ -724,6 +724,7 @@ export default Vue.extend({
 		};
 	},
 	methods: {
+		// as any to transform enum to data property
 		_enumToData(enumData: any, name: string):void {
 			name = name.replace(/^\w/, c => c.toLowerCase()) + "s";
 			for (const propName in enumData) {
@@ -876,7 +877,7 @@ export default Vue.extend({
 				const fileSize   = file.size;
 				const chunkSize  = 1000000  ; // bytes
 				if(this.partTotal === "") {
-					(this.partTotal as any) = 0;
+					this.partTotal = 0;
 					this.parts = fileSize/chunkSize;
 					this.increment = (100 * chunkSize)/fileSize;
 				}
@@ -900,8 +901,9 @@ export default Vue.extend({
 								fileType:type,
 								ext:file.name.split('.').pop(),
 								nr:(chunkSize + offset)/chunkSize
+							// as any -> not used
 							}).then( async (resp:any) => {
-								this.partTotal +=this.increment;
+								(this.partTotal as number) +=this.increment;
 								await this.parseFile(file,type,chunkSize+offset)
 							});
 						}

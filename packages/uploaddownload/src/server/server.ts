@@ -32,26 +32,26 @@ export class UploadDownloadServer {
 		})
 	}
 
-	private static zips:{[key:string]:jszip} = {
-		"all_uploads_arhive_none":(null as any) as jszip,
-		"all_uploads_arhive_may":(null as any) as jszip,
-		"all_uploads_arhive_oct":(null as any) as jszip,
-		"Bucharest_uploads_arhive_none":(null as any) as jszip,
-		"Bucharest_uploads_arhive_may":(null as any) as jszip,
-		"Bucharest_uploads_arhive_oct":(null as any) as jszip,
-		"Sibiu_uploads_arhive_none":(null as any) as jszip,
-		"Sibiu_uploads_arhive_may":(null as any) as jszip,
-		"Sibiu_uploads_arhive_oct":(null as any) as jszip,
-		"Iasi_uploads_arhive_none":(null as any) as jszip,
-		"Iasi_uploads_arhive_may":(null as any) as jszip,
-		"Iasi_uploads_arhive_oct":(null as any) as jszip,
-		"Cluj_uploads_arhive_none":(null as any) as jszip,
-		"Cluj_uploads_arhive_may":(null as any) as jszip,
-		"Cluj_uploads_arhive_oct":(null as any) as jszip,
-		"Timisoara_uploads_arhive_none":(null as any) as jszip,
-		"Timisoara_uploads_arhive_may":(null as any) as jszip,
-		"Timisoara_uploads_arhive_oct":(null as any) as jszip,
-		"demoday_uploads_arhive":(null as any) as jszip
+	private static zips:{[key:string]:jszip | null} = {
+		"all_uploads_arhive_none":null,
+		"all_uploads_arhive_may":null,
+		"all_uploads_arhive_oct":null,
+		"Bucharest_uploads_arhive_none":null,
+		"Bucharest_uploads_arhive_may":null,
+		"Bucharest_uploads_arhive_oct":null,
+		"Sibiu_uploads_arhive_none":null,
+		"Sibiu_uploads_arhive_may":null,
+		"Sibiu_uploads_arhive_oct":null,
+		"Iasi_uploads_arhive_none":null,
+		"Iasi_uploads_arhive_may":null,
+		"Iasi_uploads_arhive_oct":null,
+		"Cluj_uploads_arhive_none":null,
+		"Cluj_uploads_arhive_may":null,
+		"Cluj_uploads_arhive_oct":null,
+		"Timisoara_uploads_arhive_none":null,
+		"Timisoara_uploads_arhive_may":null,
+		"Timisoara_uploads_arhive_oct":null,
+		"demoday_uploads_arhive":null
 	};
 	formatDate(date: Date):string {
 		const year = date.getFullYear(); 
@@ -69,7 +69,7 @@ export class UploadDownloadServer {
 				for(const link of links) {
 					if(link.uuid !== '') {
 						if(UploadDownloadServer.zips[link.uuid] === undefined) {
-							UploadDownloadServer.zips[link.uuid] = (null as any) as jszip;
+							UploadDownloadServer.zips[link.uuid] = null;
 						}
 					}
 				}
@@ -242,8 +242,8 @@ export class UploadDownloadServer {
 		try {
 			await AWS.config.update({region: process.env.REGION, accessKeyId: process.env.AKEY, secretAccessKey: process.env.ASECRETKEY});
 			const s3 = new AWS.S3();
-			if(uuid !== "" && uuid !== undefined) {
-				const uploadParams:any = {
+			if(uuid !== "" && uuid !== undefined && process.env.BUCKET) {
+				const uploadParams:{Bucket:string,Key:string,Body:string|Buffer} = {
 					Bucket: process.env.BUCKET, 
 					Key: '', 
 					Body: ''
@@ -255,7 +255,7 @@ export class UploadDownloadServer {
 						const buffer = Buffer.from(fileData,"base64");
 						readable._read = () => {}; 
 						readable.push(buffer);
-						(uploadParams.Body as any) = buffer;
+						uploadParams.Body = buffer;
 						uploadParams.Key = uuid;
 						const data = await s3.upload (uploadParams).promise()
 						if(data)
@@ -269,7 +269,7 @@ export class UploadDownloadServer {
 					if(fileBuffer && fileBuffer !== undefined) {
 						readable._read = () => {}; 
 						readable.push(fileBuffer);
-						(uploadParams.Body as any) = fileBuffer;
+						uploadParams.Body = fileBuffer;
 						uploadParams.Key = uuid;
 						const data = await s3.upload (uploadParams).promise()
 						if(data)
@@ -303,7 +303,7 @@ export class UploadDownloadServer {
 				let utf8Data;
 				const response:AWS.S3.GetObjectOutput = await s3.getObject(BucketParams).promise();
 				if(response.Body !== undefined) {
-					utf8Data = (response.Body as any).toString("base64");
+					utf8Data = response.Body.toString("base64");
 				}
 				if(utf8Data !== undefined)
 					return utf8Data;
@@ -380,12 +380,12 @@ export class UploadDownloadServer {
 		try {
 			AWS.config.update({region: process.env.REGION, accessKeyId: process.env.AKEY, secretAccessKey: process.env.ASECRETKEY});
 			const s3 = new AWS.S3();
-			if(uuid !== undefined && uuid !== "") {
-				const deleteParams:any = {
+			if(uuid !== undefined && uuid !== "" && process.env.BUCKET) {
+				const deleteParams:{Bucket:string, Key:string} = {
 					Bucket: process.env.BUCKET, 
 					Key: uuid
 				};
-				if(s3.deleteObject (deleteParams, (err:any, data:any) => {
+				if(s3.deleteObject (deleteParams, (err:AWS.AWSError, data:AWS.S3.DeleteObjectOutput) => {
 					if (err) {
 						console.error("Error", err);
 						return false;
@@ -408,8 +408,8 @@ export class UploadDownloadServer {
 
 	async generateZip(type:string,date:string,linkUuid:string,param?:string | number | number[], option?:string) {
 		try {
-			(uploadDownload as any).zips[linkUuid] = new jszip;
-			let zip = (uploadDownload as any).zips[linkUuid];
+			UploadDownloadServer.zips[linkUuid] = new jszip;
+			let zip = UploadDownloadServer.zips[linkUuid];
 			if(type === "all") {
 				const products = await teams.getTeams();
 				for(const product of products) {
@@ -424,7 +424,7 @@ export class UploadDownloadServer {
 							if(user.avatarUu !== '' && user.avatarUu !== null) {
 								const obj:string = await uploadDownload.getS3Object(user.avatarUu);
 								let name = folder+'/UserImages/'+product.location + "_" + product.teamName+'_profile_photo_'+user.firstName + "_" + user.lastName + '.png';
-								if(obj !== "") {
+								if(obj !== "" && zip) {
 									zip.file(name, obj, {base64:true});
 								} else {
 									console.error("No such object");
@@ -432,7 +432,7 @@ export class UploadDownloadServer {
 							}
 						}
 					}
-					if(links.length !== 0) {
+					if(links.length !== 0 && zip) {
 						zip.folder(folder)
 						zip.folder(folder + "/Videos");
 						zip.folder(folder + "/Images");
@@ -480,7 +480,7 @@ export class UploadDownloadServer {
 								if(user.avatarUu !== '' && user.avatarUu !== null) {
 									const obj:string = await uploadDownload.getS3Object(user.avatarUu);
 									let name = product.teamName+'/UserImages/'+product.location + "_" + product.teamName+'_profile_photo_'+user.firstName + "_" + user.lastName + '.png';
-									if(obj !== "") {
+									if(obj !== "" && zip) {
 										zip.file(name, obj, {base64:true});
 									} else {
 										console.error('No obj GETS3OBJ');
@@ -488,7 +488,7 @@ export class UploadDownloadServer {
 								}
 							}
 						}
-						if(links.length !== 0) {
+						if(links.length !== 0 && zip) {
 							zip.folder(product.teamName);
 							zip.folder(product.teamName + "/Videos");
 							zip.folder(product.teamName + "/Images");
@@ -526,13 +526,12 @@ export class UploadDownloadServer {
 					}
 
 				} else if (typeof param === "number") {
-					// let links = await uploadDownload.getLinksByProductId(param.toString(), date);
+					let links = await uploadDownload.getLinksByProductId(param.toString(), date);
 					const team = await teams.getTeamByProductId(param);
 					let users;
 					if(team)
 						users = await teams.getUsersByTeamId(team.teamId);
 					const d = await teams.isTeamInDate(date,param);
-					const links:any[] = [];
 					if(users && team)
 					if(users.length !== 0 && d) {
 						for(const user of users) {
@@ -540,7 +539,7 @@ export class UploadDownloadServer {
 							if(user.avatarUu !== '' && user.avatarUu !== null) {
 								const obj:string = await uploadDownload.getS3Object(user.avatarUu);
 								let name = 'UserImages/'+team.location + "_" + team.teamName+'_profile_photo_'+user.firstName + "_" + user.lastName + '.png';
-								if(obj !== "") {
+								if(obj !== "" && zip) {
 									zip.file(name, obj, {base64:true});
 								} else {
 									console.error('No obj GETS3OBJ');
@@ -549,7 +548,7 @@ export class UploadDownloadServer {
 							}
 						}
 					}
-					if(links.length !== 0) {
+					if(links.length !== 0 && zip) {
 						zip.folder("Videos");
 						zip.folder("Images");
 						zip.folder("PowerPoint");
@@ -588,7 +587,7 @@ export class UploadDownloadServer {
 					const teamsArr = await teams.getTeamsByIdList(param);
 					for(const team of teamsArr) {
 						const prId = team.productId;
-						const users = await teams.getUsersByTeamId((team as any).teamId);
+						const users = await teams.getUsersByTeamId(team.teamId);
 						const d = await teams.isTeamInDate(date,prId);
 						if(users.length !== 0 && d && option === "everything") {
 							for(const user of users) {
@@ -596,7 +595,7 @@ export class UploadDownloadServer {
 								if(user.avatarUu !== '' && user.avatarUu !== null) {
 									const obj:string = await uploadDownload.getS3Object(user.avatarUu);
 									let name = team.teamName+'/UserImages/'+team.location + "_" + team.teamName+'_profile_photo_'+user.firstName + "_" + user.lastName + '.png';
-									if(obj !== "") {
+									if(obj !== "" && zip) {
 										zip.file(name, obj, {base64:true});
 									} else {
 										console.error('No obj GETS3OBJ');
@@ -604,13 +603,13 @@ export class UploadDownloadServer {
 								}
 							}
 						}
-						let links = [] as any[];
+						let links = [] as UploadDownloadLink[];
 						if(option !== undefined)
 							links = await uploadDownload.getLinksByProductIdAndFileType(prId.toString(),option);
 						else
 							links = await uploadDownload.getLinksByProductId(prId.toString(), 'none');
 						if(links.length !== 0) {
-							if(option === "everything") {
+							if(option === "everything" && zip) {
 								zip.folder(team.teamName);
 								zip.folder(team.teamName + "/Videos");
 								zip.folder(team.teamName + "/Images");
@@ -652,7 +651,7 @@ export class UploadDownloadServer {
 									}
 									
 									const obj:string = await uploadDownload.getS3Object(link.uuid);
-									if(obj !== "") {
+									if(obj !== "" && zip) {
 										zip.file(name, obj, {base64:true});
 									} else {
 										console.error('No obj GETS3OBJ')
@@ -701,7 +700,7 @@ export class UploadDownloadServer {
 							uploadTime: new Date()
 						}
 						if(link.uuid !== "") {
-							let upload:Boolean | any = false;
+							let upload:Boolean = false;
 							const tmpFile = path.join("/tmp",uuid + ".zip");
 							upload = await uploadDownload.addS3File(link.uuid, tmpFile, "path");
 							if(upload) {
@@ -755,11 +754,11 @@ export class UploadDownloadServer {
 				const oldDate = new Date(link.uploadTime).getTime();
 				const newDate = new Date().getTime();
 				if(link.uuid === '' || newDate - oldDate >= 86400000) {
-					if((uploadDownload as any).zips[uuid] === null) {
+					if(UploadDownloadServer.zips[uuid] === null) {
 						await uploadDownload.generateZip(type,date,uuid,param, option);
 						return;
-					} else if((uploadDownload as any).zips[uuid] === undefined) {
-						(uploadDownload as any).zips[uuid] = null;
+					} else if(UploadDownloadServer.zips[uuid] === undefined) {
+						UploadDownloadServer.zips[uuid] = null;
 						await uploadDownload.generateZip(type,date,uuid,param, option);
 						return;
 					}
@@ -835,7 +834,7 @@ const users = UsersServer.getInstance();
 const teams = TeamsServer.getInstance();
 const authFunct = getAuthorizationFunction();
 if(authFunct)
-	router.use((authFunct as any));
+	router.use(authFunct);
 
 router.get("/get/file/product/:fileType/:productId", async(req:ApiRequest<undefined>, res:ApiResponse<{data:string,type:string,ext:string,uuid:string}[] | null>) => {
 	try {
@@ -960,7 +959,7 @@ router.get("/download/zip/:type/:date", async(req:ApiRequest<undefined>, res:Api
 				}
 				const newLink = await uploadDownload.addLink(link);
 				if(newLink) {
-					let upload:Boolean | any = false;
+					let upload:Boolean = false;
 					const tmpFile = path.join("/tmp",uuid + ".zip");
 					upload = await uploadDownload.addS3File(newLink.uuid, tmpFile, "path");
 					if(upload) {
@@ -1267,7 +1266,7 @@ router.post("/download/team/zip/:type/:date", async(req:ApiRequest<{type:string,
 				}
 				const newLink = await uploadDownload.addLink(link);
 				if(newLink) {
-					let upload:Boolean | any = false;
+					let upload:Boolean = false;
 					const tmpFile = path.join("/tmp",uuid + ".zip");
 					upload = await uploadDownload.addS3File(newLink.uuid, tmpFile, "path");
 					if(upload) {
@@ -1349,14 +1348,15 @@ router.post("/upload/file/chunk", async(req:ApiRequest<{finish:string,fileName:s
 			const productId = req.body.productId;
 			const filePath = path.join('./tmp', fileName + "." + req.body.ext);
 			if(fileType !== 'pres') {
-				let width;
-				let height;
+				let width:number;
+				let height:number;
 				const checkFile = await fs.pathExists(filePath);
 				if(!checkFile) {
 					console.error("No file");
 					res.status(404).send({err:404,data:false});
 				}
 				try { 
+					// as any because no ffmpeg types
 					await ffmpeg(filePath).ffprobe(async function(err: any, metadata: any){
 						width = await metadata.streams[0].width;
 						height = await metadata.streams[0].height;
@@ -1368,7 +1368,7 @@ router.post("/upload/file/chunk", async(req:ApiRequest<{finish:string,fileName:s
 								height = await metadata.streams[2].height;
 							}
 						}
-						if((width as any) >= 1920 && (height as any) >= 1080) {
+						if(width >= 1920 && height >= 1080) {
 							const link:UploadDownloadLink = {
 								uuid:"",
 								productId:productId,
@@ -1457,7 +1457,7 @@ router.post("/upload/file/chunk", async(req:ApiRequest<{finish:string,fileName:s
 				}
 				const newLink = await uploadDownload.addLink(link);
 				if(newLink) {
-					let upload:Boolean | any = false;
+					let upload:Boolean = false;
 					if(filePath !== "")
 					{
 						upload = await uploadDownload.addS3File(link.uuid, filePath, "path");

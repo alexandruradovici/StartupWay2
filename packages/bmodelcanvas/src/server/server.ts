@@ -57,7 +57,7 @@ export class BModelCanvasServer {
 					sql: "INSERT INTO bModelCanvas values(:modelId,:productId,:date,:fields)"
 				};
 				// as any because I need to insert a row with null as id to be autocreated
-				(canvas as any).modelId = null;
+				canvas.modelId = (null as any);
 				await this.conn.query(queryOptions,canvas);
 
 				queryOptions = {
@@ -128,8 +128,7 @@ const router = Router ();
 const authFunct = getAuthorizationFunction();
 
 if(authFunct)
-	router.use((authFunct as any));
-	// Bypass params dictionary and send authorization Function
+	router.use(authFunct);
 
 
 router.get("/:teamId", async(req:ApiRequest<undefined>,res:ApiResponse<BModelCanvas[]>) => {

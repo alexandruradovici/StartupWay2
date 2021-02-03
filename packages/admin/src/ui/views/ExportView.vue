@@ -221,7 +221,6 @@ export default Vue.extend({
 				timeout:2000
 			} as SnackBarOptions,
 			snackbar:false,
-			checkInterval:null as any,
 			responded: false,
 			toStop:false,
 			option:'',
@@ -286,10 +285,6 @@ export default Vue.extend({
 		}),
 	},
 	created() {
-		window.addEventListener('clearInterval', () => {
-			clearInterval(this.checkInterval);
-			this.checkInterval = null;
-		})
 	},
 	methods: {
 		update(prop:boolean):void {
@@ -449,7 +444,6 @@ export default Vue.extend({
 		},
 		openUrl(url:string):void {
 			try {
-				clearInterval(this.checkInterval);
 				window.open(url, '_blank');
 				this.loadingPage = false;
 				this.toStop = true;

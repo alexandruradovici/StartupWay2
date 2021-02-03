@@ -26,7 +26,7 @@
 										<v-list-item-subtitle style="font-family: Georgia, serif; font-size: 15px; font-weight: 550;">{{ user.group }}</v-list-item-subtitle>
 									</v-col>
 									<v-col md4 class="justify-center">
-										<v-list-item-subtitle style="font-family: Georgia, serif; font-size: 15px; font-weight: 550;">{{ user.UserTeams_role }}</v-list-item-subtitle>
+										<v-list-item-subtitle style="font-family: Georgia, serif; font-size: 15px; font-weight: 550;">{{ user.role }}</v-list-item-subtitle>
 									</v-col>
 								</v-row>
 								<v-row>
@@ -85,7 +85,7 @@
 										<div class="details">Email</div>
 										<v-text-field :rules="emailRules" outlined rounded color="primary" v-model="item.email" optional></v-text-field>
 										<div class="details">Role</div>
-										<v-select v-model="item.UserTeams_role" :items="roles" label="Role" optional></v-select>
+										<v-select v-model="item.role" :items="roles" label="Role" optional></v-select>
 										<div class="details">
 											Is Pitcher?<v-checkbox v-model="item.pitcher"></v-checkbox>
 										</div>
@@ -210,7 +210,7 @@ import Vue from "vue";
 import { mapGetters } from "vuex";
 import moment from "moment";
 import { Team, Product, UserActivity, VisualUser } from "../../../common";
-import { User, UserTeams, universities } from "@startupway/users/lib/ui";
+import { User, UserTeams, universities, Roles } from "@startupway/users/lib/ui";
 import { SnackBarOptions, SnackBarTypes } from "@startupway/menu/lib/ui";
 import { UI } from '@startupway/main/lib/ui';
 export default Vue.extend({
@@ -305,7 +305,7 @@ export default Vue.extend({
 			users: [] as User[] | (User&UserTeams)[],
 			allUsers: [] as User[] | (User&UserTeams)[],
 			teamId: 0,
-			item: {},
+			item: {} as (User&UserTeams&VisualUser),
 			dialog:false,
 			universities:universities,
 			search2: "",
@@ -314,7 +314,7 @@ export default Vue.extend({
 					text: "Role",
 					align: "left",
 					sortable: false,
-					value: "UserTeams_role"
+					value: "role"
 				},
 				{ text: "First Name", value: "firstName" },
 				{ text: "Last Name", value: "lastName" },
@@ -332,11 +332,11 @@ export default Vue.extend({
 			createLastName:"",
 			createEmail:"",
 			createRole:"",
-			toRemove: [],
+			toRemove: [] as (User&UserTeams)[],
 			toAdd: [],
 			loading:false,
 			loadingPage:false,
-			toDel:{},
+			toDel:{} as User&UserTeams,
 			snackOptions: {
 				text:"",
 				type:"info",
@@ -413,6 +413,7 @@ export default Vue.extend({
 
 				if(typeof user.userDetails === "string") {
 					user.userDetails = JSON.parse(user.userDetails);
+					// as any because TODO parse json in backend
 					user.socialMedia = JSON.parse((user as any).socialMedia);
 				}
 				user = user as (User & {});
@@ -451,14 +452,7 @@ export default Vue.extend({
 					const roleObj = user.role;
 					for (const prop in roleObj) {
 						if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
-							(user.role as any) = prop;
-							break;
-						}
-					}
-				} else if (user.role) {
-					const roleObj = (user.role as any);
-					for (const prop in roleObj) {
-						if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
+							// as any to overwrite property from {"Role_Name":true} to "Role_Name" for visualizing in frontend
 							(user.role as any) = prop;
 							break;
 						}
@@ -487,36 +481,36 @@ export default Vue.extend({
 		},
 		async updateUserInfo():Promise<void> {
 			this.loadingPage = true;
-			let user: any = {};
-			this.item = (this.item as any)
+			let user: Partial<User> | null = null;
+			this.item = this.item
 			const userDetails = {
-				details:(this.item as any).userDetails["details"],
-				faculty:(this.item as any).faculty,
-				group:(this.item as any).group,
-				location:(this.item as any).userDetails["location"],
-				pitcher:(this.item as any).pitcher,
-				participant:(this.item as any).participant,
-				transport:(this.item as any).transport
+				details:this.item.userDetails["details"],
+				faculty:this.item.faculty,
+				group:this.item.group,
+				location:this.item.userDetails["location"],
+				pitcher:this.item.pitcher,
+				participant:this.item.participant,
+				transport:this.item.transport
 			}
 			user = {
-				userId: (this.item as any).UserTeams_userId,
-				firstName: (this.item as any).firstName,
-				lastName: (this.item as any).lastName,
-				username: (this.item as any).username,
-				email: (this.item as any).email,
-				phone: (this.item as any).phone,
-				socialMedia: (this.item as any).socialMedia,
-				birthDate: (this.item as any).birthDate,
+				userId: this.item.userId,
+				firstName: this.item.firstName,
+				lastName: this.item.lastName,
+				username: this.item.username,
+				email: this.item.email,
+				phone: this.item.phone,
+				socialMedia: this.item.socialMedia,
+				birthDate: this.item.birthDate,
 				userDetails: userDetails,
 				role: {
-					[((this.item as any).UserTeams_role as any)]:true,
-				}
+					[this.item.role]:true,
+				} as (Roles & string)
 			};
 			const userTeam:UserTeams = {
-				userProductId:(this.item as any).UserTeams_userProductId,
-				userId:(this.item as any).UserTeams_userId,
-				role:(this.item as any).UserTeams_role,
-				teamId:(this.item as any).UserTeams_teamId
+				userProductId:this.item.userProductId,
+				userId:this.item.userId,
+				role:this.item.role,
+				teamId:this.item.teamId
 			}
 			try {
 				const response = await this.ui.api.post<UserTeams | null>("/api/v1/admin/changeRole", 
@@ -525,20 +519,30 @@ export default Vue.extend({
 					userTeam:userTeam
 				});
 				if(response.status === 200) {
-					(this.item as any) = {
+					this.item = {
 						userId: 0,
-					firstName: "",
-					lastName: "",
-					password: "",
-					username: "",
-					email: "",
-					phone: "",
-					socialMedia: {},
-					birthDate: new Date(),
-					userDetails: {
-						details: ""
-					},
-					role: {}
+						userProductId: 0,
+						teamId: 0,
+						firstName: "",
+						lastName: "",
+						password: "",
+						username: "",
+						email: "",
+						phone: "",
+						socialMedia: {},
+						birthDate: new Date(),
+						userDetails: {
+							details: ""
+						},
+						role: ({} as Roles & string),
+						avatarUu: "",
+						lastLogin: new Date(),
+						faculty:"",
+						group:"",
+						participant:"",
+						pitcher:"",
+						transport:"",
+						image:""
 					};
 					this.snackOptions.text = "Update Successful";
 					this.snackOptions.type = SnackBarTypes.SUCCESS;
@@ -562,13 +566,15 @@ export default Vue.extend({
 			this.$forceUpdate();
 			this.loadingPage = false;
 		},
-		openDialog(user: any):void {
+		openDialog(user: (User & UserTeams & VisualUser)):void {
 			this.item = user;
 			this.dialog = true;
 		},
 		exitDialog():void {
-			(this.item as any) = {
+			this.item = {
 				userId: 0,
+				userProductId: 0,
+				teamId: 0,
 				firstName: "",
 				lastName: "",
 				password: "",
@@ -580,8 +586,16 @@ export default Vue.extend({
 				userDetails: {
 					details: ""
 				},
-				role: {}
-			}
+				role: ({} as Roles & string),
+				avatarUu: "",
+				lastLogin: new Date(),
+				faculty:"",
+				group:"",
+				participant:"",
+				pitcher:"",
+				transport:"",
+				image:""
+			};
 			this.dialog = false;
 			
 		},
@@ -611,7 +625,7 @@ export default Vue.extend({
 			this.loadingPage = true;
 			try {
 				const role = {};
-				(role as any)[this.createRole]=true;
+				(role as Roles)[this.createRole]=true;
 				const user = {
 					firstName: this.createFirstName,
 					lastName:this.createLastName,
@@ -726,7 +740,7 @@ export default Vue.extend({
 		},
 		async removeUsers():Promise<void> {
 			this.loadingPage = true;
-			(this.toRemove as any).push((this.toDel as any));
+			this.toRemove.push(this.toDel);
 			try {
 				const response = await this.ui.api.post<boolean>("/api/v1/teams/team/remove/users", {
 					users: this.toRemove,

@@ -142,7 +142,7 @@ export default Vue.extend({
 			router:false,
 			show:true,
 			id:0 as number,
-			tabs: [] as any,
+			tabs: [] as {key:number,title:string,icon:string,link:string}[],
 			type: "",
 			loadingPage:false,
 			loading:false,
@@ -158,12 +158,6 @@ export default Vue.extend({
 					if(this.$route.path !== "/login")
 						this.$router.push("/login");
 				}
-			}
-		},
-		user: {
-			immediate: true,
-			async handler (newUser: any):Promise<void> {
-				
 			}
 		},
 		$route:{
@@ -215,8 +209,8 @@ export default Vue.extend({
 		moment() {
 			return moment();
 		},
-		pushToTabs(tab:any):void {
-			if(this.tabs.find((item:any) => {
+		pushToTabs(tab:{key:number,title:string,icon:string,link:string}):void {
+			if(this.tabs.find((item:{key:number,title:string,icon:string,link:string}) => {
 				return item.link === tab.link
 			}) === undefined) {
 				this.tabs.push(tab);

@@ -64,7 +64,7 @@ export default Vue.extend({
 					if(response.data) {
 						this.productUpdates = response.data;
 						if(this.productUpdates.length === 0) {
-							(this.productUpdates as any) = null;
+							this.productUpdates = null;
 						}
 					}
 				} catch (e) {
@@ -116,7 +116,7 @@ export default Vue.extend({
 			allUsers:[] as User[],
 			teamId:0,
 			team:"",
-			productUpdates:[] as Feed[],
+			productUpdates:[] as Feed[] | null,
 			FeedTypes: FeedTypes,
 		};
 	},
@@ -128,9 +128,9 @@ export default Vue.extend({
 			const time  = (new Date(date)).toTimeString().split(" ");
 			return (new Date(date)).toDateString() + " " + time[0];
 		},
-		hasUser(user:any):boolean {
+		hasUser(user:(User&UserTeams)):boolean {
 			for(const aux of this.users) {
-				if((aux as any).UserTeams_userId === user.userId) {
+				if(aux.userId === user.userId) {
 					return true;
 				}
 			}
@@ -154,7 +154,7 @@ export default Vue.extend({
 				const response = await this.ui.api.get<User[]>("/api/v1/users/users");
 				if (response.data) {
 					this.allUsers = this.modifyUsers(response.data);
-					this.allUsers = this.allUsers.filter((user:User) => { return !this.hasUser(user)});
+					this.allUsers = this.allUsers.filter((user:(User&UserTeams)) => { return !this.hasUser(user)});
 					return true;
 				}
 			} catch (e) {
@@ -167,6 +167,7 @@ export default Vue.extend({
 			for(const user of users) {
 				if(typeof user.userDetails === "string") {
 					user.userDetails = JSON.parse(user.userDetails);
+					// as any because TODO parse json in backend
 					user.socialMedia = JSON.parse((user as any).socialMedia);
 				}
 				if (user.userDetails["faculty"] !== undefined) {
@@ -183,14 +184,7 @@ export default Vue.extend({
 					const roleObj = user.role;
 					for (const prop in roleObj) {
 						if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
-							(user.role as any) = prop;
-							break;
-						}
-					}
-				} else if (user.role) {
-					const roleObj = user.role;
-					for (const prop in roleObj) {
-						if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
+							// as any to overwrite property from {"Role_Name":true} to "Role_Name" for visualizing in frontend
 							(user.role as any) = prop;
 							break;
 						}

@@ -113,7 +113,7 @@ export default Vue.extend({
 	watch: {
 		currentTeam: {
 			immediate: true,
-			// Same as canvas
+			// as any Same as canvas
 			async handler(newTeam: any) {
 				this.teamId = newTeam.teamId;
 				if (this.teamId === 0) {
@@ -171,7 +171,7 @@ export default Vue.extend({
 			newFeedUpdate: 0 as number,
 			FeedTypes: FeedTypes,
 			editDialog: false,
-			edited: {} as any,
+			edited: null as Feed | null,
 			removeDialog: false
 		};
 	},
@@ -229,7 +229,7 @@ export default Vue.extend({
 			this.edited = feed;
 		},
 		denyActivity():void {
-			this.edited = {};
+			this.edited = null;
 			this.editDialog = false;
 		},
 		moment() {
@@ -260,12 +260,12 @@ export default Vue.extend({
 				console.error(e);
 			}
 			try {
-				// same as canvas
+				// as any same as canvas
 				let product = await this.ui.api.get<any | null>("/api/v1/teams/product/" + this.teamId);
 				if(product.data) {
 					product.data.updatedAt = (this.formatDate(new Date()) as unknown as Date) ;
 					try {
-						// same as canvas
+						// as any same as canvas
 						await this.ui.api.post<any | null>("/api/v1/teams/product/update", {
 							product: product.data,
 							upload: "",

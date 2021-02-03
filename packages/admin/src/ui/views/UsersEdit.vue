@@ -145,7 +145,7 @@
 <script lang="ts">
 import { mapGetters } from "vuex";
 import Vue from "vue";
-import { User } from "@startupway/users/lib/ui";
+import { Roles, User, UserTeams } from "@startupway/users/lib/ui";
 import { UI } from "@startupway/main/lib/ui";
 export default Vue.extend({
 	name: "UsersEdit",
@@ -190,6 +190,8 @@ export default Vue.extend({
 			],
 			item: {
 				userId: 0,
+				userProductId:0,
+				teamId:0,
 				firstName: "",
 				lastName: "",
 				password: "",
@@ -200,10 +202,10 @@ export default Vue.extend({
 				socialMedia: {},
 				birthDate: new Date(),
 				userDetails: {},
-				role: "",
+				role: ({} as (Roles | string)),
 				avatarUu: "",
 				lastLogin: new Date()
-			},
+			} as (User&UserTeams) ,
 			firstName: "" as string,
 			lastName: "" as string,
 			email: "" as string,
@@ -238,47 +240,41 @@ export default Vue.extend({
 			const time  = (new Date(date)).toTimeString().split(" ");
 			return (new Date(date)).toDateString() + " " + time[0];
 		},
-		async modifyUsers(users: (User)[]):Promise<(User)[]> {
-			for(const index in users) {
-				if(typeof users[index].userDetails === "string") {
-					users[index].userDetails = JSON.parse((users as any)[index].userDetails);
-					users[index].socialMedia = JSON.parse((users as any)[index].socialMedia);
+		async modifyUsers(users: (User)[] | (User&UserTeams)[]):Promise<(User)[] | (User&UserTeams)[]> {
+			for(const user of users) {
+				if(typeof user.userDetails === "string") {
+					user.userDetails = JSON.parse(user.userDetails);
+					// TODO parse json in backend
+					user.socialMedia = JSON.parse((user as any).socialMedia);
 				}
-				if (users[index].userDetails["faculty"] !== undefined) {
-					(users as any)[index].faculty = users[index].userDetails["faculty"]; 
+				if (user.userDetails["faculty"] !== undefined) {
+					(user as (User&UserTeams | User) & {faculty:string,group:string}).faculty = user.userDetails["faculty"]; 
 				} else {
-					(users as any)[index].faculty = "";
+					(user as (User&UserTeams | User) & {faculty:string,group:string}).faculty = "";
 				}
-				if (users[index].userDetails["group"] !== undefined) {
-					(users[index] as any).group = users[index].userDetails["group"];
+				if (user.userDetails["group"] !== undefined) {
+					(user as (User&UserTeams | User) & {faculty:string,group:string}).group = user.userDetails["group"];
 				} else {
-					(users[index] as any).group = "";
+					(user as (User&UserTeams | User) & {faculty:string,group:string}).group = "";
 				}
-				if (users[index].role) {
-					const roleObj = users[index].role;
+				if (user.role) {
+					const roleObj = user.role;
 					for (const prop in roleObj) {
 						if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
-							(users as any)[index].role = prop;
-							break;
-						}
-					}
-				} else if (users[index].role) {
-					const roleObj = users[index].role;
-					for (const prop in roleObj) {
-						if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
-							(users as any)[index].role = prop;
+							// as any to replace role: {"Role_name":true} with "Role_name"
+							(user as any).role = prop;
 							break;
 						}
 					}
 				}
-				// const session = await this.ui.application.api.get("/api/v1/lastLogin/" + users[index].userId);
+				// const session = await this.ui.application.api.get("/api/v1/lastLogin/" + user.userId);
 				// if(session) {
-				// 	users[index].createdAt = this.formatDate(session.data.lastLogin);
+				// 	user.createdAt = this.formatDate(session.data.lastLogin);
 				// }
-				// if(users[index].avatarUu !== "" && users[index].avatarUu !== undefined && users[index].avatarUu !== null){
-				// 	users[index].image = await this.getUserImage(users[index].avatarUu, users[index].UserTeams_userId);
+				// if(user.avatarUu !== "" && user.avatarUu !== undefined && user.avatarUu !== null){
+				// 	user.image = await this.getUserImage(user.avatarUu, user.UserTeams_userId);
 				// } else {
-				// 	users[index].image = ""
+				// 	user.image = ""
 				// }
 
 			}
@@ -320,20 +316,20 @@ export default Vue.extend({
 				console.error(e);
 			}
 		},
-		openDialog(user: any):void {
+		openDialog(user: (User&UserTeams)):void {
 			this.item = user;
-			this.item.newPassword = "";
+			(this.item as User&UserTeams&{newPassword:string}).newPassword = "";
 			this.dialog = true;
 		},
 		async editUser():Promise<void> {
 			let newUser: User = {} as User;
 			let bolean = false;
-			if (this.item.newPassword != "") {
+			if ((this.item as User&UserTeams&{newPassword:string}).newPassword != "") {
 				newUser = {
-					userId: (this.item as any).UserTeams_userId,
+					userId: this.item.userId,
 					firstName: this.item.firstName,
 					lastName: this.item.lastName,
-					password: this.item.newPassword,
+					password: (this.item as User&UserTeams&{newPassword:string}).newPassword,
 					username: this.item.username,
 					email: this.item.email,
 					phone: this.item.phone,
@@ -341,9 +337,9 @@ export default Vue.extend({
 					birthDate: this.item.birthDate,
 					userDetails: this.item.userDetails,
 					role: {
-						[((this.item as any).UserTeams_role as any)]:true,
+						[this.item.role]:true,
 					},
-					avatarUu:(this.item as any).avatarUuid,
+					avatarUu:this.item.avatarUu,
 					lastLogin: this.item.lastLogin
 				};
 				// bolean = true;
@@ -373,8 +369,10 @@ export default Vue.extend({
 					changedPass:bolean	
 				});
 				if(response) {
-					(this.item as any) = {
+					this.item= {
 						userId: 0,
+						userProductId:0,
+						teamId:0,
 						firstName: "",
 						lastName: "",
 						password: "",
@@ -383,11 +381,9 @@ export default Vue.extend({
 						phone: "",
 						socialMedia: {},
 						birthDate: new Date(),
-						userDetails: {
-							details: ""
-						},
-						role: {},
-						avatarUu:"",
+						userDetails: {},
+						role: ({} as (Roles & string)),
+						avatarUu: "",
 						lastLogin: new Date()
 					};
 				}
@@ -399,8 +395,10 @@ export default Vue.extend({
 			
 		},
 		exitDialog():void {
-			(this.item as any) = {
+			this.item= {
 				userId: 0,
+				userProductId:0,
+				teamId:0,
 				firstName: "",
 				lastName: "",
 				password: "",
@@ -409,11 +407,11 @@ export default Vue.extend({
 				phone: "",
 				socialMedia: {},
 				birthDate: new Date(),
-				userDetails: {
-					details: ""
-				},
-				role: {}
-			}
+				userDetails: {},
+				role: ({} as (Roles & string)),
+				avatarUu: "",
+				lastLogin: new Date()
+			};
 			this.dialog = false;
 			
 		}

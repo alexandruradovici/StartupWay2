@@ -135,14 +135,8 @@ export default Vue.extend({
 					const roleObj = element.role;
 					for(const prop in roleObj) {
 						if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
+							// as any to replace role: {"Role_name":true} with "Role_name"
 							(element.role as any) = prop;
-						}
-					}
-				} else if((element as any).User_role) {
-					const roleObj = (element as any).User_role;
-					for(const prop in roleObj) {
-						if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
-							(element as any).User_role = prop;
 						}
 					}
 				}

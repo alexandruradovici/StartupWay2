@@ -50,6 +50,7 @@ import moment from "moment";
 import { mapGetters } from "vuex";
 import { UI } from "@startupway/main/lib/ui";
 import { Feed } from "@startupway/feed/lib/ui";
+import { User } from "@startupway/users/lib/ui"
 import { Team, Product } from "../../common";
 export default Vue.extend({
 	name: "FrontPage",
@@ -73,8 +74,8 @@ export default Vue.extend({
 					let response = await this.ui.api.get<Product | null>("/api/v1/teams/product/" + newTeam.teamId);
 					let product:Product | null = response.data;
 					if(product) {
-						(newTeam as any).businessTrack = product.businessTrack;
-						(newTeam as any).teamType = product.teamType;
+						(newTeam as Team&Product).businessTrack = product.businessTrack;
+						(newTeam as Team&Product).teamType = product.teamType;
 						this.teamId = newTeam.teamId;
 						{
 							try {
@@ -99,7 +100,7 @@ export default Vue.extend({
 		},
 		user: {
 			immediate: true,
-			async handler (newUser: any):Promise<void> {
+			async handler (newUser: User):Promise<void> {
 				if(newUser){
 					await this.ui.storeDispatch("teams/loadTeams",newUser.userId);
 				}
