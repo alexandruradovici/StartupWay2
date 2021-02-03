@@ -58,11 +58,11 @@ export class AdminServer {
 	 */
 	public parseCSVData(loc?:string ,workshopNo?:string ,teamMentor?:string ,teamId?:string ,teamTrack?:string ,businessTrack?:string ,teamName?:string ,pitcher?:string ,
 		role?:string ,firstName?:string ,lastName?:string , email?:string ,phone?:string ,facebook?:string ,linkedin?:string ,
-		shortDesc?:string ,birthDate?:string ,faculty?:string ,group?:string ,findProgram?:string ):{ teamId:string| undefined, team:{}, product:{}, user:{} }
+		shortDesc?:string ,birthDate?:string ,faculty?:string ,group?:string ,findProgram?:string ):{ teamId:string| undefined, team:{}, product:{}, user:{} } | null
 	{
 		try {
 			if(teamMentor === undefined || firstName === undefined || lastName === undefined || email === undefined)
-				return (null as any);
+				return null;
 			const parsedCSV = {
 				teamId:teamId,
 				workshop:{},
@@ -100,6 +100,7 @@ export class AdminServer {
 			parsedCSV.product = {
 				startupName:(teamName as string),
 				mentorId:0,
+				// Need to index enum based on string
 				businessTrack:(BusinessTrack as any)[bT],
 				teamType:(TeamType as any)[tT],
 				workshopDay:(WorkshopDay as any)[days[parseInt(workshopNo as string)]],
@@ -157,7 +158,7 @@ export class AdminServer {
 		} catch (error) {
 			console.error("Error in function \"_parseCSVData(...array of params)\"|\"admin\" ")
 			console.error(error);
-			return (null as any);
+			return null;
 		}
 	}
 
@@ -452,6 +453,7 @@ router.post("/createResetEmail", async (req:ApiRequest<{email:string}>,res:ApiRe
 	try {
 		/** @type {string} Email destination string */
 		const email = req.body.email;
+		// Null as any -> TO discuss if we change interface to recoveryId: number|null,  userId:number|null
 		const aux:Recovery = {
 			recoveryId:(null as any),
 			userId:(null as any),
@@ -556,7 +558,7 @@ router.post("/deleteRecovery", async(req:ApiRequest<{token:string}>,res:ApiRespo
  */
 const authFunct = getAuthorizationFunction();
 if(authFunct)
-	router.use((authFunct as any));
+	router.use(authFunct);
 
 
 
@@ -576,12 +578,14 @@ router.post("/uploadCSV", async(req:ApiRequest<{encoded:string,buffer:Buffer,str
 		const string  = buffer.toString("utf-8");
 		
 		/** @type {unknown} array with entries represented by each line of data in the .csv file */
+
 		const parsed = Papa.parse(string).data;
 
 		parsed.splice(0,1);
 		
 		const obj:object[] = [];
 		for(const arr of parsed) {
+			// WORKAROUND for parsing the csv data. TODO -> Create interface for parsing
 			const object = admin.parseCSVData(...(arr as any));
 			if(object !== null)
 				obj.push(object)

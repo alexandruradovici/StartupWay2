@@ -13,8 +13,8 @@
 
 							<v-list-item-content>
 								<v-list-item-title style="font-family: Georgia, serif; font-size: 17px; font-weight: 700;"> {{ user.firstName }} {{ user.lastName }}</v-list-item-title>
-								<v-list-item-subtitle style="font-family: Georgia, serif; font-size: 15px; font-weight: 550;" v-if="user.UserTeams_role !== ''">
-									{{user.UserTeams_role}}
+								<v-list-item-subtitle style="font-family: Georgia, serif; font-size: 15px; font-weight: 550;" v-if="user.role !== ''">
+									{{user.role}}
 								</v-list-item-subtitle>
 								<v-list-item-subtitle v-else>
 									No role
@@ -30,7 +30,7 @@
 					</v-list>
 				</v-card>
 					<v-divider></v-divider>
-					<v-card color="#fcfcfc" v-if="mentoredUser.UserTeams_userId" flat style="margin: auto; padding-top: 20px;" >
+					<v-card color="#fcfcfc" v-if="mentoredUser.userId" flat style="margin: auto; padding-top: 20px;" >
 						
 						<v-card-title class="justify-center">
 							<v-list-item-avatar size="60">
@@ -221,7 +221,7 @@ export default Vue.extend({
 				
 				if(newActivities.length !== 0) {
 					newActivities.forEach( (activity:UserActivity) => {
-						(activity as any).stringDate = activity.date;
+						(activity as UserActivity & {stringDate:Date | string}).stringDate = activity.date;
 					});
 					this.weeks = newActivities;
 				}
@@ -231,17 +231,17 @@ export default Vue.extend({
 		},
 		mentoredUser: {
 			immediate:true,
-			async handler(newUser:User):Promise<void>  {
-				const newUserId=(newUser as any).UserTeams_userId;
+			async handler(newUser:(User & UserTeams)):Promise<void>  {
+				const newUserId=newUser.userId;
 				if(newUserId !== 0) {
-					const response = await this.ui.api.post("/api/v1/teams/teamactivity", {
+					const response = await this.ui.api.post<UserActivity[]>("/api/v1/teams/team/activity", {
 						userId: newUserId,
 						teamId: this.teamId
 					});
-					if(response) {
+					if(response.data) {
 						this.weeks = response.data;
 						this.weeks.forEach( (week) => {
-							(week as any).stringDate = week.date;
+							(week as (UserActivity & {stringDate:Date | string})).stringDate = week.date;
 						})
 					}
 				}
@@ -266,7 +266,7 @@ export default Vue.extend({
 			allUsers:[] as User[],
 			userId:0,
 			teamId:0,
-			edited:(null as any),
+			edited:null as UserActivity | null,
 			mentoredUser:{},
 			team:"",
 			loadingPage:false,
@@ -286,9 +286,9 @@ export default Vue.extend({
 		moment() {
 			return moment();
 		},
-		hasUser(user:any):boolean{
+		hasUser(user:(User&UserTeams) | User):boolean{
 			for(const aux of this.users) {
-				if((aux as any).UserTeams_userId === user.userId) {
+				if(aux.userId === user.userId) {
 					return true;
 				}
 			}
@@ -325,6 +325,7 @@ export default Vue.extend({
 			for(const user of users) {
 				if(typeof user.userDetails === "string") {
 					user.userDetails = JSON.parse(user.userDetails);
+					// TODO PArse json in backend
 					user.socialMedia = JSON.parse((user as any).socialMedia);
 				}
 				if (user.userDetails["faculty"] !== undefined) {
@@ -341,6 +342,7 @@ export default Vue.extend({
 					const roleObj = user.role;
 					for (const prop in roleObj) {
 						if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
+							// todo find way
 							(user.role as any) = prop;
 							break;
 						}
@@ -349,6 +351,7 @@ export default Vue.extend({
 					const roleObj = user.role;
 					for (const prop in roleObj) {
 						if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
+							// todo find way
 							(user.role as any) = prop;
 							break;
 						}
@@ -390,11 +393,11 @@ export default Vue.extend({
 				return "";
 			}
 		},
-		editActivity(week:any):void {
+		editActivity(week:UserActivity):void {
 			this.editDialog = true;
 			this.edited = week;
 		},
-		viewActivity(week:any):void {
+		viewActivity(week:UserActivity):void {
 			this.viewDialog = true;
 			this.edited = week;
 		},
@@ -427,11 +430,11 @@ export default Vue.extend({
 		
 		},
 		denyActivity() {
-			this.edited = {};
+			this.edited = null;
 			this.editDialog = false;
 		},
 		closeView() {
-			this.edited = {};
+			this.edited = null;
 			this.viewDialog = false;
 		},
 	}

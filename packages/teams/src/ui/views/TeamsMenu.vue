@@ -25,13 +25,13 @@ export default Vue.extend({
 	watch: {
 		currentTeam: {
 			immediate: true,
-			async handler (newTeam: Team) {
+			async handler (newTeam: Team):Promise<void> {
 				if(newTeam) {
 					this.options.menuName = newTeam.teamName;
 					try {
 						if(newTeam.teamId !== 0 && newTeam.teamId !== undefined) {
-							const response = await this.ui.api.get("/api/v1/uploadDownload/get/file/product/logo/"+ newTeam.productId);
-							if(response.status === 200) {
+							const response = await this.ui.api.get<{data:string,type:string,ext:string,uuid:string}[] | null>("/api/v1/uploadDownload/get/file/product/logo/"+ newTeam.productId);
+							if(response.data) {
 								const aux = this.options;
 								aux.img = response.data[0].data;
 								this.options = aux;
@@ -59,7 +59,7 @@ export default Vue.extend({
 		},
 		teams: {
 			immediate: true,
-			async handler (newTeams: Team[]) {
+			async handler (newTeams: Team[]):Promise<void> {
 				this.options.items = [];
 				for(const team of this.teams) {
 					await this.getTeamImage(team);
@@ -76,12 +76,12 @@ export default Vue.extend({
 					}
 				}
 				if(this.options.items.length > 0)
-					this.$store.dispatch ("teams/selectTeam", this.options.items[0].id);
+					this.$store.dispatch("teams/selectTeam", this.options.items[0].id);
 			},
 		},
 		user: {
 			immediate:true,
-			async handler (newUser:User) {	
+			async handler (newUser:User):Promise<void> {	
 				if(newUser) {
 					if( newUser.userId != 0 || newUser.userId )
 					{
@@ -126,10 +126,10 @@ export default Vue.extend({
 		}
 	},
 	methods: {
-		async getTeamImage(team:Team){
+		async getTeamImage(team:Team):Promise<void> {
 			if(team.teamId !== 0 && team.teamId !== undefined) {
-				const response = await this.ui.api.get("/api/v1/uploadDownload/get/file/product/logo/"+ team.productId);
-				if(response.status === 200) {
+				const response = await this.ui.api.get<{data:string,type:string,ext:string,uuid:string}[] | null>("/api/v1/uploadDownload/get/file/product/logo/"+ team.productId);
+				if(response.data) {
 					if(response.data.length > 0)
 					this.img=response.data[0];
 					else 
@@ -150,10 +150,10 @@ export default Vue.extend({
 				}
 			}
 		},
-		click(id: number) {
+		click(id: number):void {
 			this.$store.dispatch ("teams/selectTeam", id);
 		},
-		update(prop:boolean) {
+		update(prop:boolean):void {
 			this.snackbar = prop;
 		},
 	}

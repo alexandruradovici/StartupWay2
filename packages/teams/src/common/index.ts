@@ -91,3 +91,13 @@ export interface Product {
     updatedAt: Date,
     lastMentorUpdate: Date
 }
+
+
+export interface VisualUser {
+	faculty:string,
+	group:string,
+	participant:string,
+	pitcher:string,
+	transport:string,
+	image:string
+}

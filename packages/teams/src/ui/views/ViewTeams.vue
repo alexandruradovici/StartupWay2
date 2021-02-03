@@ -61,16 +61,16 @@ import Vue from "vue";
 import badgeImage from "../img/badge1-1650px.png";
 import { mapGetters } from "vuex";
 import { UI } from "@startupway/main/lib/ui";
-import { Team,Product} from "../../common";
-import { User } from "@startupway/users/lib/ui";
+import { Team,	Product } from "../../common";
+import { User, UserTeams } from "@startupway/users/lib/ui";
 
 export default Vue.extend({
 	name: "ViewTeams",
 	watch: {
 		$route:{
 			immediate:true,
-			async handler(newRoute) {
-				const component = this.$route.params.component;
+			async handler(newRoute):Promise<void> {
+				const component:string = this.$route.params.component;
 
 				if(this.selectedTeam !== parseInt(this.$route.params.teamId,10)) {
 					this.selectedTeam = parseInt(this.$route.params.teamId,10);
@@ -79,7 +79,7 @@ export default Vue.extend({
 						if(await this.getUsers(this.selectedTeam))
 							await this.getAllUsers();
 						this.teamId = this.selectedTeam;
-						const found = this.viewTeams.find ( (team: any) => team.value === this.selectedTeam);
+						const found = this.viewTeams.find ( (team: {value:number,name:string}) => team.value === this.selectedTeam);
 						if(found !== undefined) {
 							this.team = found.name;
 						}
@@ -87,14 +87,14 @@ export default Vue.extend({
 						console.error(e);
 					}
 				}
-				(this.component as any)=component;
+				this.component=component;
 			}
 		},
 		mentoredTeam: {
 			immediate:true,
-			async handler(newTeam:number) {
+			async handler(newTeam:number):Promise<void> {
 				if(this.mentoredTeams.length > 0){
-					(this.selectedMentoredTeam as any) = this.mentoredTeams.find( team => {
+					this.selectedMentoredTeam = this.mentoredTeams.find( team => {
 						return team.teamId == newTeam;
 					});
 					this.id = newTeam;
@@ -103,26 +103,28 @@ export default Vue.extend({
 		},
 		selectedMentoredTeam: {
 			immediate:true,
-			async handler(newTeam:Team) {
+			async handler(newTeam:(Team & Product)):Promise<void> {
 				if(newTeam) {
 					if(newTeam !== undefined && newTeam.teamId !== undefined) {
-						const response = await this.ui.api.get("/api/v1/teams/product/" + newTeam.teamId);
-						const product:Product = response.data;
-						(newTeam as any).businessTrack = product.businessTrack;
-						(newTeam as any).teamType = product.teamType;
+						const response = await this.ui.api.get<Product | null>("/api/v1/teams/product/" + newTeam.teamId);
+						const product:Product | null = response.data;
+						if(product) {
+							newTeam.businessTrack = product.businessTrack;
+							newTeam.teamType = product.teamType;
+						}
 					}
 				}
 			}
 		},
 		user: {
 			immediate: true,
-			async handler(newUser: User) {
+			async handler(newUser: User):Promise<void> {
 				if(newUser) {
 					const role = JSON.parse(this.user.role);
 					if(role["Admin"] || role["SuperAdmin"]) {
 						try {
 							this.location = newUser.userDetails["location"];
-							const response = await this.ui.api.get("/api/v1/admin/teams/");
+							const response = await this.ui.api.get<Team[]>("/api/v1/admin/teams/");
 							if (response) {
 								this.teams = response.data;
 							}
@@ -133,7 +135,7 @@ export default Vue.extend({
 					} else if (role["Mentor"]) {
 						try {
 							this.location = newUser.userDetails["location"];
-							const response = await this.ui.api.get("/api/v1/teams/mentor/teams/" + newUser.userId);
+							const response = await this.ui.api.get<(Team&Product)[]>("/api/v1/teams/mentor/teams/" + newUser.userId);
 							if (response) {
 								this.teams = response.data;
 							}
@@ -199,7 +201,7 @@ export default Vue.extend({
 		},
 		teams: {
 			immediate: true,
-			async handler(newTeams: Team[]) {
+			async handler(newTeams: Team[]):Promise<void> {
 				newTeams.forEach(async (team: Team) => {
 					if(team) {
 						this.viewTeams.push({
@@ -212,25 +214,29 @@ export default Vue.extend({
 		},
 		mentoredTeams: {
 			immediate: true,
-			async handler (newTeams: any[]) {
+			async handler (newTeams: (Team & Product)[]):Promise<void> {
 				if (this.role==="Mentor") {
 					for(const team of newTeams) {
-						const response = await this.ui.api.get("/api/v1/teams/product/" + team.teamId);
-						const product:Product = response.data;
-						(team as any).businessTrack = product.businessTrack;
-						(team as any).teamType = product.teamType;
+						const response = await this.ui.api.get<Product | null>("/api/v1/teams/product/" + team.teamId);
+						const product:Product | null = response.data;
+						if(product) {
+							team.businessTrack = product.businessTrack;
+							team.teamType = product.teamType;
+						}
 					}
 				}
 			},
 		},
 		currentTeam: {
 			immediate: true,
-			async handler (newTeam: Team) {
+			async handler (newTeam: (Team & Product)):Promise<void> {
 				if(newTeam) {
-					const response = await this.ui.api.get("/api/v1/teams/product/" + newTeam.teamId);
-					const product:Product = response.data;
-					(newTeam as any).businessTrack = product.businessTrack;
-					(newTeam as any).teamType = product.teamType;
+					const response = await this.ui.api.get<Product | null>("/api/v1/teams/product/" + newTeam.teamId);
+					const product:Product | null = response.data;
+					if(product) {
+						newTeam.businessTrack = product.businessTrack;
+						newTeam.teamType = product.teamType;
+					}
 				}
 			}
 		},
@@ -248,37 +254,37 @@ export default Vue.extend({
 			ui: UI.getInstance(),
 			role:"" as string,
 			router:false,
-			mentoredTeams:[] as any[],
-			selectedMentoredTeam: {} as Team,
+			mentoredTeams:[] as (Team & Product)[],
+			selectedMentoredTeam: undefined as (Team & Product) | Team | undefined,
 			id:0 as number,
-			tabs: [] as any,
+			tabs: [] as {key:number,title:string,icon:string,link:string}[],
 			type: "",
 			location:"",
 			component:"",
 			teamId: 0 as number,
 			userId: 0 as number,
-			teams: [] as Team[],
+			teams: [] as Team[] | (Team & Product)[],
 			team: "" as string,
-			product:(null as any) as Product,
-			viewTeams: [] as any,
+			product:null as Product | null,
+			viewTeams: [] as {name:string,value:number}[],
 			selectedTeam: 0 as number,
 			selected: {} as User,
-			users: [] as any[],
-			allUsers: [] as any[],
+			users: [] as (User&UserTeams)[] | User[],
+			allUsers: [] as (User&UserTeams)[] | User[],
 			item: { },
 			loadingPage:false,
 			badge:badgeImage
 		};
 	},
 	methods: {
-		pushToTabs(tab:any) {
-			if(this.tabs.find((item:any) => {
+		pushToTabs(tab:{key:number,title:string,icon:string,link:string}):void {
+			if(this.tabs.find((item:{key:number,title:string,icon:string,link:string}) => {
 				return item.link === tab.link
 			}) === undefined) {
 				this.tabs.push(tab);
 			}
 		},
-		changeRoute(link:string) {
+		changeRoute(link:string):void {
 			if((this.role==="Mentor" || this.role==="Admin" || this.role ==="SuperAdmin") && this.selectedTeam !== 0 && link.split("/")[1] === "viewTeam") {
 				this.$router.push(link + "/" + this.selectedTeam);
 			}
@@ -286,7 +292,7 @@ export default Vue.extend({
 				if(this.$route.path !== "/workspace")
 					this.$router.push("/workspace");
 		},
-		async getUsers(teamId: number) {
+		async getUsers(teamId: number):Promise<boolean> {
 			try {
 				const response = await this.ui.api.get("/api/v1/teams/team/users/" + teamId);
 				if (response) {
@@ -297,15 +303,17 @@ export default Vue.extend({
 				console.error(e);
 				return false;
 			}
+			return false;
 		},
-		hasUser(user:any){
+		hasUser(user:(User&UserTeams) | User):boolean {
 			for(const aux of this.users) {
-				if(aux.UserTeams_userId === user.userId) {
+				if(aux.userId === user.userId) {
 					return true;
 				}
 			}
+			return false;
 		},
-		async getAllUsers() {
+		async getAllUsers():Promise<boolean> {
 			try {
 				const response = await this.ui.api.get("/api/v1/users");
 				if (response) {
@@ -317,36 +325,40 @@ export default Vue.extend({
 				console.error(e);
 				return false;
 			}
+			return false;
 		},
-		modifyUsers(users: any[]): any[] {
-			for(const index in users) {
-				if(typeof users[index].userDetails === "string") {
-					users[index].userDetails = JSON.parse(users[index].userDetails);
-					users[index].socialMedia = JSON.parse(users[index].socialMedia);
+		modifyUsers(users: (User | (User & UserTeams))[]): (User | (User & UserTeams))[] {
+			for(const user of users) {
+				if(typeof user.userDetails === "string") {
+					user.userDetails = JSON.parse(user.userDetails);
+					// TODO Parse json in backend
+					user.socialMedia = JSON.parse((user as any).socialMedia);
 				}
-				if ((users[index] as any).userDetails["faculty"] !== undefined) {
-					(users[index] as any).faculty = (users[index] as any).userDetails["faculty"]; 
+				if (user.userDetails["faculty"] !== undefined) {
+					(user as (User & {faculty:string, group:string})).faculty = user.userDetails["faculty"]; 
 				} else {
-					(users[index] as any).faculty = "";
+					(user as (User & {faculty:string, group:string})).faculty = "";
 				}
-				if ((users[index] as any).userDetails["group"] !== undefined) {
-					(users[index] as any).group = (users[index] as any).userDetails["group"];
+				if (user.userDetails["group"] !== undefined) {
+					(user as (User & {faculty:string, group:string})).group = user.userDetails["group"];
 				} else {
-					(users[index] as any).group = "";
+					(user as (User & {faculty:string, group:string})).group = "";
 				}
-				if ((users[index] as any).role) {
-					const roleObj = (users[index] as any).role;
+				if (user.role) {
+					const roleObj = user.role;
 					for (const prop in roleObj) {
 						if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
-							((users[index] as any).role as any) = prop;
+							// TODO see how to replace role from {"Role_name":true} to "Role_name" in another way
+							(user.role as any) = prop;
 							break;
 						}
 					}
-				} else if ((users[index] as any).User_role) {
-					const roleObj = (users[index] as any).User_role;
+				} else if (user.role) {
+					const roleObj = user.role;
 					for (const prop in roleObj) {
 						if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
-							(users[index] as any).User_role = prop;
+							// TODO see how to replace role from {"Role_name":true} to "Role_name" in another way
+							(user.role as any) = prop;
 							break;
 						}
 					}

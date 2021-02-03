@@ -102,7 +102,7 @@ import Vue from "vue";
 import { mapGetters } from "vuex";
 import { User } from "@startupway/users/lib/ui";
 import { UI } from '@startupway/main/lib/ui';
-import { UserActivity, Team } from "../../common";
+import { UserActivity, Team, Product } from "../../common";
 import moment from "moment";
 export default Vue.extend({
 	name: "WeeklyUpdates",
@@ -111,7 +111,7 @@ export default Vue.extend({
 	watch: {
 		currentTeam: {
 			immediate: true,
-			async handler (newTeam: Team) {
+			async handler (newTeam: Team):Promise<void> {
 				if(this.currentTeam) {
 					this.teamId = newTeam.teamId;
 					if(this.teamId === 0) {
@@ -119,7 +119,7 @@ export default Vue.extend({
 							this.$router.push("/workspace");
 					} else {
 						try {
-							const response = await this.ui.api.post("/api/v1/teams/teamactivity", {
+							const response = await this.ui.api.post<UserActivity[]>("/api/v1/teams/team/activity", {
 								userId: this.userId,
 								teamId: this.teamId
 							});
@@ -135,7 +135,7 @@ export default Vue.extend({
 		},
 		user: {
 			immediate: true,
-			async handler (newUser: User) {
+			async handler (newUser: User):Promise<void> {
 				if(this.user) {
 					this.userId = newUser.userId;
 					if(this.userId === 0) {
@@ -143,7 +143,7 @@ export default Vue.extend({
 							this.$router.push("/workspace");
 					} else {
 						try {
-							const response = await this.ui.api.post("/api/v1/teams/teamactivity", {
+							const response = await this.ui.api.post<UserActivity[]>("/api/v1/teams/team/activity", {
 								userId: this.userId,
 								teamId: this.teamId
 							});
@@ -159,11 +159,11 @@ export default Vue.extend({
 		},
 		activities: {
 			immediate: true,
-			handler (newActivities: UserActivity[]) {
+			handler (newActivities: UserActivity[]):void {
 				
 				if(newActivities.length !== 0) {
 					newActivities.forEach( (activity:UserActivity) => {
-						(activity as any).stringDate = (moment(activity.date).format('[Week:] Do [of] MMMM'));
+						(activity as UserActivity & {stringDate:string}).stringDate = (moment(activity.date).format('[Week:] Do [of] MMMM'));
 					});
 					this.weeks = newActivities;
 				}
@@ -187,7 +187,7 @@ export default Vue.extend({
 			userId:0 as number,
 			date: Date(),
 			//date:"2020-03-15T22:00:00.000Z",
-			edited:null as any,
+			edited:null as UserActivity | null,
 			tab: null,
 			editDialog: false as boolean,
 			viewDialog: false as boolean,
@@ -200,15 +200,15 @@ export default Vue.extend({
 		moment() {
 			return moment();
 		},
-		formatDate(date: Date) {
+		formatDate(date: Date):string {
 			// const time  = (new Date(date)).toTimeString().split(" ");
 			return (new Date(date)).toDateString();
 		},
-		formatDateTime(date: Date) {
+		formatDateTime(date: Date):string {
 			const time  = (new Date(date)).toTimeString().split(" ");
 			return (new Date(date)).toDateString() + " " + time[0];
 		},
-		verifyDate(week:UserActivity):Boolean {
+		verifyDate(week:UserActivity):boolean {
 			const index = this.weeks.indexOf(week);
 			const curr = moment(week.date).toDate();
 			let next = undefined;
@@ -221,18 +221,18 @@ export default Vue.extend({
 				return true;
 			} else return moment(this.date).isBetween(curr,next,undefined,'[)');
 		},
-		enableEdit(week:UserActivity) {
+		enableEdit(week:UserActivity):void {
 			this.editDialog=true;
 			this.edited = week;
 		},
-		viewActivity(week:UserActivity) {
+		viewActivity(week:UserActivity):void {
 			this.viewDialog=true;
 			this.edited = week;
 		},
-		async updateWeek(week:UserActivity){
+		async updateWeek(week:UserActivity):Promise<void> {
 			this.loadingPage = true;
 			try {
-				let response = await this.ui.api.post("/api/v1/teams/teamactivity/update", {
+				await this.ui.api.post<UserActivity | null>("/api/v1/teams/team/activity/update", {
 					activity: {
 						noOfHours:week.noOfHours,
 						description:week.description,
@@ -242,11 +242,11 @@ export default Vue.extend({
 						teamId:week.teamId
 					} as UserActivity
 				});	
-				response = await this.ui.api.post("/api/v1/teams/teamactivity", {
+				const response = await this.ui.api.post<UserActivity[]>("/api/v1/teams/team/activity", {
 					userId: this.userId,
 					teamId: this.teamId
 				});
-				if(response) {
+				if(response.data) {
 					this.activities = response.data;
 				}
 				this.editDialog=false;
@@ -255,12 +255,12 @@ export default Vue.extend({
 				console.error(e);
 			}
 			try {
-				const product = await this.ui.api.get("/api/v1/teams/product/" + this.teamId);
-				if(product.data) {
-					product.data.updatedAt = (this.formatDateTime(new Date()) as unknown as Date) ;
+				const resp = await this.ui.api.get<Product | null>("/api/v1/teams/product/" + this.teamId);
+				if(resp.data) {
+					resp.data.updatedAt = (this.formatDateTime(new Date()) as unknown as Date) ;
 					try {
 						await this.ui.api.post("/api/v1/teams/product/update", {
-							product: product.data,
+							product: resp.data,
 							upload: "",
 							ext: ".pptx",
 							teamId: this.teamId
@@ -274,12 +274,12 @@ export default Vue.extend({
 			}
 			this.loadingPage=false;
 		},
-		denyActivity() {
-			this.edited = {};
+		denyActivity():void {
+			this.edited = null;
 			this.editDialog = false;
 		},
-		closeView() {
-			this.edited = {};
+		closeView():void {
+			this.edited = null;
 			this.viewDialog = false;
 		},
 	},

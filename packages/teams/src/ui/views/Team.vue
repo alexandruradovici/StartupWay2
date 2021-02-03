@@ -29,7 +29,7 @@
 										<v-list-item-subtitle style="font-family: Georgia, serif; font-size: 15px; font-weight: 550;">{{ user.group }}</v-list-item-subtitle>
 									</v-col>
 									<v-col md4 class="justify-center">
-										<v-list-item-subtitle style="font-family: Georgia, serif; font-size: 15px; font-weight: 550;">{{ user.UserTeams_role }}</v-list-item-subtitle>
+										<v-list-item-subtitle style="font-family: Georgia, serif; font-size: 15px; font-weight: 550;">{{ user.role }}</v-list-item-subtitle>
 									</v-col>
 								</v-row>
 								<v-row>
@@ -76,7 +76,7 @@
 							</v-card>
 						</v-dialog>
 						<v-dialog v-model="dialog" max-width="500px">
-							<!-- <v-card v-if="user.UserTeams_userId !== undefined"> -->
+							<!-- <v-card v-if="user.userId !== undefined"> -->
 							<v-card flat>
 								<v-form v-model="userValid" lazy-validation>
 								<v-card-title class="justify-center" style="font-family: Georgia, serif;">Edit User Details</v-card-title>
@@ -105,7 +105,7 @@
 									
 									<div class="details">Role</div>
 									<v-select 
-									v-model="item.UserTeams_role"
+									v-model="item.role"
 									:items="roles" 
 									label="Role" optional>
 									</v-select>
@@ -228,15 +228,15 @@ import Vue from "vue";
 import { mapGetters } from "vuex";
 import moment from "moment";
 import { UI } from '@startupway/main/lib/ui';
-import { Team } from "../../common";
-import { User, UserTeams, universities } from "@startupway/users/lib/ui";
+import { Team, VisualUser} from "../../common";
+import { User, UserTeams, universities, Roles } from "@startupway/users/lib/ui";
 import { SnackBarOptions, SnackBarTypes } from "@startupway/menu/lib/ui";
 export default Vue.extend({
 	name: "Team",
 	watch: {
 		user: {
 			immediate: true,
-			async handler(newUser: User) {
+			async handler(newUser: User):Promise<void> {
 				this.userRole = newUser.role["CEO"];
 				if(this.userRole) {
 					await this.getAllUsers();
@@ -245,7 +245,7 @@ export default Vue.extend({
 		},
 		currentTeam: {
 			immediate: true,
-			async handler(newTeam: Team) {
+			async handler(newTeam: Team):Promise<void> {
 				this.teamId = newTeam.teamId;
 				if (this.teamId === 0) {
 					if(this.$route.path !== "/workspace")
@@ -282,7 +282,7 @@ export default Vue.extend({
 			userValid:true,
 			extendedImage: "",
 			extendDialog: false,
-			toDel:{},
+			toDel:{} as (User & UserTeams),
 			faculty: "" as string,
 			group: "" as string,
 			email: "" as string,
@@ -302,27 +302,27 @@ export default Vue.extend({
 			userRole: false as boolean,
 			selected: [],
 			singleSelect: false,
-			users: [] as User[],
+			users: [] as (User & UserTeams)[] | User[],
 			search1: "",
-			item: {},
+			item: {} as (User & UserTeams & VisualUser),
 			loadingPage: false,
 			dialog: false,
 			remove:false,
 			add:false,
-			allUsers: [] as any[],
+			allUsers: [] as (User & UserTeams)[] | User[],
 			addUsersDialog:false,
 			acceptDialog:false,
 			singleSelect2:false,
 			singleSelect1:false,
 			loading:false,
-			toAdd:[],
-			toRemove:[],
+			toAdd:[] as (User & UserTeams)[] | User[],
+			toRemove:[] as (User & UserTeams)[] | User[],
 			headers1: [
 				{
 					text: "Role",
 					align: "left",
 					sortable: false,
-					value: "UserTeams_role"
+					value: "role"
 				},
 				{ text: "First Name", value: "firstName" },
 				{ text: "Last Name", value: "lastName" },
@@ -336,7 +336,7 @@ export default Vue.extend({
 					text: "Role",
 					align: "left",
 					sortable: false,
-					value: "UserTeams_role"
+					value: "role"
 				},
 				{ text: "First Name", value: "firstName" },
 				{ text: "Last Name", value: "lastName" },
@@ -358,79 +358,84 @@ export default Vue.extend({
 		};
 	},
 	methods: {
-		extendImage(image: string) {
+		extendImage(image: string):void {
 			this.extendedImage = image;
 			this.extendDialog = true;
 		},
-		async modifyUsers(users: any[]) {
-			for(const index in users) {
-				if(typeof users[index].userDetails === "string") {
-					users[index].userDetails = JSON.parse(users[index].userDetails);
-					users[index].socialMedia = JSON.parse(users[index].socialMedia);
+		async modifyUsers(users: ((User & UserTeams)[] | User[])):Promise<(User & UserTeams)[] | User[]> {
+			for(const user of users) {
+				if(typeof user.userDetails === "string") {
+					user.userDetails = JSON.parse(user.userDetails);
+					// TODO -> Parse in backend
+					user.socialMedia = JSON.parse((user as any).socialMedia);
 				}
 
-				if ((users[index] as any).userDetails["faculty"] !== undefined) {
-					(users[index] as any).faculty = (users[index] as any).userDetails["faculty"]; 
+				if (user.userDetails["faculty"] !== undefined) {
+					(user as ((User & UserTeams) & VisualUser)).faculty = user.userDetails["faculty"]; 
 				} else {
-					(users[index] as any).faculty = "";
+					(user as ((User & UserTeams) & VisualUser)).faculty = "";
 				}
 
-				if ((users[index] as any).userDetails["group"] !== undefined) {
-					(users[index] as any).group = (users[index] as any).userDetails["group"];
+				if (user.userDetails["group"] !== undefined) {
+					(user as ((User & UserTeams) & VisualUser)).group = user.userDetails["group"];
 				} else {
-					(users[index] as any).group = "";
+					(user as ((User & UserTeams) & VisualUser)).group = "";
 				}
 
-				if ((users[index] as any).userDetails["participant"] !== undefined) {
-					(users[index] as any).participant = (users[index] as any).userDetails["participant"];
+				if (user.userDetails["participant"] !== undefined) {
+					(user as ((User & UserTeams) & VisualUser)).participant = user.userDetails["participant"];
 				} else {
-					(users[index] as any).pitcher = "";
+					(user as ((User & UserTeams) & VisualUser)).pitcher = "";
 				}
 
-				if ((users[index] as any).userDetails["pitcher"] !== undefined) {
-					(users[index] as any).pitcher = (users[index] as any).userDetails["pitcher"];
+				if (user.userDetails["pitcher"] !== undefined) {
+					(user as ((User & UserTeams) & VisualUser)).pitcher = user.userDetails["pitcher"];
 				} else {
-					(users[index] as any).pitcher = "";
+					(user as ((User & UserTeams) & VisualUser)).pitcher = "";
 				}
 				
-				if ((users[index] as any).userDetails["transport"] !== undefined) {
-					(users[index] as any).transport = (users[index] as any).userDetails["transport"];
+				if (user.userDetails["transport"] !== undefined) {
+					(user as ((User & UserTeams) & VisualUser)).transport = user.userDetails["transport"];
 				} else {
-					(users[index] as any).transport = "";
+					(user as ((User & UserTeams) & VisualUser)).transport = "";
 				}
 
-				if ((users[index] as any).role) {
-					const roleObj = (users[index] as any).role;
+				if (user.role) {
+					const roleObj = user.role;
 					for (const prop in roleObj) {
 						if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
-							((users[index] as any).role as any) = prop;
+							// as any to overwrite property from {"Role_Name":true} to "Role_Name" for visualizing in frontend
+							// TODO find a better way to visualize the role
+							((user as ((User & UserTeams) & VisualUser)) as any).role = prop;
 							break;
 						}
 					}
-				} else if ((users[index] as any).User_role) {
-					const roleObj = (users[index] as any).User_role;
+				} else if (user.role) {
+					const roleObj = user.role;
 					for (const prop in roleObj) {
 						if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
-							(users[index] as any).User_role = prop;
+							// as any to overwrite property from {"Role_Name":true} to "Role_Name" for visualizing in frontend
+							// TODO find a better way to visualize the role
+							((user as ((User & UserTeams) & VisualUser)) as any).role = prop;
 							break;
 						}
 					}
 				}
 
-				if(users[index].avatarUu !== "" && users[index].avatarUu !== undefined && users[index].avatarUu !== null){
-					users[index].image = await this.getUserImage(users[index].avatarUu, users[index].UserTeams_userId);
+				if(user.avatarUu !== "" && user.avatarUu !== undefined && user.avatarUu !== null){
+					(user as ((User & UserTeams) & VisualUser)).image = await this.getUserImage(user.avatarUu, user.userId);
 				} else {
-					users[index].image = ""
+					(user as ((User & UserTeams) & VisualUser)).image = ""
 				}
 			}
 			return users;
 		},
-		async getUserImage(avatar:string,userId:number):Promise<String> {
+		async getUserImage(avatar:string,userId:number):Promise<string> {
 			if(avatar !== "" && avatar !== null) {
 				if(userId !== 0) {
 					try {
-						const response = await this.ui.api.post("/api/v1/uploadDownload/get/file/user/avatar", {userId:userId});
-						if(response.status === 200) {
+						const response = await this.ui.api.post<string | null>("/api/v1/uploadDownload/get/file/user/avatar", {userId:userId});
+						if(response.data) {
 							return response.data;
 						} else if(response.status === 500) {
 							this.snackOptions.text = "Server Error while Loading User Avatar. If the error persists, please contact technical support: teams@tech-lounge.ro.";
@@ -458,18 +463,18 @@ export default Vue.extend({
 				return "";
 			}
 		},
-		hasUser(user:any){
+		hasUser(user:User | (User & UserTeams)):boolean {
 			for(const aux of this.users) {
-				if((aux as any).UserTeams_userId === user.userId) {
+				if(aux.userId === user.userId) {
 					return true;
 				}
 			}
 			return false;
 		},
-		async getAllUsers() {
+		async getAllUsers():Promise<boolean> {
 			try {
-				const response = await this.ui.api.get("/api/v1/users");
-				if (response.status === 200) {
+				const response = await this.ui.api.get<User[]>("/api/v1/users/users");
+				if (response.data) {
 					this.allUsers = await this.modifyUsers(response.data);
 					this.allUsers = this.allUsers.filter((user:User) => { return !this.hasUser(user)});
 					return true;
@@ -491,15 +496,15 @@ export default Vue.extend({
 				return false;
 			}
 		},
-		async removeUsers() {
+		async removeUsers():Promise<void> {
 			this.loadingPage = true;
-			(this.toRemove as any).push((this.toDel as any));
+			this.toRemove.push(this.toDel);
 			try {
-				const response = await this.ui.api.post("/api/v1/teams/teamremove/users", {
+				const response = await this.ui.api.post<boolean>("/api/v1/teams/team/remove/users", {
 					users: this.toRemove,
 					teamId: this.teamId
 				});
-				if(response.status === 200) {
+				if(response.data) {
 					this.loading = true;
 					this.snackOptions.text = "Remove User Successful";
 					this.snackOptions.type = SnackBarTypes.SUCCESS;
@@ -528,12 +533,12 @@ export default Vue.extend({
 			this.toRemove = [];
 			this.loadingPage = false;
 		},
-		async getUsers(teamId: number) {
+		async getUsers(teamId: number):Promise<boolean> {
 			try {
-				const response = await this.ui.api.get(
+				const response = await this.ui.api.get<(User & UserTeams)[]>(
 					"/api/v1/teams/team/users/" + teamId
 					);
-				if (response.status === 200) {
+				if (response.data) {
 					this.users = await this.modifyUsers(response.data);
 					return true;
 				} else if(response.status === 204) {
@@ -551,53 +556,55 @@ export default Vue.extend({
 				this.snackbar = true;
 				return false;
 			}
+			return false;
 		},
 		async updateUserInfo() {
 			this.loadingPage = true;
 			let user: any = {};
-			this.item = this.item as any;
 			
 			const userDetails = {
-				details: (this.item as any).userDetails["details"],
-				faculty: (this.item as any).faculty,
-				group: (this.item as any).group,
-				locations:(this.item as any).userDetails["location"],
-				pitcher:(this.item as any).pitcher,
-				participant:(this.item as any).participant,
-				transport:(this.item as any).transport
+				details: this.item.userDetails["details"],
+				faculty: this.item.faculty,
+				group: this.item.group,
+				locations:this.item.userDetails["location"],
+				pitcher:this.item.pitcher,
+				participant:this.item.participant,
+				transport:this.item.transport
 
 			};
 			user = {
-				userId: (this.item as any).UserTeams_userId,
-				firstName: (this.item as any).firstName,
-				lastName: (this.item as any).lastName,
-				username: (this.item as any).username,
-				email: (this.item as any).email,
-				phone: (this.item as any).phone,
-				socialMedia: (this.item as any).socialMedia,
-				birthDate: (this.item as any).birthDate,
+				userId: this.item.userId,
+				firstName: this.item.firstName,
+				lastName: this.item.lastName,
+				username: this.item.username,
+				email: this.item.email,
+				phone: this.item.phone,
+				socialMedia: this.item.socialMedia,
+				birthDate: this.item.birthDate,
 				userDetails: userDetails,
 				role: {
-					[(this.item as any).UserTeams_role as any]: true
+					[this.item.role]: true
 				}
 			};
 			const userTeam: UserTeams = {
-				userProductId: (this.item as any).UserTeams_userProductId,
-				userId: (this.item as any).UserTeams_userId,
-				role: (this.item as any).UserTeams_role,
-				teamId: (this.item as any).UserTeams_teamId
+				userProductId: this.item.userProductId,
+				userId: this.item.userId,
+				role: this.item.role,
+				teamId: this.item.teamId
 			};
 			try {
-				const response = await this.ui.api.post(
+				const response = await this.ui.api.post<UserTeams | null>(
 					"/api/v1/admin/changeRole",
 					{
 						user: user,
 						userTeam: userTeam
 					}
 				);
-				if (response.status === 200) {
-					(this.item as any) = {
+				if (response.data) {
+					this.item = {
 						userId: 0,
+						userProductId: 0,
+						teamId: 0,
 						firstName: "",
 						lastName: "",
 						password: "",
@@ -609,7 +616,15 @@ export default Vue.extend({
 						userDetails: {
 							details: ""
 						},
-						role: {}
+						role: ({} as Roles & string),
+						avatarUu: "",
+						lastLogin: new Date(),
+						faculty:"",
+						group:"",
+						participant:"",
+						pitcher:"",
+						transport:"",
+						image:""
 					};
 					this.snackOptions.text = "Update Successful";
 					this.snackOptions.type = SnackBarTypes.SUCCESS;
@@ -633,16 +648,18 @@ export default Vue.extend({
 			this.$forceUpdate();
 			this.loadingPage = false;
 		},
-		openDialog(user: any) {
+		openDialog(user: any):void {
 			this.item = user;
 			this.dialog = true;
 		},
-		openRequestDialog() {
+		openRequestDialog():void {
 			this.requestDialog = true;
 		},
-		exitDialog() {
-			(this.item as any) = {
+		exitDialog():void {
+			this.item = {
 				userId: 0,
+				userProductId: 0,
+				teamId: 0,
 				firstName: "",
 				lastName: "",
 				password: "",
@@ -654,11 +671,19 @@ export default Vue.extend({
 				userDetails: {
 					details: ""
 				},
-				role: {}
+				role: ({} as Roles & string),
+				avatarUu: "",
+				lastLogin: new Date(),
+				faculty:"",
+				group:"",
+				participant:"",
+				pitcher:"",
+				transport:"",
+				image:""
 			};
 			this.dialog = false;
 		},
-		openLink(link: string) {
+		openLink(link: string):void {
 			let webLink:string = link;
 			if(webLink.includes("http://")) {
 				window.open(webLink, "_blank");
@@ -669,16 +694,16 @@ export default Vue.extend({
 			}
 			window.open(webLink, "_blank");
 		},
-		async requestUser() {
+		async requestUser():Promise<void> {
 			try {
-				const response = await this.ui.api.post("/api/v1/admin/request/user", {
+				const response = await this.ui.api.post<boolean>("/api/v1/admin/request/user", {
 					from:this.user.username,
 					firstName: this.requestFirstName,
 					lastName: this.requestLastName,
 					email:this.requestEmail,
 					teamId:this.teamId
 				});
-				if(response.status === 200) {
+				if(response.data) {
 					this.requestDialog = false;
 				}
 				this.$forceUpdate();
@@ -689,15 +714,15 @@ export default Vue.extend({
 			
 
 		},
-		async addUsers() {
+		async addUsers():Promise<void> {
 			this.loadingPage = true;
 			try {
-				const response = await this.ui.api.post("/api/v1/teams/teamadd/users", {
+				const response = await this.ui.api.post<boolean>("/api/v1/teams/team/add/users", {
 					users: this.toAdd,
 					teamId: this.teamId,
 				});
 				
-				if(response.status === 200) {
+				if(response.data) {
 					this.loading = true;
 					const newResponse = await this.refreshLists();
 					if(newResponse) {
@@ -728,15 +753,15 @@ export default Vue.extend({
 				this.snackbar = true;
 				this.loading = false;
 			}
-			const foundTeam = await this.ui.api.get("/api/v1/teams/team" + this.teamId);
+			const foundTeam = await this.ui.api.get<Team | null>("/api/v1/teams/team" + this.teamId);
 			let initDate;
 			const allActivities = [];
-			if(foundTeam.data.location === "Bucharest"){
+			if(foundTeam.data && foundTeam.data.location === "Bucharest"){
 				initDate = moment("2020-03-02");
 			} else {
 				initDate = moment("2020-03-09");
 			}
-			for(const user of (this.toAdd as any[])) {
+			for(const user of this.toAdd) {
 						
 				for(let i = 0; i < 10; i++) {
 					const aux = moment(initDate.toDate());
@@ -753,7 +778,7 @@ export default Vue.extend({
 				}
 				try {
 					this.loadingPage = false;
-					await this.ui.api.post("/api/v1/admin/newUserActivity", {
+					await this.ui.api.post<boolean>("/api/v1/admin/newUserActivity", {
 							userActivity: allActivities
 					});
 					this.loadingPage = false;
@@ -764,7 +789,7 @@ export default Vue.extend({
 
 			this.loadingPage = false;
 		},
-		accept(type:string){
+		accept(type:string):void{
 			if(type == "remove"){
 				this.removeUsers();
 				this.remove = false;
@@ -776,19 +801,19 @@ export default Vue.extend({
 			}
 			this.acceptDialog = false;
 		},
-		deny(){
+		deny():void{
 			this.acceptDialog=false;
 			this.remove = false;
 			this.add = false;
 			this.addUsersDialog = false;
 		},
-		cancel(){
+		cancel():void{
 			this.requestDialog=false;
 		},
-		update(prop:boolean) {
+		update(prop:boolean):void {
 			this.snackbar = prop;
 		},
-		async refreshLists() {
+		async refreshLists():Promise<boolean> {
 			try {
 				if(await this.getUsers(this.teamId))
 					if(await this.getAllUsers())

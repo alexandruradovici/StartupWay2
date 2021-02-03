@@ -68,9 +68,9 @@ export default Vue.extend({
 	watch: {
 		currentTeam: {
 			immediate: true,
-			async handler (newTeam: Team | null) { 
+			async handler (newTeam: Team | null):Promise<void> { 
 				if(newTeam) {
-					let response = await this.ui.api.get("/api/v1/teams/product/" + newTeam.teamId);
+					let response = await this.ui.api.get<Product | null>("/api/v1/teams/product/" + newTeam.teamId);
 					let product:Product | null = response.data;
 					if(product) {
 						(newTeam as any).businessTrack = product.businessTrack;
@@ -90,7 +90,7 @@ export default Vue.extend({
 		},
 		_token: {
 			immediate:true,
-			handler (newToken:string) {
+			handler (newToken:string):void {
 				if(newToken === null){
 					if(this.$route.path !== "/login")
 						this.$router.push("/login");
@@ -99,7 +99,7 @@ export default Vue.extend({
 		},
 		user: {
 			immediate: true,
-			async handler (newUser: any) {
+			async handler (newUser: any):Promise<void> {
 				if(newUser){
 					await this.ui.storeDispatch("teams/loadTeams",newUser.userId);
 				}
@@ -107,7 +107,7 @@ export default Vue.extend({
 		},
 		feed: {
 			immediate: true,
-			handler(newFeed: Feed[]) {
+			handler(newFeed: Feed[]):void {
 				this.productUpdates = newFeed;
 			}
 		}

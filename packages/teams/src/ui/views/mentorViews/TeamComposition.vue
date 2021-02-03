@@ -209,7 +209,7 @@
 import Vue from "vue";
 import { mapGetters } from "vuex";
 import moment from "moment";
-import { Team, Product, UserActivity } from "../../../common";
+import { Team, Product, UserActivity, VisualUser } from "../../../common";
 import { User, UserTeams, universities } from "@startupway/users/lib/ui";
 import { SnackBarOptions, SnackBarTypes } from "@startupway/menu/lib/ui";
 import { UI } from '@startupway/main/lib/ui';
@@ -414,14 +414,6 @@ export default Vue.extend({
 				if(typeof user.userDetails === "string") {
 					user.userDetails = JSON.parse(user.userDetails);
 					user.socialMedia = JSON.parse((user as any).socialMedia);
-				}
-				interface VisualUser {
-					faculty:string,
-					group:string,
-					participant:string,
-					pitcher:string,
-					transport:string,
-					image:string
 				}
 				user = user as (User & {});
 				if (user.userDetails["faculty"] !== undefined) {
