@@ -117,7 +117,7 @@ export default Vue.extend({
 			ui: UI.getInstance(),
 			allUsers: [] as User[],
 			teams: [] as (Team & Product)[],
-			viewTeams: [] as any[],
+			viewTeams: [] as {name:string,value:number}[],
 			loadingPage:false,
 		};
 	},
@@ -161,17 +161,11 @@ export default Vue.extend({
 		modifyUsers(users: User[]): User[] {
 			users.forEach(element => {
 				if (element.role) {
+					// as any to replace role: {"Role_name":true} with "Role_name"
 					const roleObj = element.role;
 					for (const prop in roleObj) {
 						if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
 							(element.role as any) = prop;
-						}
-					}
-				} else if ((element as any).User_role) {
-					const roleObj = (element as any).User_role;
-					for (const prop in roleObj) {
-						if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
-							(element as any).User_role = prop;
 						}
 					}
 				}

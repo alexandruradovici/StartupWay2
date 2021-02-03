@@ -367,7 +367,7 @@ export default Vue.extend({
 			tabs: [] as Tab[],
 			editElement: true,
 			dialog: false,
-			team: (null as any) as (Team & Product),
+			team: null as (Team & Product) | null,
 			values:[
 				"Yes",
 				"Maybe",
@@ -431,7 +431,7 @@ export default Vue.extend({
 			],
 			existsUpdate: false,
 			approveDescriptions: [] as (Team & Product)[],
-			updated: (null as any) as (Team & Product),
+			updated: null as (Team & Product) | null,
 			approveDialog: false,
 			selectedTeam: 0,
 			allDescriptions: {} as {[key:string]:string}
@@ -534,7 +534,9 @@ export default Vue.extend({
 								this.mentoredTeams = this.modifyTeams(response.data);
 								for(let team in this.mentoredTeams) {
 									this.mentoredTeams[team].teamId;
+									// as any to insert prop for visualisation
 									(this.mentoredTeams[team] as any).description = response.data[team].descriptionEN;
+									// as any to insert prop for visualisation
 									(this.mentoredTeams[team] as any).mentor = JSON.parse((this.mentoredTeams[team] as any).teamDetails).mentor;
 								}
 							}
@@ -547,6 +549,7 @@ export default Vue.extend({
 								this.mentoredTeams = this.modifyTeams(response.data);
 								for(let team in this.mentoredTeams) {
 									this.mentoredTeams[team].teamId;
+									// as any to insert prop for visualisation
 									(this.mentoredTeams[team] as any).description = response.data[team].descriptionEN;
 								}
 							}
@@ -720,7 +723,7 @@ export default Vue.extend({
 				return "red";
 			return "green";
 		},
-		disabledIcon(item: (Team & Product)):boolean {
+		disabledIcon(item: (Team & Product) | null):boolean {
 			if(item) {
 				let found = this.approveDescriptions.find((element: (Team & Product)) => element.teamId === item.teamId)
 				if(found !== undefined)
@@ -730,6 +733,7 @@ export default Vue.extend({
 			return false;
 		},
 		_enumToData(enumData: any, name: string):void {
+			// as any to transform from enum to property in data;
 			name = name.replace(/^\w/, c => c.toLowerCase()) + "s";
 			for (let propName in enumData) {
 				if (propName !== "NONE") ((this as any)[name] as Array<Object>).push(enumData[propName]);
@@ -758,10 +762,12 @@ export default Vue.extend({
 			await this.$store.dispatch("teams/mentorTeam",teamId);
 		},
 		async changeData() {
-			if(this.team.startupName != "") {
+			if(this.team !== null && this.team.startupName != "") {
 				// this.loading = true;
 				// this.loadingPage = true;
-				let productIndex = this.reviews.findIndex((el: Review) => el.startupName === this.team.startupName);
+				
+				// as any because error it's null 
+				let productIndex = this.reviews.findIndex((el: Review) => el.startupName === (this.team as any).startupName);
 				this.reviews[productIndex].lastMentorUpdate = (this.formatDate(new Date()) as unknown as Date).toString();
 				let response = await this.ui.api.post<Review[]>("/api/v1/admin/teams/review/update", 
 				{
@@ -835,14 +841,14 @@ export default Vue.extend({
 			this.dialog = true;
 		},
 		exitDialog() {
-			(this.team as any) = {
+			(this.team as ((Team & Product) | {postpone:string})) = {
 				postpone:""
 			}
 			this.dialog = false;
 			
 		},
 		exitApproveDialog() {
-			(this.updated as any) = {
+			(this.updated as ((Team & Product) | {postpone:string})) = {
 				postpone:""
 			}
 			this.approveDialog = false;
@@ -850,53 +856,60 @@ export default Vue.extend({
 		},
 		async approveDescription() {
 			try {
-				let response = await this.ui.api.post<Product | null>("/api/v1/teams/product/approve/description", {
-					product: {
-						productId: this.updated.productId,
-						startupName: this.updated.startupName,
-						businessTrack: this.updated.businessTrack,
-						teamType: this.updated.teamType,
-						workshopDay: this.updated.workshopDay,
-						mentorId: this.updated.mentorId,
-						descriptionRO: this.updated.pendingDescriptionRO,
-						descriptionEN: this.updated.pendingDescriptionEN,
-						pendingDescriptionRO: "",
-						pendingDescriptionEN: "",
-						productDetails: this.updated.productDetails,
-						lastMentorUpdate: (this.formatDate(new Date()) as unknown as Date),
-						updatedAt: this.updated.updatedAt
-					}
-				})
-				if(response.data) {
-					
-					let res = await this.ui.api.get<Product | null>("/api/v1/teams/product/" + this.selectedTeam);
-						if(res) {
-							let product = response.data;
-							this.updated.productId = product.productId;
-							this.updated.startupName = product.startupName;
-							this.updated.businessTrack = product.businessTrack;
-							this.updated.teamType = product.teamType;
-							this.updated.workshopDay = product.workshopDay;
-							this.updated.mentorId = product.mentorId;
-							this.updated.descriptionRO = product.descriptionRO;
-							this.updated.descriptionEN = product.descriptionEN;
-							this.updated.pendingDescriptionRO = product.pendingDescriptionRO;
-							this.updated.pendingDescriptionEN = product.pendingDescriptionEN;
-							this.updated.productDetails = product.productDetails;
-							this.updated.lastMentorUpdate = product.lastMentorUpdate;
-							// let found = this.filteredReviews.findIndex((el: any) => el.teamId === this.updated.teamId);
-							// this.filteredReviews[found] = this.updated;
-							let found2 = this.approveDescriptions.findIndex((el: Team & Product) => el.teamId === this.updated.teamId);
-							this.approveDescriptions.splice(found2, 1);
-							this.disabledIcon((null as any) as Team & Product);
-							this.allDescriptions[product.productId] = product.descriptionEN;
-							// this.description = product.descriptionEN;
-
-							let productIndex = this.reviews.findIndex((el: Review) => el.teamId === this.updated.teamId);
-							(this.reviews[productIndex] as Review).lastMentorUpdate = (this.formatDate(new Date()) as unknown as Date).toString();
+				if(this.updated) {
+					let response = await this.ui.api.post<Product | null>("/api/v1/teams/product/approve/description", {
+						product: {
+							productId: this.updated.productId,
+							startupName: this.updated.startupName,
+							businessTrack: this.updated.businessTrack,
+							teamType: this.updated.teamType,
+							workshopDay: this.updated.workshopDay,
+							mentorId: this.updated.mentorId,
+							descriptionRO: this.updated.pendingDescriptionRO,
+							descriptionEN: this.updated.pendingDescriptionEN,
+							pendingDescriptionRO: "",
+							pendingDescriptionEN: "",
+							productDetails: this.updated.productDetails,
+							lastMentorUpdate: (this.formatDate(new Date()) as unknown as Date),
+							updatedAt: this.updated.updatedAt
 						}
-					this.$forceUpdate();
-				}
+					})
+					if(response.data) {
+						
+						let res = await this.ui.api.get<Product | null>("/api/v1/teams/product/" + this.selectedTeam);
+							if(res) {
+								let product = response.data;
+								if(this.updated) {
+									this.updated.productId = product.productId;
+									this.updated.startupName = product.startupName;
+									this.updated.businessTrack = product.businessTrack;
+									this.updated.teamType = product.teamType;
+									this.updated.workshopDay = product.workshopDay;
+									this.updated.mentorId = product.mentorId;
+									this.updated.descriptionRO = product.descriptionRO;
+									this.updated.descriptionEN = product.descriptionEN;
+									this.updated.pendingDescriptionRO = product.pendingDescriptionRO;
+									this.updated.pendingDescriptionEN = product.pendingDescriptionEN;
+									this.updated.productDetails = product.productDetails;
+									this.updated.lastMentorUpdate = product.lastMentorUpdate;
+									// let found = this.filteredReviews.findIndex((el: any) => el.teamId === this.updated.teamId);
+									// this.filteredReviews[found] = this.updated;
+
+									// as any because error that it's null
+									let found2 = this.approveDescriptions.findIndex((el: Team & Product) => el.teamId === (this.updated as any).teamId);
+									this.approveDescriptions.splice(found2, 1);
+									this.disabledIcon(null);
+									this.allDescriptions[product.productId] = product.descriptionEN;
+									// this.description = product.descriptionEN;
+
+									// as any because error that it's null
+									let productIndex = this.reviews.findIndex((el: Review) => el.teamId === (this.updated as any).teamId);
+									(this.reviews[productIndex] as Review).lastMentorUpdate = (this.formatDate(new Date()) as unknown as Date).toString();
+								}
+							}
+						this.$forceUpdate();
+					}
+					}
 			} catch (e) {
 				console.error(e);
 			}

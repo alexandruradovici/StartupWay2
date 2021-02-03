@@ -230,7 +230,7 @@ export class AdminServer {
 		try {
 			const queryOptions:QueryOptions = {
 				namedPlaceholders:true,
-				sql:"SELECT t.location as 'oras', t.teamName as 'nume_echipa', p.businessTrack as 'business_track', p.teamType as 'teams_type', p.descriptionRO as 'descriere_RO', p.descriptionEN as 'descriere_ENG' from teams t inner join products p on p.productId = t.productId and JSON_EXTRACT(productDetails,'$.assessment20May') = 'Yes';"
+				sql:"SELECT t.location as 'oras', t.teamName as 'nume_echipa', p.businessTrack as 'business_track', p.teamType as 'type', p.descriptionRO as 'descriere_RO', p.descriptionEN as 'descriere_ENG' from teams t inner join products p on p.productId = t.productId and JSON_EXTRACT(productDetails,'$.assessment20May') = 'Yes';"
 
 			}
 			const response = await this.conn.query(queryOptions);
@@ -592,6 +592,7 @@ router.post("/uploadCSV", async(req:ApiRequest<{encoded:string,buffer:Buffer,str
 		}
 		const newObj = _.groupBy(obj,"teamId");
 		for(const key in newObj) {
+			// WORKAROUND for parsing the csv data. TODO -> Create interface for parsing
 			for(const entry of (newObj[key] as any[])) {
 				const mentorEmail:string = entry.team.teamDetails["mentor"];
 				const mentor:User | null = await users.getUserByEmail(mentorEmail);
@@ -604,6 +605,8 @@ router.post("/uploadCSV", async(req:ApiRequest<{encoded:string,buffer:Buffer,str
 				} else if(mentorUsername !== "") {
 					const password = admin.randomPassword();
 					let user:User | null = await users.addUser({
+						// as any -> todo -> discuss if we change to userId: number|null 
+						userId:(null as any),
 						firstName: mentorUsername,
 						lastName: "",
 						username: mentorUsername, 
@@ -619,8 +622,8 @@ router.post("/uploadCSV", async(req:ApiRequest<{encoded:string,buffer:Buffer,str
 							"Mentor":true
 						},
 						avatarUu:"",
-						lastLogin:""
-					} as any);
+						lastLogin:new Date()
+					});
 					if(user) {
 						// const options = admin.createMailOptions(
 						// 	(process.env.MAIL_USER as string),
@@ -810,7 +813,7 @@ router.get("/users/:location", async (req:ApiRequest<undefined>,res:ApiResponse<
 		}
 		const users:(User & UserTeams)[] = [];
 		for(const team of teamsArray) {
-			const auxUsers:(User & UserTeams)[] = await teams.getUsersByTeamId((team as any).teams_teamId);
+			const auxUsers:(User & UserTeams)[] = await teams.getUsersByTeamId(team.teamId);
 			users.push(...auxUsers);
 		}
 
@@ -836,7 +839,7 @@ router.get("/users", async (req:ApiRequest<undefined>,res:ApiResponse<(User & Us
 		let teamsArray:Team[] = await teams.getTeams();
 		const users:(User & UserTeams)[] = [];
 		for(const team of teamsArray) {
-			const auxUsers = await teams.getUsersByTeamId((team as any).teams_teamId);
+			const auxUsers = await teams.getUsersByTeamId(team.teamId);
 			users.push(...auxUsers);
 		}
 		if(users) {
@@ -919,8 +922,8 @@ router.post("/teams/review", async (req:ApiRequest<{type:string,location:string,
 		console.log(type);
 		console.log(teamsArray);
 		for (const team of teamsArray) {
-			const mentor:User | null = await users.getUserByEmail(JSON.parse((team as any).teams_teamDetails)["mentor"]);
-			const product = JSON.parse((team as any).products_productDetails);
+			const mentor:User | null = await users.getUserByEmail(JSON.parse(team.teamDetails)["mentor"]);
+			const product = JSON.parse(team.products_productDetails);
 			let review:Review;
 			if(mentor && product) {
 				let asses20May = "";
@@ -932,21 +935,21 @@ router.post("/teams/review", async (req:ApiRequest<{type:string,location:string,
 					asses12Oct = product.assessment12Oct;
 				}
 				review = {
-					location:(team as any).teams_location,
-					workshopNr:(team as any).products_workshopDay,
+					location:team.location,
+					workshopNr:team.products_workshopDay,
 					mentor:mentor.email,
-					teamTrack:(team as any).products_teamType,
-					businessTrack:(team as any).products_businessTrack,
-					startupName:(team as any).products_startupName,
-					description:(team as any).products_descriptionEN,
+					teamTrack:team.products_teamType,
+					businessTrack:team.products_businessTrack,
+					startupName:team.products_startupName,
+					description:team.products_descriptionEN,
 					webLink:product.website,
-					teamId:(team as any).teams_teamId,
+					teamId:team.teamId,
 					mentorNotes:product.mentorNotes,
 					adminNotes:product.adminNotes,
 					assessment20May:asses20May,
 					assessment12Oct:asses12Oct,
-					updatedAt: admin.formatDate((team as any).products_updatedAt),
-					lastMentorUpdate: admin.formatDate((team as any).products_lastMentorUpdate)
+					updatedAt: admin.formatDate(team.products_updatedAt),
+					lastMentorUpdate: admin.formatDate(team.products_lastMentorUpdate)
 				}
 				reviews.push(review);
 			};
