@@ -81,7 +81,7 @@
 import Vue from "vue";
 import login from "../img/welcome-startupway-white-668px.png";
 import { UI } from '@startupway/main/lib/ui';
-import { User } from "@startupway/users/lib/ui";
+import { User } from "../../common";
 import { SnackBarOptions, SnackBarTypes } from '@startupway/menu/lib/ui';
 import { mapGetters } from "vuex";
 export default Vue.extend({
