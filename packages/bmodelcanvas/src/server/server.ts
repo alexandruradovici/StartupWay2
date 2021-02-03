@@ -137,7 +137,7 @@ router.get("/:teamId", async(req:ApiRequest<undefined>,res:ApiResponse<BModelCan
 	if(result)
 		res.send(result);
 	else
-		res.status(401).send({err:401});
+		res.status(401).send({err:401,data:[]});
 });
 // TODO: add addCanvas(canvas) function
 router.post("/:teamId", async(req:ApiRequest<BModelCanvas>,res:ApiResponse<BModelCanvas|null>) => {
@@ -145,14 +145,14 @@ router.post("/:teamId", async(req:ApiRequest<BModelCanvas>,res:ApiResponse<BMode
 	if(newCanvas)
 		res.send(newCanvas);
 	else
-		res.status(401).send({err:401});
+		res.status(401).send({err:401, data:null});
 });
 router.post("/update:teamId", async(req:ApiRequest<BModelCanvas>,res:ApiResponse<BModelCanvas|null>) => {
 	const newCanvas = req.body;
 	if(newCanvas)
 		res.send(newCanvas);
 	else
-		res.status(401).send({err:401});
+		res.status(401).send({err:401, data:null});
 });
 
 server.registerRouterAPI (1, router, "/canvas");

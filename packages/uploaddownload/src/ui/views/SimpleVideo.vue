@@ -38,7 +38,7 @@ export default Vue.extend({
 		},
 	},
 	watch: {
-		extension() {
+		extension():void {
 			switch (this.extension) {
 				case "mp4":
 					this.videoType = "video/mp4";
@@ -54,7 +54,7 @@ export default Vue.extend({
 					break;
 			}
 		},
-		async productId() {
+		async productId():Promise<void> {
 			await this.getVideo(this.productId, this.type);
 		}
 	},
@@ -71,14 +71,14 @@ export default Vue.extend({
 		};
 	},
 	methods: {
-		async getVideo(productId:number,type:string) {
+		async getVideo(productId:number,type:string):Promise<void> {
 			try {
-				let response = await this.ui.api.get("/api/v1/uploadDownload/get/file/product/"+ this.type +"/"+ this.productId)
-				if(response.status !== 500) {
-					let video = response.data.results[0];
+				let response = await this.ui.api.get<{data:string,type:string,ext:string,uuid:string}[] | null>("/api/v1/uploadDownload/get/file/product/"+ this.type +"/"+ this.productId)
+				if(response.data) {
+					let video = response.data[0];
 					if(video !== undefined) {
 						this.videoSource = video.data;
-						this.extension = video.extension;
+						this.extension = video.ext;
 						this.uuid = video.uuid;
 						this.typeV = video.type;
 						this.isVideo = true;

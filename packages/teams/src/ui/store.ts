@@ -22,13 +22,13 @@ export default function teamsStore () {
 			product:null,
 		},
 		getters: {
-			currentTeam: (state) => state.currentTeam,
-			mentoredTeam: (state) => state.mentoredTeam,
-			teams: (state) => state.teams,
-			product: (state) => state.product,
+			currentTeam: (state:TeamsState) => state.currentTeam,
+			mentoredTeam: (state:TeamsState) => state.mentoredTeam,
+			teams: (state:TeamsState) => state.teams,
+			product: (state:TeamsState) => state.product,
 		},
 		mutations: {
-			selectTeam(state, teamId:number) {
+			selectTeam(state:TeamsState, teamId:number):void {
 				for(const team of state.teams) {
 					if (team.teamId === teamId) {
 						state.currentTeam = team;
@@ -37,26 +37,25 @@ export default function teamsStore () {
 				}
 				state.currentTeam = null;
 			},
-			mentorTeam(state, teamId:number) {
+			mentorTeam(state:TeamsState, teamId:number):void {
 				state.mentoredTeam = teamId;
 			},
-			setTeams(state, newTeams:Team[]) {
+			setTeams(state:TeamsState, newTeams:Team[]):void {
 				state.teams = newTeams;
 			},
-			setProduct(state, newProduct:Product) {
+			setProduct(state:TeamsState, newProduct:Product):void {
 				state.product = newProduct;
 			},
 		},
 		actions: {
-			selectTeam (store, teamId: number) {
+			selectTeam (store, teamId: number):void {
 				store.commit ("selectTeam", teamId);
 			},
-			mentorTeam (store, teamId: number) {
+			mentorTeam (store, teamId: number):void {
 				store.commit ("mentorTeam", teamId);
 			},
-			async loadTeams(store, userId:number) {
+			async loadTeams(store, userId:number):Promise<void> {
 				// TODO load teams from server\
-
 				let newTeams:Team[] = [];
 				try {
 					const r = await ui.api.get<Team[]>("/api/v1/teams/teams" +userId);
@@ -66,11 +65,11 @@ export default function teamsStore () {
 				}
  				store.commit("setTeams", newTeams)
 			},
-			async loadProduct(store, teamId) {
+			async loadProduct(store, teamId):Promise<boolean> {
 				let newProduct:Product | null = null;
 				try {
-					const response = await ui.api.get<Product>("/api/v1/teams/product/"+teamId);
-					if(response) {
+					const response = await ui.api.get<Product | null>("/api/v1/teams/product/"+teamId);
+					if(response.data) {
 						newProduct = response.data;
 					}
 					
@@ -81,17 +80,17 @@ export default function teamsStore () {
  				store.commit("setProduct", newProduct)
 				return true;
 			},
-			async updateProduct(store, data:{product:Product, upload:string, ext:string, teamId:number}) {
+			async updateProduct(store, data:{product:Product, upload:string, ext:string, teamId:number}):Promise<boolean> {
 				let updateResponse;
 				try {
-					updateResponse = await ui.api.post("/api/v1/teams/product/update", 
+					updateResponse = await ui.api.post<Product | null>("/api/v1/teams/product/update", 
 					{
 						product: data.product,
 						upload: data.upload,
 						ext:data.ext,
 						teamId: data.teamId
 					});
-					if(updateResponse)
+					if(updateResponse.data)
 						return true;
 					else 
 						return false;

@@ -50,6 +50,7 @@ import { mapGetters } from "vuex";
 import {
 	Workshop,
 	WorkshopAttendances,
+	WorkshopInstances
 	// Team,
 	// WorkshopInstances,
 	// WorkshopInstancesExtended,
@@ -77,6 +78,7 @@ export default Vue.extend({
 			activeUsers: {} as UserDetails,
 			instances: {},
 			teamIds: [] as number[],
+			// same as canvas
 			teams: [] as any,
 			selected: 0 as number,
 			attendance: [] as WorkshopAttendances[],
@@ -86,7 +88,7 @@ export default Vue.extend({
 	watch: {
 		user: {
 			immediate: true,
-			async handler(newUser: User) {
+			async handler(newUser: User):Promise<void> {
 				if (newUser.role["Mentor"]) {
 					this.userRole = newUser.role["Mentor"];
 				} else if(newUser.role["Admin"]) {
@@ -98,7 +100,7 @@ export default Vue.extend({
 		},
 		selected: {
 			immediate: true,
-			async handler(newWorkshopId: number) {
+			async handler(newWorkshopId: number):Promise<void> {
 				await this.getWorkshopInstances(newWorkshopId);
 				await this.getAttendance(newWorkshopId);
 				for (var date in this.instances) {
@@ -150,36 +152,38 @@ export default Vue.extend({
 		})
 	},
 	methods: {
-		async getWorkshopInstances(newWorkshopId: number) {
-			// try {
-			// 	if (this.user.role["Mentor"]) {
-			// 		let response = await this.ui.api.get("/api/v1/teams/mentor/teams/" + this.user.userId);
-			// 		if (response) this.teams = response.data;
-			// 	} else if(this.user.role["Admin"]) {
-			// 		let response = await this.ui.api.get("/api/v1/admin/teams/");
-			// 		if (response) this.teams = response.data;
-			// 	}
-			// 	if (this.teams.length > 0) {
-			// 		for (let team of this.teams) {
-			// 			this.teamIds.push((team as Team).teamId);
-			// 		}
-			// 		let response = await this.ui.api.get(
-			// 			"/api/v1/workshop/mentor/instances/" + newWorkshopId
-			// 		);
-			// 		if (response) {
-			// 			this.instances = response.data;
-			// 			return true;
-			// 		} 
-			// 	}
-			// } catch (e) {
-			// 	console.error(e);
-			// 	return false;
-			// }
-			// return false;
-		},
-		async getAttendance(newWorkshopId: number) {
+		async getWorkshopInstances(newWorkshopId: number):Promise<boolean> {
 			try {
-				let response = await this.ui.api.get("/api/v1/workshop/attendance/" + newWorkshopId);
+				if (this.user.role["Mentor"]) {
+					// same as canvas
+					let response = await this.ui.api.get<any[]>("/api/v1/teams/mentor/teams/" + this.user.userId);
+					if (response) this.teams = response.data;
+				} else if(this.user.role["Admin"]) {
+					// same as canvas
+					let response = await this.ui.api.get<any[]>("/api/v1/admin/teams/");
+					if (response) this.teams = response.data;
+				}
+				if (this.teams.length > 0) {
+					for (let team of this.teams) {
+						this.teamIds.push((team as any).teamId);
+					}
+					let response = await this.ui.api.get<WorkshopInstances[]>(
+						"/api/v1/workshop/mentor/instances/" + newWorkshopId
+					);
+					if (response) {
+						this.instances = response.data;
+						return true;
+					} 
+				}
+			} catch (e) {
+				console.error(e);
+				return false;
+			}
+			return false;
+		},
+		async getAttendance(newWorkshopId: number):Promise<boolean> {
+			try {
+				let response = await this.ui.api.get<WorkshopAttendances[]>("/api/v1/workshop/attendance/" + newWorkshopId);
 				if (response) {
 					this.attendance.push(...response.data);
 					return true;
@@ -188,8 +192,9 @@ export default Vue.extend({
 				console.error(e);
 				return false;
 			}
+			return false;
 		},
-		async pushToAttendance(user: UserExtended, date: Date) {
+		async pushToAttendance(user: UserExtended, date: Date):Promise<void> {
 			let workshopInstanceId: number = 0;
 			if (!user.programmingDetails["present"]) {
 				for (let workshop of (this.instances as any)[(date as any) as string]) {
@@ -213,9 +218,9 @@ export default Vue.extend({
 			}
 			this.$forceUpdate();
 		},
-		async submitAttendance() {
+		async submitAttendance():Promise<void> {
 			try {
-				await this.ui.api.post("/api/v1/workshop/attendance", {
+				await this.ui.api.post<WorkshopAttendances[]>("/api/v1/workshop/attendance", {
 					attendance: this.attendance,
 					workshopId: this.selected
 				});

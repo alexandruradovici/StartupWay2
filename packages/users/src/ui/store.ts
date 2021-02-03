@@ -79,7 +79,7 @@ export default function usersStore ():Module<UsersState, RootState> {
 			async load(storeParam):Promise<boolean> {
 				let user = null;
 				try {
-					const response = await ui.api.get("/api/v1/users/user");
+					const response = await ui.api.get<User | null>("/api/v1/users/user");
 					user = response.data;
 				} catch(e) {
 					console.error(e);

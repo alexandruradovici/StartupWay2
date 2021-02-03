@@ -687,10 +687,10 @@ router.get("/teams:userId", async(req:ApiRequest<undefined>, res:ApiResponse<Tea
 		if(all_teams)
 			res.send(all_teams);
 		else 
-			res.status(204).send({err: 204});
+			res.status(204).send({err: 204, data:[]});
 	} catch (e) {
 		console.error(e);
-		res.status(500).send({err:500});
+		res.status(500).send({err:500, data:[]});
 	}
 });
 // List all teams
@@ -703,7 +703,7 @@ router.get("/mentor/teamsAndProduct/:mentorId", async(req:ApiRequest<undefined>,
 			res.status(204).send([])
 	} catch (e) {
 		console.error(e);
-		res.status(500).send({err: 500});
+		res.status(500).send({err: 500, data:[]});
 	}
 
 });
@@ -717,7 +717,7 @@ router.get("/mentor/teams/:mentorId", async(req:ApiRequest<undefined>, res:ApiRe
 			res.status(204).send([]);
 	} catch (e) {
 		console.error(e);
-		res.status(500).send({err: 500});
+		res.status(500).send({err: 500, data:[]});
 	}
 
 });
@@ -731,7 +731,7 @@ router.get("/teams/demoDay", async(req:ApiRequest<undefined>, res:ApiResponse<nu
 			res.status(204).send([]);
 	} catch (e) {
 		console.error(e);
-		res.status(500).send({err: 500});
+		res.status(500).send({err: 500, data:[]});
 	}
 });
 
@@ -744,7 +744,7 @@ router.get("/team/:teamId", async(req:ApiRequest<undefined>, res:ApiResponse<Tea
 			res.status(204).send(null);
 	} catch (e) {
 		console.error(e);
-		res.status(500).send({err: 500});
+		res.status(500).send({err: 500, data:null});
 	}
 });
 
@@ -757,7 +757,7 @@ router.get("/team/users/:teamId", async(req:ApiRequest<undefined>, res:ApiRespon
 			res.status(204).send([]);
 	} catch (e) {
 		console.error(e);
-		res.status(500).send([]);
+		res.status(500).send({err:500, data:[]});
 	}
 
 });
@@ -771,7 +771,7 @@ router.post("/team/activity", async(req:ApiRequest<{userId:number,teamId:number}
 			res.status(204).send([]);
 	} catch (e) {
 		console.error(e);
-		res.status(500).send({err: 500});
+		res.status(500).send({err: 500, data:[]});
 	}
 });
 router.post("/team/activity/update", async(req:ApiRequest<UserActivity>, res:ApiResponse<UserActivity | null>) =>{
@@ -783,7 +783,7 @@ router.post("/team/activity/update", async(req:ApiRequest<UserActivity>, res:Api
 			res.status(204).send(null);
 	} catch (e) {
 		console.error(e);
-		res.status(500).send({err: 500});
+		res.status(500).send({err: 500, data:null});
 	}
 });
 router.post("/team/remove/users", async(req:ApiRequest<{users:(User&UserTeams)[],teamId:number}>, res:ApiResponse<boolean>) => {
@@ -840,7 +840,7 @@ router.post("/product", async(req:ApiRequest<{team:Team,product:Product}>, res:A
 			res.status(204).send(null);
 	} catch (e) {
 		console.error(e);
-		res.status(500).send({err: 500});
+		res.status(500).send({err: 500, data:null});
 	}
 });
 
@@ -853,7 +853,7 @@ router.get("/product/:teamId", async(req:ApiRequest<undefined>, res:ApiResponse<
 			res.status(204).send(null);
 	} catch (e) {
 		console.error(e);
-		res.status(500).send({err: 500});
+		res.status(500).send({err: 500, data:null});
 	}
 });
 
@@ -876,7 +876,7 @@ router.post ("/product/approve/description", async(req:ApiRequest<Product>, res:
 			res.status(204).send(null);
 	} catch (e) {
 		console.error(e);
-		res.status(500).send({err: 500});
+		res.status(500).send({err: 500, data:null});
 	}
 	
 });
@@ -907,7 +907,7 @@ router.post("/product/update", async(req:ApiRequest<{teamId:number,product:Produ
 			res.status(204).send(null);
 	} catch (e) {
 		console.error(e);
-		res.status(500).send({err: 500});
+		res.status(500).send({err: 500, data:null});
 	}
 });
 

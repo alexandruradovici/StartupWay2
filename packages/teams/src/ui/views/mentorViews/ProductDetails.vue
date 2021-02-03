@@ -266,7 +266,7 @@
 import Vue from "vue";
 import moment from "moment";
 import { mapGetters } from "vuex";
-import { Team, Product, BusinessTrack, TeamType, WorkshopDay } from "../../../common";
+import { Team, Product, BusinessTrack, TeamType, WorkshopDay, UserTeams } from "../../../common";
 import { User } from "@startupway/users/lib/ui";
 import { UI } from '@startupway/main/lib/ui';
 export default Vue.extend({
@@ -283,39 +283,39 @@ export default Vue.extend({
 	watch: {
 		$route:{
 			immediate:true,
-			async handler(newRoute) {
+			async handler(newRoute):Promise<void> {
 				this.teamId = parseInt(this.$route.params.teamId);
 				try {
 					if(await this.getUsers(this.teamId))
 						await this.getAllUsers();
-					const found:Team = await this.ui.api.get("/api/v1/teams/team" + this.teamId);
-					if(found !== undefined) {
-						this.team = found.teamName;
+					const found = await this.ui.api.get<Team | null>("/api/v1/teams/team" + this.teamId);
+					if(found.data) {
+						this.team = found.data.teamName;
 					}
-					let response = await this.ui.api.get("/api/v1/teams/product/"+this.teamId);
-					if(response) {
+					let response = await this.ui.api.get<Product | null>("/api/v1/teams/product/"+this.teamId);
+					if(response.data) {
 						this.product = response.data;
 					}
 					if(this.product !== undefined) {
-						response = await this.ui.api.get("/api/v1/uploadDownload/get/file/product/image/"+ this.product.productId);
-						if(response.status === 200) {
-							this.images = response.data;
+						let resImage = await this.ui.api.get<{data:string,type:string,ext:string,uuid:string}[] | null>("/api/v1/uploadDownload/get/file/product/image/"+ this.product.productId);
+						if(resImage.data) {
+							this.images = resImage.data;
 						}
-						response = await this.ui.api.get("/api/v1/uploadDownload/get/file/product/logo/"+ this.product.productId);
-						if(response.status === 200) {
-							this.logo = response.data[0];
+						resImage = await this.ui.api.get<{data:string,type:string,ext:string,uuid:string}[] | null>("/api/v1/uploadDownload/get/file/product/logo/"+ this.product.productId);
+						if(resImage.data) {
+							this.logo = resImage.data[0];
 						}
-						response = await this.ui.api.get("/api/v1/uploadDownload/get/file/product/demoVid/"+ this.product.productId);
-						if(response.status === 200) {
-							this.demoVid = response.data[0];
+						resImage = await this.ui.api.get<{data:string,type:string,ext:string,uuid:string}[] | null>("/api/v1/uploadDownload/get/file/product/demoVid/"+ this.product.productId);
+						if(resImage.data) {
+							this.demoVid = resImage.data[0];
 						}
-						response = await this.ui.api.get("/api/v1/uploadDownload/get/file/product/presVid/"+ this.product.productId);
-						if(response.status === 200) {
-							this.presVid = response.data[0];
+						resImage = await this.ui.api.get<{data:string,type:string,ext:string,uuid:string}[] | null>("/api/v1/uploadDownload/get/file/product/presVid/"+ this.product.productId);
+						if(resImage.data) {
+							this.presVid = resImage.data[0];
 						}
-						response = await this.ui.api.get("/api/v1/uploadDownload/get/file/product/pres/"+ this.product.productId);
-						if(response.status === 200) {
-							this.pres = response.data[0];
+						resImage = await this.ui.api.get<{data:string,type:string,ext:string,uuid:string}[] | null>("/api/v1/uploadDownload/get/file/product/pres/"+ this.product.productId);
+						if(resImage.data) {
+							this.pres = resImage.data[0];
 						}
 					}
 				} catch (e) {
@@ -325,13 +325,13 @@ export default Vue.extend({
 		},
 		user: {
 			immediate: true,
-			async handler(newUser: User) {
+			async handler(newUser: User):Promise<void>  {
 				if(newUser) {
 					const role = JSON.parse(this.user.role);
 					if(role["Admin"] || role["SuperAdmin"]) {
 						try {
 							this.location = newUser.userDetails["location"];
-							const response = await this.ui.api.get("/api/v1/admin/teams/");
+							const response = await this.ui.api.get<Team[]>("/api/v1/admin/teams/");
 							if (response) {
 								this.teams = response.data;
 							}
@@ -341,7 +341,7 @@ export default Vue.extend({
 					} else if (role["Mentor"]) {
 						try {
 							this.location = newUser.userDetails["location"];
-							const response = await this.ui.api.get("/api/v1/teams/mentor/teams/" + newUser.userId);
+							const response = await this.ui.api.get<(Team & Product)[]>("/api/v1/teams/mentor/teams/" + newUser.userId);
 							if (response) {
 								this.teams = response.data;
 							}
@@ -375,7 +375,7 @@ export default Vue.extend({
 			],
 			extendedImage: "",
 			extendDialog: false,
-			teams: [] as Team[],
+			teams: [] as (Team[] | (Team & Product)[]),
 			location: "" as string,
 			users:[] as User[],
 			allUsers:[] as User[],
@@ -387,22 +387,22 @@ export default Vue.extend({
 			teamTypes:[],
 			workshopDays:[],
 			loadingPage:false,
-			images:[],
-			logo:{},
-			presVid:{},
-			demoVid:{},
-			pres:{},
+			images:[] as {data:string,type:string,ext:string,uuid:string}[],
+			logo:{} as {data:string,type:string,ext:string,uuid:string},
+			presVid:{} as {data:string,type:string,ext:string,uuid:string},
+			demoVid:{} as {data:string,type:string,ext:string,uuid:string},
+			pres:{} as {data:string,type:string,ext:string,uuid:string},
 		};
 	},
 	methods: {
-		extendImage(image: string) {
+		extendImage(image: string):void {
 			this.extendedImage = image;
 			this.extendDialog = true;
 		},
 		moment() {
 			return moment();
 		},
-		_enumToData(enumData: any, name: string) {
+		_enumToData(enumData: any, name: string):void {
 			name = name.replace(/^\w/, c => c.toLowerCase()) + "s";
 			for (const propName in enumData) {
 				if(name === "workshopDays" && this.location === "Bucharest") {
@@ -411,7 +411,7 @@ export default Vue.extend({
 				if (propName !== "NONE") ((this as any)[name] as Array<Object>).push(enumData[propName]);
 			}
 		},
-		hasUser(user:any){
+		hasUser(user:any):boolean{
 			for(const aux of this.users) {
 				if((aux as any).UserTeams_userId === user.userId) {
 					return true;
@@ -419,10 +419,10 @@ export default Vue.extend({
 			}
 			return false;
 		},
-		async getUsers(teamId: number) {
+		async getUsers(teamId: number):Promise<boolean>  {
 			try {
-				const response = await this.ui.api.get("/api/v1/teams/team/users/" + teamId);
-				if (response) {
+				const response = await this.ui.api.get<(User & UserTeams)[]>("/api/v1/teams/team/users/" + teamId);
+				if (response.data) {
 					this.users = this.modifyUsers(response.data);
 					return true;
 				}
@@ -430,11 +430,12 @@ export default Vue.extend({
 				console.error(e);
 				return false;
 			}
+			return false;
 		},
-		async getAllUsers() {
+		async getAllUsers():Promise<boolean> {
 			try {
-				const response = await this.ui.api.get("/api/v1/users");
-				if (response) {
+				const response = await this.ui.api.get<User[]>("/api/v1/users/users");
+				if (response.data) {
 					this.allUsers = this.modifyUsers(response.data);
 					this.allUsers = this.allUsers.filter((user:User) => { return !this.hasUser(user)});
 					return true;
@@ -443,36 +444,37 @@ export default Vue.extend({
 				console.error(e);
 				return false;
 			}
+			return false;
 		},
-		modifyUsers(users: any[]): any[] {
-			for(const index in users) {
-				if(typeof users[index].userDetails === "string") {
-					users[index].userDetails = JSON.parse(users[index].userDetails);
-					users[index].socialMedia = JSON.parse(users[index].socialMedia);
+		modifyUsers(users: (User[] | (User&UserTeams)[])): (User[] | (User&UserTeams)[]) {
+			for(const user of users) {
+				if(typeof user.userDetails === "string") {
+					user.userDetails = JSON.parse(user.userDetails);
+					user.socialMedia = JSON.parse((user as any).socialMedia);
 				}
-				if ((users[index] as any).userDetails["faculty"] !== undefined) {
-					(users[index] as any).faculty = (users[index] as any).userDetails["faculty"]; 
+				if (user.userDetails["faculty"] !== undefined) {
+					(user as User & {faculty:string, group:string}).faculty = user.userDetails["faculty"]; 
 				} else {
-					(users[index] as any).faculty = "";
+					(user as User & {faculty:string, group:string}).faculty = "";
 				}
-				if ((users[index] as any).userDetails["group"] !== undefined) {
-					(users[index] as any).group = (users[index] as any).userDetails["group"];
+				if (user.userDetails["group"] !== undefined) {
+					(user as User & {faculty:string, group:string}).group = user.userDetails["group"];
 				} else {
-					(users[index] as any).group = "";
+					(user as User & {faculty:string, group:string}).group = "";
 				}
-				if ((users[index] as any).role) {
-					const roleObj = (users[index] as any).role;
+				if (user.role) {
+					const roleObj = user.role;
 					for (const prop in roleObj) {
 						if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
-							((users[index] as any).role as any) = prop;
+							(user.role as any) = prop;
 							break;
 						}
 					}
-				} else if ((users[index] as any).User_role) {
-					const roleObj = (users[index] as any).User_role;
+				} else if (user.role) {
+					const roleObj = user.role;
 					for (const prop in roleObj) {
 						if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
-							(users[index] as any).User_role = prop;
+							(user.role as any) = prop;
 							break;
 						}
 					}
@@ -480,11 +482,11 @@ export default Vue.extend({
 			}
 			return users;
 		},
-		async updateProduct(product:Product) {
+		async updateProduct(product:Product):Promise<void> {
 			if(product.startupName !== "") {
 				this.loadingPage = true;
 				try {
-					await this.ui.api.post("/api/v1/teams/product/update", {
+					await this.ui.api.post<Product | null>("/api/v1/teams/product/update", {
 						product: product,
 						upload: "",
 						ext: ".pptx",
@@ -496,16 +498,16 @@ export default Vue.extend({
 				this.loadingPage = false;
 			}
 		},
-		async approveDescription() {
+		async approveDescription():Promise<void> {
 			this.loadingPage = true;
 			try {
-				const response = await this.ui.api.post("/api/v1/teams/product/approve/description", {
+				const response = await this.ui.api.post<Product | null>("/api/v1/teams/product/approve/description", {
 					product:this.product
 				})
-				if(response) {
-					const res = await this.ui.api.get("/api/v1/teams/product/"+this.teamId);
-						if(res) {
-							this.product = response.data;
+				if(response.data) {
+					const res = await this.ui.api.get<Product | null>("/api/v1/teams/product/"+this.teamId);
+						if(res.data) {
+							this.product = res.data;
 						}
 					this.$forceUpdate();
 				}
@@ -514,13 +516,13 @@ export default Vue.extend({
 			}
 			this.loadingPage = false;
 		},
-		async editProduct() {
+		async editProduct():Promise<void> {
 			this.loadingPage = true;
 			try {
-				const response = await this.ui.api.post("/api/v1/teams/product", {
+				const response = await this.ui.api.post<Product | null>("/api/v1/teams/product", {
 					product:this.product
 				})
-				if(response) {
+				if(response.data) {
 					this.$forceUpdate();
 				}
 			} catch (e) {
@@ -528,11 +530,11 @@ export default Vue.extend({
 			}
 			this.loadingPage = false;
 		},
-		async download(uuid:string) {
+		async download(uuid:string):Promise<void> {
 			try {
-				const response = await this.ui.api.get("/api/v1/uploadDownload/download/file/"+uuid);
-				if(response.status = 200) {
-					const url = response.data.url;
+				const response = await this.ui.api.get<string | null>("/api/v1/uploadDownload/download/file/"+uuid);
+				if(response.data) {
+					const url = response.data;
 					window.open(url, '_blank');
 				} else {
 

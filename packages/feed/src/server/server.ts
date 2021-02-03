@@ -136,7 +136,7 @@ router.get("/:teamId", async (req:ApiRequest<undefined>, res:ApiResponse<Feed[]>
 	if (userFeed)
 		res.send(userFeed);
 	else
-		res.status(401).send({ err: 401 });
+		res.status(401).send({err:401, data:[]});
 });
 
 router.post("/add", async (req:ApiRequest<Feed>, res:ApiResponse<Feed | null>) => {
@@ -144,7 +144,7 @@ router.post("/add", async (req:ApiRequest<Feed>, res:ApiResponse<Feed | null>) =
 	if (response)
 		res.send(response);
 	else
-		res.status(401).send({ err: 401 });
+		res.status(401).send({err:401, data:null});
 })
 router.post("/update", async(req:ApiRequest<Feed>, res:ApiResponse<Feed | null>) =>{
 	try {
@@ -152,10 +152,10 @@ router.post("/update", async(req:ApiRequest<Feed>, res:ApiResponse<Feed | null>)
 		if(feedResp)
 			res.status(200).send(feedResp);
 		else
-			res.status(204).send({});
+			res.status(204).send(null);
 	} catch (e) {
 		console.error(e);
-		res.status(500).send({err: 500});
+		res.status(500).send({err:500, data:null});
 	}
 });
 router.post("/delete", async(req:ApiRequest<Feed>, res:ApiResponse<boolean>) => {

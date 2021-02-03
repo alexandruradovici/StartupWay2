@@ -113,6 +113,7 @@ export default Vue.extend({
 	watch: {
 		currentTeam: {
 			immediate: true,
+			// Same as canvas
 			async handler(newTeam: any) {
 				this.teamId = newTeam.teamId;
 				if (this.teamId === 0) {
@@ -175,14 +176,14 @@ export default Vue.extend({
 		};
 	},
 	methods: {
-		accept(feed: Feed){
+		accept(feed: Feed):void {
 			this.deleteFeed(feed);
 			this.removeDialog = false;
 		},
-		deny(){
+		deny():void {
 			this.removeDialog = false;
 		},
-		async deleteFeed(feed: Feed) {
+		async deleteFeed(feed: Feed):Promise<void> {
 			try {
 				let response = await this.ui.storeDispatch("feed/deleteFeed", feed);
 				if (response) {
@@ -194,14 +195,14 @@ export default Vue.extend({
 			this.$forceUpdate();
 			
 		},
-		async updateFeed(feed: Feed){
+		async updateFeed(feed: Feed):Promise<void> {
 			let details = {} as FeedText;
 			if (this.amount !== "" && feed.feedType === FeedTypes.INVESTMENT) {
 				details["amount"] = this.amount;
 			}
 			details["text"] = this.text;
 			try {
-				let response = await this.ui.api.post("/api/v1/feed/update", {
+				let response = await this.ui.api.post<Feed | null>("/api/v1/feed/update", {
 					newFeed: {
 						feedId: feed.feedId,
 						feedType: feed.feedType,
@@ -210,7 +211,7 @@ export default Vue.extend({
 						date: feed.date,
 					} as Feed
 				});	
-				if (response) {
+				if (response.data) {
 					await this.ui.storeDispatch("feed/loadFeed", feed.teamId);
 				}
 			} catch (e) {
@@ -223,22 +224,22 @@ export default Vue.extend({
 			this.text = "";
 			this.amount = "";
 		},
-		enableEdit(feed: Feed) {
+		enableEdit(feed: Feed):void {
 			this.editDialog=true;
 			this.edited = feed;
 		},
-		denyActivity() {
+		denyActivity():void {
 			this.edited = {};
 			this.editDialog = false;
 		},
 		moment() {
 			return moment();
 		},
-		formatDate(date: Date) {
+		formatDate(date: Date):string {
 			let time  = (new Date(date)).toTimeString().split(" ");
 			return (new Date(date)).toDateString() + " " + time[0];
 		},
-		async addFeed() {
+		async addFeed():Promise<void> {
 			let details = {} as FeedText;
 			if (this.amount !== "" && this.value === "Investment") {
 				details["amount"] = this.amount;
@@ -259,11 +260,13 @@ export default Vue.extend({
 				console.error(e);
 			}
 			try {
-				let product = await this.ui.api.get("/api/v1/teams/product/" + this.teamId);
+				// same as canvas
+				let product = await this.ui.api.get<any | null>("/api/v1/teams/product/" + this.teamId);
 				if(product.data) {
 					product.data.updatedAt = (this.formatDate(new Date()) as unknown as Date) ;
 					try {
-						await this.ui.api.post("/api/v1/teams/product/update", {
+						// same as canvas
+						await this.ui.api.post<any | null>("/api/v1/teams/product/update", {
 							product: product.data,
 							upload: "",
 							ext: ".pptx",

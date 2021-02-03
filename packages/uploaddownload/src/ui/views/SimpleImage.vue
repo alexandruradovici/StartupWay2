@@ -41,13 +41,13 @@ export default Vue.extend({
 		}
 	},
 	watch: {
-		async type() {
+		async type():Promise<void> {
 			if(this.type === "user") {
 				if(this.id !== 0) {
 					try {
-						let response = await this.ui.api.get("/api/v1/file/user/avatar/"+this.id);
-						if(response.status !== 500) {
-							this.imageSource = response.data.base64Encode;
+						let response = await this.ui.api.get<string | null>("/api/v1/uploadDownload/get/file/user/avatar/"+this.id);
+						if(response.data) {
+							this.imageSource = response.data;
 							this.isImage = true;
 						}
 					} catch (e) {

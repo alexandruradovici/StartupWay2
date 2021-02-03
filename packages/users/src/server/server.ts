@@ -386,8 +386,12 @@ if(authFunct)
 	router.use((authFunct as any));
 	// Bypass params dictionary and send authorization Function
 
-router.get("/user", async (req, res, next) => {
-	res.send((req as any).user);
+router.get("/user", async (req:ApiRequest<undefined>, res:ApiResponse<User|null>, next) => {
+	if((req as any).user) {
+		res.send((req as any).user);
+	} else {
+		res.send(null);
+	}
 });
 
 

@@ -240,7 +240,7 @@ export default Vue.extend({
 	async mounted() {
 		try {
 			await this.ui.storeDispatch("teams/loadProduct", this.teamId);
-			let response = await this.ui.api.get("/api/v1/canvas/" + this.teamId);
+			let response = await this.ui.api.get<BModelCanvas[]>("/api/v1/canvas/" + this.teamId);
 			if (response.data) {
 				this.canvases = response.data;
 			}
@@ -251,7 +251,8 @@ export default Vue.extend({
 	watch: {
 		currentTeam: {
 			immediate: true,
-			async handler(newTeam: any) {
+			// type any because teams plugin depends on canvas plugin. Teams type is located in teams plugin. => cycle dependency
+			async handler(newTeam: any):Promise<void> {
 				this.teamId = newTeam.teamId;
 				if (this.teamId === 0) {
 					if(this.$route.path!=="/workspace")
@@ -259,7 +260,7 @@ export default Vue.extend({
 				} else {
 					try {
 						await this.ui.storeDispatch("teams/loadProduct", this.teamId);
-						let response = await this.ui.api.get("/api/v1/canvas/" + this.teamId);
+						let response = await this.ui.api.get<BModelCanvas[]>("/api/v1/canvas/" + this.teamId);
 						if (response.data) {
 							this.canvases = response.data;
 						}
@@ -271,13 +272,14 @@ export default Vue.extend({
 		},
 		product: {
 			immediate: true,
-			handler(newProduct: any) {
+			// type any because teams plugin depends on canvas plugin. product type is located in teams plugin. => cycle dependency
+			handler(newProduct: any):void {
 				this.productId = newProduct.productId;
 			}
 		},
 		canvases: {
 			immediate: true,
-			handler(newCanvases: BModelCanvas[]) {
+			handler(newCanvases: BModelCanvas[]):void {
 				if (newCanvases.length !== 0) {
 					this.canvas = newCanvases[newCanvases.length - 1];
 					this.problem = this.canvas.fields["Problem"];
@@ -294,6 +296,7 @@ export default Vue.extend({
 					this.revenue = this.canvas.fields["Revenue Streams"];
 				} else {
 					this.canvas = {
+						modelId: (null as any),
 						productId: this.productId,
 						date: new Date(),
 						fields: {
@@ -310,7 +313,7 @@ export default Vue.extend({
 							["Cost Structure"]: "",
 							["Revenue Streams"]: ""
 						}
-					} as any;
+					} as BModelCanvas;
 				}
 			}
 		}
@@ -348,7 +351,7 @@ export default Vue.extend({
 		};
 	},
 	methods: {
-		countdown(type: string, model: string) {
+		countdown(type: string, model: string):void {
 			if(model.length > 250) {
 				this.checkLength = true;
 				if(!this.types.find(el => el === type)) {
@@ -363,11 +366,11 @@ export default Vue.extend({
 					this.checkLength = false;
 			}
 		},
-		formatDate(date: Date) {
+		formatDate(date: Date):string {
 			let time  = (new Date(date)).toTimeString().split(" ");
 			return (new Date(date)).toDateString() + " " + time[0];
 		},
-		async updateCanvas() {
+		async updateCanvas():Promise<void> {
 			this.loadingPage = true;
 			let fields:CanvasField = {
 							["Problem"]: this.problem,
@@ -388,11 +391,10 @@ export default Vue.extend({
 				productId: this.productId,
 				fields: fields
 			} as BModelCanvas;
-			let response = false;
 			try {
-				response = await this.ui.api.post("/api/v1/canvas/" + this.teamId, { canvas: canvas });
-				if (response) {
-					let res = await this.ui.api.get("/api/v1/canvas/" + this.teamId);
+				const response = await this.ui.api.post<BModelCanvas | null>("/api/v1/canvas/" + this.teamId, { canvas: canvas });
+				if (response.data) {
+					let res = await this.ui.api.get<BModelCanvas[]>("/api/v1/canvas/" + this.teamId);
 					if (res.data) {
 						this.canvases = res.data;
 					}
@@ -413,11 +415,13 @@ export default Vue.extend({
 				console.error(e);
 			}
 			try {
-				let product = await this.ui.api.get("/api/v1/teams/teamproduct/" + this.teamId);
+				// using any because Product is in teams plugin and teams depends on canvas plugin
+				let product = await this.ui.api.get<any | null>("/api/v1/teams/product/" + this.teamId);
 				if(product.data) {
 					product.data.updatedAt = (this.formatDate(new Date()) as unknown as Date) ;
 					try {
-						await this.ui.api.post("/api/v1/teams/teamproduct/update", {
+						// using any because Product is in teams plugin and teams depends on canvas plugin
+						await this.ui.api.post<any | null>("/api/v1/teams/product/update", {
 							product: product.data,
 							upload: "",
 							ext: ".pptx",

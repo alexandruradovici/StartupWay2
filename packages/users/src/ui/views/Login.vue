@@ -81,6 +81,7 @@
 import Vue from "vue";
 import login from "../img/welcome-startupway-white-668px.png";
 import { UI } from '@startupway/main/lib/ui';
+import { User } from "@startupway/users/lib/ui";
 import { SnackBarOptions, SnackBarTypes } from '@startupway/menu/lib/ui';
 import { mapGetters } from "vuex";
 export default Vue.extend({
@@ -115,9 +116,9 @@ export default Vue.extend({
 	watch: {
 		_token: {
 			immediate: true,
-			async handler(value: string) {
+			async handler(value: string):Promise<void> {
 				if (value) {
-					let serverResponse = await this.ui.api.get("/api/v1/users/user", {
+					let serverResponse = await this.ui.api.get<User | null>("/api/v1/users/user", {
 						headers: { Authorization: `Bearer ${this._token}` }
 					});
 					if (serverResponse.status !== 401) {
@@ -133,7 +134,7 @@ export default Vue.extend({
 		},
 		ligthOff: {
 			immediate: true,
-			handler() {
+			handler():void {
 				setInterval( () => {
 					this.lightOff = !this.lightOff;
 					this.lightOn = !this.lightOn;
@@ -147,18 +148,18 @@ export default Vue.extend({
 		})
 	},
 	methods: {
-		update(prop:boolean) {
+		update(prop:boolean):void {
 			this.snackbar = prop;
 		},
-		validate(response:any) {
+		validate(response:any):void {
 			if(response) {
 				this.verified = false;
 			}
 		},
 		
-		async resetPassword() {
+		async resetPassword():Promise<void> {
 			try {
-				let response = await this.ui.api.get("/api/v1/verify/"+this.email);
+				let response = await this.ui.api.get<{accept:string}>("/api/v1/verify/"+this.email);
 				if(response.data.accept = "Yes") {
 					await this.ui.api.post("/api/v1/createResetEmail", {email:this.email});
 					this.verified = false;
@@ -181,9 +182,9 @@ export default Vue.extend({
 				}
 			}
 		},
-		async loginFunction() {
+		async loginFunction():Promise<void> {
 			try {
-				let token = <any> await this.ui.storeDispatch("users/login", {
+				let token = <string> await this.ui.storeDispatch("users/login", {
 					username: this.login,
 					password: this.pass,
 					lastLogin: new Date()

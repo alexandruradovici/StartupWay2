@@ -100,20 +100,20 @@ export default Vue.extend({
 			if (await this.ui.storeDispatch("users/load", {})) {
 				if(this.user) {
 					try {
-						this.firstName = this.user.firstName;
-						this.lastName = this.user.lastName;
-						this.username = this.user.username;
-						this.email = this.user.email;
-						this.phone = this.user.phone;
-						this.date = new Date(this.user.birthDate).toISOString().substr(0, 10);
-						this.facebook = this.user.socialMedia.facebook;
-						this.linkedin = this.user.socialMedia.linkedin;
-						this.webpage = this.user.socialMedia.webpage;
-						this.faculty = this.user.userDetails.faculty;
-						this.group = this.user.userDetails.group;
-						this.details = this.user.userDetails.details;
-						let response = await this.ui.api.post("/api/v1/uploadDownload/get/file/user/avatar", {userId:this.user.userId});
-						if(response.status !== 500) {
+						this.firstName = (this.user as User).firstName;
+						this.lastName = (this.user as User).lastName;
+						this.username = (this.user as User).username;
+						this.email = (this.user as User).email;
+						this.phone = (this.user as User).phone;
+						this.date = new Date((this.user as User).birthDate).toISOString().substr(0, 10);
+						this.facebook = (this.user as User).socialMedia.facebook;
+						this.linkedin = (this.user as User).socialMedia.linkedin;
+						this.webpage = (this.user as User).socialMedia.webpage;
+						this.faculty = (this.user as User).userDetails.faculty;
+						this.group = (this.user as User).userDetails.group;
+						this.details = (this.user as User).userDetails.details;
+						let response = await this.ui.api.post<string | null>("/api/v1/uploadDownload/get/file/user/avatar", {userId:this.user.userId});
+						if(response.data) {
 							this.imgData = response.data;
 						}
 					} catch (e) {
@@ -208,11 +208,11 @@ export default Vue.extend({
 		})
 	},
 	methods: {
-		extendImage(image: string) {
+		extendImage(image: string):void {
 			this.extendedImage = image;
 			this.extendDialog = true;
 		},
-		async update() {
+		async update():Promise<void> {
 			this.loadingPage = true;
 			let socialMedia: UserSocialMedia = {
 				facebook: this.facebook,
@@ -263,12 +263,12 @@ export default Vue.extend({
 				changedPass = true;
 			}
 			try {
-				let response = await this.ui.api.post("/api/v1/users/user/update", {
+				let response = await this.ui.api.post<boolean>("/api/v1/users/user/update", {
 					newUser:newUser,
 					changedPass:changedPass	
 				});
 				//TODO ADD SNACKBAR
-				if (response) {
+				if (response.data) {
 					if (await this.ui.storeDispatch("users/load", {})) {
 						this.firstName = this.user.firstName;
 						this.lastName = this.user.lastName;

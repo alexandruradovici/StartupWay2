@@ -41,7 +41,7 @@ export default Vue.extend({
 		};
 	},
 	watch: {
-		snackbar() {
+		snackbar():void {
 			setTimeout(()=>{
 				let prop = this.snackbar;
 				prop = false;
@@ -51,7 +51,7 @@ export default Vue.extend({
 		}
 	},
 	methods: {
-		closeSnackbar() {
+		closeSnackbar():void {
 			let prop = this.snackbar;
 			prop = false;
 			this.snackbarValid = false;

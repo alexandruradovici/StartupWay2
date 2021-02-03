@@ -153,7 +153,7 @@ export default Vue.extend({
 	watch: {
 		_token: {
 			immediate:true,
-			handler (newToken:string) {
+			handler (newToken:string):void {
 				if(newToken === null){
 					if(this.$route.path !== "/login")
 						this.$router.push("/login");
@@ -162,13 +162,13 @@ export default Vue.extend({
 		},
 		user: {
 			immediate: true,
-			async handler (newUser: any) {
+			async handler (newUser: any):Promise<void> {
 				
 			}
 		},
 		$route:{
 			immediate:true,
-			async handler(newRoute) {
+			async handler(newRoute):Promise<void> {
 				if(newRoute.path === "/workspace") {
 					const role = JSON.parse(this.user.role);
 					if(role["Mentor"]) {
@@ -215,20 +215,20 @@ export default Vue.extend({
 		moment() {
 			return moment();
 		},
-		pushToTabs(tab:any) {
+		pushToTabs(tab:any):void {
 			if(this.tabs.find((item:any) => {
 				return item.link === tab.link
 			}) === undefined) {
 				this.tabs.push(tab);
 			}
 		},
-		checkRoute() {
+		checkRoute():boolean {
 			if(this.$router.currentRoute.path === "/workspace")
 				return true;
 			else
 				return false;
 		},
-		pushBack() {
+		pushBack():void {
 			this.$router.go(-1);
 		},
 	}

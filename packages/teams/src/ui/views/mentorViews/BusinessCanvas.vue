@@ -40,7 +40,7 @@
 import Vue from "vue";
 import moment from "moment";
 import { mapGetters } from "vuex";
-import { Team, UserTeams } from "../../../common";
+import { Team, Product, UserTeams } from "../../../common";
 import { User } from "@startupway/users/lib/ui";
 import { BModelCanvas } from "@startupway/bmodelcanvas/lib/ui";
 import { UI } from '@startupway/main/lib/ui';
@@ -49,17 +49,17 @@ export default Vue.extend({
 	watch: {
 		$route:{
 			immediate:true,
-			async handler(newRoute) {
+			async handler(newRoute):Promise<void> {
 				this.teamId = parseInt(this.$route.params.teamId);
 				try {
 					if(await this.getUsers(this.teamId))
 						await this.getAllUsers();
-					const found:Team = await this.ui.api.get("/api/v1/teams/team" + this.teamId);
-					if(found !== undefined) {
-						this.team = found.teamName;
+					const found = await this.ui.api.get<Team | null>("/api/v1/teams/team" + this.teamId);
+					if(found.data) {
+						this.team = found.data.teamName;
 					}
 					
-					const response = await this.ui.api.get("/api/v1/canvas/" + this.teamId);
+					const response = await this.ui.api.get<BModelCanvas[]>("/api/v1/canvas/" + this.teamId);
 					if (response.data) {
 						this.canvases = response.data;
 						if(this.canvases.length === 0) {
@@ -73,14 +73,14 @@ export default Vue.extend({
 		},
 		user: {
 			immediate: true,
-			async handler(newUser: User) {
+			async handler(newUser: User):Promise<void>  {
 				if(newUser) {
 					const role = JSON.parse(this.user.role);
 					if(role["Admin"] || role["SuperAdmin"]) {
 						try {
 							this.location = newUser.userDetails["location"];
-							const response = await this.ui.api.get("/api/v1/admin/teams/");
-							if (response) {
+							const response = await this.ui.api.get<Team[]>("/api/v1/admin/teams/");
+							if (response.data) {
 								this.teams = response.data;
 							}
 						} catch (e) {
@@ -89,8 +89,8 @@ export default Vue.extend({
 					} else if (role["Mentor"]) {
 						try {
 							this.location = newUser.userDetails["location"];
-							const response = await this.ui.api.get("/api/v1/teams/mentor/teams/" + newUser.userId);
-							if (response) {
+							const response = await this.ui.api.get<(Team & Product)[]>("/api/v1/teams/mentor/teams/" + newUser.userId);
+							if (response.data) {
 								this.teams = response.data;
 							}
 						} catch (e) {
@@ -109,7 +109,7 @@ export default Vue.extend({
 	data() {
 		return {
 			ui: UI.getInstance(),
-			teams: [] as Team[],
+			teams: [] as (Team[] | (Team & Product)[]),
 			location: "" as string,
 			users:[] as User[],
 			allUsers:[] as User[],
@@ -122,11 +122,11 @@ export default Vue.extend({
 		moment() {
 			return moment();
 		},
-		formatDate(date: Date) {
+		formatDate(date: Date):string {
 			const time  = (new Date(date)).toTimeString().split(" ");
 			return (new Date(date)).toDateString() + " " + time[0];
 		},
-		hasUser(user:any){
+		hasUser(user:any):boolean{
 			for(const aux of this.users) {
 				if((aux as any).UserTeams_userId === user.userId) {
 					return true;
@@ -136,9 +136,9 @@ export default Vue.extend({
 		},
 		async getUsers(teamId: number):Promise<boolean> {
 			try {
-				const response = await this.ui.api.get<Array<User&UserTeams>>("/api/v1/teams/team/users/" + teamId);
+				const response = await this.ui.api.get<(User&UserTeams)[]>("/api/v1/teams/team/users/" + teamId);
 				if (response) {
-					// this.users = this.modifyUsers(response.data);
+					this.users = this.modifyUsers(response.data);
 					return true;
 				}
 			} catch (e) {
@@ -147,11 +147,11 @@ export default Vue.extend({
 			}
 			return false;
 		},
-		async getAllUsers() {
+		async getAllUsers():Promise<boolean> {
 			try {
-				const response = await this.ui.api.get("/api/v1/users");
-				if (response) {
-					// this.allUsers = this.modifyUsers(response.data);
+				const response = await this.ui.api.get<User[]>("/api/v1/users/users");
+				if (response.data) {
+					this.allUsers = this.modifyUsers(response.data);
 					this.allUsers = this.allUsers.filter((user:User) => { return !this.hasUser(user)});
 					return true;
 				}
@@ -159,43 +159,46 @@ export default Vue.extend({
 				console.error(e);
 				return false;
 			}
+			return false;
 		},
-		// modifyUsers(users:Array<User&UserTeams>):Array<User&UserTeams> {
-		// 	for(const index in users) {
-		// 		if(typeof users[index].userDetails === "string") {
-		// 			users[index].userDetails = JSON.parse(users[index].userDetails);
-		// 			users[index].socialMedia = JSON.parse(users[index].socialMedia);
-		// 		}
-		// 		if ((users[index] as any).userDetails["faculty"] !== undefined) {
-		// 			(users[index] as any).faculty = (users[index] as any).userDetails["faculty"]; 
-		// 		} else {
-		// 			(users[index] as any).faculty = "";
-		// 		}
-		// 		if ((users[index] as any).userDetails["group"] !== undefined) {
-		// 			(users[index] as any).group = (users[index] as any).userDetails["group"];
-		// 		} else {
-		// 			(users[index] as any).group = "";
-		// 		}
-		// 		if ((users[index] as any).role) {
-		// 			const roleObj = (users[index] as any).role;
-		// 			for (const prop in roleObj) {
-		// 				if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
-		// 					((users[index] as any).role as any) = prop;
-		// 					break;
-		// 				}
-		// 			}
-		// 		} else if ((users[index] as any).User_role) {
-		// 			const roleObj = (users[index] as any).User_role;
-		// 			for (const prop in roleObj) {
-		// 				if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
-		// 					(users[index] as any).User_role = prop;
-		// 					break;
-		// 				}
-		// 			}
-		// 		}
-		// 	}
-		// 	return users;
-		// },
+		modifyUsers(users:(User[] | (User & UserTeams)[])):((User&UserTeams)[] | User[]) {
+			for(const user of users) {
+				if(typeof user.userDetails === "string") {
+					user.userDetails = JSON.parse(user.userDetails);
+					user.socialMedia = JSON.parse((user.socialMedia as any));
+				}
+				// Inject prop
+				if (user.userDetails["faculty"] !== undefined) {
+					(user as (User & {faculty:string, group:string})).faculty = user.userDetails["faculty"]; 
+				} else {
+					(user as (User & {faculty:string, group:string})).faculty = "";
+				}
+				// Inject prop
+				if (user.userDetails["group"] !== undefined) {
+					(user as (User & {faculty:string, group:string})).group = user.userDetails["group"];
+				} else {
+					(user as any).group = "";
+				}
+				if (user.role) {
+					const roleObj = user.role;
+					for (const prop in roleObj) {
+						if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
+							(user as any).role = prop;
+							break;
+						}
+					}
+				} else if (user.role) {
+					const roleObj = user.role;
+					for (const prop in roleObj) {
+						if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
+							(user as any).role = prop;
+							break;
+						}
+					}
+				}
+			}
+			return users;
+		},
 	}
 });
 </script>

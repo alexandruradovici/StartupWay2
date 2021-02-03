@@ -219,8 +219,8 @@ export default Vue.extend({
 				this.details = this.user.userDetails.details;
 				if(this.user) {
 					try {
-						let response = await this.ui.api.post("/api/v1/uploadDownload/get/file/user/avatar", {userId:this.user.userId});
-						if(response.status !== 500) {
+						let response = await this.ui.api.post<string | null>("/api/v1/uploadDownload/get/file/user/avatar", {userId:this.user.userId});
+						if(response.data) {
 							this.imgData = response.data;
 						}
 					} catch (e) {
@@ -289,7 +289,7 @@ export default Vue.extend({
 		//FILE upload
 		base64Encode: {
 			immediate:true,
-			handler (base64Encode) {
+			handler (base64Encode):void {
 				if(base64Encode !== '' && base64Encode !== undefined) {
 					this.encoded = false;
 				} else {
@@ -299,7 +299,7 @@ export default Vue.extend({
 		},
 		file: {
 			immediate:false,
-			handler(newFile) {
+			handler(newFile):void {
 				if(newFile !== "" && newFile !== undefined) {
 					this.ext = newFile.name.split('.')[1].toLowerCase();
 					if(newFile !== undefined) {
@@ -317,11 +317,11 @@ export default Vue.extend({
 		})
 	},
 	methods: {
-		extendImage(image: string) {
+		extendImage(image: string):void {
 			this.extendedImage = image;
 			this.extendDialog = true;
 		},
-		_toBase64(file:File) {
+		_toBase64(file:File):boolean {
 			const reader = new FileReader();
 			reader.readAsDataURL(file);
 			reader.onload = () => {
@@ -333,33 +333,33 @@ export default Vue.extend({
 			};
 			return true;
 		},
-		goToSecurity() {
+		goToSecurity():void {
 			if(this.$route.path !== "/user/security")
 				this.$router.push("/user/security");
 		},
-		async uploadImage() {
+		async uploadImage():Promise<void> {
 			try {
-				let response = await this.ui.api.post("/api/v1/uploadDownload/upload/file/user/avatar", {
+				let response = await this.ui.api.post<boolean>("/api/v1/uploadDownload/upload/file/user/avatar", {
 					userId:this.user.userId,
 					base64Encode:this.base64Encode	
 				});
 				//TODO ADD SNACKBAR
-				if (response) {
+				if (response.data) {
 					if (await this.ui.storeDispatch("users/load", {})) {
-						this.firstName = this.user.firstName;
-						this.lastName = this.user.lastName;
-						this.username = this.user.username;
-						this.email = this.user.email;
-						this.phone = this.user.phone;
-						this.date = new Date(this.user.birthDate).toISOString().substr(0, 10);
-						this.facebook = this.user.socialMedia.facebook;
-						this.linkedin = this.user.socialMedia.linkedin;
-						this.webpage = this.user.socialMedia.webpage;
-						this.details = this.user.userDetails.details;
-						this.faculty = this.user.userDetails.faculty;
-						this.group = this.user.userDetails.group;
-						let response = await this.ui.api.post("/api/v1/uploadDownload/get/file/user/avatar", {userId:this.user.userId});
-						if(response.status !== 500) {
+						this.firstName = (this.user as User).firstName;
+						this.lastName = (this.user as User).lastName;
+						this.username = (this.user as User).username;
+						this.email = (this.user as User).email;
+						this.phone = (this.user as User).phone;
+						this.date = new Date((this.user as User).birthDate).toISOString().substr(0, 10);
+						this.facebook = (this.user as User).socialMedia.facebook;
+						this.linkedin = (this.user as User).socialMedia.linkedin;
+						this.webpage = (this.user as User).socialMedia.webpage;
+						this.details = (this.user as User).userDetails.details;
+						this.faculty = (this.user as User).userDetails.faculty;
+						this.group = (this.user as User).userDetails.group;
+						let response = await this.ui.api.post<string | null>("/api/v1/uploadDownload/get/file/user/avatar", {userId:(this.user as User).userId});
+						if(response.data) {
 							this.imgData = response.data;
 						}
 					}
@@ -368,7 +368,7 @@ export default Vue.extend({
 				console.error(error);
 			}
 		},
-		_verifyString(check:string) {
+		_verifyString(check:string):boolean {
 			for(let i = 0; i< check.length; i++) {
 				if(check.charCodeAt(i) > 255) {
 					this.valid = false;
@@ -378,7 +378,7 @@ export default Vue.extend({
 			this.valid = true;
 			return true;
 		},
-		async update() {
+		async update():Promise<void> {
 			this.loadingPage = true;
 			let socialMedia: UserSocialMedia = {
 				facebook: this.facebook,
@@ -405,7 +405,7 @@ export default Vue.extend({
 					phone: this.phone,
 					socialMedia: socialMedia,
 					avatarUu: this.user.avatarUu,
-					birthDate: (this.date as any) as Date,
+					birthDate: new Date(this.date),
 					lastLogin: this.user.lastLogin,
 					userDetails: userDetails
 				} as User;
@@ -422,19 +422,19 @@ export default Vue.extend({
 					phone: this.phone,
 					socialMedia: socialMedia,
 					avatarUu: this.user.avatarUu,
-					birthDate: (this.date as any) as Date,
+					birthDate: new Date(this.date),
 					lastLogin: this.user.lastLogin,
 					userDetails: userDetails
 				} as User;
 				changedPass = true;
 			}
 			try {
-				let response = await this.ui.api.post("/api/v1/users/user/update", {
+				let response = await this.ui.api.post<boolean>("/api/v1/users/user/update", {
 					newUser:newUser,
 					changedPass:changedPass	
 				});
 				//TODO ADD SNACKBAR
-				if (response) {
+				if (response.data) {
 					if (await this.ui.storeDispatch("users/load", {})) {
 						this.firstName = this.user.firstName;
 						this.lastName = this.user.lastName;

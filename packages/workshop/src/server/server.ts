@@ -239,7 +239,7 @@ router.get("/attendance/:workshopId", async (req:ApiRequest<undefined>, res:ApiR
 		}
 	} catch (error) {
 		console.error(error);
-		res.status(500).send({err:500});
+		res.status(500).send({err:500, data:[]});
 	}
 })
 router.post("/attendance", async (req:ApiRequest<{workshopId:number,attendance:WorkshopAttendances[]}>, res:ApiResponse<WorkshopAttendances[]>) => {
@@ -296,7 +296,7 @@ router.post("/add", async (req:ApiRequest<Workshop>, res:ApiResponse<Workshop | 
 			res.status(401).send({err:401,data:null});
 	} catch (error) {
 		console.error(error);
-		res.status(500).send({err:500});
+		res.status(500).send({err:500, data:null});
 	}
 });
 router.post("/add/instance", async (req:ApiRequest<{workshopId:number,teamIds:number[],date:Date,details:{[key:string]:any},trainer:string}>, res:ApiResponse<WorkshopInstances[]>) => {

@@ -448,7 +448,7 @@ const admin = AdminServer.getInstance();
 /**
  * Route on which a reset email is created
  */
-router.post("/createResetEmail", async (req:ApiRequest<{email:string}>,res:ApiResponse<Recovery>) => {
+router.post("/createResetEmail", async (req:ApiRequest<{email:string}>,res:ApiResponse<Recovery | null>) => {
 	try {
 		/** @type {string} Email destination string */
 		const email = req.body.email;
@@ -463,13 +463,13 @@ router.post("/createResetEmail", async (req:ApiRequest<{email:string}>,res:ApiRe
 		if(recovery) {
 			res.send(recovery);	
 		} else {
-			res.status(401).send({err:401});
+			res.status(401).send({err:401, data:null});
 		}
 		res.status(201).send({});
 	} catch (error) {
 		console.error("Error on route \"/createResetEmail\" in \"admin\" router");
 		console.error(error);	
-		res.status(500).send({err:500});
+		res.status(500).send({err:500, data:null});
 	}
 });
 
@@ -478,7 +478,7 @@ router.post("/createResetEmail", async (req:ApiRequest<{email:string}>,res:ApiRe
  * Can be accessed only by the unique token generated in the email
  * 
  */
-router.post("/resetPassword", async (req:ApiRequest<{token:string,password:string}>,res:ApiResponse<{username:string}>) => {
+router.post("/resetPassword", async (req:ApiRequest<{token:string,password:string}>,res:ApiResponse<{username:string} | null>) => {
 	
 	/** @type {string} Password reset token */
 	const token = req.body.token;
@@ -495,15 +495,15 @@ router.post("/resetPassword", async (req:ApiRequest<{token:string,password:strin
 				await users.modifyUser(user);
 				res.status(200).send({username:user.username});
 			} else {
-				res.status(401).send({err:401});
+				res.status(401).send({err:401, data:null});
 			}
 		} else {
-			res.status(401).send({err:401});
+			res.status(401).send({err:401, data:null});
 		}	
 	} catch (error) {
 		console.error("Error on route \"/resetPassword\" in \"admin\" router");
 		console.error(error);
-		res.status(401).send({err:401});
+		res.status(401).send({err:401, data:null});
 	}
 	
 });
@@ -511,7 +511,7 @@ router.post("/resetPassword", async (req:ApiRequest<{token:string,password:strin
 /**
  * Route on which the generated token is beign verified to actually exist
  */
-router.post("/checkToken", async(req:ApiRequest<{token:string}>,res:ApiResponse<{matched:boolean}>) => {
+router.post("/checkToken", async(req:ApiRequest<{token:string}>,res:ApiResponse<{matched:boolean} | null>) => {
 
 	/** @type {string} unique token */
 	const token = req.body.token;
@@ -525,14 +525,14 @@ router.post("/checkToken", async(req:ApiRequest<{token:string}>,res:ApiResponse<
 	} catch (error) {
 		console.error("Error on route \"/checkToken\" in \"admin\" router");
 		console.error(error);
-		res.status(401).send({err:401});
+		res.status(401).send({err:401, data:null});
 	}
 });
 
 /**
  * Route on which a recovery is deleted based on it's unique token
  */
-router.post("/deleteRecovery", async(req:ApiRequest<{token:string}>,res:ApiResponse<{}>) => {
+router.post("/deleteRecovery", async(req:ApiRequest<{token:string}>,res:ApiResponse<boolean>) => {
 
 	/** @type {string} unique token */
 	const token = req.body.token;
@@ -540,14 +540,14 @@ router.post("/deleteRecovery", async(req:ApiRequest<{token:string}>,res:ApiRespo
 		const recovery:Recovery | null = await admin.findRecoveryByToken(token);
 		if(recovery) {
 			await admin.deleteRecovery(recovery.recoveryId);
-			res.status(200);
+			res.status(200).send(true);
 		} else {
-			res.status(401);
+			res.status(401).send(false);
 		}
 	} catch (error) {
 		console.error("Error on route \"/deleteRecovery\" in \"admin\" router");
 		console.error(error);
-		res.status(401).send({err:401});
+		res.status(401).send({err:401, data:false});
 	}
 });
 
@@ -562,8 +562,8 @@ if(authFunct)
 
 /**
  * Route on which information found in a .csv file is being uploaded into the database 
- */
-router.post("/uploadCSV", async(req:ApiRequest<{encoded:string,buffer:Buffer,string:string,parsed:unknown}>,res:ApiResponse<{}>) => {
+ */	// TODO SEE RETURN TYPE
+router.post("/uploadCSV", async(req:ApiRequest<{encoded:string,buffer:Buffer,string:string,parsed:unknown}>,res:ApiResponse<any>) => {
 	try {
 
 		/** @type {string} base64 string of the data found in the .csv */
@@ -695,7 +695,7 @@ router.post("/uploadCSV", async(req:ApiRequest<{encoded:string,buffer:Buffer,str
 						if(!response){
 							console.error("Error on route \"/uploadCSV\" in \"admin\" router");
 							console.error("No activity added")
-							res.status(401).send({err:401});
+							res.status(401).send({err:401, data:null});
 						}
 					}
 				}
@@ -706,14 +706,14 @@ router.post("/uploadCSV", async(req:ApiRequest<{encoded:string,buffer:Buffer,str
 	} catch (error) {
 		console.error("Error on route \"/uploadCSV\" in \"admin\" router");
 		console.error(error);
-		res.status(401).send({err:401});
+		res.status(401).send({err:401, data:null});
 	}
 });
 
 /**
  * Route on which a new user activity is added into the database
  */
-router.post("/newUserActivity", async (req:ApiRequest<UserActivity[]>,res:ApiResponse<Boolean>) => {
+router.post("/newUserActivity", async (req:ApiRequest<UserActivity[]>,res:ApiResponse<boolean>) => {
 	try {
 		/** @type {UserActivity[]} the user activity to be added */
 		const userActivities:UserActivity[] = req.body;
@@ -724,18 +724,18 @@ router.post("/newUserActivity", async (req:ApiRequest<UserActivity[]>,res:ApiRes
 				if(!response) {
 					console.error("Error on route \"/newUserActivity\" in \"admin\" router");
 					console.error("No user activity added!");
-					res.status(401).send({err:401});
+					res.status(401).send({err:401, data:false});
 				}
 			}
 		} else {
 			console.error("Error on route \"/newUserActivity\" in \"admin\" router");
 			console.error("No user activity sent to be added!");
-			res.status(401).send({err:401});
+			res.status(401).send({err:401, data:false});
 		}
 	} catch (error) {
 		console.error("Error on route \"/newUserActivity\" in \"admin\" router");
 		console.error(error);
-		res.status(401).send({err:401});
+		res.status(401).send({err:401, data:false});
 	}
 	res.status(200).send(true);
 });
@@ -815,12 +815,12 @@ router.get("/users/:location", async (req:ApiRequest<undefined>,res:ApiResponse<
 		} else {
 			console.error("Error on route \"/users/:" + req.params.location + "\" in \"admin\" router");
 			console.error("Error no users!");
-			res.status(401).send({err:401});
+			res.status(401).send({err:401, data:[]});
 		}
 	} catch (error) {
 		console.error("Error on route \"/users/:" + req.params.location + "\" in \"admin\" router");
 		console.error(error);
-		res.status(401).send({err:401});
+		res.status(401).send({err:401, data:[]});
 	}
 });
 
@@ -840,12 +840,12 @@ router.get("/users", async (req:ApiRequest<undefined>,res:ApiResponse<(User & Us
 		} else {
 			console.error("Error on route \"/users/\" in \"admin\" router");
 			console.error("Error no users!");
-			res.status(401).send({err:401});
+			res.status(401).send({err:401, data:[]});
 		}
 	} catch (error) {
 		console.error("Error on route \"/users/\" in \"admin\" router");
 		console.error(error);
-		res.status(401).send({err:401});
+		res.status(401).send({err:401, data:[]});
 	}
 });
 
@@ -863,12 +863,12 @@ router.get("/teams/:location", async (req:ApiRequest<undefined>,res:ApiResponse<
 		if(teamsArray) {
 			res.send(teamsArray);
 		} else {
-			res.status(401).send({err:401});
+			res.status(401).send({err:401, data:[]});
 		}
 	} catch (error) {
 		console.error("Error on route \"/teams/:" + req.params.location + "\" in \"admin\" router");
 		console.error(error);
-		res.status(401).send({err:401});
+		res.status(401).send({err:401, data:[]});
 	}
 });
 
@@ -881,12 +881,12 @@ router.get("/teams", async (req:ApiRequest<undefined>,res:ApiResponse<Team[]>) =
 		if(teamsArray) {
 			res.send(teamsArray);
 		} else {
-			res.status(401).send({err:401});
+			res.status(401).send({err:401, data:[]});
 		}
 	} catch (error) {
 		console.error("Error on route \"/teams/\" in \"admin\" router");
 		console.error(error);
-		res.status(401).send({err:401});
+		res.status(401).send({err:401, data:[]});
 	}
 });
 
@@ -955,12 +955,12 @@ router.post("/teams/review", async (req:ApiRequest<{type:string,location:string,
 		} else {
 			console.error("Error on route \"/teams/review\" in \"admin\" router");
 			console.error("Error, no reviews!");
-			res.status(401).send({err:401});
+			res.status(401).send({err:401, data:[]});
 		}
 	} catch (error) {
 		console.error("Error on route \"/teams/review\" in \"admin\" router");
 		console.error(error);
-		res.status(401).send({err:401});
+		res.status(401).send({err:401, data:[]});
 	}
 });
 
@@ -1016,19 +1016,19 @@ router.post("/teams/review/update", async (req:ApiRequest<{reviews:Review[],type
 		} else {
 			console.error("Error on route \"/teams/review/update\" in \"admin\" router");
 			console.error("Error, no reviews updated");
-			res.status(401).send({err:401});
+			res.status(401).send({err:401, data:[]});
 		}
 	} catch (error) {
 		console.error("Error on route \"/teams/review/update\" in \"admin\" router");
 		console.error(error);
-		res.status(401).send({err:401});
+		res.status(401).send({err:401, data:[]});
 	}
 });
 
 /**
  * Route on which we request the change of role for a selected user
  */
-router.post("/changeRole", async (req:ApiRequest<{user:User,userTeam:UserTeams}>,res:ApiResponse<UserTeams>) => {
+router.post("/changeRole", async (req:ApiRequest<{user:User,userTeam:UserTeams}>,res:ApiResponse<UserTeams | null>) => {
 	
 	/** @type {User} - the user of which role should be changed */
 	const user:User = req.body.user;
@@ -1043,18 +1043,18 @@ router.post("/changeRole", async (req:ApiRequest<{user:User,userTeam:UserTeams}>
 			else {
 				console.error("Error on route \"/changeRole\" in \"admin\" router");
 				console.error("Error, no userteam datatype");
-				res.status(204).send({});
+				res.status(204).send(null);
 			}
 		} else {
 			console.error("Error on route \"/changeRole\" in \"admin\" router");
 			console.error("Error, no user to change role to");
-			res.status(204).send({});
+			res.status(204).send(null);
 		}
 		res.status(200).send(userTeam);
 	} catch (error) {
 		console.error("Error on route \"/changeRole\" in \"admin\" router");
 		console.error(error);
-		res.status(500).send({err:500});
+		res.status(500).send({err:500, data:null});
 	}
 	
 });
@@ -1186,10 +1186,10 @@ router.post("/add/user", async (req:ApiRequest<{user:User,option:string,teamId:n
 			}
 			res.status(200).send(true);
 		} else {
-			res.status(401).send({data:false,err:401});
+			res.status(401).send({err:401,data:false});
 		}
 	} else {
-		res.status(401).send({data:false,err:401});
+		res.status(401).send({err:401,data:false});
 	}
 	res.status(201).send(false);
 });

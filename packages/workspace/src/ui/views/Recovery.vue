@@ -74,9 +74,9 @@ export default Vue.extend({
 	watch: {
 		_token: {
 			immediate: true,
-			async handler(value: string) {
+			async handler(value: string):Promise<void> {
 				if (value && value !== "") {
-					let serverResponse = await axios.get("/api/v1/user", {
+					let serverResponse = await axios.get("/api/v1/users/user", {
 						headers: { Authorization: `Bearer ${this._token}` }
 					});
 					if (serverResponse.status !== 401) {
@@ -92,13 +92,14 @@ export default Vue.extend({
 		},
         $route: {
             immediate:true,
-			async handler(newRoute?:string) {
+			async handler(newRoute?:string):Promise<void> {
 				this.token = this.$route.params.token;
                 try {
-                    let response = await this.ui.api.post("/api/v1/checkToken",{token:this.token});
-					if(!response.data.matched)
-                        if(this.$route.path !== "/login")
-							this.$router.push("/login"); 
+                    let response = await this.ui.api.post<{matched:true} | null>("/api/v1/admin/checkToken",{token:this.token});
+					if(response.data)
+						if(!response.data.matched)
+							if(this.$route.path !== "/login")
+								this.$router.push("/login"); 
                 } catch (e) {
                     console.error(e);
                 }
@@ -111,23 +112,23 @@ export default Vue.extend({
 		})
     },
 	methods: {
-		async resetPassword() {
+		async resetPassword():Promise<void> {
             try {
                 if(this.password !== this.newPassword) {
                     this.match=true;
                 } else {
-                    let response = await this.ui.api.post("/api/v1/resetPassword", {
+                    let response = await this.ui.api.post<{username:string} | null>("/api/v1/admin/resetPassword", {
                         token:this.token,
                         password:this.password
                     });
-                    if(response.data.username) {
+                    if(response.data) {
                         let token = await this.ui.storeDispatch("users/login", {
 							username: response.data.username,
 							password: this.password,
 							lastLogin: new Date()
 						});
 						if(token)
-							await this.ui.api.post("/api/v1/deleteRecovery",{token:this.token});
+							await this.ui.api.post<boolean>("/api/v1/admin/deleteRecovery",{token:this.token});
                     } else {
                         console.error("Couldn't reset password");
                     }

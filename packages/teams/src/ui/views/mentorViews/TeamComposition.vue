@@ -209,7 +209,7 @@
 import Vue from "vue";
 import { mapGetters } from "vuex";
 import moment from "moment";
-import { Team } from "../../../common";
+import { Team, Product, UserActivity } from "../../../common";
 import { User, UserTeams, universities } from "@startupway/users/lib/ui";
 import { SnackBarOptions, SnackBarTypes } from "@startupway/menu/lib/ui";
 import { UI } from '@startupway/main/lib/ui';
@@ -218,16 +218,16 @@ export default Vue.extend({
 	watch: {
 		$route:{
 			immediate:true,
-			async handler(newRoute) {
-				this.teamId =parseInt(this.$route.params.teamId);
+			async handler(newRoute):Promise<void>  {
+				this.teamId = parseInt(this.$route.params.teamId);
 				try {
 					const r = await this.getUsers(this.teamId)
 					if(r) {
 						await this.getAllUsers();
 					}
-					const found:Team = await this.ui.api.get("/api/v1/teams/team" + this.teamId);
-					if(found !== undefined) {
-						this.team = found.teamName;
+					const found= await this.ui.api.get<Team | null>("/api/v1/teams/team" + this.teamId);
+					if(found.data) {
+						this.team = found.data.teamName;
 					}
 				} catch (e) {
 					console.error(e);
@@ -236,14 +236,14 @@ export default Vue.extend({
 		},
 		user: {
 			immediate: true,
-			async handler(newUser: User) {
+			async handler(newUser: User):Promise<void>  {
 				if(newUser) {
 					const role = JSON.parse(this.user.role);
 					if(role["Admin"] || role["SuperAdmin"]) {
 						try {
 							this.location = newUser.userDetails["location"];
-							const response = await this.ui.api.get("/api/v1/admin/teams/");
-							if (response) {
+							const response = await this.ui.api.get<Team[]>("/api/v1/admin/teams/");
+							if (response.data) {
 								this.teams = response.data;
 							}
 						} catch (e) {
@@ -252,7 +252,7 @@ export default Vue.extend({
 					} else if (role["Mentor"]) {
 						try {
 							this.location = newUser.userDetails["location"];
-							const response = await this.ui.api.get("/api/v1/teams/mentor/teams/" + newUser.userId);
+							const response = await this.ui.api.get<(Team & Product)[]>("/api/v1/teams/mentor/teams/" + newUser.userId);
 							if (response) {
 								this.teams = response.data;
 							}
@@ -302,8 +302,8 @@ export default Vue.extend({
 			teams: [] as Team[],
 			team:"" as string,
 			location: "" as string,
-			users: [] as User[],
-			allUsers: [] as User[],
+			users: [] as User[] | (User&UserTeams)[],
+			allUsers: [] as User[] | (User&UserTeams)[],
 			teamId: 0,
 			item: {},
 			dialog:false,
@@ -346,21 +346,21 @@ export default Vue.extend({
 		};
 	},
 	methods: {
-		extendImage(image: string) {
+		extendImage(image: string):void {
 			this.extendedImage = image;
 			this.extendDialog = true;
 		},
-		hasUser(user:any){
+		hasUser(user:User&UserTeams):boolean {
 			for(const aux of this.users) {
-				if((aux as any).UserTeams_userId === user.userId) {
+				if(aux.userId === user.userId) {
 					return true;
 				}
 			}
 			return false;
 		},
-		async getUsers(teamId: number) {
+		async getUsers(teamId: number):Promise<boolean>  {
 			try {
-				const response = await this.ui.api.get(
+				const response = await this.ui.api.get<(User&UserTeams)[]>(
 					"/api/v1/teams/team/users/" + teamId
 					);
 				if (response.status === 200) {
@@ -381,13 +381,14 @@ export default Vue.extend({
 				this.snackbar = true;
 				return false;
 			}
+			return false;
 		},
-		async getAllUsers() {
+		async getAllUsers():Promise<boolean>  {
 			try {
-				const response = await this.ui.api.get("/api/v1/users");
+				const response = await this.ui.api.get<User[]>("/api/v1/users");
 				if (response.status === 200) {
 					this.allUsers = await this.modifyUsers(response.data);
-					this.allUsers = this.allUsers.filter((user:User) => { return !this.hasUser(user)});
+					this.allUsers = this.allUsers.filter((user:(User&UserTeams)) => { return !this.hasUser(user)});
 					return true;
 				} else if(response.status === 204) {
 					this.snackOptions.text = "There Was a Problem Loading the Users. If the error persists, please contact technical support: teams@tech-lounge.ro.";
@@ -407,73 +408,81 @@ export default Vue.extend({
 				return false;
 			}
 		},
-		async modifyUsers(users: any[]) {
-			for(const index in users) {
+		async modifyUsers(users: (User[] | (User&UserTeams)[])):Promise<(User[] | (User & UserTeams)[])>  {
+			for(let user of users) {
 
-				if(typeof users[index].userDetails === "string") {
-					users[index].userDetails = JSON.parse(users[index].userDetails);
-					users[index].socialMedia = JSON.parse(users[index].socialMedia);
+				if(typeof user.userDetails === "string") {
+					user.userDetails = JSON.parse(user.userDetails);
+					user.socialMedia = JSON.parse((user as any).socialMedia);
+				}
+				interface VisualUser {
+					faculty:string,
+					group:string,
+					participant:string,
+					pitcher:string,
+					transport:string,
+					image:string
+				}
+				user = user as (User & {});
+				if (user.userDetails["faculty"] !== undefined) {
+					(user as User & VisualUser).faculty = user.userDetails["faculty"]; 
+				} else {
+					(user as User & VisualUser).faculty = "";
 				}
 
-				if ((users[index] as any).userDetails["faculty"] !== undefined) {
-					(users[index] as any).faculty = (users[index] as any).userDetails["faculty"]; 
+				if (user.userDetails["group"] !== undefined) {
+					(user as User & VisualUser).group = user.userDetails["group"];
 				} else {
-					(users[index] as any).faculty = "";
-				}
-
-				if ((users[index] as any).userDetails["group"] !== undefined) {
-					(users[index] as any).group = (users[index] as any).userDetails["group"];
-				} else {
-					(users[index] as any).group = "";
+					(user as User & VisualUser).group = "";
 				}
 				
 
-				if ((users[index] as any).userDetails["participant"] !== undefined) {
-					(users[index] as any).participant = (users[index] as any).userDetails["participant"];
+				if (user.userDetails["participant"] !== undefined) {
+					(user as User & VisualUser).participant = user.userDetails["participant"];
 				} else {
-					(users[index] as any).pitcher = "";
+					(user as User & VisualUser).pitcher = "";
 				}
 
-				if ((users[index] as any).userDetails["pitcher"] !== undefined) {
-					(users[index] as any).pitcher = (users[index] as any).userDetails["pitcher"];
+				if (user.userDetails["pitcher"] !== undefined) {
+					(user as User & VisualUser).pitcher = user.userDetails["pitcher"];
 				} else {
-					(users[index] as any).pitcher = "";
+					(user as User & VisualUser).pitcher = "";
 				}
 				
-				if ((users[index] as any).userDetails["transport"] !== undefined) {
-					(users[index] as any).transport = (users[index] as any).userDetails["transport"];
+				if (user.userDetails["transport"] !== undefined) {
+					(user as User & VisualUser).transport = user.userDetails["transport"];
 				} else {
-					(users[index] as any).transport = "";
+					(user as User & VisualUser).transport = "";
 				}
 
-				if ((users[index] as any).role) {
-					const roleObj = (users[index] as any).role;
+				if (user.role) {
+					const roleObj = user.role;
 					for (const prop in roleObj) {
 						if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
-							((users[index] as any).role as any) = prop;
+							(user.role as any) = prop;
 							break;
 						}
 					}
-				} else if ((users[index] as any).User_role) {
-					const roleObj = (users[index] as any).User_role;
+				} else if (user.role) {
+					const roleObj = (user.role as any);
 					for (const prop in roleObj) {
 						if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
-							(users[index] as any).User_role = prop;
+							(user.role as any) = prop;
 							break;
 						}
 					}
 				}
 
-				if(users[index].avatarUu !== "" && users[index].avatarUu !== undefined && users[index].avatarUu !== null){
-					users[index].image = await this.getUserImage(users[index].avatarUu, users[index].UserTeams_userId);
+				if(user.avatarUu !== "" && user.avatarUu !== undefined && user.avatarUu !== null){
+					(user as User & VisualUser).image = await this.getUserImage(user.avatarUu, user.userId);
 				} else {
-					users[index].image = ""
+					(user as User & VisualUser).image = ""
 				}
 
 			}
 			return users;
 		},
-		openLink(link: string) {
+		openLink(link: string):void {
 			let webLink:string = link;
 			if(webLink.includes("http://")) {
 				window.open(webLink, "_blank");
@@ -484,7 +493,7 @@ export default Vue.extend({
 			}
 			window.open(webLink, "_blank");
 		},
-		async updateUserInfo() {
+		async updateUserInfo():Promise<void> {
 			this.loadingPage = true;
 			let user: any = {};
 			this.item = (this.item as any)
@@ -518,7 +527,7 @@ export default Vue.extend({
 				teamId:(this.item as any).UserTeams_teamId
 			}
 			try {
-				const response = await this.ui.api.post("/api/v1/admin/changeRole", 
+				const response = await this.ui.api.post<UserTeams | null>("/api/v1/admin/changeRole", 
 				{
 					user:user,
 					userTeam:userTeam
@@ -561,11 +570,11 @@ export default Vue.extend({
 			this.$forceUpdate();
 			this.loadingPage = false;
 		},
-		openDialog(user: any) {
+		openDialog(user: any):void {
 			this.item = user;
 			this.dialog = true;
 		},
-		exitDialog() {
+		exitDialog():void {
 			(this.item as any) = {
 				userId: 0,
 				firstName: "",
@@ -584,7 +593,7 @@ export default Vue.extend({
 			this.dialog = false;
 			
 		},
-		accept(type:string){
+		accept(type:string):void {
 			this.loadingPage = true;
 			this.acceptDialog = false;
 			if(type == "remove"){
@@ -599,14 +608,14 @@ export default Vue.extend({
 			this.acceptDialog = false;
 			this.loadingPage = false;
 		},
-		deny(){
+		deny():void {
 			this.acceptDialog=false;
 			this.remove = false;
 			this.add = false;
 			this.addUsersDialog = false;
 		},
 		
-		async createUser() {
+		async createUser():Promise<void> {
 			this.loadingPage = true;
 			try {
 				const role = {};
@@ -628,12 +637,12 @@ export default Vue.extend({
 					},
 					role:role
 				}
-				const response = await this.ui.api.post("/api/v1/admin/add/user", {
+				const response = await this.ui.api.post<boolean>("/api/v1/admin/add/user", {
 					user: user,
 					option:"team",
 					teamId: this.teamId
 				});
-				if(response) {
+				if(response.data) {
 					this.loading = true;
 					const newResponse = await this.getUsers(this.teamId);
 					if(newResponse) {
@@ -648,10 +657,10 @@ export default Vue.extend({
 			}
 			this.loadingPage = false;
 		},
-		async addUsers() {
+		async addUsers():Promise<void> {
 			this.loadingPage = true;
 			try {
-				const response = await this.ui.api.post("/api/v1/teams/teamadd/users", {
+				const response = await this.ui.api.post<boolean>("/api/v1/teams/team/add/users", {
 					users: this.toAdd,
 					teamId: this.teamId,
 				});
@@ -687,18 +696,18 @@ export default Vue.extend({
 				this.snackbar = true;
 				this.loading = false;
 			}
-			const foundTeam = await this.ui.api.get("/api/v1/teams/team" + this.teamId);
+			const foundTeam = await this.ui.api.get<Team | null>("/api/v1/teams/team" + this.teamId);
 			let initDate;
 			const allActivities = [];
-			if(foundTeam.data.location === "Bucharest"){
+			if(foundTeam.data && foundTeam.data.location === "Bucharest"){
 				initDate = moment("2020-03-02");
-			} else {
+			} else if(foundTeam.data) {
 				initDate = moment("2020-03-09");
 			}
-			for(const user of (this.toAdd as any[])) {
+			for(const user of (this.toAdd as (User & UserTeams)[])) {
 						
 				for(let i = 0; i < 10; i++) {
-					const aux = moment(initDate.toDate());
+					const aux = moment((initDate as moment.Moment).toDate());
 					const date = aux.add(7*i,"days").toDate();
 					const userActivity = {
 						userId: user.userId,
@@ -712,7 +721,7 @@ export default Vue.extend({
 				}
 				try {
 					this.loadingPage = false;
-					await this.ui.api.post("/api/v1/admin/newUserActivity", {
+					await this.ui.api.post<UserActivity | null>("/api/v1/admin/newUserActivity", {
 							userActivity: allActivities
 					});
 					this.loadingPage = false;
@@ -723,11 +732,11 @@ export default Vue.extend({
 
 			this.loadingPage = false;
 		},
-		async removeUsers() {
+		async removeUsers():Promise<void> {
 			this.loadingPage = true;
 			(this.toRemove as any).push((this.toDel as any));
 			try {
-				const response = await this.ui.api.post("/api/v1/teams/teamremove/users", {
+				const response = await this.ui.api.post<boolean>("/api/v1/teams/team/remove/users", {
 					users: this.toRemove,
 					teamId: this.teamId
 				});
@@ -760,12 +769,12 @@ export default Vue.extend({
 			this.toRemove = [];
 			this.loadingPage = false;
 		},
-		async getUserImage(avatar:string,userId:number):Promise<String> {
+		async getUserImage(avatar:string,userId:number):Promise<string> {
 			if(avatar !== "" && avatar !== null) {
 				if(userId !== 0) {
 					try {
-						const response = await this.ui.api.post("/api/v1/uploadDownload/get/file/user/avatar", {userId:userId});
-						if(response.status === 200) {
+						const response = await this.ui.api.post<string | null>("/api/v1/uploadDownload/get/file/user/avatar", {userId:userId});
+						if(response.data) {
 							return response.data;
 						} else if(response.status === 500) {
 							this.snackOptions.text = "Server Error while Loading User Avatar. If the error persists, please contact technical support: teams@tech-lounge.ro.";
@@ -793,10 +802,10 @@ export default Vue.extend({
 				return "";
 			}
 		},
-		update(prop:boolean) {
+		update(prop:boolean):void {
 			this.snackbar = prop;
 		},
-		async refreshLists() {
+		async refreshLists():Promise<boolean> {
 				this.teamId = parseInt(this.$route.params.teamId);
 				try {
 					if(await this.getUsers(this.teamId))

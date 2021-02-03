@@ -47,7 +47,7 @@ export default Vue.extend({
 	watch: {
 		options: {
 			immediate:true,
-			handler(newOptions:SimpleMenuOptions) {
+			handler(newOptions:SimpleMenuOptions):void {
 				if(newOptions.menuTooltip === "View Your Teams") {
 					if(newOptions.items.length > 0)
 						this.$emit ('click', newOptions.items[0].id);
@@ -67,7 +67,7 @@ export default Vue.extend({
 		};
 	},
 	methods: {
-		click (menuItem: SimpleMenuItem) {
+		click (menuItem: SimpleMenuItem):void {
 			if (menuItem.link)
 			{
 				if(this.$route.path !== menuItem.link)

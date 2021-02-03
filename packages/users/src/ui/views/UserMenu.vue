@@ -55,13 +55,13 @@ export default Vue.extend({
 	watch: {
 		user: {
 			immediate: true,
-			async handler (user: User) {
+			async handler (user: User):Promise<void> {
 				try {
 					if(user) {
 						this.options.menuName = user.firstName + " " + user.lastName;
-						let response = await this.ui.api.post("/api/v1/uploadDownload/get/file/user/avatar", {userId:user.userId});
+						let response = await this.ui.api.post<string | null>("/api/v1/uploadDownload/get/file/user/avatar", {userId:user.userId});
 
-						if(response.status === 200) {
+						if(response.data) {
 							let aux = this.options;
 							aux.img = response.data;
 							this.options = aux;
@@ -94,7 +94,7 @@ export default Vue.extend({
 		}),
 	},
 	methods: {
-		async click (id: number) {
+		async click (id: number):Promise<void> {
 			if (id === MenuOptions.LOGOUT) {
 				try {
 					await this.ui.storeDispatch ('users/logout', {});
@@ -107,7 +107,7 @@ export default Vue.extend({
 			
 			}
 		},
-		update(prop:boolean) {
+		update(prop:boolean):void {
 			this.snackbar = prop;
 		},
 	}
