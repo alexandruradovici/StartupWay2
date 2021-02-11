@@ -9,264 +9,392 @@ import { User } from "@startupway/users/lib/server";
 export class TeamsServer {
 
 	private static INSTANCE?: TeamsServer;
-	private conn: Connection;
-
- 	constructor() {
-		const that = this;
-		getPool().getConnection()
-		.then(conn => {
-			console.log("Connected to database");
-			that.conn = conn;
-		})
-		.catch(err => {
-			console.log("Not connected due to error: " + err);
-		})
-	}
-
-
 
 	async addTeam(team: Team, product: Product): Promise<Team & Product | null> {
+		let conn:Connection | null = null;
 		try {
-			let o: Team & Product;
-			const queryOptions:QueryOptions = {
-				namedPlaceholders:true,
-				sql: `INSERT INTO products (startupName,businessTrack,teamType,workshopDay,mentorId,descriptionEN,descriptionRO,pendingDescriptionEN,pendingDescriptionRO,productDetails,updatedAt,lastMentorUpdate) values(:startupName,:businessTrack,:teamType,:workshopDay,:mentorId,:descriptionEN,:descriptionRO,:pendingDescriptionEN,:pendingDescriptionRO,:productDetails,:updatedAt,:lastMentorUpdate)`
-			};
-			await this.conn.query(queryOptions,product);
-			queryOptions.sql="SELECT LAST_INSERT_ID()";
-			const id:{"LAST_INSERT_ID()":number}[] = await this.conn.query(queryOptions);
-			queryOptions.sql="SELECT * FROM products WHERE products.productId=:id"
-			const productResponse:Product[] = await this.conn.query(queryOptions,{id:id[0]["LAST_INSERT_ID()"]});
-			if(productResponse[0] !== undefined) {
-				team.productId = productResponse[0].productId;
-				queryOptions.sql = "INSERT INTO teams (productId,teamName,teamDetails,location,year) VALUES(:productId,:teamName,:teamDetails,:location,:year)";
-				await this.conn.query(queryOptions,team);
-				queryOptions.sql="SELECT LAST_INSERT_ID()";
-				const id:{"LAST_INSERT_ID()":number}[] = await this.conn.query(queryOptions);
-				queryOptions.sql="SELECT * FROM teams WHERE teams.teamId=:id"
-				const teamResponse:Team[] = await this.conn.query(queryOptions,{id:id[0]["LAST_INSERT_ID()"]});
-				if(teamResponse[0]){
-					team = teamResponse[0];
-					product = productResponse[0];
-					o = {
-						teamId: team.teamId,
-						teamName: team.teamName,
-						productId: team.productId,
-						mentorId: product.mentorId,
-						year:team.year,
-						location:team.location,
-						startupName: product.startupName,
-						businessTrack: product.businessTrack,
-						teamType: product.teamType,
-						workshopDay: product.workshopDay,
-						descriptionRO: product.descriptionRO,
-						descriptionEN: product.descriptionEN,
-						pendingDescriptionRO: product.pendingDescriptionRO,
-						pendingDescriptionEN: product.pendingDescriptionEN,
-						teamDetails: team.teamDetails,
-						productDetails: product.productDetails,
-						updatedAt: product.updatedAt,
-						lastMentorUpdate: product.lastMentorUpdate
+			conn = await getPool().getConnection();
+			if(conn) {
+				await conn.beginTransaction();
+				let o: Team & Product;
+				const queryOptions: QueryOptions = {
+					namedPlaceholders: true,
+					sql: `INSERT INTO products (productId,startupName,businessTrack,teamType,workshopDay,mentorId,descriptionEN,descriptionRO,pendingDescriptionEN,pendingDescriptionRO,productDetails,updatedAt,lastMentorUpdate) VALUES(:productId,:startupName,:businessTrack,:teamType,:workshopDay,:mentorId,:descriptionEN,:descriptionRO,:pendingDescriptionEN,:pendingDescriptionRO,:productDetails,:updatedAt,:lastMentorUpdate) RETURNING productId,startupName,businessTrack,teamType,workshopDay,mentorId,descriptionEN,descriptionRO,pendingDescriptionEN,pendingDescriptionRO,productDetails,updatedAt,lastMentorUpdate`
+				};
+				const productResponse: Product[] = await conn.query(queryOptions, product);
+				if (productResponse && productResponse.length > 0 && productResponse[0]) {
+					team.productId = productResponse[0].productId;
+					queryOptions.sql = "INSERT INTO teams (teamId,productId,teamName,teamDetails,location,year) VALUES(teamId,:productId,:teamName,:teamDetails,:location,:year) RETURNING teamId,productId,teamName,teamDetails,location,year";
+					const teamResponse: Team[] = await conn.query(queryOptions, team);;
+					if (teamResponse && teamResponse.length > 0 && teamResponse[0]) {
+						team = teamResponse[0];
+						product = productResponse[0];
+						o = {
+							teamId: team.teamId,
+							teamName: team.teamName,
+							productId: team.productId,
+							mentorId: product.mentorId,
+							year: team.year,
+							location: team.location,
+							startupName: product.startupName,
+							businessTrack: product.businessTrack,
+							teamType: product.teamType,
+							workshopDay: product.workshopDay,
+							descriptionRO: product.descriptionRO,
+							descriptionEN: product.descriptionEN,
+							pendingDescriptionRO: product.pendingDescriptionRO,
+							pendingDescriptionEN: product.pendingDescriptionEN,
+							teamDetails: team.teamDetails,
+							productDetails: product.productDetails,
+							updatedAt: product.updatedAt,
+							lastMentorUpdate: product.lastMentorUpdate
+						}
+						if(o) {
+							await conn.commit();
+							await conn.end();
+							return o;
+						} else {
+							await conn.rollback();
+							await conn.end();
+							return null;
+						}
+					} else {
+						await conn.rollback();
+						await conn.end();
+						return null;
 					}
-					return o;
-				}
-				else
+				} else {
+					await conn.rollback();
+					await conn.end();
 					return null;
+				}
 			} else {
 				return null;
 			}
-
-			
 		} catch (error) {
-			console.error(error);
+			if(conn) {
+				await conn.rollback();
+				await conn.end();
+			}
 			return null;
 		}
 	}
 
 	async deleteTeam(team: Team): Promise<boolean> {
+		let conn:Connection | null = null;
 		try {
-			const queryOptions:QueryOptions = {
-				namedPlaceholders:true,
-				sql: "DELETE FROM userTeams where userTeams.teamId=:teamId"
+			conn = await getPool().getConnection();
+			if(conn) {
+				await conn.beginTransaction();
+				const queryOptions: QueryOptions = {
+					namedPlaceholders: true,
+					sql: "DELETE FROM userTeams WHERE userTeams.teamId=:teamId RETURNING teamId as deleted_id"
+				}
+				const deleteUT:{deleted_id:string}[] = await conn.query(queryOptions, { teamId: team.teamId });
+				if(deleteUT && deleteUT.length > 0 && deleteUT[0]) {
+					queryOptions.sql = "DELETE FROM teams WHERE teams.teamId=:teamId";
+					const deleteT:{deleted_id:string}[] = await conn.query(queryOptions, { teamId: team.teamId });
+					if(deleteT && deleteT.length > 0 && deleteT[0]) {
+						queryOptions.sql = "DELETE FROM products WHERE product.productId=:productId";
+						const deleteP:{deleted_id:string}[] = await conn.query(queryOptions, { productId: team.productId });
+						if(deleteP && deleteP.length > 0 && deleteP[0]) {
+							await conn.commit();
+							await conn.end();
+							return true;
+						}
+					}
+				}
+				await conn.rollback();
+				await conn.end();
+				return true;
+			} else {
+				return false;
 			}
-			await this.conn.query(queryOptions,{teamId:team.teamId});
-			queryOptions.sql = "DELETE FROM teams where teams.teamId=:teamId";
-			await this.conn.query(queryOptions,{teamId:team.teamId});
-			queryOptions.sql = "DELETE FROM products where product.productId=:productId";
-			await this.conn.query(queryOptions,{productId:team.productId});
-			return true;
 		} catch (error) {
-			// TODO add user back if failed
-			// await this.addUser(user);
 			console.error(error);
+			if(conn) {
+				await conn.rollback();
+				await conn.end();
+			}
 			return false;
 		}
 	}
 
 	async modifyTeam(team: Team): Promise<Team | null> {
+		let conn:Connection | null = null;
 		try {
-			const queryOptions:QueryOptions = {
-				namedPlaceholders:true,
-				sql: "UPDATE teams SET productId=:productId, teamName=:teamName, teamDetails=:teamDetails, location=:location, year=:year, reproductId=:reproductId WHERE teamId=:teamId"
-			};
-			await this.conn.query(queryOptions,team);
-			queryOptions.sql = "SELECT * FROM teams WHERE teams.teamId=:teamId";
-			const teamResponse:Team[] = await this.conn.query(queryOptions,{teamId:team.teamId});
-			if(teamResponse[0])
-				return teamResponse[0];
-			else
+			conn = await getPool().getConnection();
+			if(conn) {
+				await conn.beginTransaction();
+				const queryOptions: QueryOptions = {
+					namedPlaceholders: true,
+					sql: "UPDATE teams SET productId=:productId, teamName=:teamName, teamDetails=:teamDetails, location=:location, year=:year, reproductId=:reproductId WHERE teamId=:teamId RETURNING teamId,productId,teamName,teamDetails,location,year"
+				};
+				const teamResponse: Team[] = await conn.query(queryOptions, team);
+				if (teamResponse && teamResponse.length > 0 && teamResponse[0]) {
+					await conn.commit();
+					await conn.end();
+					return teamResponse[0];
+				} else {
+					await conn.end();
+					return null;
+				}
+			} else {
 				return null;
+			}
 		} catch (error) {
 			console.error(error);
+			if(conn) {
+				await conn.rollback();
+				await conn.end();
+			}
 			return null;
 		}
 	}
 
-	async addUserToTeam(user: User, team: Team, role: string): Promise<UserTeams | null> {  
-		try{
-			const queryOptions:QueryOptions = {
-				namedPlaceholders:true,
-				sql: "INSERT INTO userTeams (userId,teamId,role) VALUES(:userId,:teamId,:role)"
-			};
-			await this.conn.query(queryOptions,{userId:user.userId, teamId:team.teamId, role:role});
-			queryOptions.sql="SELECT LAST_INSERT_ID()";
-			const id:{"LAST_INSERT_ID()":number}[] = await this.conn.query(queryOptions);
-			queryOptions.sql="SELECT * FROM userTeams WHERE userTeams.userProductId=:id"
-			const userInTeam:UserTeams[] = await this.conn.query(queryOptions,{id:id[0]["LAST_INSERT_ID()"]});
-			if(userInTeam[0])
-				return userInTeam[0];
-			else
-				return null
+	async addUserToTeam(user: User, team: Team, role: string): Promise<UserTeams | null> {
+		let conn:Connection | null = null;
+		try {
+			conn = await getPool().getConnection();
+			if(conn) {
+				await conn.beginTransaction();
+				const queryOptions: QueryOptions = {
+					namedPlaceholders: true,
+					sql: "INSERT INTO userTeams (userProductId,userId,teamId,role) VALUES(:userProductId,:userId,:teamId,:role) RETURNING userProductId,userId,teamId,role"
+				};
+				const userInTeam: UserTeams[] = await conn.query(queryOptions, { userId: user.userId, teamId: team.teamId, role: role });
+				if (userInTeam && userInTeam.length > 0 && userInTeam[0]) {
+					await conn.commit();
+					await conn.end();
+					return userInTeam[0];
+				} else {
+					await conn.rollback();
+					await conn.end();
+					return null;
+				}
+			} else {
+				return null;
+			}
 		} catch (e) {
 			console.error(e);
+			if(conn){
+				await conn.rollback();
+				await conn.end();
+			}
 			return null
 		}
 	}
 
-	async deleteUserFromTeam(user: User, team: Team): Promise<boolean>
-	{
-		try{
-			const queryOptions:QueryOptions = {
-				namedPlaceholders:true,
-				sql: "DELETE FROM userTeams WHERE userTeams.userId=:userId AND teamId=:teamId"
-			};
-			await this.conn.query(queryOptions,{userId:user.userId, teamId:team.teamId});
-			return true;
+	async deleteUserFromTeam(user: User, team: Team): Promise<boolean> {
+		let conn:Connection | null = null;
+		try {
+			conn = await getPool().getConnection();
+			if(conn) {
+				await conn.beginTransaction();
+				const queryOptions: QueryOptions = {
+					namedPlaceholders: true,
+					sql: "DELETE FROM userTeams WHERE userTeams.userId=:userId AND teamId=:teamId RETURNING userProductId as deleted_id"
+				};
+				const response:{deleted_id:string}[] = await conn.query(queryOptions, { userId: user.userId, teamId: team.teamId });
+				if(response && response.length > 0 && response[0]) {
+					await conn.commit();
+					await conn.end();
+					return true;
+				} else {
+					await conn.rollback();
+					await conn.end();
+					return false;
+				}
+			} else {
+				return false;
+			}
 		} catch (e) {
 			console.error(e);
+			if(conn) {
+				await conn.rollback();
+				await conn.end();
+			}
 			return false
 		}
 	}
 	// changed param from User to number, (userId)
-	async getUserTeams(userId: number): Promise<Team[]> {
-		try{
-			const queryOptions:QueryOptions = {
-				namedPlaceholders:true,
-				nestTables:"_",
-				sql: "SELECT teams.*, userTeams.* FROM teams INNER JOIN userTeams ON userTeams.teamId = teams.teamId WHERE userTeams.userId=:userId"
-			};
-			const teamsReponse:Team[] = await this.conn.query(queryOptions,{userId});
-			if(teamsReponse.length > 0)
-				return teamsReponse;
-			else
+	async getUserTeams(userId: string): Promise<(Team)[]> {
+		let conn:Connection | null = null;
+		try {
+			conn = await getPool().getConnection();
+			if(conn) {
+				const queryOptions: QueryOptions = {
+					namedPlaceholders: true,
+					nestTables: "_",
+					sql: "SELECT teams.*, userTeams.userProductId, userTeams.role, userTeams.userId FROM teams INNER JOIN userTeams ON userTeams.teamId = teams.teamId WHERE userTeams.userId=:userId"
+				};
+				const teamsReponse: Team[] = await conn.query(queryOptions, { userId });
+				if (teamsReponse && teamsReponse.length > 0) {
+					await conn.end();
+					return teamsReponse;
+				} else {
+					await conn.end();
+					return [];
+				}
+			} else {
 				return [];
+			}
 		} catch (e) {
 			console.error(e);
+			if(conn)
+				await conn.end();
 			return [];
 		}
 	}
 
 	async getTeams(): Promise<(Team & Product)[]> {
-		try{
-			const queryOptions:QueryOptions = {
-				namedPlaceholders:true,
-				nestTables:"_",
-				sql: "SELECT teams.*, products.* FROM teams INNER JOIN products ON teams.productId = products.productId"
-			};
-			const teamsReponse:(Team & Product)[] = await this.conn.query(queryOptions);
-			console.log(teamsReponse);
-			if(teamsReponse.length > 0)
-				return teamsReponse;
-			else
+		let conn:Connection | null = null;
+		try {
+			conn = await getPool().getConnection();
+			if(conn) {
+				const queryOptions: QueryOptions = {
+					namedPlaceholders: true,
+					nestTables: "_",
+					sql: "SELECT teams.teamId, teams.teamName, teams.teamDetails, teams.location, teams.year, products.* FROM teams INNER JOIN products ON teams.productId = products.productId"
+				};
+				const teamsReponse: (Team & Product)[] = await conn.query(queryOptions);
+				if (teamsReponse && teamsReponse.length > 0) {
+					await conn.end();
+					return teamsReponse;
+				} else {
+					await conn.end();
+					return [];
+				}
+			} else {
 				return [];
+			}
 		} catch (e) {
 			console.error(e);
+			if(conn)
+				await conn.end();
 			return [];
 		}
 	}
-	async getTeamsByLocation(location:string): Promise<(Team & Product)[]> {
-		try{
-			const queryOptions:QueryOptions = {
-				namedPlaceholders:true,
-				nestTables:"_",
-				sql: "SELECT teams.*, products.* FROM teams INNER JOIN products ON teams.productId = products.productId and teams.location=:location"
-			};
-			const teamsReponse:(Team & Product)[] = await this.conn.query(queryOptions,{location});
-			console.log(teamsReponse);
-			if(teamsReponse.length > 0)
-				return teamsReponse;
-			else
+	async getTeamsByLocation(location: string): Promise<(Team & Product)[]> {
+		let conn:Connection | null = null;
+		try {
+			conn = await getPool().getConnection();
+			if(conn) {
+				const queryOptions: QueryOptions = {
+					namedPlaceholders: true,
+					nestTables: "_",
+					sql: "SELECT teams.teamId, teams.teamName, teams.teamDetails, teams.location, teams.year, products.* FROM teams INNER JOIN products ON teams.productId = products.productId and teams.location=:location"
+				};
+				const teamsReponse: (Team & Product)[] = await conn.query(queryOptions, { location });
+				if (teamsReponse && teamsReponse.length > 0) {
+					await conn.end();
+					return teamsReponse;
+				} else {
+					await conn.end();
+					return [];
+				}
+			} else {
 				return [];
+			}
 		} catch (e) {
 			console.error(e);
+			if(conn)
+				await conn.end();
 			return [];
 		}
 	}
 
-	async getTeamById(teamId: number): Promise<Team | null> {
-		try{
-			if(teamId && !isNaN(teamId)) {
-				const queryOptions:QueryOptions = {
-					namedPlaceholders:true,
-					sql: "SELECT * FROM teams WHERE teams.teamId=:teamId"
-				};
-				const teamsReponse:Team[] = await this.conn.query(queryOptions,{teamId});
-				if(teamsReponse[0])
-					return teamsReponse[0];
-				else
+	async getTeamById(teamId: string): Promise<Team | null> {
+		let conn:Connection | null = null;
+		try {
+			conn = await getPool().getConnection();
+			if(conn) {
+				if (teamId && teamId !== "") {
+					const queryOptions: QueryOptions = {
+						namedPlaceholders: true,
+						sql: "SELECT * FROM teams WHERE teams.teamId=:teamId"
+					};
+					const teamsReponse: Team[] = await conn.query(queryOptions, { teamId });
+					if (teamsReponse && teamsReponse.length > 0 && teamsReponse[0]){
+						await conn.end();
+						return teamsReponse[0];
+					} else {
+						await conn.end()
+						return null;
+					}
+				} else{
+					await conn.end();
 					return null;
-			} else 
+				}
+			} else {
 				return null;
+			}
 		} catch (e) {
 			console.log("GetTeamByID");
 			console.error(e);
+			if(conn)
+				await conn.end();
 			return null;
 		}
 	}
 
-	async getTeamByProductId(productId: number): Promise<Team | null> {
-		try{
-			if(productId && !isNaN(productId)) {
-				const queryOptions:QueryOptions = {
-					namedPlaceholders:true,
-					sql: "SELECT * FROM teams WHERE teams.productId=:productId"
-				};
-				const teamsReponse:Team[] = await this.conn.query(queryOptions,{productId});
-				if(teamsReponse[0])
-					return teamsReponse[0];
-				else
+	async getTeamByProductId(productId: string): Promise<Team | null> {
+		let conn:Connection | null = null;
+		try {
+			conn = await getPool().getConnection();
+			if(conn) {
+				if (productId && productId !== "") {
+					const queryOptions: QueryOptions = {
+						namedPlaceholders: true,
+						sql: "SELECT * FROM teams WHERE teams.productId=:productId"
+					};
+					const teamsReponse: Team[] = await conn.query(queryOptions, { productId });
+					if (teamsReponse && teamsReponse.length > 0 && teamsReponse[0]) {
+						await conn.end();
+						return teamsReponse[0];
+					} else {
+						await conn.end();
+						return null;
+					}
+				} else {
+					await conn.end();
 					return null;
-			} else 
+				}
+			} else {
 				return null;
+			}
 		} catch (e) {
 			console.error(e);
+			if(conn)
+				await conn.end();
 			return null;
 		}
 	}
 
-	async getTeamsByIdList(list: number[]): Promise<Team[]> {
-		try{
-			const queryOptions:QueryOptions = {
-				namedPlaceholders:true,
-				sql: "SELECT * FROM teams WHERE teams.teamId IN (:...list)"
-			};
-			const teamsReponse:Team[] = await this.conn.query(queryOptions,{list});
-			if(teamsReponse[0])
-				return teamsReponse;
-			else
+	async getTeamsByIdList(list: string[]): Promise<Team[]> {
+		let conn:Connection | null = null;
+		try {
+			conn = await getPool().getConnection();
+			if(conn) {
+				const queryOptions: QueryOptions = {
+					namedPlaceholders: true,
+					sql: "SELECT * FROM teams WHERE teams.teamId IN (:...list)"
+				};
+				const teamsReponse: Team[] = await conn.query(queryOptions, { list });
+				if (teamsReponse && teamsReponse.length > 0 && teamsReponse[0]) {
+					await conn.end();
+					return teamsReponse;
+				} else {
+					await conn.end();
+					return [];
+				}
+			} else {
 				return [];
+			}
 		} catch (e) {
 			console.error(e);
+			if(conn)
+				await conn.end();
 			return [];
 		}
 	}
@@ -288,386 +416,598 @@ export class TeamsServer {
 		PolyMore 89 111
 		Tire2Tire 18 37
 	*/
-	async tempF():Promise<number[]> {
-		try{
-			const tList:number[] = [];
-			const queryOptions:QueryOptions = {
-				namedPlaceholders:true,
-				sql: "SELECT teamId FROM teams WHERE teams.teamId IN (:...list)"
-			};
-			const teamsList:Team[] = await this.conn.query(queryOptions,{list:[28,35,36,105,32,40,101,34,26,15,67,25,21,106,89,18]});
-			if(teamsList.length > 0){
-				for(const t of teamsList) {
-					tList.push(t.teamId);
+	async tempF(): Promise<string[]> {
+		let conn:Connection | null = null;
+		try {
+			conn = await getPool().getConnection();
+			if(conn) {
+				const tList: string[] = [];
+				const queryOptions: QueryOptions = {
+					namedPlaceholders: true,
+					sql: "SELECT teamId FROM teams WHERE teams.teamId IN (:...list)"
+				};
+				const teamsList: Team[] = await conn.query(queryOptions, { list: [28, 35, 36, 105, 32, 40, 101, 34, 26, 15, 67, 25, 21, 106, 89, 18] });
+				if (teamsList && teamsList.length > 0) {
+					for (const t of teamsList) {
+						tList.push(t.teamId);
+					}
+					await conn.end();
+					return tList;
+				} else {
+					await conn.end();
+					return [];
 				}
-				return tList;
-			}
-			else
+			} else {
 				return [];
+			}
 		} catch (e) {
 			console.error(e);
+			if(conn)
+				await conn.end();
 			return [];
 		}
 	}
 
-	async getProductById(productId: number): Promise<Product | null> {
-		try{
-			if(productId && !isNaN(productId)) {
-				const queryOptions:QueryOptions = {
-					namedPlaceholders:true,
-					sql: "SELECT * FROM products WHERE products.productId=:productId"
-				};
-				const productResponse:Product[] = await this.conn.query(queryOptions,{productId});
-				if(productResponse[0])
-					return productResponse[0];
-				else
+	async getProductById(productId: string): Promise<Product | null> {
+		let conn:Connection | null = null;
+		try {
+			conn = await getPool().getConnection();
+			if(conn) {
+				if (productId && productId !== "") {
+					const queryOptions: QueryOptions = {
+						namedPlaceholders: true,
+						sql: "SELECT * FROM products WHERE products.productId=:productId"
+					};
+					const productResponse: Product[] = await conn.query(queryOptions, { productId });
+					if (productResponse && productResponse.length > 0 && productResponse[0]) {
+						await conn.end();
+						return productResponse[0];
+					} else {
+						await conn.end();
+						return null;
+					};
+				} else {
+					await conn.end();
 					return null;
+				}
 			} else {
 				return null;
 			}
 		} catch (e) {
 			console.error(e);
+			if(conn)
+				await conn.end();
 			return null;
 		}
 	}
-	async getUserInTeam(userId:number, teamId:number): Promise<UserTeams | null> {
-		try{
-			const queryOptions:QueryOptions = {
-				namedPlaceholders:true,
-				sql: "SELECT * FROM userTeams WHERE userTeams.userId=:userId AND userTeams.teamId=:teamId"
-			};
-			const userTeamsResponse:UserTeams[] = await this.conn.query(queryOptions,{teamId, userId});
-			if(userTeamsResponse[0])
-				return userTeamsResponse[0];
-			else
+	async getUserInTeam(userId: string, teamId: string): Promise<UserTeams | null> {
+		let conn:Connection | null = null;
+		try {
+			conn = await getPool().getConnection();
+			if(conn) {
+				const queryOptions: QueryOptions = {
+					namedPlaceholders: true,
+					sql: "SELECT * FROM userTeams WHERE userTeams.userId=:userId AND userTeams.teamId=:teamId"
+				};
+				const userTeamsResponse: UserTeams[] = await conn.query(queryOptions, { teamId, userId });
+				if (userTeamsResponse && userTeamsResponse.length > 0 && userTeamsResponse[0]) {
+					await conn.end();
+					return userTeamsResponse[0];
+				} else {
+					await conn.end();
+					return null;
+				}
+			} else {
 				return null;
+			}
 		} catch (e) {
 			console.error(e);
+			if(conn)
+				await conn.end();
 			return null;
 		}
 	}
-	
-	async getTimestampProduct(productId:number): Promise<Product | null> {
-		try{
-			const queryOptions:QueryOptions = {
-				namedPlaceholders:true,
-				sql: "SELECT products.timestamp FROM products WHERE products.productId=:productId"
-			};
-			const productResponse:Product[] = await this.conn.query(queryOptions,{productId});
-			if(productResponse[0])
-				return productResponse[0];
-			else
+
+	async getTimestampProduct(productId: string): Promise<Product | null> {
+		let conn:Connection | null = null;
+		try {
+			conn = await getPool().getConnection();
+			if(conn) {
+				const queryOptions: QueryOptions = {
+					namedPlaceholders: true,
+					sql: "SELECT products.timestamp FROM products WHERE products.productId=:productId"
+				};
+				const productResponse: Product[] = await conn.query(queryOptions, { productId });
+				if (productResponse && productResponse.length > 0 && productResponse[0]) {
+					await conn.end();
+					return productResponse[0];
+				} else {
+					await conn.end();
+					return null;
+				}
+			} else {
 				return null;
+			}
 		} catch (e) {
 			console.error(e);
+			if(conn)
+				await conn.end();
 			return null;
 		}
 	}
-	async getTeamByYearAndLocation(year: number, location:string, teamName:string): Promise<Team | null> {
-		try{
-			const queryOptions:QueryOptions = {
-				namedPlaceholders:true,
-				sql: "SELECT * FROM teams WHERE teams.year=:year AND teams.location=:location AND teams.teamName=:teamName"
-			};
-			const teamResponse:Team[] = await this.conn.query(queryOptions,{year, location, teamName});
-			if(teamResponse[0])
-				return teamResponse[0];
-			else
+	async getTeamByYearAndLocation(year: number, location: string, teamName: string): Promise<Team | null> {
+		let conn:Connection | null = null;
+		try {
+			conn = await getPool().getConnection();
+			if(conn) {
+				const queryOptions: QueryOptions = {
+					namedPlaceholders: true,
+					sql: "SELECT * FROM teams WHERE teams.year=:year AND teams.location=:location AND teams.teamName=:teamName"
+				};
+				const teamResponse: Team[] = await conn.query(queryOptions, { year, location, teamName });
+				if (teamResponse && teamResponse.length > 0 && teamResponse[0]) {
+					await conn.end();
+					return teamResponse[0];
+				} else {
+					await conn.end();
+					return null;
+				}
+			} else {
 				return null;
+			}
 		} catch (e) {
 			console.error(e);
+			if(conn)
+				await conn.end();
 			return null;
 		}
 	}
-	
-	async isTeamInDate(date:string, productId:number): Promise<boolean> {
-		try{
-			const queryOptions:QueryOptions = {
-				namedPlaceholders:true,
-				sql: ""
-			};
-			let response:Product[];
-			if(date === "may") {
-				queryOptions.sql="SELECT * FROM products WHERE products.productId=:productId JSON_EXTRACT(productDetails,'$.assessment20May') = 'Yes'"
-				response = await this.conn.query(queryOptions,{productId});
-			} else if(date === "oct") {
-				queryOptions.sql="SELECT * FROM products WHERE products.productId=:productId JSON_EXTRACT(productDetails,'$.assessment20May') = 'Yes' AND JSON_EXTRACT(productDetails,'$.assessment12Oct') = 'Yes'"
-				response = await this.conn.query(queryOptions,{productId});
-			} else if(date === "none") {
-				return true;
+
+	async isTeamInDate(date: string, productId: string): Promise<boolean> {
+		let conn:Connection | null = null;
+		try {
+			conn = await getPool().getConnection();
+			if(conn) {
+				const queryOptions: QueryOptions = {
+					namedPlaceholders: true,
+					sql: ""
+				};
+				let response: Product[];
+				if (date === "may") {
+					queryOptions.sql = "SELECT * FROM products WHERE products.productId=:productId JSON_EXTRACT(productDetails,'$.assessment20May') = 'Yes'"
+					response = await conn.query(queryOptions, { productId });
+				} else if (date === "oct") {
+					queryOptions.sql = "SELECT * FROM products WHERE products.productId=:productId JSON_EXTRACT(productDetails,'$.assessment20May') = 'Yes' AND JSON_EXTRACT(productDetails,'$.assessment12Oct') = 'Yes'"
+					response = await conn.query(queryOptions, { productId });
+				} else if (date === "none") {
+					await conn.end();
+					return true;
+				} else {
+					await conn.end();
+					return false;
+				}
+				if (response && response.length > 0 && response[0]) {
+					await conn.end();
+					return true;
+				} else {
+					await conn.end();
+					return false;
+				}
 			} else {
 				return false;
 			}
-			if(response[0])
-				return true;
-			else
-				return false;
 		} catch (e) {
 			console.error(e);
+			if(conn)
+				await conn.end();
 			return false;
 		}
 	}
-	async getUsersByTeamId(teamId: number): Promise<(User & UserTeams)[]> {
-		try{
-			const queryOptions:QueryOptions = {
-				namedPlaceholders:true,
-				nestTables:"_",
-				sql: "SELECT userTeams.*, users.* FROM userTeams INNER JOIN users ON users.userId=userTeams.userId WHERE userTeams.teamId=:teamId"
-			};
-			const teamResponse:(User & UserTeams) [] = await this.conn.query(queryOptions,{teamId});
-			if(teamResponse.length > 0)
-				return teamResponse;
-			else
+	async getUsersByTeamId(teamId: string): Promise<(User & UserTeams)[]> {
+		let conn:Connection | null = null;
+		try {
+			conn = await getPool().getConnection();
+			if(conn) {
+				const queryOptions: QueryOptions = {
+					namedPlaceholders: true,
+					nestTables: "_",
+					sql: "SELECT userTeams.userProductId, userTeams.teamId, users.* FROM userTeams INNER JOIN users ON users.userId=userTeams.userId WHERE userTeams.teamId=:teamId"
+				};
+				const teamResponse: (User & UserTeams)[] = await conn.query(queryOptions, { teamId });
+				if (teamResponse && teamResponse.length > 0) {
+					await conn.end();
+					return teamResponse;
+				} else {
+					await conn.end();
+					return [];
+				}
+			} else {
 				return [];
+			}
 		} catch (e) {
 			console.error(e);
+			if(conn)
+				await conn.end();
 			return [];
 		}
 	}
 
-	async getProductByTeamId(teamId: number): Promise<Product | null> {
-		try{
-			const teamById: Team | null = await this.getTeamById(teamId);
-			if(teamById) {
-				const queryOptions:QueryOptions = {
-					namedPlaceholders:true,
-					sql: "SELECT * FROM products WHERE products.productId=:productId"
-				};
-				const teamResponse:Product [] = await this.conn.query(queryOptions,{productId:teamById.productId});
-				if(teamResponse[0])
-					return teamResponse[0];
-				else
+	async getProductByTeamId(teamId: string): Promise<Product | null> {
+		let conn:Connection | null = null;
+		try {
+			conn = await getPool().getConnection();
+			if(conn) {
+				const teamById: Team | null = await this.getTeamById(teamId);
+				if (teamById) {
+					const queryOptions: QueryOptions = {
+						namedPlaceholders: true,
+						sql: "SELECT * FROM products WHERE products.productId=:productId"
+					};
+					const teamResponse: Product[] = await conn.query(queryOptions, { productId: teamById.productId });
+					if (teamResponse && teamResponse.length > 0 && teamResponse[0]){
+						await conn.end();
+						return teamResponse[0];
+					} else {
+						await conn.end();
+						return null;
+					}
+				} else {
 					return null;
+				}
 			} else {
 				return null;
 			}
 		} catch (e) {
 			console.log("getProductByTeamId");
 			console.error(e);
+			if(conn)
+				await conn.end();
 			return null;
 		}
 	}
-	async getTeamAndProductByMentorId(mentorId: number): Promise<(Team & Product)[]> {
-		try{
-			const queryOptions:QueryOptions = {
-				namedPlaceholders:true,
-				nestTables:"_",
-				sql: "SELECT teams.*, products.* FROM teams INNER JOIN products ON teams.productId=products.productId AND products.mentorId=:mentorId"
-			};
-			const teamResponse:(Team & Product)[] = await this.conn.query(queryOptions,{mentorId});
-			console.log(teamResponse);
-			if(teamResponse.length > 0)
-				return teamResponse;
-			else
+	async getTeamAndProductByMentorId(mentorId: string): Promise<(Team & Product)[]> {
+		let conn:Connection | null = null;
+		try {
+			conn = await getPool().getConnection();
+			if(conn) {
+				const queryOptions: QueryOptions = {
+					namedPlaceholders: true,
+					nestTables: "_",
+					sql: "SELECT teams.teamId, teams.teamName, teams.teamDetails, teams.location, teams.year, products.* FROM teams INNER JOIN products ON teams.productId=products.productId AND products.mentorId=:mentorId"
+				};
+				const teamResponse: (Team & Product)[] = await conn.query(queryOptions, { mentorId });
+				if (teamResponse && teamResponse.length > 0) {
+					await conn.end();
+					return teamResponse;
+				} else {
+					await conn.end();
+					return [];
+				}
+			} else {
 				return [];
-		} catch(error) {
+			}
+		} catch (error) {
 			console.error(error);
+			if(conn)
+				await conn.end();
 			return [];
 		}
 	}
-	async getTeamByMentorId(mentorId: number): Promise<(Team & Product)[]> {
-		try{
-			const queryOptions:QueryOptions = {
-				namedPlaceholders:true,
-				nestTables:"_",
-				sql: "SELECT teams.* FROM teams INNER JOIN products ON products.productId=teams.productId WHERE products.mentorId=:mentorId"
-			};
-			const teamResponse:(Team & Product)[] = await this.conn.query(queryOptions,{mentorId});
-			if(teamResponse.length > 0)
-				return teamResponse;
-			else
+	async getTeamByMentorId(mentorId: string): Promise<(Team & Product)[]> {
+		let conn:Connection | null = null;
+		try {
+			conn = await getPool().getConnection();
+			if(conn) {
+				const queryOptions: QueryOptions = {
+					namedPlaceholders: true,
+					nestTables: "_",
+					sql: "SELECT teams.* FROM teams INNER JOIN products ON products.productId=teams.productId WHERE products.mentorId=:mentorId"
+				};
+				const teamResponse: (Team & Product)[] = await conn.query(queryOptions, { mentorId });
+				if (teamResponse && teamResponse.length > 0) {
+					await conn.end();
+					return teamResponse;
+				} else {
+					await conn.end();
+					return [];
+				}
+			} else {
 				return [];
-		} catch(error) {
+			}
+		} catch (error) {
 			console.error(error);
+			if(conn)
+				await conn.end();
 			return [];
 		}
 	}
-	async getProductByMentorId(mentorId: number): Promise<Product[]> {
-		try{
-			const queryOptions:QueryOptions = {
-				namedPlaceholders:true,
-				sql: "SELECT * FROM products WHERE mentorId=:mentorId"
-			};
-			const teamResponse:Product[] = await this.conn.query(queryOptions,{mentorId});
-			if(teamResponse.length > 0)
-				return teamResponse;
-			else
+	async getProductByMentorId(mentorId: string): Promise<Product[]> {
+		let conn:Connection | null = null;
+		try {
+			conn = await getPool().getConnection();
+			if(conn) {
+				const queryOptions: QueryOptions = {
+					namedPlaceholders: true,
+					sql: "SELECT * FROM products WHERE mentorId=:mentorId"
+				};
+				const productResponse: Product[] = await conn.query(queryOptions, { mentorId });
+				if (productResponse && productResponse.length > 0) {
+					await conn.end();
+					return productResponse;
+				} else {
+					await conn.end();
+					return [];
+				}
+			} else {
 				return [];
-		} catch(error) {
+			}
+		} catch (error) {
 			console.error(error);
+			if(conn)
+				await conn.end();
 			return [];
 		}
 	}
 	async updateProduct(product: Product): Promise<Product | null> {
-		try{
-			const queryOptions:QueryOptions = {
-				namedPlaceholders:true,
-				sql: "UPDATE products SET startupName=:startupName, businessTrack=:businessTrack, teamType=:teamType, workshopDay=:workshopDay, mentorId=:mentorId, descriptionEN=:descriptionEN, descriptionRO=:descriptionRO, pendingDescriptionEN=:pendingDescriptionEN, pendingDescriptionRO=:pendingDescriptionRO, productDetails=:productdetails, updatedAt=:updatedAt, lastMentorUpdate=:lastMentorUpdate WHERE productId=:productId"
-			};
-			await this.conn.query(queryOptions,product);
-			queryOptions.sql = "SELECT * FROM products WHERE productId=:productId";
-			const teamResponse:Product[] = await this.conn.query(queryOptions,{productId:product.productId});
-			if(teamResponse[0])
-				return teamResponse[0];
-			else
+		let conn:Connection | null = null;
+		try {
+			conn = await getPool().getConnection();
+			if(conn) {
+				await conn.beginTransaction();
+				const queryOptions: QueryOptions = {
+					namedPlaceholders: true,
+					sql: "UPDATE products SET startupName=:startupName, businessTrack=:businessTrack, teamType=:teamType, workshopDay=:workshopDay, mentorId=:mentorId, descriptionEN=:descriptionEN, descriptionRO=:descriptionRO, pendingDescriptionEN=:pendingDescriptionEN, pendingDescriptionRO=:pendingDescriptionRO, productDetails=:productdetails, updatedAt=:updatedAt, lastMentorUpdate=:lastMentorUpdate WHERE productId=:productId RETURNING productId, startupName, businessTrack, teamType, workshopDay, mentorId, descriptionEN, descriptionRO, pendingDescriptionEN, pendingDescriptionRO, productDetails, updatedAt, lastMentorUpdate"
+				};
+				const teamResponse: Product[] = await conn.query(queryOptions, product);
+				if (teamResponse && teamResponse.length > 0 && teamResponse[0]) {
+					await conn.commit();
+					await conn.end();
+					return teamResponse[0];
+				} else {
+					await conn.rollback();
+					await conn.end();
+					return null;
+				}
+			} else {
 				return null;
-		} catch(error) {
+			}
+		} catch (error) {
 			console.error(error);
+			if(conn) {
+				await conn.rollback();
+				await conn.end();
+			}
 			return null;
 		}
 	}
 	async updateTeam(team: Team): Promise<Team | null> {
-		try{
-			const queryOptions:QueryOptions = {
-				namedPlaceholders:true,
-				sql: "UPDATE teams SET productId=:productId, teamName=:teamName, teamDetails=:teamDetails, location=:location, year=:year, reproductId=:reproductId WHERE teamId=:teamId"
-			};
-			await this.conn.query(queryOptions,team);
-			queryOptions.sql = "SELECT * FROM teams WHERE teams.teamId=:teamId";
-			const teamResponse:Team[] = await this.conn.query(queryOptions,{teamId:team.teamId});
-			if(teamResponse[0])
-				return teamResponse[0];
-			else
+		let conn:Connection | null = null;
+		try {
+			conn = await getPool().getConnection();
+			if(conn) {
+				await conn.beginTransaction();
+				const queryOptions: QueryOptions = {
+					namedPlaceholders: true,
+					sql: "UPDATE teams SET productId=:productId, teamName=:teamName, teamDetails=:teamDetails, location=:location, year=:year, reproductId=:reproductId WHERE teamId=:teamId RETURNING teamId,productId,teamName,teamDetails,location,year"
+				};
+				const teamResponse: Team[] = await conn.query(queryOptions, team);
+				if (teamResponse && teamResponse.length > 0 && teamResponse[0]){
+					await conn.commit();
+					await conn.end();
+					return teamResponse[0];
+				} else {
+					await conn.rollback();
+					await conn.end();
+					return null;
+				}
+			} else {
 				return null;
-		} catch(error) {
+			}
+		} catch (error) {
 			console.error(error);
+			if(conn) {
+				await conn.rollback();
+				await conn.end();
+			}
 			return null;
 		}
 	}
-	async approveDescription(product:Product): Promise<Product | null> {
-		try{
-			if(product.pendingDescriptionEN !== "")
+	async approveDescription(product: Product): Promise<Product | null> {
+		try {
+			if (product.pendingDescriptionEN !== "")
 				product.descriptionEN = product.pendingDescriptionEN;
-			if(product.pendingDescriptionRO !== "")
+			if (product.pendingDescriptionRO !== "")
 				product.descriptionRO = product.pendingDescriptionRO;
 			product.pendingDescriptionEN = "";
 			product.pendingDescriptionRO = "";
 
 			const productResponse = await this.updateProduct(product);
-			if(productResponse)
+			if (productResponse)
 				return productResponse;
 			else
 				return null;
-		} catch(error) {
+		} catch (error) {
 			console.error(error);
 			return null;
 		}
 	}
-	async getUserActivity(userId: number, teamId: number): Promise<UserActivity[]> {
-		try{
-			const queryOptions:QueryOptions = {
-				namedPlaceholders:true,
-				sql: "SELECT * FROM userActivities WHERE userActivities.userId=:userId AND userActivities.teamId=:teamId"
-			};
-			const teamResponse:UserActivity[] = await this.conn.query(queryOptions,{userId, teamId});
-			if(teamResponse.length > 0)
-				return teamResponse;
-			else
+	async getUserActivity(userId: string, teamId: string): Promise<UserActivity[]> {
+		let conn:Connection | null = null;
+		try {
+			conn = await getPool().getConnection();
+			if(conn) {
+				const queryOptions: QueryOptions = {
+					namedPlaceholders: true,
+					sql: "SELECT * FROM userActivities WHERE userActivities.userId=:userId AND userActivities.teamId=:teamId"
+				};
+				const teamResponse: UserActivity[] = await conn.query(queryOptions, { userId, teamId });
+				if (teamResponse && teamResponse.length > 0) {
+					await conn.end();
+					return teamResponse;					
+				} else {
+					await conn.end();
+					return [];
+				}
+			} else {
 				return [];
-		} catch(error) {
+			}
+		} catch (error) {
 			console.error(error);
+			if(conn)
+				await conn.end();
 			return [];
 		}
 	}
 
 	async addActivityForUser(userActivity: UserActivity): Promise<UserActivity | null> {
-		try{
-			const queryOptions:QueryOptions = {
-				namedPlaceholders:true,
-				sql: "SELECT * FROM userActivities WHERE userId=:userId AND teamId=:teamId AND (WEEK(date, 7)=WEEK(CURDATE(), 7) OR WEEK(date, 7)=(WEEK(CURDATE(), 7)-1)) AND WEEK(date, 7)=WEEK(:date, 7)"
-			};
-			const activityResponse:UserActivity[] = await this.conn.query(queryOptions,userActivity);
-			if(activityResponse[0])
-				return null;
-			else {
-				queryOptions.sql = "INSERT INTO userActivities (userId,teamId,noOfHours,date,description) VALUES(:userId,:teamId,:noOfHours,:date,:description)";
-				await this.conn.query(queryOptions,userActivity);
-				queryOptions.sql="SELECT LAST_INSERT_ID()";
-				const id:{"LAST_INSERT_ID()":number}[] = await this.conn.query(queryOptions);
-				queryOptions.sql="SELECT * FROM userActivities WHERE userActivities.activityId=:id"
-				const activity:UserActivity[] = await this.conn.query(queryOptions,{id:id[0]["LAST_INSERT_ID()"]});
-				if(activity[0]) {
-					return activity[0];
-				} else {
+		let conn:Connection | null = null;
+		try {
+			conn = await getPool().getConnection();
+			if(conn) {
+				await conn.beginTransaction();
+				const queryOptions: QueryOptions = {
+					namedPlaceholders: true,
+					sql: "SELECT * FROM userActivities WHERE userId=:userId AND teamId=:teamId AND (WEEK(date, 7)=WEEK(CURDATE(), 7) OR WEEK(date, 7)=(WEEK(CURDATE(), 7)-1)) AND WEEK(date, 7)=WEEK(:date, 7)"
+				};
+				const activityResponse: UserActivity[] = await conn.query(queryOptions, userActivity);
+				if (activityResponse && activityResponse.length > 0 && activityResponse[0]) {
+					await conn.rollback();
+					await conn.end();
 					return null;
+				} else {
+					queryOptions.sql = "INSERT INTO userActivities (activityId,userId,teamId,noOfHours,date,description) VALUES(:activityId,:userId,:teamId,:noOfHours,:date,:description) RETURNING activityId,userId,teamId,noOfHours,date,description";
+					const activity: UserActivity[] = await conn.query(queryOptions, userActivity);;
+					if (activity && activity.length > 0 && activity[0]) {
+						await conn.commit();
+						await conn.end();
+						return activity[0];
+					} else {
+						await conn.rollback();
+						await conn.end();
+						return null;
+					}
 				}
+			} else {
+				return null;
 			}
-		} catch(error) {
+		} catch (error) {
 			console.error(error);
+			if(conn) {
+				await conn.rollback();
+				await conn.end();
+			}
 			return null;
 		}
 	}
 
 	async modifyActivityForUser(userActivity: UserActivity): Promise<UserActivity | null> {
-		try{
-			const queryOptions:QueryOptions = {
-				namedPlaceholders:true,
-				sql: "SELECT * FROM userActivities WHERE userId=:userId AND teamId=:teamId AND (WEEK(date, 7)=WEEK(CURDATE(), 7) OR WEEK(date, 7)=(WEEK(CURDATE(), 7)-1)) AND WEEK(date, 7)=WEEK(:date, 7)"
-			};
-			const activityResponse:UserActivity[] = await this.conn.query(queryOptions,{userActivity});
-			if(activityResponse[0]){
-				queryOptions.sql = "UPDATE userActivities SET userId=:userId, teamId=:teamId, noOfHours=:noOfHours, date=:date, description=:description";
-				await this.conn.query(queryOptions,{userActivity});
-				queryOptions.sql="SELECT * FROM userActivities WHERE activityId=:activityId";
-				const activity:UserActivity[] = await this.conn.query(queryOptions,{activityId:userActivity.activityId});
-				if(activity[0]) {
-					return activity[0];
+		let conn:Connection | null = null;
+		try {
+			conn = await getPool().getConnection();
+			if(conn) {
+				await conn.beginTransaction();
+				const queryOptions: QueryOptions = {
+					namedPlaceholders: true,
+					sql: "SELECT * FROM userActivities WHERE userId=:userId AND teamId=:teamId AND (WEEK(date, 7)=WEEK(CURDATE(), 7) OR WEEK(date, 7)=(WEEK(CURDATE(), 7)-1)) AND WEEK(date, 7)=WEEK(:date, 7)"
+				};
+				const activityResponse: UserActivity[] = await conn.query(queryOptions, { userActivity });
+				if (activityResponse && activityResponse.length > 0 && activityResponse[0]) {
+					queryOptions.sql = "UPDATE userActivities SET userId=:userId, teamId=:teamId, noOfHours=:noOfHours, date=:date, description=:description RETURNING activityId,userId,teamId,noOfHours,date,description";
+					const activity: UserActivity[] = await conn.query(queryOptions, { userActivity });
+					if (activity && activity.length > 0 && activity[0]) {
+						await conn.commit();
+						await conn.end();
+						return activity[0];
+					} else {
+						await conn.rollback();
+						await conn.end();
+						return null;
+					}
 				} else {
+					await conn.rollback();
+					await conn.end();
 					return null;
 				}
-			}
-			else {
+			} else {
 				return null;
 			}
-		} catch(error) {
+		} catch (error) {
 			console.error(error);
+			if(conn) {
+				await conn.rollback();
+				await conn.end();
+			}
 			return null;
 		}
 	}
 	async updateActivity(userActivity: UserActivity): Promise<UserActivity | null> {
+		let conn:Connection | null = null;
 		try {
-			const queryOptions:QueryOptions = {
-				namedPlaceholders:true,
-				sql:"UPDATE userActivities SET userId=:userId, teamId=:teamId, noOfHours=:noOfHours, date=:date, description=:description"
-			}; 
-			await this.conn.query(queryOptions,{userActivity});
-			queryOptions.sql="SELECT * FROM userActivities WHERE userActivities.activityId=:activityId";
-			const activity:UserActivity[] = await this.conn.query(queryOptions,{activityId:userActivity.activityId});
-			if(activity[0]) {
-				return activity[0];
+			conn = await getPool().getConnection();
+			if(conn) {
+				await conn.beginTransaction();
+				const queryOptions: QueryOptions = {
+					namedPlaceholders: true,
+					sql: "UPDATE userActivities SET userId=:userId, teamId=:teamId, noOfHours=:noOfHours, date=:date, description=:description RETURNING activityId,userId,teamId,noOfHours,date,description"
+				};
+				const activity: UserActivity[] = await conn.query(queryOptions, { userActivity });
+				if (activity && activity.length > 0 && activity[0]) {
+					await conn.commit();
+					await conn.end();
+					return activity[0];
+				} else {
+					await conn.rollback();
+					await conn.end();
+					return null;
+				}
 			} else {
 				return null;
 			}
 		} catch (e) {
 			console.error(e);
+			if(conn) {
+				await conn.rollback();
+				await conn.end();
+			}
 			return null;
 		}
 	}
-	async updateUserTeamDetails(userTeam: UserTeams):Promise<UserTeams | null> {
+	async updateUserTeamDetails(userTeam: UserTeams): Promise<UserTeams | null> {
+		let conn:Connection | null = null;
 		try {
-			const queryOptions:QueryOptions = {
-				namedPlaceholders:true,
-				sql:"UPDATE userTeams SET userId=:userId, teamId=:teamId, role=:role"
-			}; 
-			await this.conn.query(queryOptions,{userTeam});
-			queryOptions.sql="SELECT * FROM userTeams WHERE userProductId=:userProductId";
-			const activity:UserTeams[] = await this.conn.query(queryOptions,{userProductId:userTeam.userProductId});
-			if(activity[0]) {
-				return activity[0];
+			conn = await getPool().getConnection();
+			if(conn) {
+				await conn.beginTransaction();
+				const queryOptions: QueryOptions = {
+					namedPlaceholders: true,
+					sql: "UPDATE userTeams SET userId=:userId, teamId=:teamId, role=:role RETURNING userProductId,teamId,userId,role"
+				};
+				const activity: UserTeams[] = await conn.query(queryOptions, { userTeam });
+				if (activity && activity.length > 0 && activity[0]) {
+					await conn.commit();
+					await conn.end();
+					return activity[0];
+				} else {
+					await conn.rollback();
+					await conn.end();
+					return null;
+				}
 			} else {
 				return null;
 			}
 		} catch (e) {
 			console.error(e);
+			if(conn) {
+				await conn.rollback();
+				await conn.end();
+			}
 			return null;
 		}
 	}
 
-	public static getInstance (): TeamsServer
-	{
-		if (!this.INSTANCE)
-		{
-			this.INSTANCE = new TeamsServer ();
+	public static getInstance(): TeamsServer {
+		if (!this.INSTANCE) {
+			this.INSTANCE = new TeamsServer();
 		}
 		return this.INSTANCE;
 	}
@@ -677,224 +1017,224 @@ const router = Router();
 const teams = TeamsServer.getInstance();
 
 const authFunct = getAuthorizationFunction();
-if(authFunct)
+if (authFunct)
 	router.use(authFunct);
-	// Bypass params dictionary and send authorization Function
+// Bypass params dictionary and send authorization Function
 
-router.get("/teams:userId", async(req:ApiRequest<undefined>, res:ApiResponse<Team[]>) => {
+router.get("/teams:userId", async (req: ApiRequest<undefined>, res: ApiResponse<Team[]>) => {
 	try {
-		const all_teams: Team[] = await teams.getUserTeams(parseInt(req.params.userId));
-		if(all_teams)
+		const all_teams: Team[] = await teams.getUserTeams(req.params.userId);
+		if (all_teams)
 			res.send(all_teams);
-		else 
-			res.status(204).send({err: 204, data:[]});
+		else
+			res.status(204).send({ err: 204, data: [] });
 	} catch (e) {
 		console.error(e);
-		res.status(500).send({err:500, data:[]});
+		res.status(500).send({ err: 500, data: [] });
 	}
 });
 // List all teams
-router.get("/mentor/teamsAndProduct/:mentorId", async(req:ApiRequest<undefined>, res:ApiResponse<(Team & Product)[]>) => {
+router.get("/mentor/teamsAndProduct/:mentorId", async (req: ApiRequest<undefined>, res: ApiResponse<(Team & Product)[]>) => {
 	try {
-		const allTeams: (Team & Product)[] = await teams.getTeamAndProductByMentorId(parseInt(req.params.mentorId));
-		if(allTeams)
+		const allTeams: (Team & Product)[] = await teams.getTeamAndProductByMentorId(req.params.mentorId);
+		if (allTeams)
 			res.status(200).send(allTeams);
 		else
 			res.status(204).send([])
 	} catch (e) {
 		console.error(e);
-		res.status(500).send({err: 500, data:[]});
+		res.status(500).send({ err: 500, data: [] });
 	}
 
 });
 
-router.get("/mentor/teams/:mentorId", async(req:ApiRequest<undefined>, res:ApiResponse<(Team & Product)[]>) => {
-	try { 
-		const allTeams: (Team & Product)[] = await teams.getTeamByMentorId(parseInt(req.params.mentorId));
-		if(allTeams)
+router.get("/mentor/teams/:mentorId", async (req: ApiRequest<undefined>, res: ApiResponse<(Team & Product)[]>) => {
+	try {
+		const allTeams: (Team & Product)[] = await teams.getTeamByMentorId(req.params.mentorId);
+		if (allTeams)
 			res.status(200).send(allTeams);
 		else
 			res.status(204).send([]);
 	} catch (e) {
 		console.error(e);
-		res.status(500).send({err: 500, data:[]});
+		res.status(500).send({ err: 500, data: [] });
 	}
 
 });
 
-router.get("/teams/demoDay", async(req:ApiRequest<undefined>, res:ApiResponse<number[]>) => {
-	try { 
-		const demoDayTeams: number[] = await teams.tempF();
-		if(demoDayTeams)
+router.get("/teams/demoDay", async (req: ApiRequest<undefined>, res: ApiResponse<number[]>) => {
+	try {
+		const demoDayTeams: string[] = await teams.tempF();
+		if (demoDayTeams)
 			res.status(200).send(demoDayTeams);
 		else
 			res.status(204).send([]);
 	} catch (e) {
 		console.error(e);
-		res.status(500).send({err: 500, data:[]});
+		res.status(500).send({ err: 500, data: [] });
 	}
 });
 
-router.get("/team/:teamId", async(req:ApiRequest<undefined>, res:ApiResponse<Team | null>) => {
+router.get("/team/:teamId", async (req: ApiRequest<undefined>, res: ApiResponse<Team | null>) => {
 	try {
-		const team: Team | null = await teams.getTeamById(parseInt(req.params.teamId));
-		if(team) 
+		const team: Team | null = await teams.getTeamById(req.params.teamId);
+		if (team)
 			res.status(200).send(team);
 		else
 			res.status(204).send(null);
 	} catch (e) {
 		console.error(e);
-		res.status(500).send({err: 500, data:null});
+		res.status(500).send({ err: 500, data: null });
 	}
 });
 
-router.get("/team/users/:teamId", async(req:ApiRequest<undefined>, res:ApiResponse<(User & UserTeams)[]>) => {
+router.get("/team/users/:teamId", async (req: ApiRequest<undefined>, res: ApiResponse<(User & UserTeams)[]>) => {
 	try {
-		const users: (User & UserTeams)[] = await teams.getUsersByTeamId(parseInt(req.params.teamId));
-		if(users) 
+		const users: (User & UserTeams)[] = await teams.getUsersByTeamId(req.params.teamId);
+		if (users)
 			res.status(200).send(users);
 		else
 			res.status(204).send([]);
 	} catch (e) {
 		console.error(e);
-		res.status(500).send({err:500, data:[]});
+		res.status(500).send({ err: 500, data: [] });
 	}
 
 });
 
-router.post("/team/activity", async(req:ApiRequest<{userId:number,teamId:number}>, res:ApiResponse<UserActivity[]>) => {
+router.post("/team/activity", async (req: ApiRequest<{ userId: string, teamId: string }>, res: ApiResponse<UserActivity[]>) => {
 	try {
 		const userActivities: UserActivity[] = await teams.getUserActivity(req.body.userId, req.body.teamId);
-		if(userActivities) 
+		if (userActivities)
 			res.status(200).send(userActivities);
 		else
 			res.status(204).send([]);
 	} catch (e) {
 		console.error(e);
-		res.status(500).send({err: 500, data:[]});
+		res.status(500).send({ err: 500, data: [] });
 	}
 });
-router.post("/team/activity/update", async(req:ApiRequest<UserActivity>, res:ApiResponse<UserActivity | null>) =>{
+router.post("/team/activity/update", async (req: ApiRequest<UserActivity>, res: ApiResponse<UserActivity | null>) => {
 	try {
 		const userActivity: UserActivity | null = await teams.updateActivity(req.body);
-		if(userActivity) 
+		if (userActivity)
 			res.status(200).send(userActivity);
 		else
 			res.status(204).send(null);
 	} catch (e) {
 		console.error(e);
-		res.status(500).send({err: 500, data:null});
+		res.status(500).send({ err: 500, data: null });
 	}
 });
-router.post("/team/remove/users", async(req:ApiRequest<{users:(User&UserTeams)[],teamId:number}>, res:ApiResponse<boolean>) => {
+router.post("/team/remove/users", async (req: ApiRequest<{ users: (User & UserTeams)[], teamId: string }>, res: ApiResponse<boolean>) => {
 	try {
-		const toRemove = req.body.users;
+		const toRemove: (User & UserTeams)[] = req.body.users;
 		const teamId = req.body.teamId;
 		let r = false;
-		for(const user of toRemove) {
-			if(user.userId === undefined) 
-				user.userId = user.teamId;
-			r = await teams.deleteUserFromTeam(user,{teamId:teamId} as Team);
-			if(!r){
+		for (const user of toRemove) {
+			if (user && !user.userId)
+				(user.userId as string) = user.teamId;
+			r = await teams.deleteUserFromTeam(user, { teamId: teamId } as Team);
+			if (!r) {
 				break;
 			}
 		}
-		if(r)
+		if (r)
 			res.status(200).send(true);
 		else
 			res.status(204).send(false);
 	} catch (e) {
 		console.error(e);
-		res.status(500).send({err:500,data:false});
+		res.status(500).send({ err: 500, data: false });
 	}
 });
-router.post("/team/add/users", async(req:ApiRequest<{users:(User&UserTeams)[],teamId:number}>, res:ApiResponse<boolean>) => {
-	try{
+router.post("/team/add/users", async (req: ApiRequest<{ users: (User & UserTeams)[], teamId: string }>, res: ApiResponse<boolean>) => {
+	try {
 		const toAdd = req.body.users;
 		const teamId = req.body.teamId;
-		let userTeam:UserTeams | null = null;
-		for(const user of toAdd) {
-			if(user.userId === undefined) 
+		let userTeam: UserTeams | null = null;
+		for (const user of toAdd) {
+			if (user.userId === undefined)
 				user.userId = user.userId;
-			userTeam = await teams.addUserToTeam({userId:user.userId} as User,{teamId:teamId} as Team, "");
-			if(userTeam === null) {
+			userTeam = await teams.addUserToTeam(user, { teamId: teamId } as Team, "");
+			if (userTeam === null) {
 				break;
 			}
 		}
-		if(userTeam)
+		if (userTeam)
 			res.status(200).send(true);
 		else
 			res.status(204).send(false);
 	} catch (e) {
 		console.error(e);
-		res.status(500).send({err: 500,data:false});
-	} 
+		res.status(500).send({ err: 500, data: false });
+	}
 });
 
-router.post("/product", async(req:ApiRequest<{team:Team,product:Product}>, res:ApiResponse<(Team & Product) | null>) => {
+router.post("/product", async (req: ApiRequest<{ team: Team, product: Product }>, res: ApiResponse<(Team & Product) | null>) => {
 	try {
 		const newProduct: (Team & Product) | null = await teams.addTeam(req.body.team, req.body.product);
-		if(newProduct) 
+		if (newProduct)
 			res.status(200).send(newProduct);
 		else
 			res.status(204).send(null);
 	} catch (e) {
 		console.error(e);
-		res.status(500).send({err: 500, data:null});
+		res.status(500).send({ err: 500, data: null });
 	}
 });
 
-router.get("/product/:teamId", async(req:ApiRequest<undefined>, res:ApiResponse<Product | null>) => {
-	try { 
-		const product: Product | null = await teams.getProductByTeamId(parseInt(req.params.teamId));
-		if(product) 
+router.get("/product/:teamId", async (req: ApiRequest<undefined>, res: ApiResponse<Product | null>) => {
+	try {
+		const product: Product | null = await teams.getProductByTeamId(req.params.teamId);
+		if (product)
 			res.status(200).send(product);
 		else
 			res.status(204).send(null);
 	} catch (e) {
 		console.error(e);
-		res.status(500).send({err: 500, data:null});
+		res.status(500).send({ err: 500, data: null });
 	}
 });
 
-router.post ("/product/approve/description", async(req:ApiRequest<Product>, res:ApiResponse<Product | null>) => {
+router.post("/product/approve/description", async (req: ApiRequest<Product>, res: ApiResponse<Product | null>) => {
 	try {
-		const product:Product = req.body;
-		if(product.pendingDescriptionEN.trim() == "") {
+		const product: Product = req.body;
+		if (product.pendingDescriptionEN.trim() == "") {
 			product.pendingDescriptionEN = product.descriptionEN;
 		}
-		if(product.pendingDescriptionRO.trim() == "") {
+		if (product.pendingDescriptionRO.trim() == "") {
 			product.pendingDescriptionRO = product.descriptionRO;
 		}
-		if(product) {
+		if (product) {
 			const response = await teams.approveDescription(product);
-			if(response)
+			if (response)
 				res.status(200).send(response);
 			else
 				res.status(204).send(null);
-		} else 
+		} else
 			res.status(204).send(null);
 	} catch (e) {
 		console.error(e);
-		res.status(500).send({err: 500, data:null});
+		res.status(500).send({ err: 500, data: null });
 	}
-	
+
 });
 
-router.post("/product/update", async(req:ApiRequest<{teamId:number,product:Product}>, res:ApiResponse<Product | null>) => {
+router.post("/product/update", async (req: ApiRequest<{ teamId: string, product: Product }>, res: ApiResponse<Product | null>) => {
 	try {
 		const product: Product = req.body.product;
-		const teamId: number = req.body.teamId;
-		if(req.body.product) {
+		const teamId: string = req.body.teamId;
+		if (req.body.product) {
 			const team: Team | null = await teams.getTeamById(teamId);
-			if(team) {
+			if (team) {
 				team.teamName = product.startupName;
-				const newTeam:	Team | null = await teams.updateTeam(team);
-				if(newTeam) {
+				const newTeam: Team | null = await teams.updateTeam(team);
+				if (newTeam) {
 					const newProduct: Product | null = await teams.updateProduct(product);
-					if(newProduct)
+					if (newProduct)
 						res.status(200).send(newProduct);
-					else 
+					else
 						res.status(204).send(null);
 				} else {
 					res.status(204).send(null);
@@ -907,9 +1247,9 @@ router.post("/product/update", async(req:ApiRequest<{teamId:number,product:Produ
 			res.status(204).send(null);
 	} catch (e) {
 		console.error(e);
-		res.status(500).send({err: 500, data:null});
+		res.status(500).send({ err: 500, data: null });
 	}
 });
 
-const server = Server.getInstance ();
-server.registerRouterAPI (1, router, "/teams");
+const server = Server.getInstance();
+server.registerRouterAPI(1, router, "/teams");

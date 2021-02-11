@@ -114,7 +114,7 @@ export default Vue.extend({
 			async handler (newTeam: Team):Promise<void> {
 				if(this.currentTeam) {
 					this.teamId = newTeam.teamId;
-					if(this.teamId === 0) {
+					if(this.teamId === "") {
 						if(this.$route.path!=="/workspace")
 							this.$router.push("/workspace");
 					} else {
@@ -138,7 +138,7 @@ export default Vue.extend({
 			async handler (newUser: User):Promise<void> {
 				if(this.user) {
 					this.userId = newUser.userId;
-					if(this.userId === 0) {
+					if(this.userId === "") {
 						if(this.$route.path!=="/workspace")
 							this.$router.push("/workspace");
 					} else {
@@ -183,8 +183,8 @@ export default Vue.extend({
 			ui: UI.getInstance(),
 			loadingPage:false,
 			activities:[] as UserActivity[],
-			teamId:0 as number,
-			userId:0 as number,
+			teamId:"",
+			userId:"",
 			date: Date(),
 			//date:"2020-03-15T22:00:00.000Z",
 			edited:null as UserActivity | null,

@@ -13,7 +13,7 @@ import { SnackBarOptions, SnackBarTypes, SimpleMenuOptions } from "@startupway/m
 import { User } from "../../common";
 import { mapGetters } from "vuex";
 enum MenuOptions {
-	MY_ACCOUNT, LOGOUT
+	MY_ACCOUNT = "1", LOGOUT = "2"
 };
 
 export default Vue.extend({
@@ -94,7 +94,7 @@ export default Vue.extend({
 		}),
 	},
 	methods: {
-		async click (id: number):Promise<void> {
+		async click (id: string):Promise<void> {
 			if (id === MenuOptions.LOGOUT) {
 				try {
 					await this.ui.storeDispatch ('users/logout', {});

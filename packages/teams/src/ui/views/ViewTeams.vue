@@ -72,14 +72,14 @@ export default Vue.extend({
 			async handler(newRoute):Promise<void> {
 				const component:string = this.$route.params.component;
 
-				if(this.selectedTeam !== parseInt(this.$route.params.teamId,10)) {
-					this.selectedTeam = parseInt(this.$route.params.teamId,10);
+				if(this.selectedTeam !== this.$route.params.teamId) {
+					this.selectedTeam = this.$route.params.teamId;
 					console.log(this.selectedTeam);
 					try {
 						if(await this.getUsers(this.selectedTeam))
 							await this.getAllUsers();
 						this.teamId = this.selectedTeam;
-						const found = this.viewTeams.find ( (team: {value:number,name:string}) => team.value === this.selectedTeam);
+						const found = this.viewTeams.find ( (team: {value:string,name:string}) => team.value === this.selectedTeam);
 						if(found !== undefined) {
 							this.team = found.name;
 						}
@@ -92,10 +92,10 @@ export default Vue.extend({
 		},
 		mentoredTeam: {
 			immediate:true,
-			async handler(newTeam:number):Promise<void> {
+			async handler(newTeam:string):Promise<void> {
 				if(this.mentoredTeams.length > 0){
 					this.selectedMentoredTeam = this.mentoredTeams.find( team => {
-						return team.teamId == newTeam;
+						return team.teamId === newTeam;
 					});
 					this.id = newTeam;
 				}
@@ -120,8 +120,7 @@ export default Vue.extend({
 			immediate: true,
 			async handler(newUser: User):Promise<void> {
 				if(newUser) {
-					const role = JSON.parse(this.user.role);
-					if(role["Admin"] || role["SuperAdmin"]) {
+					if(newUser.role === "Admin" || newUser.role === "SuperAdmin") {
 						try {
 							this.location = newUser.userDetails["location"];
 							const response = await this.ui.api.get<Team[]>("/api/v1/admin/teams/");
@@ -132,7 +131,7 @@ export default Vue.extend({
 						} catch (e) {
 							console.error(e);
 						}
-					} else if (role["Mentor"]) {
+					} else if (newUser.role === "Mentor") {
 						try {
 							this.location = newUser.userDetails["location"];
 							const response = await this.ui.api.get<(Team&Product)[]>("/api/v1/teams/mentor/teams/" + newUser.userId);
@@ -144,17 +143,12 @@ export default Vue.extend({
 							console.error(e);
 						}
 					}
-					if(role["Mentor"] !== undefined || role["Admin"] !== undefined || role["SuperAdmin"] !== undefined) {
+					if(newUser.role === "Mentor" || newUser.role === "Admin" || newUser.role === "SuperAdmin") {
 						if(this.tabs.length > 0) {
 							this.tabs = [];
 						}
-						if (role["Admin"] || role["SuperAdmin"]) {
-							if(role["Admin"])
-								this.role="Admin";
-							else
-								this.role="SuperAdmin"
-						} else if(role["Mentor"]) {
-							this.role="Mentor";
+						this.role = newUser.role;
+						if(newUser.role === "Mentor") {
 							await this.ui.api.get("/api/v1/teams/mentor/teams/" + newUser.userId);
 							
 						}
@@ -256,18 +250,18 @@ export default Vue.extend({
 			router:false,
 			mentoredTeams:[] as (Team & Product)[],
 			selectedMentoredTeam: undefined as (Team & Product) | Team | undefined,
-			id:0 as number,
+			id:"",
 			tabs: [] as {key:number,title:string,icon:string,link:string}[],
 			type: "",
 			location:"",
 			component:"",
-			teamId: 0 as number,
-			userId: 0 as number,
+			teamId: "",
+			userId: "",
 			teams: [] as Team[] | (Team & Product)[],
 			team: "" as string,
 			product:null as Product | null,
-			viewTeams: [] as {name:string,value:number}[],
-			selectedTeam: 0 as number,
+			viewTeams: [] as {name:string,value:string}[],
+			selectedTeam: "",
 			selected: {} as User,
 			users: [] as (User&UserTeams)[] | User[],
 			allUsers: [] as (User&UserTeams)[] | User[],
@@ -285,14 +279,14 @@ export default Vue.extend({
 			}
 		},
 		changeRoute(link:string):void {
-			if((this.role==="Mentor" || this.role==="Admin" || this.role ==="SuperAdmin") && this.selectedTeam !== 0 && link.split("/")[1] === "viewTeam") {
+			if((this.role==="Mentor" || this.role==="Admin" || this.role ==="SuperAdmin") && this.selectedTeam !== "" && link.split("/")[1] === "viewTeam") {
 				this.$router.push(link + "/" + this.selectedTeam);
 			}
 			else
 				if(this.$route.path !== "/workspace")
 					this.$router.push("/workspace");
 		},
-		async getUsers(teamId: number):Promise<boolean> {
+		async getUsers(teamId: string):Promise<boolean> {
 			try {
 				const response = await this.ui.api.get("/api/v1/teams/team/users/" + teamId);
 				if (response) {
@@ -343,16 +337,6 @@ export default Vue.extend({
 					(user as (User & {faculty:string, group:string})).group = user.userDetails["group"];
 				} else {
 					(user as (User & {faculty:string, group:string})).group = "";
-				}
-				if (user.role) {
-					const roleObj = user.role;
-					for (const prop in roleObj) {
-						if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
-							// as any to overwrite property from {"Role_Name":true} to "Role_Name" for visualizing in frontend
-							(user.role as any) = prop;
-							break;
-						}
-					}
 				}
 			}
 			return users;

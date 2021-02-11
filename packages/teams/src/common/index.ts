@@ -42,9 +42,9 @@ export enum WorkshopDay {
 }
 
 export interface UserActivity {
-	activityId:number,
-	userId:number,
-	teamId:number,
+	activityId:string,
+	userId:string,
+	teamId:string,
 	noOfHours:number,
 	date: Date,
 	description:string
@@ -60,8 +60,8 @@ export interface TeamDetails
 }
 
 export interface Team {
-    teamId: number,
-    productId: number,
+    teamId: string,
+    productId: string,
     teamName: string,
 	teamDetails: TeamDetails,
 	location:string,
@@ -70,19 +70,19 @@ export interface Team {
 }
 
 export interface UserTeams {
-    userProductId: number,
-    teamId: number,
-    userId: number,
+    userProductId: string,
+    teamId: string,
+    userId: string,
     role: string
 }
 
 export interface Product {
-	productId: number,
+	productId: string,
 	startupName: string,
 	businessTrack: BusinessTrack,
     teamType: TeamType,
     workshopDay: WorkshopDay,
-    mentorId: number,
+    mentorId: string,
     descriptionEN: string,
     descriptionRO: string,
     pendingDescriptionEN: string,

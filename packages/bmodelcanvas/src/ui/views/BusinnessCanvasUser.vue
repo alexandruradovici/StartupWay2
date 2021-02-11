@@ -233,10 +233,11 @@
 import Vue from "vue";
 import { mapGetters } from "vuex";
 import { UI } from "@startupway/main/lib/ui";
-// import { Team, Product} from "../";
+import { Team, Product} from "@startupway/teams/lib/ui";
 import { BModelCanvas, CanvasField } from "../../common";
+import { v4 as uiidv4 } from 'uuid';
 export default Vue.extend({
-	name: "BusinnessCanvas",
+	name: "BusinnessCanvasUser",
 	async mounted() {
 		try {
 			await this.ui.storeDispatch("teams/loadProduct", this.teamId);
@@ -251,30 +252,31 @@ export default Vue.extend({
 	watch: {
 		currentTeam: {
 			immediate: true,
-			// type any because teams plugin depends on canvas plugin. Teams type is located in teams plugin. => cycle dependency
-			async handler(newTeam: any):Promise<void> {
+			async handler(newTeam: Team | null):Promise<void> {
+				if(newTeam) {
 				this.teamId = newTeam.teamId;
-				if (this.teamId === 0) {
-					if(this.$route.path!=="/workspace")
-						this.$router.push("/workspace");
-				} else {
-					try {
-						await this.ui.storeDispatch("teams/loadProduct", this.teamId);
-						let response = await this.ui.api.get<BModelCanvas[]>("/api/v1/canvas/" + this.teamId);
-						if (response.data) {
-							this.canvases = response.data;
+					if (this.teamId === "") {
+						if(this.$route.path!=="/workspace")
+							this.$router.push("/workspace");
+					} else {
+						try {
+							await this.ui.storeDispatch("teams/loadProduct", this.teamId);
+							let response = await this.ui.api.get<BModelCanvas[]>("/api/v1/canvas/" + this.teamId);
+							if (response.data) {
+								this.canvases = response.data;
+							}
+						} catch (e) {
+							console.error(e);
 						}
-					} catch (e) {
-						console.error(e);
 					}
 				}
 			}
 		},
 		product: {
 			immediate: true,
-			// type any because teams plugin depends on canvas plugin. product type is located in teams plugin. => cycle dependency
-			handler(newProduct: any):void {
-				this.productId = newProduct.productId;
+			handler(newProduct: Product | null):void {
+				if(newProduct)
+					this.productId = newProduct.productId;
 			}
 		},
 		canvases: {
@@ -296,8 +298,7 @@ export default Vue.extend({
 					this.revenue = this.canvas.fields["Revenue Streams"];
 				} else {
 					this.canvas = {
-						// as any because modelId:numebr not modleId:number | null -> needs to be autoIncremented
-						modelId: (null as any),
+						modelId: uiidv4(),
 						productId: this.productId,
 						date: new Date(),
 						fields: {
@@ -333,8 +334,8 @@ export default Vue.extend({
 			lengthRules: [(v: string | null) => (v || '' ).length <= 250 || 'Description must be 250 characters or less'],
 			loadingPage:false,
 			edit: false as boolean,
-			teamId: 0 as number,
-			productId: 0 as number,
+			teamId: "",
+			productId: "",
 			canvas: {} as BModelCanvas,
 			canvases: [] as BModelCanvas[],
 			problem: "" as string,
@@ -416,13 +417,11 @@ export default Vue.extend({
 				console.error(e);
 			}
 			try {
-				// using any because Product is in teams plugin and teams depends on canvas plugin
-				let product = await this.ui.api.get<any | null>("/api/v1/teams/product/" + this.teamId);
+				let product = await this.ui.api.get<Product | null>("/api/v1/teams/product/" + this.teamId);
 				if(product.data) {
 					product.data.updatedAt = (this.formatDate(new Date()) as unknown as Date) ;
 					try {
-						// using any because Product is in teams plugin and teams depends on canvas plugin
-						await this.ui.api.post<any | null>("/api/v1/teams/product/update", {
+						await this.ui.api.post<Product | null>("/api/v1/teams/product/update", {
 							product: product.data,
 							upload: "",
 							ext: ".pptx",

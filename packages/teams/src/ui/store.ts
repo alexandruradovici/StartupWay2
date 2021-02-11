@@ -5,7 +5,7 @@ import { UI } from "@startupway/main/lib/ui";;
 
 export interface TeamsState {
 	currentTeam: Team | null,
-	mentoredTeam: number | null,
+	mentoredTeam: string | null,
 	teams:Team[],
 	product: Product | null
 	
@@ -28,7 +28,7 @@ export default function teamsStore () {
 			product: (state:TeamsState) => state.product,
 		},
 		mutations: {
-			selectTeam(state:TeamsState, teamId:number):void {
+			selectTeam(state:TeamsState, teamId:string):void {
 				for(const team of state.teams) {
 					if (team.teamId === teamId) {
 						state.currentTeam = team;
@@ -37,7 +37,7 @@ export default function teamsStore () {
 				}
 				state.currentTeam = null;
 			},
-			mentorTeam(state:TeamsState, teamId:number):void {
+			mentorTeam(state:TeamsState, teamId:string):void {
 				state.mentoredTeam = teamId;
 			},
 			setTeams(state:TeamsState, newTeams:Team[]):void {
@@ -48,13 +48,13 @@ export default function teamsStore () {
 			},
 		},
 		actions: {
-			selectTeam (store, teamId: number):void {
+			selectTeam (store, teamId: string):void {
 				store.commit ("selectTeam", teamId);
 			},
-			mentorTeam (store, teamId: number):void {
+			mentorTeam (store, teamId: string):void {
 				store.commit ("mentorTeam", teamId);
 			},
-			async loadTeams(store, userId:number):Promise<void> {
+			async loadTeams(store, userId:string):Promise<void> {
 				// TODO load teams from server\
 				let newTeams:Team[] = [];
 				try {
@@ -80,7 +80,7 @@ export default function teamsStore () {
  				store.commit("setProduct", newProduct)
 				return true;
 			},
-			async updateProduct(store, data:{product:Product, upload:string, ext:string, teamId:number}):Promise<boolean> {
+			async updateProduct(store, data:{product:Product, upload:string, ext:string, teamId:string}):Promise<boolean> {
 				let updateResponse;
 				try {
 					updateResponse = await ui.api.post<Product | null>("/api/v1/teams/product/update", 

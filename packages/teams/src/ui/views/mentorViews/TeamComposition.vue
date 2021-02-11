@@ -210,7 +210,7 @@ import Vue from "vue";
 import { mapGetters } from "vuex";
 import moment from "moment";
 import { Team, Product, UserActivity, VisualUser } from "../../../common";
-import { User, UserTeams, universities, Roles } from "@startupway/users/lib/ui";
+import { User, UserTeams, universities } from "@startupway/users/lib/ui";
 import { SnackBarOptions, SnackBarTypes } from "@startupway/menu/lib/ui";
 import { UI } from '@startupway/main/lib/ui';
 export default Vue.extend({
@@ -219,7 +219,7 @@ export default Vue.extend({
 		$route:{
 			immediate:true,
 			async handler(newRoute):Promise<void>  {
-				this.teamId = parseInt(this.$route.params.teamId);
+				this.teamId = this.$route.params.teamId;
 				try {
 					const r = await this.getUsers(this.teamId)
 					if(r) {
@@ -238,8 +238,7 @@ export default Vue.extend({
 			immediate: true,
 			async handler(newUser: User):Promise<void>  {
 				if(newUser) {
-					const role = JSON.parse(this.user.role);
-					if(role["Admin"] || role["SuperAdmin"]) {
+					if(newUser.role === "Admin" || newUser.role === "SuperAdmin") {
 						try {
 							this.location = newUser.userDetails["location"];
 							const response = await this.ui.api.get<Team[]>("/api/v1/admin/teams/");
@@ -249,7 +248,7 @@ export default Vue.extend({
 						} catch (e) {
 							console.error(e);
 						}
-					} else if (role["Mentor"]) {
+					} else if (newUser.role === "Mentor") {
 						try {
 							this.location = newUser.userDetails["location"];
 							const response = await this.ui.api.get<(Team & Product)[]>("/api/v1/teams/mentor/teams/" + newUser.userId);
@@ -304,7 +303,7 @@ export default Vue.extend({
 			location: "" as string,
 			users: [] as User[] | (User&UserTeams)[],
 			allUsers: [] as User[] | (User&UserTeams)[],
-			teamId: 0,
+			teamId: "",
 			item: {} as (User&UserTeams&VisualUser),
 			dialog:false,
 			universities:universities,
@@ -358,7 +357,7 @@ export default Vue.extend({
 			}
 			return false;
 		},
-		async getUsers(teamId: number):Promise<boolean>  {
+		async getUsers(teamId: string):Promise<boolean>  {
 			try {
 				const response = await this.ui.api.get<(User&UserTeams)[]>(
 					"/api/v1/teams/team/users/" + teamId
@@ -448,17 +447,6 @@ export default Vue.extend({
 					(user as User & VisualUser).transport = "";
 				}
 
-				if (user.role) {
-					const roleObj = user.role;
-					for (const prop in roleObj) {
-						if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
-							// as any to overwrite property from {"Role_Name":true} to "Role_Name" for visualizing in frontend
-							(user.role as any) = prop;
-							break;
-						}
-					}
-				}
-
 				if(user.avatarUu !== "" && user.avatarUu !== undefined && user.avatarUu !== null){
 					(user as User & VisualUser).image = await this.getUserImage(user.avatarUu, user.userId);
 				} else {
@@ -502,9 +490,7 @@ export default Vue.extend({
 				socialMedia: this.item.socialMedia,
 				birthDate: this.item.birthDate,
 				userDetails: userDetails,
-				role: {
-					[this.item.role]:true,
-				} as (Roles & string)
+				role: this.item.role
 			};
 			const userTeam:UserTeams = {
 				userProductId:this.item.userProductId,
@@ -520,9 +506,9 @@ export default Vue.extend({
 				});
 				if(response.status === 200) {
 					this.item = {
-						userId: 0,
-						userProductId: 0,
-						teamId: 0,
+						userId: "",
+						userProductId: "",
+						teamId: "",
 						firstName: "",
 						lastName: "",
 						password: "",
@@ -534,7 +520,7 @@ export default Vue.extend({
 						userDetails: {
 							details: ""
 						},
-						role: ({} as Roles & string),
+						role: "",
 						avatarUu: "",
 						lastLogin: new Date(),
 						faculty:"",
@@ -572,9 +558,9 @@ export default Vue.extend({
 		},
 		exitDialog():void {
 			this.item = {
-				userId: 0,
-				userProductId: 0,
-				teamId: 0,
+				userId: "",
+				userProductId: "",
+				teamId: "",
 				firstName: "",
 				lastName: "",
 				password: "",
@@ -586,7 +572,7 @@ export default Vue.extend({
 				userDetails: {
 					details: ""
 				},
-				role: ({} as Roles & string),
+				role: "",
 				avatarUu: "",
 				lastLogin: new Date(),
 				faculty:"",
@@ -624,8 +610,7 @@ export default Vue.extend({
 		async createUser():Promise<void> {
 			this.loadingPage = true;
 			try {
-				const role = {};
-				(role as Roles)[this.createRole]=true;
+				const role = this.createRole;
 				const user = {
 					firstName: this.createFirstName,
 					lastName:this.createLastName,
@@ -775,9 +760,9 @@ export default Vue.extend({
 			this.toRemove = [];
 			this.loadingPage = false;
 		},
-		async getUserImage(avatar:string,userId:number):Promise<string> {
+		async getUserImage(avatar:string,userId:string):Promise<string> {
 			if(avatar !== "" && avatar !== null) {
-				if(userId !== 0) {
+				if(userId !== "") {
 					try {
 						const response = await this.ui.api.post<string | null>("/api/v1/uploadDownload/get/file/user/avatar", {userId:userId});
 						if(response.data) {
@@ -812,7 +797,7 @@ export default Vue.extend({
 			this.snackbar = prop;
 		},
 		async refreshLists():Promise<boolean> {
-				this.teamId = parseInt(this.$route.params.teamId);
+				this.teamId = this.$route.params.teamId;
 				try {
 					if(await this.getUsers(this.teamId))
 						if(await this.getAllUsers())

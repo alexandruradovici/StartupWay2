@@ -1,6 +1,6 @@
 export interface UploadDownloadLink {
 	uuid:string,
-    productId:number,
+    productId:string,
     fileType:string,
     extension:string,
     uploadTime: Date
@@ -9,7 +9,7 @@ export interface UploadDownloadLink {
 
 export interface video
 {
-    productId:number,
+    productId:string,
     uuid:string,
     data:string,
     ext:string,

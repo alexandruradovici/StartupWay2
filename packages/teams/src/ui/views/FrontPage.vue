@@ -49,7 +49,6 @@ import Vue from "vue";
 import moment from "moment";
 import { mapGetters } from "vuex";
 import { UI } from "@startupway/main/lib/ui";
-import { Feed } from "@startupway/feed/lib/ui";
 import { User } from "@startupway/users/lib/ui"
 import { Team, Product } from "../../common";
 export default Vue.extend({
@@ -57,13 +56,13 @@ export default Vue.extend({
 	data() {
 		return {
 			ui:UI.getInstance(),
-			teamId: 0 as Number,
+			teamId: "",
 			role:false,
 			userMenu:{
 				title:"",
 				subtitle:""
 			},
-			productUpdates:[] as Feed[],
+			// productUpdates:[] as Feed[],
 		};
 	},
 	watch: {
@@ -106,12 +105,6 @@ export default Vue.extend({
 				}
 			}
 		},
-		feed: {
-			immediate: true,
-			handler(newFeed: Feed[]):void {
-				this.productUpdates = newFeed;
-			}
-		}
 	},
 	computed: {
 		...mapGetters({

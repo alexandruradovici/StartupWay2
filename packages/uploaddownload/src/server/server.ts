@@ -17,20 +17,6 @@ import { TeamsServer } from "@startupway/teams/lib/server";
 export class UploadDownloadServer {
 
 	private static INSTANCE?: UploadDownloadServer;
-	private conn:Connection;
-	
-
-	constructor() {
-		const that = this;
-		getPool().getConnection()
-		.then(conn => {
-			console.log("Connected to database");
-			that.conn = conn;
-		})
-		.catch(err => {
-			console.log("Not connected due to error: " + err);
-		})
-	}
 
 	private static zips:{[key:string]:jszip | null} = {
 		"all_uploads_arhive_none":null,
@@ -60,180 +46,243 @@ export class UploadDownloadServer {
 		return year + "-" + month + "-" + day;
 	}
 	async checkZipsDB():Promise<boolean> {
+		let conn:Connection | null = null;
 		try {
-			const queryOptions:QueryOptions = {
-				sql: "SELECT uploadDownload.* FROM uploadDownload where uploadDownload.productId=:productId"
-			}
-			let links = await this.conn.query(queryOptions, {productId:7051998});
-			if(links.length > 0) {
-				for(const link of links) {
-					if(link.uuid !== '') {
-						if(UploadDownloadServer.zips[link.uuid] === undefined) {
-							UploadDownloadServer.zips[link.uuid] = null;
+			conn = await getPool().getConnection();
+			if(conn) {
+				const queryOptions:QueryOptions = {
+					sql: "SELECT uploadDownload.* FROM uploadDownload where uploadDownload.productId=:productId"
+				}
+				let links = await conn.query(queryOptions, {productId:"7051998"});
+				if(links.length > 0) {
+					for(const link of links) {
+						if(link.uuid !== '') {
+							if(UploadDownloadServer.zips[link.uuid] === undefined) {
+								UploadDownloadServer.zips[link.uuid] = null;
+							}
 						}
 					}
 				}
+				await conn.end();
+				return true;
+			} else {
+				return false;
 			}
-			return true;
 		} catch (e) {
 			console.error(e);
+			if(conn) {
+				await conn.end();
+			}
 			return false;
 		}
 	}
 	async addLink(uploadDownloadLink:UploadDownloadLink): Promise<UploadDownloadLink | null> {
+		let conn:Connection | null = null;
 		try {
-			if(uploadDownloadLink.uuid === "") {
-				const uuid= uiidv4();
-				uploadDownloadLink.uuid = uuid;
-			}
-			const queryOptions:QueryOptions = {
-				namedPlaceholders:true,
-				sql: `INSERT INTO uploadDownload (uuid,productId,fileType,extension,uploadTime) values(:uuid,:productId,:fileType,:extension,:uploadTime)`
-			}
-			await this.conn.query(queryOptions, uploadDownloadLink);
-			queryOptions.sql = "SELECT * FROM uploadDownload where uuid=:uuid";
-			const newLink = await this.conn.query(queryOptions,{uuid:uploadDownloadLink.uuid});
-			if(newLink[0] !== undefined)
-				return newLink;
-			else 
+			conn = await getPool().getConnection();
+			if(conn) {
+				await conn.beginTransaction();
+				if(uploadDownloadLink.uuid === "") {
+					const uuid= uiidv4();
+					uploadDownloadLink.uuid = uuid;
+				}
+				const queryOptions:QueryOptions = {
+					namedPlaceholders:true,
+					sql: `INSERT INTO uploadDownload (uuid,productId,fileType,extension,uploadTime) values(:uuid,:productId,:fileType,:extension,:uploadTime) RETURNING uuid,productId,fileType,extension,uploadTime`
+				}
+				const response:UploadDownloadLink[] = await conn.query(queryOptions, uploadDownloadLink);
+				if(response && response.length > 0 && response[0]){
+					await conn.commit();
+					await conn.end();
+					return response[0];
+				} else {
+					await conn.rollback();
+					await conn.end();
+					return null;
+				}
+			} else {
 				return null;
+			}
 		} catch (e) {
 			console.error(e);
+			if(conn) {
+				await conn.rollback();
+				await conn.end();
+			}
 			return null;
 		}
 	}
 	async deleteLink(uuid:string): Promise<Boolean> {
-		// Keeping to see how we can revert a delete using pure sql
-		// await queryRunner.startTransaction();
-		// try {
-		// 	await queryRunner.manager.createQueryBuilder()
-		// 		.delete()
-		// 		.from("uploadDownload")
-		// 		.where("uploadDownload.uuid=:id", {id: uuid})
-		// 		.execute();
-		// 	await queryRunner.commitTransaction();
-		// } catch(err) {
-		// 	err = 1;
-		// 	await queryRunner.rollbackTransaction();
-		// 	return false;
-		// } finally {
-		// 	await queryRunner.release();
-		// 	if(err === 1) {
-		// 		return false;
-		// 	} else {
-		// 		return true;
-		// 	}
-		// }
+		let conn:Connection | null = null;
 		try {
-			const queryOptions:QueryOptions = {
-				namedPlaceholders:true,
-				sql: "DELETE FROM uploadDownload where uuid=:uuid"
+			conn = await getPool().getConnection();
+			if(conn) {
+				await conn.beginTransaction();
+				const queryOptions:QueryOptions = {
+					namedPlaceholders:true,
+					sql: "DELETE FROM uploadDownload where uuid=:uuid RETURNING uuid as deleted_id"
+				}
+				const response:{deleted_id:string}[] = await conn.query(queryOptions,uuid);
+				if(response && response.length > 0 && response[0]) {
+					await conn.commit();
+					await conn.end();
+					return true;
+				} else {
+					await conn.rollback();
+					await conn.end();
+					return false;
+				}
+			} else {
+				return false;
 			}
-			await this.conn.query(queryOptions,uuid);
-			return true;
 		} catch (error) {
-			// TODO add uploadDownload back if failed
-			// await this.uploadDownload(user);
 			console.error(error);
+			if(conn) {
+				await conn.rollback();
+				await conn.end();
+			}
 			return false;
 		}
 	}
 	async getLinkByUuid(uuid:string): Promise<UploadDownloadLink | null> {
+		let conn:Connection | null = null;
 		try {
-			const queryOptions:QueryOptions = {
-				namedPlaceholders:true,
-				sql: "SELECT * FROM uploadDownload WHERE uuid=:uuid"
-			};
-			const uploadDownloadLink:UploadDownloadLink[] = await this.conn.query(queryOptions,{uuid}) as UploadDownloadLink[];
-			if(uploadDownloadLink.length > 0) {
-				if (uploadDownloadLink[0] !== undefined)
+			conn = await getPool().getConnection();
+			if(conn) {
+				const queryOptions:QueryOptions = {
+					namedPlaceholders:true,
+					sql: "SELECT * FROM uploadDownload WHERE uuid=:uuid"
+				};
+				const uploadDownloadLink:UploadDownloadLink[] = await conn.query(queryOptions,{uuid}) as UploadDownloadLink[];
+				if(uploadDownloadLink && uploadDownloadLink.length > 0 && uploadDownloadLink[0]) {
+					await conn.end();
 					return uploadDownloadLink[0];
-				else
+				} else {
+					await conn.end();
 					return null;
+				}
 			} else {
 				return null;
 			}
 		} catch (error) {
 			console.error(error);
+			if(conn) {
+				await conn.end();
+			}
 			return null;
 		}
 	}
 
 	async getLinksByProductIdAndFileType(productId:string, fileType:string): Promise<UploadDownloadLink[]> {
+		let conn:Connection | null = null;
 		try {
-			const queryOptions:QueryOptions = {
-				namedPlaceholders:true,
-				sql: "SELECT * FROM uploadDownload WHERE productId=:productId AND fileType=:fileType"
-			};
-			const uploadDownloadLinks:UploadDownloadLink[] = await this.conn.query(queryOptions,{productId,fileType}) as UploadDownloadLink[];
-			if(uploadDownloadLinks.length > 0) {
-				return uploadDownloadLinks;
+			conn = await getPool().getConnection();
+			if(conn) {
+				const queryOptions:QueryOptions = {
+					namedPlaceholders:true,
+					sql: "SELECT * FROM uploadDownload WHERE productId=:productId AND fileType=:fileType"
+				};
+				const uploadDownloadLinks:UploadDownloadLink[] = await conn.query(queryOptions,{productId,fileType}) as UploadDownloadLink[];
+				if(uploadDownloadLinks && uploadDownloadLinks.length > 0) {
+					await conn.end()
+					return uploadDownloadLinks;
+				} else {
+					await conn.end();
+					return [];
+				}
 			} else {
 				return [];
 			}
 		} catch (error) {
 			console.error(error);
+			if(conn) {
+				await conn.end();
+			}
 			return [];
 		}
 	}
 
 	async getLinksByProductId(productId:string, date:string): Promise<UploadDownloadLink[]> {
+		let conn:Connection | null = null;
 		try {
-			const queryOptions:QueryOptions = {
-				namedPlaceholders:true,
-				sql: ""
-			};
-			let links:UploadDownloadLink[] = [] as UploadDownloadLink[];
+			conn = await getPool().getConnection();
+			if(conn) {
+				const queryOptions:QueryOptions = {
+					namedPlaceholders:true,
+					sql: ""
+				};
+				let links:UploadDownloadLink[] = [];
 
-			if(date === "none") {
-				queryOptions.sql = "SELECT * FROM uploadDownload WHERE productId=:productId";
-				links = await this.conn.query(queryOptions,{productId}) as UploadDownloadLink[];
-			} else if(date === "may") {
-				queryOptions.nestTables="_";
-				queryOptions.sql = "SELECT uploadDownload.* products.* FROM uploadDownload INNER JOIN products ON products.productId = uploadDownload.productId AND JSON_EXTRACT(productDetails,'$.assessment20May') = 'Yes' WHERE uploadDownload.productId=:productId ";
-				links = await this.conn.query(queryOptions,{productId}) as UploadDownloadLink[];
-			} else if(date === "oct") {
-				queryOptions.nestTables="_";
-				queryOptions.sql = "SELECT uploadDownload.* products.* FROM uploadDownload INNER JOIN products ON products.productId = uploadDownload.productId AND JSON_EXTRACT(productDetails,'$.assessment20May') = 'Yes' AND JSON_EXTRACT(productDetails,'$.assessment12Oct') = 'Yes' WHERE uploadDownload.productId=:productId ";
-				links = await this.conn.query(queryOptions,{productId}) as UploadDownloadLink[];
-			}
-			
-			if(links)
-				return links;
-			else 
+				if(date === "none") {
+					queryOptions.sql = "SELECT * FROM uploadDownload WHERE productId=:productId";
+					links = await conn.query(queryOptions,{productId});
+				} else if(date === "may") {
+					queryOptions.nestTables="_";
+					queryOptions.sql = "SELECT uploadDownload.* products.* FROM uploadDownload INNER JOIN products ON products.productId = uploadDownload.productId AND JSON_EXTRACT(productDetails,'$.assessment20May') = 'Yes' WHERE uploadDownload.productId=:productId ";
+					links = await conn.query(queryOptions,{productId});
+				} else if(date === "oct") {
+					queryOptions.nestTables="_";
+					queryOptions.sql = "SELECT uploadDownload.* products.* FROM uploadDownload INNER JOIN products ON products.productId = uploadDownload.productId AND JSON_EXTRACT(productDetails,'$.assessment20May') = 'Yes' AND JSON_EXTRACT(productDetails,'$.assessment12Oct') = 'Yes' WHERE uploadDownload.productId=:productId ";
+					links = await conn.query(queryOptions,{productId});
+				}
+
+				if(links) {
+					await conn.end()
+					return links;
+				} else {
+					await conn.end()
+					return [];
+				}
+			} else {
 				return [];
+			}
 		} catch (e) {
 			console.error(e);
+			if(conn) {
+				await conn.end();
+			}
 			return [];
 		}
 	}
 
 	async getLinksByFileTypePass(fileType:string,date:string): Promise<UploadDownloadLink[]> {
+		let conn:Connection | null = null;
 		try {
-			const queryOptions:QueryOptions = {
-				namedPlaceholders:true,
-				nestTables:"_",
-				sql: ""
-			};
-			let links:UploadDownloadLink[] = [] as UploadDownloadLink[];
-
-			if(date === "none") {
-				queryOptions.sql = "SELECT uploadDownload.*, products.* FROM uploadDownload INNER JOIN products ON products.productId=uploadDownload.productId WHERE uploadDownload.fileType=:fileType";
-				links = await this.conn.query(queryOptions,{fileType}) as UploadDownloadLink[];
-			} else if(date === "may") {
-				queryOptions.sql = "SELECT uploadDownload.*, products.* FROM uploadDownload INNER JOIN products ON products.productId=uploadDownload.productId AND JSON_EXTRACT(productDetails,'$.assessment20May') = 'Yes' WHERE uploadDownload.fileType=:fileType";
-				links = await this.conn.query(queryOptions,{fileType}) as UploadDownloadLink[];
-			} else if(date === "oct") {
-				queryOptions.sql = "SELECT uploadDownload.*, products.* FROM uploadDownload INNER JOIN products ON products.productId=uploadDownload.productId AND JSON_EXTRACT(productDetails,'$.assessment20May') = 'Yes' AND JSON_EXTRACT(productDetails,'$.assessment12Oct') = 'Yes' WHERE uploadDownload.fileType=:fileType";
-				links = await this.conn.query(queryOptions,{fileType}) as UploadDownloadLink[];
-			}
-		
-			if(links)
-				return links;
-			else
+			conn = await getPool().getConnection();
+			if(conn) {
+				const queryOptions:QueryOptions = {
+					namedPlaceholders:true,
+					nestTables:"_",
+					sql: ""
+				};
+				let links:UploadDownloadLink[] = [];
+	
+				if(date === "none") {
+					queryOptions.sql = "SELECT uploadDownload.*, products.* FROM uploadDownload INNER JOIN products ON products.productId=uploadDownload.productId WHERE uploadDownload.fileType=:fileType";
+					links = await conn.query(queryOptions,{fileType});
+				} else if(date === "may") {
+					queryOptions.sql = "SELECT uploadDownload.*, products.* FROM uploadDownload INNER JOIN products ON products.productId=uploadDownload.productId AND JSON_EXTRACT(productDetails,'$.assessment20May') = 'Yes' WHERE uploadDownload.fileType=:fileType";
+					links = await conn.query(queryOptions,{fileType});
+				} else if(date === "oct") {
+					queryOptions.sql = "SELECT uploadDownload.*, products.* FROM uploadDownload INNER JOIN products ON products.productId=uploadDownload.productId AND JSON_EXTRACT(productDetails,'$.assessment20May') = 'Yes' AND JSON_EXTRACT(productDetails,'$.assessment12Oct') = 'Yes' WHERE uploadDownload.fileType=:fileType";
+					links = await conn.query(queryOptions,{fileType});
+				}
+			
+				if(links) {
+					await conn.end();
+					return links;
+				} else {
+					await conn.end();
+					return [];
+				}
+			} else {
 				return [];
+			}
 		} catch (e) {
 			console.error(e);
+			if(conn) {
+				await conn.end();
+			}
 			return [];
 		}
 	}
@@ -317,14 +366,14 @@ export class UploadDownloadServer {
 			return "";
 		}
 	}
-	async getS3Url(uuid:string, userId?:number): Promise<string> {
+	async getS3Url(uuid:string, userId?:string): Promise<string> {
 		try {
 			AWS.config.update({region: process.env.REGION, accessKeyId: process.env.AKEY, secretAccessKey: process.env.ASECRETKEY});
 			const s3 = new AWS.S3({
 				signatureVersion: 'v4',
 			});
 			let name = "";
-			if(userId !== undefined && userId !==0) {
+			if(userId !== undefined && userId !== "") {
 				const user = await users.getUserById(userId);
 				if(user)
 				name = user.username + "_profile_image.jpg"
@@ -406,7 +455,7 @@ export class UploadDownloadServer {
 		}
 	}
 
-	async generateZip(type:string,date:string,linkUuid:string,param?:string | number | number[], option?:string) {
+	async generateZip(type:string,date:string,linkUuid:string, option?:string,city?:string,team?:string|string[]) {
 		try {
 			UploadDownloadServer.zips[linkUuid] = new jszip;
 			let zip = UploadDownloadServer.zips[linkUuid];
@@ -438,7 +487,7 @@ export class UploadDownloadServer {
 						zip.folder(folder + "/Images");
 						zip.folder(folder + "/PowerPoint");
 						for(const link of links) {
-							if(prId !== 0 && product !== undefined) {
+							if(prId !== "" && product !== undefined) {
 								const date = uploadDownload.formatDate(link.uploadTime);
 								let name = "";
 								if(link.fileType === "demoVid") {
@@ -467,8 +516,8 @@ export class UploadDownloadServer {
 					}
 				}
 			} else {
-				if(typeof param === "string") {
-					const products = await teams.getTeamsByLocation(param);
+				if(city) {
+					const products = await teams.getTeamsByLocation(city);
 					for(const product of products) {
 						const prId = product.productId;
 						const links = await uploadDownload.getLinksByProductId(prId.toString(), date);
@@ -494,7 +543,7 @@ export class UploadDownloadServer {
 							zip.folder(product.teamName + "/Images");
 							zip.folder(product.teamName + "/PowerPoint");
 							for(const link of links) {
-								if(prId !== 0 && product !== undefined) {
+								if(prId !== "" && product !== undefined) {
 									const date = uploadDownload.formatDate(link.uploadTime);
 									let name = "";
 
@@ -525,20 +574,20 @@ export class UploadDownloadServer {
 						}
 					}
 
-				} else if (typeof param === "number") {
-					let links = await uploadDownload.getLinksByProductId(param.toString(), date);
-					const team = await teams.getTeamByProductId(param);
+				} else if (team && typeof team === "string") {
+					let links = await uploadDownload.getLinksByProductId(team, date);
+					const teamP = await teams.getTeamByProductId(team);
 					let users;
-					if(team)
-						users = await teams.getUsersByTeamId(team.teamId);
-					const d = await teams.isTeamInDate(date,param);
-					if(users && team)
+					if(teamP)
+						users = await teams.getUsersByTeamId(teamP.teamId);
+					const d = await teams.isTeamInDate(date,team);
+					if(users && teamP)
 					if(users.length !== 0 && d) {
 						for(const user of users) {
 							if(user)
 							if(user.avatarUu !== '' && user.avatarUu !== null) {
 								const obj:string = await uploadDownload.getS3Object(user.avatarUu);
-								let name = 'UserImages/'+team.location + "_" + team.teamName+'_profile_photo_'+user.firstName + "_" + user.lastName + '.png';
+								let name = 'UserImages/'+teamP.location + "_" + teamP.teamName+'_profile_photo_'+user.firstName + "_" + user.lastName + '.png';
 								if(obj !== "" && zip) {
 									zip.file(name, obj, {base64:true});
 								} else {
@@ -554,19 +603,19 @@ export class UploadDownloadServer {
 						zip.folder("PowerPoint");
 						for(const link of links) {
 							const product = await teams.getProductById(link.productId);
-							if(product && team) {
+							if(product && teamP) {
 								const date = uploadDownload.formatDate(link.uploadTime);
 								let name = "";
 								if(link.fileType === "demoVid") {
-									name = "Videos/"+team.location + "_" + product.startupName + "_tehnic_demo_video_" + date + "." + link.extension;
+									name = "Videos/"+teamP.location + "_" + product.startupName + "_tehnic_demo_video_" + date + "." + link.extension;
 								} else if(link.fileType ==="presVid") {
-									name = "Videos/"+team.location + "_" + product.startupName + "_products_presentation_video_" + date + "." + link.extension;
+									name = "Videos/"+teamP.location + "_" + product.startupName + "_products_presentation_video_" + date + "." + link.extension;
 								} else if(link.fileType ==="pres") {
-									name = "PowerPoint/"+team.location + "_" + product.startupName + "_powerpoint_presentation_" + date + "."  + link.extension;
+									name = "PowerPoint/"+teamP.location + "_" + product.startupName + "_powerpoint_presentation_" + date + "."  + link.extension;
 								} else if(link.fileType ==="image") {
-									name = "Images/"+team.location + "_" + product.startupName + "_products_image_"+ link.uuid[0] +link.uuid[1] + link.uuid[2] + "_" + date + "."  + link.extension;
+									name = "Images/"+teamP.location + "_" + product.startupName + "_products_image_"+ link.uuid[0] +link.uuid[1] + link.uuid[2] + "_" + date + "."  + link.extension;
 								} else if(link.fileType ==="logo") {
-									name = "Images/"+team.location + "_" + product.startupName + "_logo_" + date + "."  + link.extension;
+									name = "Images/"+teamP.location + "_" + product.startupName + "_logo_" + date + "."  + link.extension;
 								} else {
 									console.error('Unidentified link');
 								}
@@ -583,18 +632,18 @@ export class UploadDownloadServer {
 					} else {
 						console.error("No Files");
 					}
-				} else if (typeof param === "object" && typeof param[0] === "number") {
-					const teamsArr = await teams.getTeamsByIdList(param);
-					for(const team of teamsArr) {
-						const prId = team.productId;
-						const users = await teams.getUsersByTeamId(team.teamId);
+				} else if (team && typeof team === "object" && typeof team[0] === "string") {
+					const teamsArr = await teams.getTeamsByIdList(team);
+					for(const teamP of teamsArr) {
+						const prId = teamP.productId;
+						const users = await teams.getUsersByTeamId(teamP.teamId);
 						const d = await teams.isTeamInDate(date,prId);
 						if(users.length !== 0 && d && option === "everything") {
 							for(const user of users) {
 								if(user)
 								if(user.avatarUu !== '' && user.avatarUu !== null) {
 									const obj:string = await uploadDownload.getS3Object(user.avatarUu);
-									let name = team.teamName+'/UserImages/'+team.location + "_" + team.teamName+'_profile_photo_'+user.firstName + "_" + user.lastName + '.png';
+									let name = teamP.teamName+'/UserImages/'+teamP.location + "_" + teamP.teamName+'_profile_photo_'+user.firstName + "_" + user.lastName + '.png';
 									if(obj !== "" && zip) {
 										zip.file(name, obj, {base64:true});
 									} else {
@@ -610,41 +659,41 @@ export class UploadDownloadServer {
 							links = await uploadDownload.getLinksByProductId(prId.toString(), 'none');
 						if(links.length !== 0) {
 							if(option === "everything" && zip) {
-								zip.folder(team.teamName);
-								zip.folder(team.teamName + "/Videos");
-								zip.folder(team.teamName + "/Images");
-								zip.folder(team.teamName + "/PowerPoint");
+								zip.folder(teamP.teamName);
+								zip.folder(teamP.teamName + "/Videos");
+								zip.folder(teamP.teamName + "/Images");
+								zip.folder(teamP.teamName + "/PowerPoint");
 							}
 							for(const link of links) {
-								if(prId !== 0 && team !== undefined) {
+								if(prId !== "" && teamP !== undefined) {
 									const date = uploadDownload.formatDate(link.uploadTime);
 									let name = "";
 									
 									if(option === "everything") {
 										if(link.fileType === "demoVid") {
-											name = team.teamName+'/Videos/'+team.location + "_" + team.teamName + "_tehnic_demo_video_" + date + "." + link.extension;
+											name = teamP.teamName+'/Videos/'+teamP.location + "_" + teamP.teamName + "_tehnic_demo_video_" + date + "." + link.extension;
 										} else if(link.fileType ==="presVid") {
-											name = team.teamName+'/Videos/'+team.location + "_" + team.teamName + "_products_presentation_video_" + date + "." + link.extension;
+											name = teamP.teamName+'/Videos/'+teamP.location + "_" + teamP.teamName + "_products_presentation_video_" + date + "." + link.extension;
 										} else if(link.fileType ==="pres") {
-											name = team.teamName+'/PowerPoint/'+team.location + "_" + team.teamName + "_powerpoint_presentation_" + date + "."  + link.extension;
+											name = teamP.teamName+'/PowerPoint/'+teamP.location + "_" + teamP.teamName + "_powerpoint_presentation_" + date + "."  + link.extension;
 										} else if(link.fileType ==="image") {
-											name = team.teamName+'/Images/'+team.location + "_" + team.teamName + "_products_image_"+ link.uuid[0] +link.uuid[1] + link.uuid[2] + "_" + date + "."  + link.extension;
+											name = teamP.teamName+'/Images/'+teamP.location + "_" + teamP.teamName + "_products_image_"+ link.uuid[0] +link.uuid[1] + link.uuid[2] + "_" + date + "."  + link.extension;
 										} else if(link.fileType ==="logo") {
-											name = team.teamName+'/Images/'+team.location + "_" + team.teamName + "_logo_" + date + "."  + link.extension;
+											name = teamP.teamName+'/Images/'+teamP.location + "_" + teamP.teamName + "_logo_" + date + "."  + link.extension;
 										} else {
 											console.error('Unidentified link');
 										}
 									} else {
 										if(option === "demoVid") {
-											name = team.location + "_" + team.teamName + "_tehnic_demo_video_" + date + "." + link.extension;
+											name = teamP.location + "_" + teamP.teamName + "_tehnic_demo_video_" + date + "." + link.extension;
 										} else if(option ==="presVid") {
-											name = team.location + "_" + team.teamName + "_products_presentation_video_" + date + "." + link.extension;
+											name = teamP.location + "_" + teamP.teamName + "_products_presentation_video_" + date + "." + link.extension;
 										} else if(option ==="pres") {
-											name = team.location + "_" + team.teamName + "_powerpoint_presentation_" + date + "."  + link.extension;
+											name = teamP.location + "_" + teamP.teamName + "_powerpoint_presentation_" + date + "."  + link.extension;
 										} else if(option ==="image") {
-											name = team.location + "_" + team.teamName + "_products_image_"+ link.uuid[0] +link.uuid[1] + link.uuid[2] + "_" + date + "."  + link.extension;
+											name = teamP.location + "_" + teamP.teamName + "_products_image_"+ link.uuid[0] +link.uuid[1] + link.uuid[2] + "_" + date + "."  + link.extension;
 										} else if(option ==="logo") {
-											name = team.location + "_" + team.teamName + "_logo_" + date + "."  + link.extension;
+											name = teamP.location + "_" + teamP.teamName + "_logo_" + date + "."  + link.extension;
 										} else {
 											console.error('Unidentified link');
 										}
@@ -672,7 +721,7 @@ export class UploadDownloadServer {
 					await fs.writeFile(path.join("/tmp","NO_FILE.txt"),"NO_FILE");
 					const link:UploadDownloadLink = {
 						uuid:linkUuid,
-						productId:7051998,
+						productId:"7051998",
 						fileType:linkUuid+"_zip",
 						extension:".txt",
 						uploadTime: new Date()
@@ -694,7 +743,7 @@ export class UploadDownloadServer {
 						console.log("Trying to send zip");
 						const link:UploadDownloadLink = {
 							uuid:linkUuid,
-							productId:7051998,
+							productId:"7051998",
 							fileType:linkUuid+"_zip",
 							extension:".zip",
 							uploadTime: new Date()
@@ -725,7 +774,7 @@ export class UploadDownloadServer {
 		}
 
 	}
-	async checkZip(type:string, date:string, param?:string|number|number[], option?:string):Promise<void> {
+	async checkZip(type:string, date:string, option?:string, city?:string,team?:string|string[]):Promise<void> {
 		try {
 			let link:UploadDownloadLink | null = null;
 			if(link) null
@@ -734,15 +783,15 @@ export class UploadDownloadServer {
 				uuid = "all_uploads_arhive_" + date;
 				link = await uploadDownload.getLinkByUuid(uuid);
 			} else {
-				if(typeof param === "string") {
-					uuid = param + "_uploads_arhive_" + date;
+				if(city) {
+					uuid = city + "_uploads_arhive_" + date;
 					link = await uploadDownload.getLinkByUuid(uuid);
-				} else if(typeof param === "number") {
-					const product = await teams.getProductById(param);
+				} else if(typeof team === "string") {
+					const product = await teams.getProductById(team);
 					if(product)
 						uuid = product.startupName + "_uploads_arhive";
 					link = await uploadDownload.getLinkByUuid(uuid);
-				} else if(typeof param === "object" && typeof param[0] === "number") {
+				} else if(typeof team === "object" && typeof team[0] === "string") {
 					if(option !== undefined)
 						uuid = "demoday_uploads_arhive_" + option;
 					else 
@@ -755,11 +804,11 @@ export class UploadDownloadServer {
 				const newDate = new Date().getTime();
 				if(link.uuid === '' || newDate - oldDate >= 86400000) {
 					if(UploadDownloadServer.zips[uuid] === null) {
-						await uploadDownload.generateZip(type,date,uuid,param, option);
+						await uploadDownload.generateZip(type,date,uuid,option,city,team);
 						return;
 					} else if(UploadDownloadServer.zips[uuid] === undefined) {
 						UploadDownloadServer.zips[uuid] = null;
-						await uploadDownload.generateZip(type,date,uuid,param, option);
+						await uploadDownload.generateZip(type,date,uuid,option,city,team);
 						return;
 					}
 				}
@@ -770,7 +819,7 @@ export class UploadDownloadServer {
 		}
 	}
 
-	async getZip(type:string, date:string, param?:string|number, option?:string):Promise<string> {
+	async getZip(type:string, date:string,option?:string, city?:string, team?:string|string[]):Promise<string> {
 		try {
 			let link:UploadDownloadLink | null = null;
 			let uuid = '';
@@ -779,15 +828,15 @@ export class UploadDownloadServer {
 				link = await uploadDownload.getLinkByUuid(uuid);
 
 			} else {
-				if(typeof param === "string") {
-					uuid = param + "_uploads_arhive_" + date;
+				if(city) {
+					uuid = city + "_uploads_arhive_" + date;
 					link = await uploadDownload.getLinkByUuid(uuid);
-				} else if(typeof param === "number") {
-					const product = await teams.getProductById(param);
+				} else if(team && typeof team === "string") {
+					const product = await teams.getProductById(team);
 					if(product)
 						uuid = product.startupName + "_uploads_arhive";
 					link = await uploadDownload.getLinkByUuid(uuid);
-				} else if(typeof param === "object" ) {
+				} else if(typeof team === "object" && typeof team[0] === "string") {
 					if(option !== undefined)
 						uuid = "demoday_uploads_arhive_" + option;
 					else 
@@ -952,7 +1001,7 @@ router.get("/download/zip/:type/:date", async(req:ApiRequest<undefined>, res:Api
 
 				const link:UploadDownloadLink = {
 					uuid:type,
-					productId:7051998,
+					productId:"7051998",
 					fileType:type+"_zip",
 					extension:".zip",
 					uploadTime: new Date()
@@ -991,29 +1040,32 @@ router.get("/download/zip/:type/:date", async(req:ApiRequest<undefined>, res:Api
 	}
 });
 
-router.post("/download/zip/", async(req:ApiRequest<{type:string,date:string,cityOrTeam:string|number,option:string}>, res:ApiResponse<string | null>) => {
+router.post("/download/zip/", async(req:ApiRequest<{type:string,date:string,city:string,team:string|string[],option:string}>, res:ApiResponse<string | null>) => {
 	try {
 		const type = req.body.type;
 		const date = req.body.date;
 		/*either string (city) or number (productId) or nothing ('')*/
-		const cityOrTeam:string|number = req.body.cityOrTeam;
+		const team = req.body.team;
+		const city = req.body.city;
 		const option:string = req.body.option;
 		res.status(200).send('OK');
-		await uploadDownload.checkZip(type,date,cityOrTeam, option);
+
+		await uploadDownload.checkZip(type,date,option, city, team);
 	} catch (e) {
 		console.error(e);
 		res.status(500).send({err:500,data:null});
 	}
 });
 
-router.post("/check/zip/status/", async(req:ApiRequest<{type:string,date:string,cityOrTeam:string|number,option:string}>, res:ApiResponse<string | null>) => {
+router.post("/check/zip/status/", async(req:ApiRequest<{type:string,date:string,city:string,team:string|string[],option:string}>, res:ApiResponse<string | null>) => {
 	try {
 		const type = req.body.type;
 		const date = req.body.date;
 		/*either string (city) or number (productId) or nothing ('')*/
-		const cityOrTeam:string|number = req.body.cityOrTeam; 
+		const city = req.body.city;
+		const team = req.body.team;
 		const option:string = req.body.option;
-		const response = await uploadDownload.getZip(type,date,cityOrTeam, option);
+		const response = await uploadDownload.getZip(type,date,option,city,team);
 		if(response === "NOT_DONE") {
 			res.status(204).send(response);
 		} else if(response === "ERROR") {
@@ -1028,7 +1080,7 @@ router.post("/check/zip/status/", async(req:ApiRequest<{type:string,date:string,
 });
 
 
-router.post("/download/team/zip/:type/:date", async(req:ApiRequest<{type:string,date:string,productId:number,city:string}>, res:ApiResponse<string | null>) => {
+router.post("/download/team/zip/:type/:date", async(req:ApiRequest<{type:string,date:string,productId:string,city:string}>, res:ApiResponse<string | null>) => {
 	try {
 		const type = req.params.type;
 		const date = req.params.date;
@@ -1144,7 +1196,7 @@ router.post("/download/team/zip/:type/:date", async(req:ApiRequest<{type:string,
 						zip.folder(product.teamName + "/Images");
 						zip.folder(product.teamName + "/PowerPoint");
 						for(const link of links) {
-							if(prId !== 0 && product !== undefined) {
+							if(prId !== "" && product !== undefined) {
 								const date = uploadDownload.formatDate(link.uploadTime);
 								let name = "";
 
@@ -1207,7 +1259,7 @@ router.post("/download/team/zip/:type/:date", async(req:ApiRequest<{type:string,
 						zip.folder(folder + "/Images");
 						zip.folder(folder + "/PowerPoint");
 						for(const link of links) {
-							if(prId !== 0 && product !== undefined) {
+							if(prId !== "" && product !== undefined) {
 								const date = uploadDownload.formatDate(link.uploadTime);
 								let name = "";
 								if(link.fileType === "demoVid") {
@@ -1259,7 +1311,7 @@ router.post("/download/team/zip/:type/:date", async(req:ApiRequest<{type:string,
 				}
 				const link:UploadDownloadLink = {
 					uuid:linkUuid,
-					productId:7051998,
+					productId:"7051998",
 					fileType:linkUuid+"_zip",
 					extension:".zip",
 					uploadTime: new Date()
@@ -1330,7 +1382,7 @@ router.post("/download/team/zip/:type/:date", async(req:ApiRequest<{type:string,
 	}
 });
 
-router.post("/upload/file/chunk", async(req:ApiRequest<{finish:string,fileName:string,base64Encode:string,fileType:string,productId:number,ext:string}>, res:ApiResponse<boolean>) => {
+router.post("/upload/file/chunk", async(req:ApiRequest<{finish:string,fileName:string,base64Encode:string,fileType:string,productId:string,ext:string}>, res:ApiResponse<boolean>) => {
 	try{
 		const end = req.body.finish;
 		const fileName = req.body.fileName;
@@ -1487,11 +1539,11 @@ router.post("/upload/file/chunk", async(req:ApiRequest<{finish:string,fileName:s
 });
 
 
-router.post("/upload/file/user/avatar", async(req:ApiRequest<{base64Encode:string,userId:number}>, res:ApiResponse<boolean>) => {
+router.post("/upload/file/user/avatar", async(req:ApiRequest<{base64Encode:string,userId:string}>, res:ApiResponse<boolean>) => {
 	try {
 		const base64Encode = req.body.base64Encode;
 		const userId = req.body.userId;
-		if(base64Encode !== "" && base64Encode !== undefined && userId !== 0 && userId !== undefined) {
+		if(base64Encode !== "" && base64Encode !== undefined && userId !== "" && userId !== undefined) {
 			const uuid = uiidv4();
 			if(uuid!== "") {
 				const upload = await uploadDownload.addS3File(uuid, base64Encode, "base64");
@@ -1516,10 +1568,10 @@ router.post("/upload/file/user/avatar", async(req:ApiRequest<{base64Encode:strin
 		res.status(500).send({err:500,data:false});
 	}
 });
-router.post("/get/file/user/avatar/", async(req:ApiRequest<{userId:number}>, res:ApiResponse<string | null>) => {
+router.post("/get/file/user/avatar/", async(req:ApiRequest<{userId:string}>, res:ApiResponse<string | null>) => {
 	try {
 		const userId = req.body.userId;
-		if(userId !== 0 && userId !== undefined) {
+		if(userId !== "" && userId !== undefined) {
 			const user = await users.getUserById(userId);
 			let uuid;
 			if(user)

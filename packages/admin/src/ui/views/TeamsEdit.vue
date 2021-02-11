@@ -53,10 +53,10 @@ export default Vue.extend({
 			teams:[] as Team[],
 			viewTeams:[] as {
 				"name":string,
-				"value":number
+				"value":string
 			}[],
 			users:[] as (User & UserTeams)[],
-			selectedTeam:0 as number,
+			selectedTeam:"",
 			search:"",
 			headers: [
 				{
@@ -74,7 +74,7 @@ export default Vue.extend({
 	watch: {
 		selectedTeam: {
 			immediate:true,
-			async handler (newTeamId:number):Promise<void> {
+			async handler (newTeamId:string):Promise<void> {
 				try {
 					await this.getUsers(newTeamId);
 				} catch (e) {
@@ -85,7 +85,7 @@ export default Vue.extend({
 		user: {
 			immediate:true,
 			async handler (newUser:User):Promise<void>  {
-				if(newUser.role["SuperAdmin"] || newUser.role["Admin"]){
+				if(newUser.role === "SuperAdmin" || newUser.role === "Admin"){
 					try {
 						const response = await this.ui.api.get<(Team & Product)[]>("/api/v1/admin/teams/"+newUser.userDetails["location"]);
 						if(response) {
@@ -119,7 +119,7 @@ export default Vue.extend({
 		})
 	},
 	methods: {
-		async getUsers(teamId:number):Promise<void>{
+		async getUsers(teamId:string):Promise<void>{
 			try {
 				const response = await this.ui.api.get<(User & UserTeams)[]>("/api/v1/teams/team/users/" + teamId);
 				if(response) {
@@ -130,18 +130,18 @@ export default Vue.extend({
 			}
 		},
 		modifyUsers(users:(User & UserTeams)[]):(User & UserTeams)[] {
-			users.forEach(element => {
-				if(element.role){
-					const roleObj = element.role;
-					for(const prop in roleObj) {
-						if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
-							// as any to replace role: {"Role_name":true} with "Role_name"
-							(element.role as any) = prop;
-						}
-					}
-				}
+			// users.forEach(element => {
+			// 	if(element.role){
+			// 		const roleObj = element.role;
+			// 		for(const prop in roleObj) {
+			// 			if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
+			// 				// as any to replace role: {"Role_name":true} with "Role_name"
+			// 				(element.role as any) = prop;
+			// 			}
+			// 		}
+			// 	}
 				
-			});
+			// });
 			return users;
 		},
 	}

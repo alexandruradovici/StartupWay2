@@ -48,7 +48,7 @@ export default function usersStore ():Module<UsersState, RootState> {
 						password,
 						lastLogin: new Date()
 					});
-					if(r.data.sessionId === 0) {
+					if(r.data.sessionId === "") {
 						return r.data.token;
 					}
                     storeParam.commit ('token', r.data.token);

@@ -66,20 +66,19 @@ export default Vue.extend({
 	async mounted() {
 		await this.ui.storeDispatch("users/load", {});
 		if(this.user) {
-			const role = JSON.parse(this.user.role);
-			if(role["Mentor"]) {
+			if(this.user.role === "Mentor") {
 				this.role=false;
 				this.type="mentor";
-			} else if(role["Admin"]) {
+			} else if(this.user.role === "Admin") {
 				this.role=false;
 				this.type="admin";
-			} else if(role["SuperAdmin"]) {
+			} else if(this.user.role === "SuperAdmin") {
 				this.role=false;
 				this.type="superAdmin";
 			} else {
 				this.role=true;
 			}
-			if(role["Mentor"] !== undefined || role["Admin"] !== undefined || role["SuperAdmin"] !== undefined) {
+			if(this.user.role === "Mentor" || this.user.role === "Admin" || this.user.role === "SuperAdmin") {
 				if(this.tabs.length > 0) {
 					this.tabs = [];
 				}
@@ -164,14 +163,13 @@ export default Vue.extend({
 			immediate:true,
 			async handler(newRoute):Promise<void> {
 				if(newRoute.path === "/workspace") {
-					const role = JSON.parse(this.user.role);
-					if(role["Mentor"]) {
+					if(this.user.role === "Mentor") {
 						this.role=false;
 						this.type="mentor";
-					} else if(role["Admin"]) {
+					} else if(this.user.role === "Admin") {
 						this.role=false;
 						this.type="admin";
-					} else if(role["SuperAdmin"]) {
+					} else if(this.user.role === "SuperAdmin") {
 						this.role=false;
 						this.type="superAdmin";
 					} else {

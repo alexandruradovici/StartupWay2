@@ -484,7 +484,7 @@ export default Vue.extend({
 			immediate: true,
 			async handler(newTeam: Team):Promise<void> {
 				this.teamId = newTeam.teamId;
-				if (this.teamId === 0) {
+				if (this.teamId === "") {
 					if(this.$route.path!=="/workspace")
 						this.$router.push("/workspace");
 				} else {
@@ -499,7 +499,7 @@ export default Vue.extend({
 		product: {
 			immediate: false,
 			async handler(newProduct: Product):Promise<void> {
-				if(newProduct.productId !== undefined && newProduct.productId !== 0) {
+				if(newProduct.productId !== undefined && newProduct.productId !== "") {
 					this.productId = newProduct.productId;
 					if(newProduct.pendingDescriptionRO === "")
 						this.pending_descr_RO = newProduct.descriptionRO;
@@ -637,8 +637,8 @@ export default Vue.extend({
 			businessTracks: [],
 			workshopDays: [],
 			workshops: [],
-			teamId: 0 as number,
-			productId: 0 as number,
+			teamId: "",
+			productId: "",
 			//Product settings
 			startupRules: [
 				(value: string) => {
@@ -777,23 +777,24 @@ export default Vue.extend({
 				this.pending_descr_RO = "";
 			if(this.pending_descr_ENG === this.product.descriptionEN)
 				this.pending_descr_ENG = "";
-				const Product = {
+				const product:Product = {
 					productId: this.productId,
 					mentorId: this.product.mentorId,
 					startupName: this.startupName,
-					businessTrack: this.businessTrack,
-					teamType: this.teamType,
-					workshopDay: this.workshop_day,
+					businessTrack: (this.businessTrack as any),
+					teamType: this.teamType as any,
+					workshopDay: this.workshop_day as any,
 					descriptionRO: this.descr_RO,
 					descriptionEN: this.descr_ENG,
 					pendingDescriptionEN: this.pending_descr_ENG,
 					pendingDescriptionRO: this.pending_descr_RO,
 					productDetails: productDetails,
-					updatedAt: new Date(this.formatDate(new Date()))
-				} as Product;
+					updatedAt: new Date(this.formatDate(new Date())),
+					lastMentorUpdate: new Date()
+				};
 			try {
 				await this.ui.storeDispatch("teams/updateProduct", {
-					product: Product,
+					product: product,
 					teamId: this.teamId
 				});
 			} catch (e) {

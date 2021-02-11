@@ -94,10 +94,12 @@
 import Vue from "vue";
 import { Feed, FeedText, FeedTypes } from "../../common";
 import { UI } from "@startupway/main/lib/ui";
+import { Team, Product } from "@startupway/teams/lib/ui";
 import { mapGetters } from "vuex";
 import moment from "moment";
+import { v4 as uiidv4 } from 'uuid';
 export default Vue.extend({
-	name: "ProductFeed",
+	name: "ProductFeedUser",
 	async mounted() {
 		try {
 			await this.ui.storeDispatch("feed/loadFeed", this.teamId);
@@ -113,18 +115,19 @@ export default Vue.extend({
 	watch: {
 		currentTeam: {
 			immediate: true,
-			// as any Same as canvas
-			async handler(newTeam: any) {
-				this.teamId = newTeam.teamId;
-				if (this.teamId === 0) {
-					if(this.$route.path!=="/workspace")
-						this.$router.push("/workspace");
-					this.productUpdates = [];
-				} else {
-					try {
-						await this.ui.storeDispatch("feed/loadFeed", this.teamId);
-					} catch (e) {
-						console.error(e);
+			async handler(newTeam: Team | null) {
+				if(newTeam) {
+					this.teamId = newTeam.teamId;
+					if (this.teamId === "") {
+						if(this.$route.path!=="/workspace")
+							this.$router.push("/workspace");
+						this.productUpdates = [];
+					} else {
+						try {
+							await this.ui.storeDispatch("feed/loadFeed", this.teamId);
+						} catch (e) {
+							console.error(e);
+						}
 					}
 				}
 			}
@@ -164,11 +167,11 @@ export default Vue.extend({
 					value: FeedTypes.COLLABORATORS
 				}
 			],
-			teamId: 0 as number,
+			teamId: "",
 			value: "" as string,
 			text: "" as string,
 			amount: "" as string,
-			newFeedUpdate: 0 as number,
+			newFeedUpdate: "",
 			FeedTypes: FeedTypes,
 			editDialog: false,
 			edited: null as Feed | null,
@@ -246,6 +249,7 @@ export default Vue.extend({
 			}
 			details["text"] = this.text;
 			let feed = {
+				feedId: uiidv4(),
 				teamId: this.teamId,
 				feedType: this.value,
 				text: details,
@@ -260,13 +264,11 @@ export default Vue.extend({
 				console.error(e);
 			}
 			try {
-				// as any same as canvas
-				let product = await this.ui.api.get<any | null>("/api/v1/teams/product/" + this.teamId);
+				let product = await this.ui.api.get<Product | null>("/api/v1/teams/product/" + this.teamId);
 				if(product.data) {
 					product.data.updatedAt = (this.formatDate(new Date()) as unknown as Date) ;
 					try {
-						// as any same as canvas
-						await this.ui.api.post<any | null>("/api/v1/teams/product/update", {
+						await this.ui.api.post<Product | null>("/api/v1/teams/product/update", {
 							product: product.data,
 							upload: "",
 							ext: ".pptx",

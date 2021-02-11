@@ -1,5 +1,5 @@
 
-import { Session, User} from '../common';
+import { Session, User, UserTeams} from '../common';
 import { Server, ApiRequest, ApiResponse } from "@startupway/main/lib/server";
 import { getPool } from '@startupway/database/lib/server';
 import { QueryOptions, Connection } from 'mariadb';
@@ -7,23 +7,11 @@ import { NextFunction, Router, Request, Response } from "express";
 import { createHash } from 'crypto';
 import { generate } from 'randomstring';
 import { TABLE_USERS } from './tables';
+import { v4 as uiidv4 } from 'uuid';
 
 export class UsersServer {
 
 	private static INSTANCE?: UsersServer;
-	private conn: Connection;
-
- 	constructor() {
-		const that = this;
-		getPool().getConnection()
-		.then(conn => {
-			console.log("Connected to database");
-			that.conn = conn;
-		})
-		.catch(err => {
-			console.log("Not connected due to error: " + err);
-		})
-	}
 
 	public static passwordGenerator (password: string): string {
 		const hash = createHash('sha256');
@@ -32,293 +20,402 @@ export class UsersServer {
 	}
 
 	async addUser(user: User): Promise<User | null> {
+		let conn:Connection | null = null;
 		try {
-			user.password = UsersServer.passwordGenerator (user.password);
-			const queryOptions:QueryOptions = {
-				namedPlaceholders:true,
-				sql: `INSERT INTO ${TABLE_USERS} (firstName,lastName,username,password,email,phone,birthDate,avatarUu,socialMedia,userDetails,role,lastLogin) VALUES(:firstName,:lastName,:username,:password,:email,:phone,:birthDate,:avatarUu,:socialMedia,:userDetails,:role,:lastLogin)`
-			}
-			const response = await this.conn.query(queryOptions,user);
-			if(response) {
-				const newUser = await this.getUserByUsername(user.username);
-				if(newUser)
-					return newUser;
-				else
+			conn = await getPool().getConnection();
+			if(conn) {
+				await conn.beginTransaction();
+				user.password = UsersServer.passwordGenerator (user.password);
+				const queryOptions:QueryOptions = {
+					namedPlaceholders:true,
+					sql: `INSERT INTO ${TABLE_USERS} (userId,firstName,lastName,username,password,email,phone,birthDate,avatarUu,socialMedia,userDetails,role,lastLogin) VALUES(:userId,:firstName,:lastName,:username,:password,:email,:phone,:birthDate,:avatarUu,:socialMedia,:userDetails,:role,:lastLogin) RETURNING userId,firstName,lastName,username,password,email,phone,birthDate,avatarUu,socialMedia,userDetails,role,lastLogin`
+				}
+				const response:User[] = await conn.query(queryOptions,user);
+				if(response && response.length > 0 && response[0]) {
+					await conn.commit();
+					await conn.end();
+					return response[0];
+				} else {
+					await conn.end();
 					return null;
+				}
 			} else {
 				return null;
 			}
 		} catch (error) {
 			console.error(error);
+			if(conn) {
+				await conn.rollback();
+				await conn.end();
+			}
 			return null;
 		}
 	}
 	async getAllUserTeams(): Promise<User[]> {
+		let conn:Connection | null = null;
 		try {
+			conn = await getPool().getConnection();
 			const queryOptions:QueryOptions = {
 				nestTables:"_",
-				sql: "SELECT users.*, userTeams.teamId as userTeams_teamID, userTeams.role as userTeams_role FROM users INNER JOIN userTeams ON user.userId!=:userTeams.userId"
+				sql: "SELECT users.*, userTeams.teamId, userTeams.role FROM users INNER JOIN userTeams ON user.userId!=:userTeams.userId"
 			}
-			const allUserTeams = await this.conn.query(queryOptions);
-			if(allUserTeams)
+			const allUserTeams:(User&UserTeams)[] = await conn.query(queryOptions);
+			if(allUserTeams && allUserTeams.length > 0) {
+				await conn.end();
 				return allUserTeams;
-			else
+			} else { 
+				await conn.end();
 				return [];
+			}
 		} catch (error) {
 			console.error(error);
+			if(conn)
+				await conn.end();
 			return [];
 		}
 	}
 
-	async deleteUser(user: User): Promise<void> {
+	async deleteUser(user: User): Promise<boolean> {
+		let conn:Connection | null = null;
 		try {
-			const queryOptions:QueryOptions = {
-				namedPlaceholders:true,
-				sql: "DELETE FROM users where userId=:userId"
+			conn = await getPool().getConnection();
+			if(conn) {
+				await conn.beginTransaction();
+				const queryOptions:QueryOptions = {
+					namedPlaceholders:true,
+					sql: "DELETE FROM users where userId=:userId RETURNING userId as deleted_id"
+				}
+				const response:{deleted_id:string}[] = await conn.query(queryOptions,user);
+				if(response && response.length > 0 && response[0]) {
+					await conn.commit();
+					await conn.end();
+					return true;
+				} else {
+					await conn.end();
+					return false;
+				}
+			} else {
+				return false;
 			}
-			await this.conn.query(queryOptions,user);
 		} catch (error) {
-			// TODO add user back if failed
-			await this.addUser(user);
 			console.error(error);
+			if(conn) {
+				await conn.rollback();
+				await conn.end();
+			}
+			return false;
 		}
 	}
 
 	async createSession(username: string, password: string): Promise<Session | null> {
 		password = UsersServer.passwordGenerator (password);
+		let conn:Connection | null = null;
 		try {
+			conn = await getPool().getConnection();
 			let queryOptions:QueryOptions = {
 				namedPlaceholders:true,
 				sql: "SELECT username FROM users WHERE username=:username"
 			}
-			const resUsername:{username:string}[] = await this.conn.query(queryOptions,{username}) as {username:string}[];
-			if(resUsername[0]) {
+			const resUsername:{username:string}[] = await conn.query(queryOptions,{username}) as {username:string}[];
+			if(resUsername && resUsername.length > 0 && resUsername[0]) {
 				queryOptions = {
 					namedPlaceholders:true,
 					sql: "SELECT * FROM users WHERE username=:username AND password=:password"
 				}
-				const user:User[] = await this.conn.query(queryOptions,{username,password}) as User[];
-				if(user[0]!== undefined && user[0].userId !== 0) {
-					const userId:number = user[0].userId;
-					const token:string = generate({ length: 100 });
-					queryOptions = {
-						namedPlaceholders:true,
-						sql: "INSERT INTO sessions (userId, token) values(:userId,:token)"
-					}
-					const resSession:Session[] =await this.conn.query(queryOptions,{userId, token}) as Session[];
-					if(resSession) {
+				const user:User[] = await conn.query(queryOptions,{username,password}) as User[];
+				if(user && user.length > 0 && user[0]) {
+					try {
+						await conn.beginTransaction();
+						const sessionId:string = uiidv4();
+						const userId:string = user[0].userId;
+						const token:string = generate({ length: 100 });
 						queryOptions = {
 							namedPlaceholders:true,
-							sql: "SELECT * FROM sessions WHERE userId=:userId"
+							sql: "INSERT INTO sessions (sessionId, userId, token) VALUES(:sessionId,:userId,:token) RETURNING sessionId, userId, token"
 						}
-						const session:Session[] = await this.conn.query(queryOptions,{userId}) as Session[];
-						if(session[0])
-							return session[0];
-						else
-							return null;
-					} else {
-						return null;
+						const resSession:Session[] =await conn.query(queryOptions,{sessionId, userId, token}) as Session[];
+						if(resSession && resSession.length > 0 && resSession[0]) {
+							await conn.commit();
+							await conn.end();
+							return resSession[0];
+						}
+					} catch (error) {
+						console.error(error);
+						const errorSession:Session = {
+							sessionId: "",
+							token: "",
+							userId: "",
+							createdAt: new Date(),
+						};
+						errorSession.token = "error";
+						if(conn) {
+							await conn.rollback();
+							await conn.end();
+							return errorSession;
+						}
 					}
 				} else {
-					return {sessionId:0,token:"cred",userId:0,createdAt: new Date(0)};
+					await conn.end();
+					return {sessionId:"",token:"cred",userId:"",createdAt: new Date(0)};
 				}
 			} else {
-				return {sessionId:0,token:"cred",userId:0,createdAt: new Date(0)};
+				await conn.end();
+				return {sessionId:"",token:"cred",userId:"",createdAt: new Date(0)};
 			}
 		} catch(e) {
 			console.error(e);
-			let errorSession:Session = {
-				sessionId: 0,
+			const errorSession:Session = {
+				sessionId: "",
 				token: "",
-				userId: 0,
+				userId: "",
 				createdAt: new Date(),
-
 			};
 			errorSession.token = "error";
+			if(conn)
+				await conn.end();
 			return errorSession;
 		}
+		if(conn)
+			await conn.end();
+		return null;
 	}
 
 	async modifyUser(user: User, changedPass?: string):Promise<boolean> {
+		let conn:Connection | null = null;
 		try {
-			if(changedPass) {
-				user.password = UsersServer.passwordGenerator(user.password);
+			conn = await getPool().getConnection();
+			if(conn) {
+				await conn.beginTransaction();
+				if(changedPass) {
+					user.password = UsersServer.passwordGenerator(user.password);
+				}
+				// TODO TRANSACTION
+				const queryOptions:QueryOptions = {
+					namedPlaceholders:true,
+					sql: "UPDATE users SET firstName=:firstName, lastName=:lastName, username=:username, password=:password, email=:email, phone=:phone, socialMedia=:socialMedia, birthDate=:birthDate, userDetails=:userDetails, role=:role, avatarUu=:avatarUu, lastLogin=:lastLogin WHERE userId=:userId RETURNING userId,firstName,lastName,username,password,email,phone,birthDate,avatarUu,socialMedia,userDetails,role,lastLogin"
+				}
+				const resp:User[] = await conn.query(queryOptions,user);
+				if(resp && resp.length > 0 && resp[0]) {
+					await conn.commit();
+					await conn.end();
+					return true;
+				}
 			}
-			// TODO TRANSACTION
-			const queryOptions:QueryOptions = {
-				namedPlaceholders:true,
-				sql: "UPDATE users SET firstName=:firstName, lastName=:lastName, username=:username, password=:password, email=:email, phone=:phone, socialMedia=:socialMedia, birthDate=:birthDate, userDetails=:userDetails, role=:role, avatarUu=:avatarUu, lastLogin=:lastLogin WHERE userId=:userId"
-			}
-			await this.conn.query(queryOptions,user);
-			return true;
 		} catch (error) {
 			console.error(error);
+			if(conn) {
+				await conn.rollback();
+				await conn.end();
+			}
 			return false;
 		}
+		if(conn)
+			await conn.end();
+			return false;
 	}
 
 	async getUserByUsername(username: string): Promise<User | null> {
+		let conn:Connection | null = null;
 		try {
+			conn = await getPool().getConnection();
 			const queryOptions:QueryOptions = {
 				namedPlaceholders:true,
 				sql: "SELECT * FROM users WHERE username=:username"
 			};
-			const user:User[] = await this.conn.query(queryOptions,{username}) as User[];
-			if(user.length > 0) {
-				if (user[0].userId !== 0)
+			const user:User[] = await conn.query(queryOptions,{username}) as User[];
+			if(user && user.length > 0 && user[0]) {
+				if (user[0]) {
+					await conn.end();
 					return user[0];
-				else
-					return null;
-			} else {
-				return null;
+				}
 			}
 		} catch (error) {
 			console.error(error);
-			return null;
 		}
+		if(conn)
+			await conn.end();
+		return null;
 	}
 	async getUserByEmail(email: string): Promise<User | null> {
+		let conn:Connection | null = null;
 		try {
+			conn = await getPool().getConnection();
 			const queryOptions:QueryOptions = {
 				namedPlaceholders:true,
 				sql: "SELECT * FROM users WHERE email=:email"
 			};
-			const user:User[] = await this.conn.query(queryOptions,{email}) as User[];
-			if(user.length > 0) {
-				if (user[0].userId !== 0)
+			const user:User[] = await conn.query(queryOptions,{email}) as User[];
+			if(user && user.length > 0 && user[0]) {
+				if (user[0]) {
+					await conn.end();
 					return user[0];
-				else
-					return null;
-			} else {
-				return null;
+				}
 			}
 		}
 		catch (error) {
 			console.error(error);
-			return null;
 		}
+		if(conn)
+			await conn.end();
+		return null;
 	}
 
-	async getUserById(userId: number): Promise<User | null> {
+	async getUserById(userId: string): Promise<User | null> {
+		let conn:Connection | null = null;
 		try {
+			conn = await getPool().getConnection();
 			const queryOptions:QueryOptions = {
 				namedPlaceholders:true,
 				sql: "SELECT * FROM users WHERE userId=:userId"
 			};
-			const user:User[] = await this.conn.query(queryOptions,{userId}) as User[];
-			if(user.length > 0) {
-				if (user[0].userId !== 0)
+			const user:User[] = await conn.query(queryOptions,{userId}) as User[];
+			if(user && user.length > 0 && user[0]) {
+				if (user[0]){
+					await conn.end();
 					return user[0];
-				else
-					return null;
+				}
+			}
+		} catch (error) {
+			console.error(error);
+		}
+		if(conn)
+			await conn.end();
+		return null;
+	}
+
+	async deleteSession(token: string, sessionId?: string): Promise<boolean> {
+		let conn:Connection | null = null;
+		try {
+			conn = await getPool().getConnection();
+			if(conn) {
+				await conn.beginTransaction();
+				const queryOptions:QueryOptions = {
+					namedPlaceholders:true,
+					sql: ""
+				};
+				let values:{token?:string,sessionId?:string} = {};
+				if(sessionId){
+					queryOptions.sql = "DELETE FROM sessions WHERE sessions.token=:token AND sessions.sessionId=:sessionId RETURNING sessionId as sessionId";
+					values = {
+						token,
+						sessionId
+					}
+				}
+				else {
+					queryOptions.sql = "DELETE FROM sessions WHERE sessions.token=:token RETURNING sessionId as deleted_id";
+					values = {
+						token,
+					}
+				}
+				const response:{deleted_id:string}[] = await conn.query(queryOptions,values);
+				if(response && response.length > 0 && response[0]) {
+					await conn.commit();
+					await conn.end();
+					return true;
+				}
 			} else {
-				return null;
+				return false;
 			}
 		} catch (error) {
 			console.error(error);
-			return null;
-		}
-	}
-
-	async deleteSession(token: string, sessionId?: number): Promise<void> {
-		try {
-			const queryOptions:QueryOptions = {
-				namedPlaceholders:true,
-				sql: ""
-			};
-			let values:{token?:string,sessionId?:number} = {};
-			if(sessionId){
-				queryOptions.sql = "DELETE FROM sessions WHERE sessions.token=:token AND sessions.sessionID=:sessionID";
-				values = {
-					token,
-					sessionId
-				}
+			if(conn) {
+				await conn.rollback();
+				await conn.end();
 			}
-			else {
-				queryOptions.sql = "DELETE FROM sessions WHERE sessions.token=:token";
-				values = {
-					token,
-				}
-			}
-			await this.conn.query(queryOptions,values);
-		} catch (error) {
-			console.error(error);
+			return false;
 		}
+		if(conn)
+			await conn.end();
+		return false;
 	}
 
 
-	async getUserLastSession(userId: number): Promise<Session | null> {
+	async getUserLastSession(userId: string): Promise<Session | null> {
+		let conn:Connection | null = null;
 		try {
+			conn = await getPool().getConnection();
 			const queryOptions:QueryOptions = {
 				namedPlaceholders:true,
 				sql: "SELECT * FROM session where userId=:userId"
 			}
-			const session:Session[] = await this.conn.query(queryOptions,{userId}) as Session[];
-			if(session[0])
+			const session:Session[] = await conn.query(queryOptions,{userId}) as Session[];
+			if(session && session.length > 0 && session[0]) {
+				await conn.end();
 				return session[0];
-			return null;
+			}
 		} catch (error) {
 			console.error(error);
-			return null;
 		}
+		if(conn)
+			await conn.end();
+		return null;
 	}
 
 	async getUsers():Promise<User[]> {
+		let conn:Connection | null = null;
 		try {
+			conn = await getPool().getConnection();
 			const queryOptions:QueryOptions = {
 				sql: "SELECT * FROM users WHERE role!='{\"Mentor\":true}' AND role!='{\"Admin\":true}'"
 			}
-			const users:User[] = await this.conn.query(queryOptions) as User[];
-			if(users) {
+			const users:User[] = await conn.query(queryOptions) as User[];
+			if(users && users.length > 0) {
+				await conn.end();
 				return users;
-			} else {
-				return [];
 			}
 		} catch (error) {
 			console.error(error);
-			return [];
-
 		}
+		if(conn)
+			await conn.end();
+		return [];
 	}
 	async getAllUsers():Promise<User[]> {
+		let conn:Connection | null = null;
 		try {
+			conn = await getPool().getConnection();
 			const queryOptions:QueryOptions = {
 				sql: "SELECT * FROM users"
 			}
-			const users:User[] = await this.conn.query(queryOptions) as User[];
-			if(users) {
+			const users:User[] = await conn.query(queryOptions) as User[];
+			if(users && users.length > 0) {
+				await conn.end();
 				return users;
-			} else {
-				return [];
 			}
 		} catch (error) {
 			console.error(error);
-			return [];
-
 		}
+		if(conn)
+			await conn.end();
+		return [];
 	}
 
 	async getSessionUser(token: string): Promise<User | null> {
+		let conn:Connection | null = null;
 		try {
+			conn = await getPool().getConnection();
 			let queryOptions:QueryOptions = {
 				namedPlaceholders:true,
 				sql: "SELECT userId FROM sessions where token=:token"
 			}
-			const session:{userId:number}[] =  await this.conn.query(queryOptions,{token}) as {userId:number}[];
-			if(session[0]) {
+			const session:{userId:string}[] =  await conn.query(queryOptions,{token}) as {userId:string}[];
+			if(session && session.length > 0 && session[0]) {
 				queryOptions = {
 					namedPlaceholders:true,
 					sql: "SELECT * FROM users WHERE userId=:userId"
 				}
-				const user:User[] = await this.conn.query(queryOptions,{userId:session[0].userId}) as User[];// where data de azi mai noua decat expirare
-				if(user[0])
+				const user:User[] = await conn.query(queryOptions,{userId:session[0].userId}) as User[];// where data de azi mai noua decat expirare
+				if(user && user.length > 0 && user[0]) {
+					await conn.end();
 					return user[0];
+				}
 			}
-			return null;
 		} catch (error) {
 			console.error(error);
-			return null;
 		}
+		if(conn)
+			await conn.end();
+		return null;
 	}
 
 	public static getInstance (): UsersServer
@@ -348,15 +445,19 @@ router.post("/login", async (req:ApiRequest<{username:string,password:string,las
 		const session:Session | null = await usersServer.createSession(req.body.username, req.body.password);
 		const user = await usersServer.getUserByUsername(req.body.username);
 		if(user) {
-			user.lastLogin = req.body.lastLogin
-			await usersServer.modifyUser(user)
-		}
-		if(session === null) {
-			res.send(null);
-		} else if(session.token === "error") {
-			res.status(500).send({err:500,data:null});
-		} else {
-			res.send (session);
+			user.lastLogin = req.body.lastLogin;
+			const resp = await usersServer.modifyUser(user);
+			if(resp) {
+				if(session === null) {
+					res.send(null);
+				} else if(session.token === "error") {
+					res.status(500).send({err:500,data:null});
+				} else {
+					res.send (session);
+				}
+			} else {
+				res.send(null);
+			}
 		}
 	} catch (e) {
 		console.error(e);
@@ -461,17 +562,29 @@ router.get("/users/all", async (req:ApiRequest<undefined>, res:ApiResponse<User[
 	}
 });
 
-router.post("/logout", async (req:ApiRequest<{sessionId:number}>, res:ApiResponse<boolean>, next) => {
-	if(req.body.sessionId)
-		await usersServer.deleteSession((req as any).token, req.body.sessionId);
-	else
-		await usersServer.deleteSession((req as any).token);
+router.post("/logout", async (req:ApiRequest<{sessionId:string}>, res:ApiResponse<boolean>, next) => {
+	if(req.body.sessionId) {
+		const respSession = await usersServer.deleteSession((req as any).token, req.body.sessionId);
+		if(respSession) {
+			res.status(200).send(respSession);
+		} else {
+			res.status(201).send(false);
+		}
+	}
+	else{
+		const respToken = await usersServer.deleteSession((req as any).token);
+		if(respToken) {
+			res.status(200).send(respToken);
+		} else {
+			res.status(201).send(false);
+		}
+	}
 	res.send(true);
 });
 router.get("/session/:userId", async (req:ApiRequest<undefined>, res:ApiResponse<Session | null>) => {
 	try {
 		// const userId = req.params.userId;
-		const session: Session | null = await usersServer.getUserLastSession(Number(req.params.userId));
+		const session: Session | null = await usersServer.getUserLastSession(req.params.userId);
 		if(session) {
 			res.status(200).send(session);
 		} else {

@@ -4,97 +4,102 @@ import { getAuthorizationFunction } from "@startupway/users/lib/server";
 import { BModelCanvas } from "../common";
 import {QueryOptions, Connection} from 'mariadb';
 import {Router} from "express";
+// import { v4 as uiidv4 } from 'uuid';
 export class BModelCanvasServer {
 
 	private static INSTANCE?: BModelCanvasServer;
-	private conn: Connection;
-
- 	constructor() {
-		const that = this;
-		getPool().getConnection()
-		.then(conn => {
-			console.log("Connected to database");
-			that.conn = conn;
-		})
-		.catch(err => {
-			console.log("Not connected due to error: " + err);
-		})
-	}
 
 	async addCanvas (canvas: BModelCanvas): Promise<BModelCanvas | null> {
+		let conn:Connection | null = null;
 		try {
-			let queryOptions:QueryOptions = {
-				namedPlaceholders:true,
-				sql: "SELECT bModelCanvas.* FROM bModelCanvas WHERE bModelCanvas.productId=:productId AND DATE(bModelCanvas.date)=DATE(NOW())"
-			};
-			const values = {
-				productId:canvas.productId
-			} ;
-			const canvases:BModelCanvas[] =  await this.conn.query(queryOptions, values);
-			if(canvases[0] !== undefined) {
-				queryOptions = {
-					namedPlaceholders:true,
-					sql: "UPDATE bModelCanvas SET bModelCanvas.fields=:fields, bModelCanvas.date=:date WHERE bModelCanvas.modelId=:modelId"
-				};
-				const updateValues = {
-					fields:canvas.fields,
-					date:canvas.date,
-					modelId:canvas.modelId
-				};
-				await this.conn.query(queryOptions,updateValues);
-				queryOptions = {
+			conn = await getPool().getConnection();
+			if(conn) {
+				conn.beginTransaction();
+				let queryOptions:QueryOptions = {
 					namedPlaceholders:true,
 					sql: "SELECT bModelCanvas.* FROM bModelCanvas WHERE bModelCanvas.productId=:productId AND DATE(bModelCanvas.date)=DATE(NOW())"
 				};
-				const canvasResult:BModelCanvas[] = await this.conn.query(queryOptions);
-				if(canvasResult[0] !== undefined)
-					return canvases[0];
-				else
-					return null;
-			} else {
-				queryOptions = {
-					namedPlaceholders:true,
-					sql: "INSERT INTO bModelCanvas values(:modelId,:productId,:date,:fields)"
+				const values = {
+					productId:canvas.productId
 				};
-				// as any because I need to insert a row with null as id to be autocreated
-				canvas.modelId = (null as any);
-				await this.conn.query(queryOptions,canvas);
-
-				queryOptions = {
-					namedPlaceholders:true,
-					sql: "SELECT bModelCanvas.* FROM bModelCanvas WHERE bModelCanvas.productId=:productId AND DATE(bModelCanvas.date)=DATE(NOW())"
-				};
-				const result:BModelCanvas[] = await this.conn.query(queryOptions,canvas);
-				if(result[0] !== undefined) {
-					return result[0];
+				const canvases:BModelCanvas[] =  await conn.query(queryOptions, values);
+				if(canvases && canvases.length > 0 && canvases[0]) {
+					queryOptions = {
+						namedPlaceholders:true,
+						sql: "UPDATE bModelCanvas SET bModelCanvas.fields=:fields, bModelCanvas.date=:date WHERE bModelCanvas.modelId=:modelId RETURNING modelId,productId,date,fields"
+					};
+					const updateValues = {
+						fields:canvas.fields,
+						date:canvas.date,
+						modelId:canvas.modelId
+					};
+					const canvasResult:BModelCanvas[] = await conn.query(queryOptions,updateValues);
+					if(canvasResult && canvasResult.length > 0 && canvasResult[0]) {
+						await conn.commit();
+						await conn.end();
+						return canvasResult[0];
+					} else {
+						await conn.rollback();
+						await conn.end();
+						return null;
+					}
 				} else {
-					return null;
+					queryOptions = {
+						namedPlaceholders:true,
+						sql: "INSERT INTO bModelCanvas values(:modelId,:productId,:date,:fields) RETURNING modelId,productId,date,fields"
+					};
+					const result:BModelCanvas[] = await conn.query(queryOptions,canvas);
+					if(result && result.length > 0 && result[0]) {
+						await conn.commit();
+						await conn.end();
+						return result[0];
+					} else {
+						await conn.rollback();
+						await conn.end();
+						return null;
+					}
 				}
+			} else {
+				return null;
 			}
 		} catch (error) {
 			console.error(error);
+			if(conn) {
+				await conn.rollback();
+				await conn.end();
+			}
 			return null;
 		}
 	}
 
-	async getCanvasesForTeam (teamId: number): Promise<BModelCanvas[]> {
+	async getCanvasesForTeam (teamId: string): Promise<BModelCanvas[]> {
+		let conn:Connection | null = null;
 		try {
-			const queryOptions:QueryOptions = {
-				namedPlaceholders:true,
-				nestTables:"_",
-				sql: "SELECT bModelCanvas.* FROM bModelCanvas INNER JOIN teams ON team.productId=bModelCanvas.productId AND team.teamId=:tId"
-			}
-			const values = {
-				tId:teamId
-			}
-			const canvases:BModelCanvas[][] =  await this.conn.query(queryOptions, values);
-			if(canvases[0] !== undefined && canvases[0].length > 0) {
-				return canvases[0];
+			conn = await getPool().getConnection();
+			if(conn) {
+				const queryOptions:QueryOptions = {
+					namedPlaceholders:true,
+					nestTables:"_",
+					sql: "SELECT bModelCanvas.* FROM bModelCanvas INNER JOIN teams ON team.productId=bModelCanvas.productId AND team.teamId=:tId"
+				}
+				const values = {
+					tId:teamId
+				}
+				const canvases:BModelCanvas[] =  await conn.query(queryOptions, values);
+				if(canvases && canvases.length > 0) {
+					await conn.end();
+					return canvases;
+				} else {
+					await conn.end();
+					return [];
+				}
 			} else {
 				return [];
 			}
 		} catch (error) {
 			console.error(error);
+			if(conn)
+				await conn.end();
 			return [];
 		}
 	}
@@ -132,26 +137,41 @@ if(authFunct)
 
 
 router.get("/:teamId", async(req:ApiRequest<undefined>,res:ApiResponse<BModelCanvas[]>) => {
-	const result = await bModelCanvasServer.getCanvasesForTeam(parseInt(req.params.teamId,10));
-	if(result)
-		res.send(result);
-	else
-		res.status(401).send({err:401,data:[]});
+	try {
+		const result = await bModelCanvasServer.getCanvasesForTeam(req.params.teamId);
+		if(result)
+			res.send(result);
+		else
+			res.status(401).send({err:401,data:[]});
+	} catch (error) {
+		console.error(error);
+		res.status(500).send({err:500,data:[]})
+	}
 });
 // TODO: add addCanvas(canvas) function
 router.post("/:teamId", async(req:ApiRequest<BModelCanvas>,res:ApiResponse<BModelCanvas|null>) => {
-	const newCanvas = await bModelCanvasServer.addCanvas(req.body);
-	if(newCanvas)
-		res.send(newCanvas);
-	else
-		res.status(401).send({err:401, data:null});
+	try{
+		const newCanvas = await bModelCanvasServer.addCanvas(req.body);
+		if(newCanvas)
+			res.send(newCanvas);
+		else
+			res.status(401).send({err:401, data:null});
+	} catch (error) {
+		console.error(error);
+		res.status(500).send({err:500,data:null})
+	}
 });
 router.post("/update:teamId", async(req:ApiRequest<BModelCanvas>,res:ApiResponse<BModelCanvas|null>) => {
-	const newCanvas = req.body;
-	if(newCanvas)
-		res.send(newCanvas);
-	else
-		res.status(401).send({err:401, data:null});
+	try{
+		const newCanvas = req.body;
+		if(newCanvas)
+			res.send(newCanvas);
+		else
+			res.status(401).send({err:401, data:null});
+	} catch (error) {
+		console.error(error);
+		res.status(500).send({err:500,data:null})
+	}
 });
 
 server.registerRouterAPI (1, router, "/canvas");

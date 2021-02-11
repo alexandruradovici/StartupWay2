@@ -36,8 +36,7 @@ export default Vue.extend({
 			immediate:true,
 			async handler (newUser:User):Promise<void> {
 				if(newUser) {
-					const role = JSON.parse(this.user.role);
-					if(!role["Admin"] && !role["SuperAdmin"]) {
+					if(newUser.role !== "Admin" && newUser.role !== "SuperAdmin") {
 						if(this.$route.path!=="/workspace")
 							this.$router.push("/workspace");
 					}

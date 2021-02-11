@@ -11,6 +11,7 @@ import WorkshopsEdit from "./views/WorkshopsEdit.vue";
 import AdminMenu from "./views/AdminMenu.vue";
 import ExportView from "./views/ExportView.vue";
 import Dashboard from "./views/Dashboard.vue";
+
 const workspaceUi = WorkspaceUI.getInstance();
 workspaceUi.registerToolbarButton (AdminMenu, {
 	position: ToolbarButtonPosition.RIGHT,
@@ -45,6 +46,7 @@ routes.push(
 		component: CSV
 	}
 );
+
 const workspaceRoutes: RouteConfig[] = [
 	{
 		path: '/admin',

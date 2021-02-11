@@ -7,29 +7,24 @@ import moment from "moment";
 import randomstring from "randomstring";
 
 import { Router } from "express";
+import { QueryOptions, Connection } from "mariadb";
 import { Server, ApiResponse, ApiRequest } from "@startupway/main/lib/server";
 import { getPool } from "@startupway/database/lib/server";
-import { QueryOptions, Connection } from "mariadb";
 import { getAuthorizationFunction, User, UsersServer } from "@startupway/users/lib/server";
 import { UserActivity, UserTeams, BusinessTrack, Team, Product, TeamType, WorkshopDay, TeamsServer } from "@startupway/teams/lib/server";
+
+import { ParsedCSV } from '../common/index';
+import { v4 as uiidv4 } from 'uuid';
 const users = UsersServer.getInstance();
 const teams = TeamsServer.getInstance();
+
+function parseEnum<D,T extends Record<string,D>>(t:T,key:string):D | undefined {
+	return t[key as keyof T];
+}
 export class AdminServer {
 
 	private static INSTANCE?: AdminServer;
-	private conn: Connection;
 	private users: UsersServer = users;
- 	constructor() {
-		const that = this;
-		getPool().getConnection()
-		.then(conn => {
-			console.log("Connected to database");
-			that.conn = conn;
-		})
-		.catch(err => {
-			console.log("Not connected due to error: " + err);
-		})
-	}
 	
 	/**
 	 * Internal function that parses a single line from a .CSV file
@@ -54,22 +49,22 @@ export class AdminServer {
 	 * @param faculty - user faculty
 	 * @param group - user group at faculty
 	 * @param findProgram - shot description on how the user found the program
-	 * @returns { teamId:number, workshop:WorkshopObj, team:{}, product:{}, user:{} } parsedCSV | null - contains all the info about the user and it's asociated team and product
+	 * @returns { teamId:string, workshop:WorkshopObj, team:{}, product:{}, user:{} } parsedCSV | null - contains all the info about the user and it's asociated team and product
 	 */
+	//TODO import parsedCSV type -> toate datele corecte altfel nu importa usersul.
+	// Toate id-urile devin string-uri cu uuidv4 dimensiune fixa 16 caractere
 	public parseCSVData(loc?:string ,workshopNo?:string ,teamMentor?:string ,teamId?:string ,teamTrack?:string ,businessTrack?:string ,teamName?:string ,pitcher?:string ,
 		role?:string ,firstName?:string ,lastName?:string , email?:string ,phone?:string ,facebook?:string ,linkedin?:string ,
-		shortDesc?:string ,birthDate?:string ,faculty?:string ,group?:string ,findProgram?:string ):{ teamId:string| undefined, team:{}, product:{}, user:{} } | null
+		shortDesc?:string ,birthDate?:string ,faculty?:string ,group?:string ,findProgram?:string ):
+		ParsedCSV | null
 	{
 		try {
-			if(teamMentor === undefined || firstName === undefined || lastName === undefined || email === undefined)
+			if(teamMentor === undefined || firstName === undefined || lastName === undefined || email === undefined || teamId === undefined)
 				return null;
-			const parsedCSV = {
-				teamId:teamId,
-				workshop:{},
-				team:{},
-				product:{},
-				user:{}
-			}
+			let parsedCSV:ParsedCSV = {
+				teamId:parseInt(teamId)
+			}; 
+			
 			enum days {
 				NONE,
 				MONDAY,
@@ -80,16 +75,23 @@ export class AdminServer {
 				SATURDAY,
 				SUNDAY
 			}
-			parsedCSV.team = {
-				teamName:(teamName as string),
-				location:loc,
-				year:new Date().getFullYear(),
-				teamDetails:{
-					"mentor":teamMentor,
-					"pitcher":pitcher
-				},
+			const productId = uiidv4();
+			if(teamName !== undefined && loc !== undefined && teamMentor !== undefined && pitcher !== undefined) {
+				parsedCSV.team = {
+					teamId:uiidv4(),
+					productId:productId,
+					teamName:teamName,
+					location:loc,
+					year:new Date().getFullYear(),
+					teamDetails:{
+						"mentor":teamMentor,
+						"pitcher":pitcher
+					},
+				}
+			} else {
+				return null;
 			}
-			let bT = "";
+			let bT:string = "";
 			if(businessTrack !== undefined) {
 				bT = (businessTrack as string).toUpperCase().replace(/\s+/g, '');
 			}
@@ -97,14 +99,16 @@ export class AdminServer {
 			if(teamTrack !== undefined) {
 				tT = (teamTrack as string).split("-")[0].toUpperCase();
 			}
+			const bTValue = parseEnum<BusinessTrack,typeof BusinessTrack>(BusinessTrack,bT);
 			parsedCSV.product = {
-				startupName:(teamName as string),
-				mentorId:0,
+				productId:productId,
+				startupName:teamName,
+				mentorId:"",
 				// Need to index enum based on string
-				businessTrack:(BusinessTrack as any)[bT],
+				businessTrack:BusinessTrack.SMARTCITY,
 				teamType:(TeamType as any)[tT],
 				workshopDay:(WorkshopDay as any)[days[parseInt(workshopNo as string)]],
-				descriptionEN:(shortDesc as string),
+				descriptionEN:"",
 				descriptionRO:"", 
 				pendingDescriptionEN: "",
 				pendingDescriptionRO: "",
@@ -117,21 +121,32 @@ export class AdminServer {
 					assesment20May: "",
 					assesment12Oct: ""
 				},
-				updatedAt:"",
-				lastMentorUpdate:"",
+				updatedAt:new Date(),
+				lastMentorUpdate:new Date(),
 			}
 
+			if(parsedCSV.product && bTValue) {
+				parsedCSV.product.businessTrack = bTValue;
+			}
+			if(parsedCSV.product && shortDesc) {
+				parsedCSV.product.descriptionEN = shortDesc;
+			}
+			
 			let username = "";
 			if(email !== undefined)
 				username = (email as string).split("@")[0].toLowerCase();
-			let aux = new Date().toISOString().split('T')[0];
+
+			let aux = new Date(); // .toISOString().split('T')[0];
+
 			try {
 				if(birthDate !== undefined)
-					aux = new Date((birthDate as string)).toISOString().split('T')[0];
+					aux = new Date((birthDate as string)); // .toISOString().split('T')[0];
 			} catch (e) {
 				console.error(e);
 			}
+			const userId = uiidv4();
 			parsedCSV.user = {
+				userId:userId,
 				firstName:(firstName as string),
 				lastName:(lastName as string),
 				username:username,
@@ -148,11 +163,9 @@ export class AdminServer {
 					"group":group,
 					"details":"How din you find about Innovation Labs: " +findProgram
 				},
-				role:{
-					[(role as string)]:true
-				},
+				role:(role as string),
 				avatarUu:"",
-				lastLogin:""
+				lastLogin:new Date()
 			}
 			return parsedCSV;
 		} catch (error) {
@@ -204,20 +217,31 @@ export class AdminServer {
 	 * @returns {Promise<any[]>} an array of informations about each team
 	 */
 	async getUDCData():Promise<any[]> {
+		let conn:Connection | null = null;
 		try {
-			const queryOptions:QueryOptions = {
-				namedPlaceholders:true,
-				nestTables:"_",
-				sql:"SELECT IF(JSON_EXTRACT(productDetails,'$.assessment20May') = \"Yes\",\"DA\",\ Echipa,JSON_EXTRACT(t.teamDetails,'$.mentor') as Mentor,IF((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"pres\")>0,\"DA\",\"NU\") as 'Au prezentare pptx incarcata?',IF((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"image\")>0,(SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"image\"),0) as 'Au poze la \"Product Images\"?',IF((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"demoVid\")>0,\"DA\",\"NU\") as 'Au \"Tehnic Demo Video\" incarcat?', IF((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"presVid\")>0,\"DA\",\"NU\") as 'Au \"Product Presentation Video\" incarcat?',IF((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"logo\")>0,\"DA\",\"NU\") as 'Au \"Logo\" incarcat?',IF((JSON_EXTRACT(p.productDetails,'$.website')=''),'NU','DA') as 'Au link catre pagina web a produsului?',IF((JSON_EXTRACT(p.productDetails,'$.facebook')=''),'NU','DA') as 'Au link catre pagina de facebook a produsului?',DATE_FORMAT(p.lastMentorUpdate, \"%d %M %Y\") as \"Ultima actualizare a descrierii RO\",DATE_FORMAT(p.lastMentorUpdate, \"%d %M %Y\") as \"Ultima actualizare a descrierii ENG\",CONCAT((SELECT count(*) from (SELECT u.avatarUu, t1.teamId,IF(u.avatarUu!='',\"Yes\",\"No\") as has from users u inner join userTeams uT on u.userId = uT.userId inner join teams t1 on t1.teamId = uT.teamId ) as t2 where t2.teamId = t.teamId and t2.has =\"Yes\" ),'|',(SELECT count(*) from (SELECT u.avatarUu, t1.teamId, IF(u.avatarUu!='',\"Yes\",\"No\") as has from users u inner join userTeams uT on u.userId = uT.userId inner join teams t1 on t1.teamId = uT.teamId ) as t2 where t2.teamId = t.teamId)) as \"Au toti membrii echipei poza incarcata?\", IFNULL(DATE_FORMAT(tab.date, '%d %M %Y'),'') as \"Ultima actualizare a Lean Model Canvas\",DATE_FORMAT(p.updatedAt, \"%d %M %Y\") as \"Ultima actualizare\" from teams t inner join products p on t.productId = p.productId and JSON_EXTRACT(productDetails,'$.assessment20May') = \"Yes\" left join (SELECT date, productId from bModelCanvas group by productId) as tab on p.productId = tab.productId;"
-			}
-			const response = await this.conn.query(queryOptions);
-			if(response)
-				return response;
-			else
+			conn = await getPool().getConnection();
+			if(conn) {
+				const queryOptions:QueryOptions = {
+					namedPlaceholders:true,
+					nestTables:"_",
+					sql:"SELECT IF(JSON_EXTRACT(productDetails,'$.assessment20May') = \"Yes\",\"DA\",\ Echipa,JSON_EXTRACT(t.teamDetails,'$.mentor') as Mentor,IF((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"pres\")>0,\"DA\",\"NU\") as 'Au prezentare pptx incarcata?',IF((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"image\")>0,(SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"image\"),0) as 'Au poze la \"Product Images\"?',IF((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"demoVid\")>0,\"DA\",\"NU\") as 'Au \"Tehnic Demo Video\" incarcat?', IF((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"presVid\")>0,\"DA\",\"NU\") as 'Au \"Product Presentation Video\" incarcat?',IF((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"logo\")>0,\"DA\",\"NU\") as 'Au \"Logo\" incarcat?',IF((JSON_EXTRACT(p.productDetails,'$.website')=''),'NU','DA') as 'Au link catre pagina web a produsului?',IF((JSON_EXTRACT(p.productDetails,'$.facebook')=''),'NU','DA') as 'Au link catre pagina de facebook a produsului?',DATE_FORMAT(p.lastMentorUpdate, \"%d %M %Y\") as \"Ultima actualizare a descrierii RO\",DATE_FORMAT(p.lastMentorUpdate, \"%d %M %Y\") as \"Ultima actualizare a descrierii ENG\",CONCAT((SELECT count(*) from (SELECT u.avatarUu, t1.teamId,IF(u.avatarUu!='',\"Yes\",\"No\") as has from users u inner join userTeams uT on u.userId = uT.userId inner join teams t1 on t1.teamId = uT.teamId ) as t2 where t2.teamId = t.teamId and t2.has =\"Yes\" ),'|',(SELECT count(*) from (SELECT u.avatarUu, t1.teamId, IF(u.avatarUu!='',\"Yes\",\"No\") as has from users u inner join userTeams uT on u.userId = uT.userId inner join teams t1 on t1.teamId = uT.teamId ) as t2 where t2.teamId = t.teamId)) as \"Au toti membrii echipei poza incarcata?\", IFNULL(DATE_FORMAT(tab.date, '%d %M %Y'),'') as \"Ultima actualizare a Lean Model Canvas\",DATE_FORMAT(p.updatedAt, \"%d %M %Y\") as \"Ultima actualizare\" from teams t inner join products p on t.productId = p.productId and JSON_EXTRACT(productDetails,'$.assessment20May') = \"Yes\" left join (SELECT date, productId from bModelCanvas group by productId) as tab on p.productId = tab.productId;"
+				}
+				const response:any[] = await conn.query(queryOptions);
+				if(response && response.length > 0) {
+					await conn.end();
+					return response
+				} else {
+					await conn.end();
+					return [];
+				}
+			} else {
 				return [];
+			}
 		} catch (e) {
 			console.log("Error in function \"getUDCData()\"|\"admin\"")
 			console.error(e);
+			if(conn)
+				await conn.end();
 			return [];
 		}
 	}
@@ -227,20 +251,31 @@ export class AdminServer {
 	 * @returns {Promise<any[]>} an array of informations about each team
 	 */
 	async getTeamData():Promise<any[]> {
+		let conn:Connection | null = null;
 		try {
-			const queryOptions:QueryOptions = {
-				namedPlaceholders:true,
-				sql:"SELECT t.location as 'oras', t.teamName as 'nume_echipa', p.businessTrack as 'business_track', p.teamType as 'type', p.descriptionRO as 'descriere_RO', p.descriptionEN as 'descriere_ENG' from teams t inner join products p on p.productId = t.productId and JSON_EXTRACT(productDetails,'$.assessment20May') = 'Yes';"
-
-			}
-			const response = await this.conn.query(queryOptions);
-			if(response)
-				return response;
-			else 
+			conn = await getPool().getConnection();
+			if(conn) {
+				const queryOptions:QueryOptions = {
+					namedPlaceholders:true,
+					sql:"SELECT t.location as 'oras', t.teamName as 'nume_echipa', p.businessTrack as 'business_track', p.teamType as 'type', p.descriptionRO as 'descriere_RO', p.descriptionEN as 'descriere_ENG' from teams t inner join products p on p.productId = t.productId and JSON_EXTRACT(productDetails,'$.assessment20May') = 'Yes';"
+	
+				}
+				const response:any[] = await conn.query(queryOptions);
+				if(response && response.length > 0) {
+					await conn.end();
+					return response
+				} else {
+					await conn.end();
+					return [];
+				}
+			} else {
 				return [];
+			}
 		} catch (e) {
 			console.log("Error in function \"getTeamData()\"|\"admin\"")
 			console.error(e);
+			if(conn)
+				await conn.end();
 			return [];
 		}
 	}
@@ -323,43 +358,52 @@ export class AdminServer {
 	 * @param recovery - object that contains information about the incoming recovery of password request
 	 * @returns {Promise<Recovery>} - a recovery object
 	 */
-	async addRecovery(recovery: Recovery):Promise<Recovery> {
+	async addRecovery(recovery: Recovery):Promise<Recovery | null> {
+		let conn:Connection | null = null;
 		try {
-			recovery.recoveryLink = this._randomRecoveryGenerator();
-			const user = await this.users.getUserByEmail(recovery.email);
-			if(user)
-				recovery.userId = user.userId;
-			else throw new Error("No such user");
-			
-			const queryOptions:QueryOptions = {
-				namedPlaceholders:true,
-				sql:"INSERT INTO recoveries (userId,email,recoveryLink) VALUES(:userId,:email,:recoveryLink)"
+			conn = await getPool().getConnection();
+			if(conn) {
+				await conn.beginTransaction();
+				recovery.recoveryLink = this._randomRecoveryGenerator();
+				const user = await this.users.getUserByEmail(recovery.email);
+				if(user)
+					recovery.userId = user.userId;
+				else throw new Error("No such user");
+				
+				const queryOptions:QueryOptions = {
+					namedPlaceholders:true,
+					sql:"INSERT INTO recoveries (recoveryId,userId,email,recoveryLink) VALUES(:recoveryId,:userId,:email,:recoveryLink) RETURNING recoveryId,userId,email,recoveryLink"
+				}
+				const newRecovery:Recovery[] = await conn.query(queryOptions,recovery);
+				if(newRecovery && newRecovery.length > 0 && newRecovery[0]) {
+					// const options = admin.createMailOptions(
+					// 	(process.env.MAIL_USER as string),
+					// 	user.email,
+					// 	"Innovation Labs Platform Password Reset",
+					// 	"Hello " + user.firstName + " " + user.lastName +" ,\n\n" 
+					// 	+ "Here is your activation link, please click here to reset your password.\n" 
+					// 	+ "		https://teams.innovationlabs.ro/#/recovery/"+newRecovery[0].recoveryLink + "\n"
+					// 	+ "Regards, Innovation Labs Team\n" 
+					// );
+					// const transporter = admin.createMailTransporter();
+					// if(transporter)
+					// 	admin.sendMail(transporter,options);
+					await conn.commit();
+					await conn.end();
+					return newRecovery[0];
+				}
+				else throw new Error("Can't add recovery")
+			} else {
+				return null;
 			}
-			await this.conn.query(queryOptions,recovery);
-			queryOptions.sql="SELECT LAST_INSERT_ID()";
-			const id:{"LAST_INSERT_ID()":number}[] = await this.conn.query(queryOptions);
-			queryOptions.sql="SELECT * FROM recoveries WHERE recoveries.recoveryId=:id"
-			const newRecovery:Recovery[] = await this.conn.query(queryOptions,{id:id[0]["LAST_INSERT_ID()"]});
-			if(newRecovery[0]) {
-				// const options = admin.createMailOptions(
-				// 	(process.env.MAIL_USER as string),
-				// 	user.email,
-				// 	"Innovation Labs Platform Password Reset",
-				// 	"Hello " + user.firstName + " " + user.lastName +" ,\n\n" 
-				// 	+ "Here is your activation link, please click here to reset your password.\n" 
-				// 	+ "		https://teams.innovationlabs.ro/#/recovery/"+newRecovery[0].recoveryLink + "\n"
-				// 	+ "Regards, Innovation Labs Team\n" 
-				// );
-				// const transporter = admin.createMailTransporter();
-				// if(transporter)
-				// 	admin.sendMail(transporter,options);
-				return newRecovery[0];
-			}
-			else throw new Error("Can't add recovery")
 		} catch (error) {
 			console.log("Error in function \"addRecovery(recovery)\"|\"admin\"");
 			console.error(error);
-			return {recoveryId:0} as Recovery
+			if(conn) {
+				await conn.rollback();
+				await conn.end();
+			}
+			return null;
 		}
 	}
 
@@ -368,17 +412,36 @@ export class AdminServer {
 	 * Function that deletes a recovery object from the databse
 	 * @param recoveryId - unique indentifier to find the specified recovery in the database
 	 */
-	async deleteRecovery(recoveryId:number):Promise<boolean> {
+	async deleteRecovery(recoveryId:string):Promise<boolean> {
+		let conn:Connection | null = null;
 		try {
-			const queryOptions:QueryOptions = {
-				namedPlaceholders:true,
-				sql:"DELETE FROM recoveries WHERE recoveryId=:recoveryId"
+			conn = await getPool().getConnection();
+			if(conn) {
+				await conn.beginTransaction();
+				const queryOptions:QueryOptions = {
+					namedPlaceholders:true,
+					sql:"DELETE FROM recoveries WHERE recoveryId=:recoveryId RETURNING recoveryId as deleted_id"
+				}
+				const response:{deleted_id:string}[] = await conn.query(queryOptions,{recoveryId});
+				if(response && response.length > 0 && response[0]) {
+					await conn.commit();
+					await conn.end();
+					return true;
+				} else {
+					await conn.rollback();
+					await conn.end();
+					return false;
+				}
+			} else {
+				return false;
 			}
-			await this.conn.query(queryOptions,{recoveryId});
-			return true;
 		} catch (error) {
 			console.log("Error in function \"deleteRecovery(recoveryId)\"|\"admin\"");
 			console.error(error);
+			if(conn) {
+				await conn.rollback();
+				await conn.end();
+			}
 			return false;
 		}
 	}
@@ -388,20 +451,32 @@ export class AdminServer {
 	 * @param id - unique identifier to find the recovery object in the database
 	 * @returns {Promise<Recovery>} a recovery object
 	 */
-	async findRecoveryById(recoveryId:number):Promise<Recovery | null> {
+	async findRecoveryById(recoveryId:string):Promise<Recovery | null> {
+		let conn:Connection | null = null;
 		try {
-			const queryOptions:QueryOptions = {
-				namedPlaceholders:true,
-				sql:"SELECT * FROM recoveries WHERE recoveryId=:recoveryId"
-			}
-			const recovery:Recovery[] = await this.conn.query(queryOptions,{recoveryId});
-			if (recovery[0])
-				return recovery[0];
-			else
+			conn = await getPool().getConnection();
+			if(conn) {
+				const queryOptions:QueryOptions = {
+					namedPlaceholders:true,
+					sql:"SELECT * FROM recoveries WHERE recoveryId=:recoveryId"
+				}
+				const recovery:Recovery[] = await conn.query(queryOptions,{recoveryId});
+				if (recovery && recovery.length > 0 && recovery[0]) {
+					await conn.end();
+					return recovery[0];
+				} else {
+					await conn.end();
+					return null;
+				}
+
+			} else {
 				return null;
+			}
 		} catch (error) {
 			console.log("Error in function \"findRecoveryById(id)\"|\"admin\"");
 			console.error(error);
+			if(conn)
+				await conn.end();
 			return null;
 		}
 	}
@@ -412,19 +487,30 @@ export class AdminServer {
 	 * @returns {Promise<Recovery>} a recovery object
 	 */
 	async findRecoveryByToken(recoveryLink:string):Promise<Recovery | null> {
+		let conn:Connection | null = null;
 		try {
-			const queryOptions:QueryOptions = {
-				namedPlaceholders:true,
-				sql:"SELECT * FROM recoveries WHERE recoveryLink=:recoveryLink"
-			}
-			const recovery:Recovery[] = await this.conn.query(queryOptions,{recoveryLink});
-			if (recovery[0])
-				return recovery[0];
-			else
+			conn = await getPool().getConnection();
+			if(conn) {
+				const queryOptions:QueryOptions = {
+					namedPlaceholders:true,
+					sql:"SELECT * FROM recoveries WHERE recoveryLink=:recoveryLink"
+				}
+				const recovery:Recovery[] = await conn.query(queryOptions,{recoveryLink});
+				if (recovery && recovery.length > 0 && recovery[0]) {
+					await conn.end();
+					return recovery[0];
+				} else {
+					await conn.end();
+					return null;
+				}
+			} else {
 				return null;
+			}
 		} catch (error) {
 			console.log("Error in function \"findRecoveryByToken(recoveryLink)\"|\"admin\"");
 			console.error(error);
+			if(conn)
+				await conn.end();
 			return null;
 		}
 
@@ -454,15 +540,15 @@ router.post("/createResetEmail", async (req:ApiRequest<{email:string}>,res:ApiRe
 	try {
 		/** @type {string} Email destination string */
 		const email = req.body.email;
-		// Null as any -> TO discuss if we change interface to recoveryId: number|null,  userId:number|null
+		// Null as any -> TO discuss if we change interface to recoveryId: string|null,  userId:string|null
 		const aux:Recovery = {
-			recoveryId:(null as any),
-			userId:(null as any),
+			recoveryId:uiidv4(),
+			userId:"",
 			email:email,
 			recoveryLink:"",
 		};
 		/** @type {Recovery} Recovery object */
-		const recovery:Recovery = await admin.addRecovery(aux);
+		const recovery:Recovery | null = await admin.addRecovery(aux);
 		if(recovery) {
 			res.send(recovery);	
 		} else {
@@ -580,109 +666,112 @@ router.post("/uploadCSV", async(req:ApiRequest<{encoded:string,buffer:Buffer,str
 		
 		/** @type {unknown} array with entries represented by each line of data in the .csv file */
 
-		const parsed = Papa.parse(string).data;
+		const parsed = Papa.parse<Array<string | undefined>>(string).data;
 
 		parsed.splice(0,1);
 		
-		const obj:object[] = [];
+		const obj:ParsedCSV[] = [];
 		for(const arr of parsed) {
+			if(arr) {
+				const object = admin.parseCSVData(...(arr));
+				if(object !== null)
+					obj.push(object)
+			}
 			// WORKAROUND for parsing the csv data. TODO -> Create interface for parsing
-			const object = admin.parseCSVData(...(arr as any));
-			if(object !== null)
-				obj.push(object)
+			
 		}
 		const newObj = _.groupBy(obj,"teamId");
 		for(const key in newObj) {
 			// WORKAROUND for parsing the csv data. TODO -> Create interface for parsing
-			for(const entry of (newObj[key] as any[])) {
-				const mentorEmail:string = entry.team.teamDetails["mentor"];
-				const mentor:User | null = await users.getUserByEmail(mentorEmail);
-				let mentorUsername = "";
-				if(mentorEmail !== undefined) {
-					mentorUsername = mentorEmail.split("@")[0]
+			for(const entry of newObj[key]) {
+				let team:Team | null = null;
+				if(entry.team && entry.product) {
+					const mentorEmail:string = entry.team.teamDetails["mentor"];
+					const mentor:User | null = await users.getUserByEmail(mentorEmail);
+					let mentorUsername = "";
+					if(mentorEmail !== undefined) {
+						mentorUsername = mentorEmail.split("@")[0]
+					}
+					if(mentor) {
+						entry.product.mentorId = mentor.userId;
+					} else if(mentorUsername !== "") {
+						const password = admin.randomPassword();
+						let user:User | null = await users.addUser({
+							// as any -> todo -> discuss if we change to userId: string|null 
+							userId:uiidv4(),
+							firstName: mentorUsername,
+							lastName: "",
+							username: mentorUsername, 
+							password: password, 
+							email: mentorEmail,
+							phone: "",
+							socialMedia: {}, 
+							birthDate: new Date(), 
+							userDetails: {
+								"location":entry.team.teamDetails["location"]
+							},
+							role: "Mentor",
+							avatarUu:"",
+							lastLogin:new Date()
+						});
+						if(user) {
+							// const options = admin.createMailOptions(
+							// 	(process.env.MAIL_USER as string),
+							// 	user.email,
+							// 	"Innovation Labs Platform Password",
+							// 	"Hello " + user.firstName + " " + user.lastName +" ,\n\n" 
+							// 	+ "Here is your new account, please do not disclose these informations to anyone.\n" 
+							// 	+ "		Username: " +user.username + "\n"
+							// 	+ "		Password: " +password + "\n" 
+							// 	+ "Use these credidentials to login on "+ process.env.HOSTNAME +"\n\n"
+							// 	+ "Regards, Innovation Labs Team\n" 
+							// );
+							// const transporter = admin.createMailTransporter();
+							// if(transporter)
+							// 	admin.sendMail(transporter,options);
+							entry.product.mentorId = user.userId;
+						}
+					}
+					team = await teams.getTeamByYearAndLocation(entry.team.year, entry.team.location, entry.team.teamName);
+					if(!team) {
+						team = await teams.addTeam(entry.team,entry.product);
+					}
 				}
-				if(mentor) {
-					entry.product.mentorId = mentor.userId;
-				} else if(mentorUsername !== "") {
-					const password = admin.randomPassword();
-					let user:User | null = await users.addUser({
-						// as any -> todo -> discuss if we change to userId: number|null 
-						userId:(null as any),
-						firstName: mentorUsername,
-						lastName: "",
-						username: mentorUsername, 
-						password: password, 
-						email: mentorEmail,
-						phone: "",
-						socialMedia: {}, 
-						birthDate: new Date(), 
-						userDetails: {
-							"location":entry.team.teamDetails["location"]
-						},
-						role: {
-							"Mentor":true
-						},
-						avatarUu:"",
-						lastLogin:new Date()
-					});
-					if(user) {
+				let user:User | null = null;
+				if(entry.user) {
+					user = await users.getUserByEmail(entry.user.email);
+					if(!user) {
+						const password = admin.randomPassword();
+						entry.user.password = password;
 						// const options = admin.createMailOptions(
 						// 	(process.env.MAIL_USER as string),
-						// 	user.email,
+						// 	entry.user.email,
 						// 	"Innovation Labs Platform Password",
-						// 	"Hello " + user.firstName + " " + user.lastName +" ,\n\n" 
+						// 	"Hello " + entry.user.firstName + " " + entry.user.lastName +" ,\n\n" 
 						// 	+ "Here is your new account, please do not disclose these informations to anyone.\n" 
-						// 	+ "		Username: " +user.username + "\n"
+						// 	+ "		Username: " +entry.user.username + "\n"
 						// 	+ "		Password: " +password + "\n" 
 						// 	+ "Use these credidentials to login on "+ process.env.HOSTNAME +"\n\n"
 						// 	+ "Regards, Innovation Labs Team\n" 
 						// );
-						// const transporter = admin.createMailTransporter();
+						// const transporter = admin.createMailTransporter()
 						// if(transporter)
 						// 	admin.sendMail(transporter,options);
-						entry.product.mentorId = user.userId;
+						// entry.product.mentorId = user.userId;
+						user = await users.addUser(entry.user);
 					}
-				}
-				let team = await teams.getTeamByYearAndLocation(entry.team.year, entry.team.location, entry.team.teamName);
-				if(!team) {
-					team = await teams.addTeam(entry.team,entry.product);
-				}
-
-				let user = await users.getUserByEmail(entry.user.email);
-				if(!user) {
-					const password = admin.randomPassword();
-					entry.user.password = password;
-					// const options = admin.createMailOptions(
-					// 	(process.env.MAIL_USER as string),
-					// 	entry.user.email,
-					// 	"Innovation Labs Platform Password",
-					// 	"Hello " + entry.user.firstName + " " + entry.user.lastName +" ,\n\n" 
-					// 	+ "Here is your new account, please do not disclose these informations to anyone.\n" 
-					// 	+ "		Username: " +entry.user.username + "\n"
-					// 	+ "		Password: " +password + "\n" 
-					// 	+ "Use these credidentials to login on "+ process.env.HOSTNAME +"\n\n"
-					// 	+ "Regards, Innovation Labs Team\n" 
-					// );
-					// const transporter = admin.createMailTransporter()
-					// if(transporter)
-					// 	admin.sendMail(transporter,options);
-					// entry.product.mentorId = user.userId;
-					user = await users.addUser(entry.user);
 				}
 				let userTeam;
 				if(user && team)
 					userTeam = await teams.getUserInTeam(user.userId,team.teamId);
-				if(!userTeam && user)
+				if(!userTeam && user && team)
 				{
-					let role = "";
-					for(const x in user.role) {
-						role = x;
-					}
+					let role = user.role;
 					let teamUser;
 					if(user && team && role)
 						teamUser = await teams.addUserToTeam(user, team, role);
 					let initDate;
-					if(entry.team.teamDetails["location"] === "Bucharest"){
+					if(team.teamDetails["location"] === "Bucharest"){
 						initDate = moment("2020-03-02");
 					} else {
 						initDate = moment("2020-03-09");
@@ -690,17 +779,23 @@ router.post("/uploadCSV", async(req:ApiRequest<{encoded:string,buffer:Buffer,str
 					for(let i = 0; i < 10; i++) {
 						const aux = moment(initDate.toDate());
 						const date = aux.add(7*i,"days").toDate();
-						let userActivity;
-						if(user && teamUser)
+						let userActivity:UserActivity;
+						if(user && teamUser) {
 							userActivity = {
+								activityId:uiidv4(),
 								userId:user.userId,
 								teamId:teamUser.teamId,
 								noOfHours:0,
 								date:date,
 								description:""
 							}
-						const response = await teams.addActivityForUser((userActivity as UserActivity));
-						if(!response){
+							const response = await teams.addActivityForUser((userActivity as UserActivity));
+							if(!response){
+								console.error("Error on route \"/uploadCSV\" in \"admin\" router");
+								console.error("No activity added")
+								res.status(401).send({err:401, data:null});
+							}
+						} else {
 							console.error("Error on route \"/uploadCSV\" in \"admin\" router");
 							console.error("No activity added")
 							res.status(401).send({err:401, data:null});
@@ -902,7 +997,7 @@ router.get("/teams", async (req:ApiRequest<undefined>,res:ApiResponse<Team[]>) =
  * 	Route on which we get all the team reviews based on the type of user requesting them
  */
 
-router.post("/teams/review", async (req:ApiRequest<{type:string,location:string,id:number}>,res:ApiResponse<Review[]>) => {
+router.post("/teams/review", async (req:ApiRequest<{type:string,location:string,id:string}>,res:ApiResponse<Review[]>) => {
 
 	/** @type {string} - the type of user requesting the teams reviews */
 	const type = req.body.type;
@@ -1100,7 +1195,7 @@ router.post("/add/workshop/Instances", async (req,res) => {
 /**
  * Route on which we request to add new workshop instances in the database
  */
-router.post("/request/user", async (req:ApiRequest<{from:string,email:string,firstName:string,lastName:string,teamId:number}>,res:ApiResponse<boolean>) => {
+router.post("/request/user", async (req:ApiRequest<{from:string,email:string,firstName:string,lastName:string,teamId:string}>,res:ApiResponse<boolean>) => {
 	// const from = req.body.from;
 	// const email = req.body.email;
 	// const firstName = req.body.firstName;
@@ -1133,7 +1228,7 @@ router.post("/request/user", async (req:ApiRequest<{from:string,email:string,fir
 		res.status(400).send(false);
 	}
 });
-router.post("/add/user", async (req:ApiRequest<{user:User,option:string,teamId:number}>,res:ApiResponse<boolean>) => {
+router.post("/add/user", async (req:ApiRequest<{user:User,option:string,teamId:string}>,res:ApiResponse<boolean>) => {
 	const user = req.body.user;
 	const option = req.body.option;
 	user.password = admin.randomPassword();
@@ -1163,10 +1258,7 @@ router.post("/add/user", async (req:ApiRequest<{user:User,option:string,teamId:n
 				}	
 				if(userTeam)
 				{
-					let role = "";
-					for(const x in newUser.role) {
-						role = x;
-					}
+					let role = newUser.role;
 					if(team) {
 						let initDate;
 						const teamUser = await teams.addUserToTeam(newUser, team,role);
@@ -1252,10 +1344,7 @@ router.post("/request/user/team", async(req:ApiRequest<{user:User,team:Team}>,re
 		const userTeam = await teams.getUserInTeam(user.userId,team.teamId);	
 		if(userTeam)
 		{
-			let role = "";
-			for(const x in user.role) {
-				role = x;
-			}
+			let role = user.role
 			const teamUser = await teams.addUserToTeam(user, team,role);
 			if(teamUser) {
 				let initDate;

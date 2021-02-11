@@ -16,7 +16,7 @@ export interface SimpleMenuOptions {
 	img?:string
 }
 export interface SimpleMenuItem {
-	id: number,
+	id: string,
 	icon: string,
 	title: string,
 	link?: string,

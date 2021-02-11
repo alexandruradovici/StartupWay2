@@ -1,17 +1,16 @@
 export * from "./ui";
 export * from "../common";
 
-import BusinessCanvas from "./views/mentorViews/BusinessCanvas.vue";
-import ProductDetails from "./views/mentorViews/ProductDetails.vue";
-import ProductFeed from "./views/mentorViews/ProductFeed.vue";
+import ViewTeam from "./views/ViewTeams.vue";
 import TeamComposition from "./views/mentorViews/TeamComposition.vue";
+import ProductDetails from "./views/mentorViews/ProductDetails.vue";
 import UserActivities from "./views/mentorViews/UserActivities.vue";
 
 import TeamsMenu from "./views/TeamsMenu.vue";
-import ViewTeam from "./views/ViewTeams.vue";
+import Team from "./views/Team.vue";
 import Summary from "./views/ProductSummary.vue";
 import WeeklyUpdates from "./views/WeeklyUpdates.vue";
-import Team from "./views/Team.vue";
+
 import FrontPage from "./views/FrontPage.vue";
 
 import store from "./store";
@@ -59,17 +58,7 @@ const workspaceRoutes: RouteConfig[] = [
 				path:'/viewTeam/activities/:teamId',
 				name:"User Activities",
 				component: UserActivities
-			},
-			{
-				path:'/viewTeam/feed/:teamId',
-				name:"Product Feed",
-				component: ProductFeed
-			},
-			{
-				path:'/viewTeam/canvas/:teamId',
-				name:"Business Canvas",
-				component: BusinessCanvas
-			},
+			}
 		],
 		component: ViewTeam
 	},

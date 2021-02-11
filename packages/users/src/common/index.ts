@@ -21,7 +21,7 @@ export const universities = [
 	"The Entrepreneurship Academy"
 ]
 export interface User {
-    userId: number;
+    userId: string;
     firstName: string;
     lastName: string;
     username: string;
@@ -31,7 +31,7 @@ export interface User {
     socialMedia: UserSocialMedia;
     birthDate: Date;
     userDetails: UserDetails;
-    role: Roles;
+    role: string;
     avatarUu:string;
     lastLogin: Date;
 
@@ -39,9 +39,9 @@ export interface User {
 
 
 export interface UserTeams {
-    userProductId: number,
-    teamId: number,
-    userId: number,
+    userProductId: string,
+    teamId: string,
+    userId: string,
     role: string
 }
 
@@ -58,15 +58,10 @@ export interface UserDetails
     [key: string]: any;
 }
 
-export interface Roles
-{
-    [key: string]: boolean;
-}
-
 export interface Session {
-    sessionId: number;
+    sessionId: string;
     token: string;
-    userId: number;
+    userId: string;
     createdAt: Date;
 }
 

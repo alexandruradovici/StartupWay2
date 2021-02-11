@@ -40,18 +40,18 @@
 <script lang="ts">
 import Vue from "vue";
 import { mapGetters } from "vuex";
-import { Team, Product } from "../../../common";
+import { Team, Product } from "@startupway/teams/lib/ui";
 import { User, UserTeams } from "@startupway/users/lib/ui";
-import { Feed, FeedTypes } from "@startupway/feed/lib/ui";
+import { Feed, FeedTypes } from "../../common";
 import moment from "moment";
 import { UI } from '@startupway/main/lib/ui';
 export default Vue.extend({
-	name: "ProductFeed",
+	name: "ProductFeedViewer",
 	watch: {
 		$route:{
 			immediate:true,
 			async handler(newRoute):Promise<void>  {
-				this.teamId = parseInt(this.$route.params.teamId);
+				this.teamId = (this.$route.params.teamId);
 				try {
 					if(await this.getUsers(this.teamId))
 						await this.getAllUsers();
@@ -76,8 +76,7 @@ export default Vue.extend({
 			immediate: true,
 			async handler(newUser: User):Promise<void>  {
 				if(newUser) {
-					const role = JSON.parse(this.user.role);
-					if(role["Admin"] || role["SuperAdmin"]) {
+					if(newUser.role === "Admin" || newUser.role === "SuperAdmin") {
 						try {
 							this.location = newUser.userDetails["location"];
 							const response = await this.ui.api.get<Team[]>("/api/v1/admin/teams/");
@@ -87,7 +86,7 @@ export default Vue.extend({
 						} catch (e) {
 							console.error(e);
 						}
-					} else if (role["Mentor"]) {
+					} else if (newUser.role === "Mentor") {
 						try {
 							this.location = newUser.userDetails["location"];
 							const response = await this.ui.api.get<(Team & Product)[]>("/api/v1/teams/mentor/teams/" + newUser.userId);
@@ -114,7 +113,7 @@ export default Vue.extend({
 			location: "" as string,
 			users:[] as (User & UserTeams)[],
 			allUsers:[] as User[],
-			teamId:0,
+			teamId:"",
 			team:"",
 			productUpdates:[] as Feed[] | null,
 			FeedTypes: FeedTypes,
@@ -136,7 +135,7 @@ export default Vue.extend({
 			}
 			return false;
 		},
-		async getUsers(teamId: number):Promise<boolean> {
+		async getUsers(teamId: string):Promise<boolean> {
 			try {
 				const response = await this.ui.api.get<(User & UserTeams)[]>("/api/v1/teams/team/users/" + teamId);
 				if (response.data) {
@@ -179,16 +178,6 @@ export default Vue.extend({
 					(user as User & {faculty:string,group:string}).group = user.userDetails["group"];
 				} else {
 					(user as User & {faculty:string,group:string}).group = "";
-				}
-				if (user.role) {
-					const roleObj = user.role;
-					for (const prop in roleObj) {
-						if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
-							// as any to overwrite property from {"Role_Name":true} to "Role_Name" for visualizing in frontend
-							(user.role as any) = prop;
-							break;
-						}
-					}
 				}
 			}
 			return users;

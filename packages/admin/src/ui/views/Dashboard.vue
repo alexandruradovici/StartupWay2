@@ -41,7 +41,7 @@
 										<div>
 											<v-divider class="mx-4" inset vertical></v-divider>
 											<v-spacer></v-spacer>
-											<v-dialog persistent v-model="approveDialog" max-width="600px">
+											<v-dialog persistent v-model="approveDialog" v-if="updated" max-width="600px">
 												<v-card>
 													<v-form lazy-validation v-model="validDesc">
 														<v-card-title class="justify-center" style="font-family: Georgia, serif;">Approve Pending Description</v-card-title>
@@ -86,7 +86,7 @@
 											</v-dialog>
 											<v-dialog persistent v-model="dialog" max-width="600px">
 												<v-card>
-													<v-form lazy-validation v-model="valid">
+													<v-form lazy-validation v-model="valid" v-if="team">
 														<v-card-title class="justify-center" style="font-family: Georgia, serif;">Edit Team Details</v-card-title>
 														<v-divider></v-divider>
 														<v-card-text style="margin-top: 50px;">
@@ -166,7 +166,7 @@
 																outlined
 																color="primary"
 																prepend-icon="mdi-note-text-outline"
-																v-if="user.role['Mentor']" 
+																v-if="user.role === 'Mentor'" 
 																v-model="team.mentorNotes" 
 																label="Mentor Notes" 
 																optional
@@ -176,7 +176,7 @@
 																outlined
 																color="primary"
 																prepend-icon="mdi-note-text-outline"
-																v-if="user.role['Admin']" 
+																v-if="user.role === 'Admin'" 
 																v-model="team.adminNotes" 
 																label="Admin Notes" 
 																optional
@@ -352,7 +352,7 @@ export default Vue.extend({
 			],
 			valid:true,
 			validDesc:true,
-			teamId: 0 as Number,
+			teamId: "",
 			role:"" as string,
 			menuName:{
 				title:"",
@@ -363,7 +363,7 @@ export default Vue.extend({
 			currentRoute:"" as string,
 			mentoredTeams:[] as (ModifiedTeam)[],
 			selectedMentoredTeam: {} as Team,
-			id:0 as number,
+			id:"",
 			tabs: [] as Tab[],
 			editElement: true,
 			dialog: false,
@@ -433,7 +433,7 @@ export default Vue.extend({
 			approveDescriptions: [] as (Team & Product)[],
 			updated: null as (Team & Product) | null,
 			approveDialog: false,
-			selectedTeam: 0,
+			selectedTeam: "",
 			allDescriptions: {} as {[key:string]:string}
 		};
 	},
@@ -445,7 +445,7 @@ export default Vue.extend({
 	watch: {
 		mentoredTeam: {
 			immediate:true,
-			async handler(newTeam:number):Promise<void> {
+			async handler(newTeam:string):Promise<void> {
 				if(this.mentoredTeams.length > 0){
 					const resp = this.mentoredTeams.find( team => {
 						return team.teamId == newTeam;
@@ -509,26 +509,22 @@ export default Vue.extend({
 			immediate: true,
 			async handler (newUser: User):Promise<void> {
 				if(newUser) {
-					const role = JSON.parse(this.user.role);
-					if(role["Mentor"]) {
+					if(newUser.role === "Mentor") {
 						this.type="mentor";
-					} else if(role["Admin"]) {
+					} else if(newUser.role === "Admin") {
 						this.type="admin";
-					} else if(role["SuperAdmin"]) {
+					} else if(newUser.role === "SuperAdmin") {
 						this.type="superAdmin";
 					} else {
 						this.loading = false;
 						this.loadingPage = false;
 					}
-					if(role["Mentor"] !== undefined || role["Admin"] !== undefined || role["SuperAdmin"] !== undefined) {
+					if(newUser.role === "Mentor" || newUser.role === "Admin" || newUser.role === "SuperAdmin" ) {
 						if(this.tabs.length > 0) {
 							this.tabs = [];
 						}
-						if (role["Admin"] || role["SuperAdmin"]) {
-							if(role["Admin"])
-								this.role="Admin";
-							else
-								this.role="SuperAdmin";
+						if (newUser.role === "Admin" || newUser.role === "SuperAdmin") {
+							this.role = newUser.role;
 							let response = await this.ui.api.get<(Team & Product)[]>("/api/v1/admin/teams/"+newUser.userDetails["location"]);
 							if (response) {
 								this.mentoredTeams = this.modifyTeams(response.data);
@@ -541,8 +537,8 @@ export default Vue.extend({
 								}
 							}
 							
-						} else if(role["Mentor"]) {
-							this.role="Mentor";
+						} else if(newUser.role === "Mentor") {
+							this.role = newUser.role;
 							let response = await this.ui.api.get<(Team & Product)[]>("/api/v1/teams/mentor/teamsAndProduct/" + newUser.userId);
 							if (response) {
 								
@@ -597,7 +593,7 @@ export default Vue.extend({
 							link:"/viewTeam/canvas"
 						});
 						this.menuName.title = "Mentor Menu";
-					} else if(newUser.userId !== 0) {
+					} else if(newUser.userId !== "") {
 						this.tabs = [];
 						this.role="User";
 						await this.ui.storeDispatch("teams/loadTeams",newUser.userId);
@@ -995,7 +991,7 @@ export default Vue.extend({
 			this.$router.go(-1);
 		},
 		changeRoute(link:string):void {
-			if((this.role==="Mentor" || this.role==="Admin" || this.role ==="SuperAdmin") && this.selectedMentoredTeam.teamId !== 0 && link.split("/")[1] === "viewTeam") {
+			if((this.role==="Mentor" || this.role==="Admin" || this.role ==="SuperAdmin") && this.selectedMentoredTeam.teamId !== "" && link.split("/")[1] === "viewTeam") {
 				if(this.$route.path !== link + "/" + this.selectedMentoredTeam.teamId)
 					this.$router.push(link + "/" + this.selectedMentoredTeam.teamId);
 			}

@@ -24,6 +24,7 @@
     "@startupway/main": "*",
     "@startupway/database": "*",
     "@startupway/users": "*",
+    "@startupway/teams": "*",
     "@startupway/workspace": "*",
     "express": "^4.17.1"
   },

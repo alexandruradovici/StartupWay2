@@ -25,9 +25,7 @@
     "@startupway/database": "*",
     "@startupway/users": "*",
     "@startupway/workspace": "*",
-    "@startupway/bmodelcanvas": "*",
     "@startupway/menu": "*",
-    "@startupway/feed": "*",
     "express": "^4.17.1"
   },
   "devDependencies": {

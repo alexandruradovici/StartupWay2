@@ -1,7 +1,19 @@
-import { BusinessTrack, TeamType } from '@startupway/teams/lib/common/';
+import { BusinessTrack, TeamType, Team, Product } from '@startupway/teams/lib/common/';
+import { Workshop } from '@startupway/workshop/lib/common/';
+import { User } from '@startupway/users/lib/common/';
+
+export type TeamId = Exclude<number,0>;
+export interface ParsedCSV {
+	teamId:TeamId, 
+	team?:Team, 
+	product?:Product, 
+	user?:User,
+	workshop?:Workshop
+}
+
 export interface Recovery {
-	recoveryId:number,
-	userId:number,
+	recoveryId:string,
+	userId:string,
 	email: string,
 	recoveryLink:String
 } 
@@ -14,7 +26,7 @@ export interface Review {
 	startupName:string,
 	description:string,
 	webLink:string,
-	teamId:number,
+	teamId:string,
 	mentorNotes:string,
 	adminNotes:string,
 	assessment20May:string,
@@ -24,8 +36,8 @@ export interface Review {
 }
 
 export interface ModifiedTeam {
-	teamId:number,
-	productId:number,
+	teamId:string,
+	productId:string,
 	year:number,
 	location:string,
 	teamName:string,

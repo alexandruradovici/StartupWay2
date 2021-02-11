@@ -9,8 +9,8 @@ import { User } from "@startupway/users/lib/ui";
 import { UI } from "@startupway/main/lib/ui";
 import { SimpleMenuOptions } from "@startupway/menu/lib/ui";
 enum MENU {
-	ADMIN_PANEL,
-	CSV
+	ADMIN_PANEL = "1",
+	CSV = "2"
 };
 
 export default Vue.extend({
@@ -18,7 +18,7 @@ export default Vue.extend({
 	data () {
 		return {
 			ui: UI.getInstance(),
-			userRole:false,
+			userRole:"",
 			options: {
 				menuName: "",
 				menuIcon: "mdi-cogs",
@@ -50,11 +50,8 @@ export default Vue.extend({
 			immediate: true,
 			async handler(newUser: User):Promise<void> {
 				if(newUser) {
-					const role = JSON.parse(this.user.role);
-					if (role["Admin"]) {
-						this.userRole = role["Admin"];
-					} else if(role["SuperAdmin"]) {
-						this.userRole = role["SuperAdmin"];
+					if (newUser.role === "Admin" || newUser.role === "SuperAdmin" ) {
+						this.userRole = newUser.role;
 					}
 				}
 			}

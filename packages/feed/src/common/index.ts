@@ -10,8 +10,8 @@ export enum FeedTypes {
     COLLABORATORS = "Collaborators"
 };
 export interface Feed {
-    feedId: number;
-    teamId: number;
+    feedId: string;
+    teamId: string;
     feedType: FeedTypes;
     text: FeedText;
     date: Date;

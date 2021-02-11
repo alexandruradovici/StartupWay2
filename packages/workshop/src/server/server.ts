@@ -10,33 +10,25 @@ import { Workshop, WorkshopInstances, WorkshopAttendances } from "../common";
 export class WorkshopServer {
 
 	private static INSTANCE?: WorkshopServer;
-	private conn: Connection;
-
- 	constructor() {
-		const that = this;
-		getPool().getConnection()
-		.then(conn => {
-			console.log("Connected to database");
-			that.conn = conn;
-		})
-		.catch(err => {
-			console.log("Not connected due to error: " + err);
-		})
-	}
 
 	async addWorkshop(workshopParam: Workshop): Promise<Workshop | null> {
+		let conn:Connection | null = null;
 		try {
-			const queryOptions:QueryOptions = {
-				namedPlaceholders:true,
-				sql:"INSERT INTO workshops (workshopName) VALUES(:workshopName)",
-			}
-			const response = await this.conn.query(queryOptions,workshopParam);
-			if(response) {
-				queryOptions.sql = "SELECT workshops.* FROM workshops WHERE workshops.workshopName=:workshopName";
-				const r = await this.conn.query(queryOptions,workshopParam);
-				if(r[0] !== undefined) {
-					return r;
+			conn = await getPool().getConnection();
+			if(conn) {
+				await conn.beginTransaction();
+				const queryOptions:QueryOptions = {
+					namedPlaceholders:true,
+					sql:"INSERT INTO workshops (workshopId, workshopName) VALUES(:workshopId,:workshopName) RETURNING workshopId, workshopName",
+				}
+				const response:Workshop[] = await conn.query(queryOptions,workshopParam);
+				if(response && response.length > 0 && response[0]) {
+					await conn.commit();
+					await conn.end();
+					return response[0];
 				} else {
+					await conn.rollback();
+					await conn.end();
 					return null;
 				}
 			} else {
@@ -44,23 +36,32 @@ export class WorkshopServer {
 			}
 		} catch (error) {
 			console.error(error);
+			if(conn) {
+				await conn.rollback();
+				await conn.end();
+			}
 			return null;
 		}
 	}
 
-	async addWorkshopInstance(workshopInstance: WorkshopInstances): Promise<WorkshopInstances | null> {	
+	async addWorkshopInstance(workshopInstance: WorkshopInstances): Promise<WorkshopInstances | null> {
+		let conn:Connection | null = null;
 		try {
-			const queryOptions:QueryOptions = {
-				namedPlaceholders:true,
-				sql:"INSERT INTO workshopInstances (workshopId,teamId,trainerName,workshopDate,workshopDetails) VALUES(:workshopId,:teamId,:trainerName,:workshopDate,:workshopDetails)",
-			}
-			const response = await this.conn.query(queryOptions,workshopInstance);
-			if(response) {
-				queryOptions.sql = "SELECT workshopInstances.* from workshopInstances where workshopInstances.workshopId=:workshopId";
-				const r = await this.conn.query(queryOptions,workshopInstance);
-				if(r[0] !== undefined) {
-					return r;
+			conn = await getPool().getConnection();
+			if(conn) {
+				await conn.beginTransaction();
+				const queryOptions:QueryOptions = {
+					namedPlaceholders:true,
+					sql:"INSERT INTO workshopInstances (workshopInstanceId,workshopId,teamId,trainerName,workshopDate,workshopDetails) VALUES(:workshopInstanceId,:workshopId,:teamId,:trainerName,:workshopDate,:workshopDetails) RETURNING workshopInstanceId,workshopId,teamId,trainerName,workshopDate,workshopDetails",
+				}
+				const response:WorkshopInstances[] = await conn.query(queryOptions,workshopInstance);
+				if(response && response.length > 0 && response[0]) {
+					await conn.commit();
+					await conn.end();
+					return response[0];
 				} else {
+					await conn.rollback();
+					await conn.end();
 					return null;
 				}
 			} else {
@@ -68,23 +69,32 @@ export class WorkshopServer {
 			}
 		} catch (error) {
 			console.error(error);
+			if(conn) {
+				await conn.rollback();
+				await conn.end();
+			}
 			return null;
 		}
 	}
 
 	async addWorkshopAttendance(workshopAttendance: WorkshopAttendances): Promise<WorkshopAttendances | null> {
+		let conn:Connection | null = null;
 		try {
-			const queryOptions:QueryOptions = {
-				namedPlaceholders:true,
-				sql:"INSERT INTO WorkshopAttendances (attendanceId,attendanceDate,userId,workshopInstanceId) VALUES(:attendanceId,:attendanceDate,:userId,:workshopInstanceId)",
-			}
-			const response = await this.conn.query(queryOptions,workshopAttendance);
-			if(response) {
-				queryOptions.sql = "SELECT WorkshopAttendances.* from WorkshopAttendances where WorkshopAttendances.userId=:userId";
-				const r = await this.conn.query(queryOptions,workshopAttendance);
-				if(r[0] !== undefined) {
-					return r;
+			conn = await getPool().getConnection();
+			if(conn) {
+				await conn.beginTransaction();
+				const queryOptions:QueryOptions = {
+					namedPlaceholders:true,
+					sql:"INSERT INTO WorkshopAttendances (attendanceId,attendanceDate,userId,workshopInstanceId) VALUES(:attendanceId,:attendanceDate,:userId,:workshopInstanceId) RETURNING attendanceId,attendanceDate,userId,workshopInstanceId",
+				}
+				const response:WorkshopAttendances[] = await conn.query(queryOptions,workshopAttendance);
+				if(response && response.length > 0 && response[0]) {
+					await conn.commit();
+					await conn.end();
+					return response[0];
 				} else {
+					await conn.rollback();
+					await conn.end();
 					return null;
 				}
 			} else {
@@ -92,107 +102,179 @@ export class WorkshopServer {
 			}
 		} catch (error) {
 			console.error(error);
+			if(conn) {
+				await conn.rollback();
+				await conn.end();
+			}
 			return null;
 		}
 	}
 
-	async deleteWorkshopAttendance(attendanceId: number): Promise<boolean> {
+	async deleteWorkshopAttendance(attendanceId: string): Promise<boolean> {
+		let conn:Connection | null = null;
 		try {
-			const queryOptions:QueryOptions = {
-				namedPlaceholders:true,
-				sql: "DELETE FROM workshopAttendances WHERE attendanceId=:attendanceId"
+			conn = await getPool().getConnection();
+			if(conn) {
+				await conn.beginTransaction();
+				const queryOptions:QueryOptions = {
+					namedPlaceholders:true,
+					sql: "DELETE FROM workshopAttendances WHERE attendanceId=:attendanceId RETURNING attendanceId as deleted_id"
+				}
+				const response:{deleted_id:string}[] = await conn.query(queryOptions,{attendanceId});
+				if(response && response.length > 0 && response[0]) {
+					await conn.commit();
+					await conn.end();
+					return true;
+				} else {
+					await conn.rollback();
+					await conn.end();
+					return false;
+				}
+			} else {
+				return false;
 			}
-			await this.conn.query(queryOptions,{attendanceId});
-			return true;
 		} catch (error) {
-			// TODO add user back if failed
 			console.error(error);
+			if(conn) {
+				await conn.rollback();
+				await conn.end();
+			}
 			return false;
 		}
 	}
 
 	async listWorkshops(): Promise<Workshop[]> {
+		let conn:Connection | null = null;
 		try {
-			const queryOptions:QueryOptions = {
-				sql: "SELECT workshops.* FROM workshops"
-			}
-			const workshops:Workshop[] = await this.conn.query(queryOptions) as Workshop[];
-			if(workshops) {
-				return workshops;
+			conn = await getPool().getConnection();
+			if(conn) {
+				const queryOptions:QueryOptions = {
+					sql: "SELECT workshops.* FROM workshops"
+				}
+				const workshops:Workshop[] = await conn.query(queryOptions) as Workshop[];
+				if(workshops && workshops.length > 0) {
+					await conn.end();
+					return workshops;
+				} else {
+					await conn.end();
+					return [];
+				}
 			} else {
 				return [];
 			}
 		} catch (error) {
 			console.error(error);
+			if(conn)
+				await conn.end();
 			return [];
 		}
 	}
 
 	async listWorkshopInstancesByTeamIds(teamIds: number[]): Promise<WorkshopInstances[]> {
+		let conn:Connection | null = null;
 		try {
-			const queryOptions:QueryOptions = {
-				sql: "SELECT workshopInstances.* FROM workshopInstances WHERE workshopInstances.teamId IN (:teamIds)"
-			}
-			const workshops:WorkshopInstances[] = await this.conn.query(queryOptions,{teamIds}) as WorkshopInstances[];
-			if(workshops) {
-				return workshops;
+			conn = await getPool().getConnection();
+			if(conn) {
+				const queryOptions:QueryOptions = {
+					sql: "SELECT workshopInstances.* FROM workshopInstances WHERE workshopInstances.teamId IN (:teamIds)"
+				}
+				const workshops:WorkshopInstances[] = await conn.query(queryOptions,{teamIds}) as WorkshopInstances[];
+				if(workshops && workshops.length > 0) {
+					await conn.end();
+					return workshops;
+				} else {
+					await conn.end();
+					return [];
+				}
 			} else {
 				return [];
 			}
 		} catch (error) {
 			console.error(error);
+			if(conn)
+				await conn.end();
 			return [];
 		}
 	}
 
-	async listWorkshopInstancesByWorkshopId(workshopId: number): Promise<WorkshopInstances[]> {
+	async listWorkshopInstancesByWorkshopId(workshopId: string): Promise<WorkshopInstances[]> {
+		let conn:Connection | null = null;
 		try {
-			const queryOptions:QueryOptions = {
-				sql: "SELECT workshopInstances.* FROM workshopInstances WHERE workshopInstances.workshopId=:workshopId"
-			}
-			const workshopInstances:WorkshopInstances[] = await this.conn.query(queryOptions,{workshopId}) as WorkshopInstances[];
-			if(workshopInstances) {
-				return workshopInstances;
+			conn = await getPool().getConnection();
+			if(conn) {
+				const queryOptions:QueryOptions = {
+					sql: "SELECT workshopInstances.* FROM workshopInstances WHERE workshopInstances.workshopId=:workshopId"
+				}
+				const workshopInstances:WorkshopInstances[] = await conn.query(queryOptions,{workshopId}) as WorkshopInstances[];
+				if(workshopInstances && workshopInstances.length > 0) {
+					await conn.end();
+					return workshopInstances;
+				} else {
+					await conn.end();
+					return [];
+				}
 			} else {
 				return [];
 			}
 		} catch (error) {
 			console.error(error);
+			if(conn)
+				await conn.end();
 			return [];
 		}
 	}
 
 	async listWorkshopAttendances(): Promise<WorkshopAttendances[]> {
+		let conn:Connection | null = null;
 		try {
-			const queryOptions:QueryOptions = {
-				sql: "SELECT workshopAttendances.* FROM workshopAttendances"
-			}
-			const workshopAttendances:WorkshopAttendances[] = await this.conn.query(queryOptions) as WorkshopAttendances[];
-			if(workshopAttendances) {
-				return workshopAttendances;
+			conn = await getPool().getConnection();
+			if(conn) {
+				const queryOptions:QueryOptions = {
+					sql: "SELECT workshopAttendances.* FROM workshopAttendances"
+				}
+				const workshopAttendances:WorkshopAttendances[] = await conn.query(queryOptions) as WorkshopAttendances[];
+				if(workshopAttendances && workshopAttendances.length > 0) {
+					await conn.end();
+					return workshopAttendances;
+				} else {
+					await conn.end();
+					return [];
+				}
 			} else {
 				return [];
 			}
 		} catch (error) {
 			console.error(error);
+			if(conn)
+				await conn.end();
 			return [];
 		}
 	}
 
-	async listWorkshopAttendancesByWorkshopId(workshopId: number): Promise<(WorkshopInstances & WorkshopAttendances)[]> {
+	async listWorkshopAttendancesByWorkshopId(workshopId: string): Promise<(WorkshopInstances & WorkshopAttendances)[]> {
+		let conn:Connection | null = null;
 		try {
-			const queryOptions:QueryOptions = {
-				nestTables:"_",
-				sql: "SELECT workshopInstances.*, workshopAttendances.* FROM workshopInstances INNER JOIN ON workshopAttendances.workshopInstanceId=workshopInstances.workshopInstanceId WHERE workshopInstances.workshopId=:workshopId"
-			}
-			const workshopInstances:(WorkshopInstances & WorkshopAttendances)[] = await this.conn.query(queryOptions,{workshopId});
-			if(workshopInstances.length > 0) {
-				return workshopInstances;
+			conn = await getPool().getConnection();
+			if(conn) {
+				const queryOptions:QueryOptions = {
+					nestTables:"_",
+					sql: "SELECT workshopInstances.*, workshopAttendances.* FROM workshopInstances INNER JOIN ON workshopAttendances.workshopInstanceId=workshopInstances.workshopInstanceId WHERE workshopInstances.workshopId=:workshopId"
+				}
+				const workshopInstances:(WorkshopInstances & WorkshopAttendances)[] = await conn.query(queryOptions,{workshopId});
+				if(workshopInstances && workshopInstances.length > 0) {
+					await conn.end();
+					return workshopInstances;
+				} else {
+					await conn.end();
+					return [];
+				}
 			} else {
 				return [];
 			}
 		} catch (error) {
 			console.error(error);
+			if(conn)
+				await conn.end();
 			return [];
 		}
 	}
@@ -219,9 +301,9 @@ router.get("/workshops", async (req:ApiRequest<undefined>, res:ApiResponse<Works
 	try {
 		let workshopsList: Workshop[] = await workshop.listWorkshops();
 		if (workshopsList.length > 0) {
-			res.send(workshopsList);
+			res.status(200).send(workshopsList);
 		} else {
-			res.status(401).send({err:401,data:[]});
+			res.status(201).send([]);
 		}
 	} catch (error) {
 		console.error(error);
@@ -230,20 +312,20 @@ router.get("/workshops", async (req:ApiRequest<undefined>, res:ApiResponse<Works
 });
 router.get("/attendance/:workshopId", async (req:ApiRequest<undefined>, res:ApiResponse<WorkshopAttendances[]>) => {
 	try {
-		let attendanceList: WorkshopAttendances[] = await workshop.listWorkshopAttendancesByWorkshopId(parseInt(req.params.workshopId));
+		let attendanceList: WorkshopAttendances[] = await workshop.listWorkshopAttendancesByWorkshopId(req.params.workshopId);
 		if (attendanceList) {
-			res.send(attendanceList);
+			res.status(200).send(attendanceList);
 		} else {
-			res.status(401).send({err:401,data:[]});
+			res.status(201).send([]);
 		}
 	} catch (error) {
 		console.error(error);
 		res.status(500).send({err:500, data:[]});
 	}
 })
-router.post("/attendance", async (req:ApiRequest<{workshopId:number,attendance:WorkshopAttendances[]}>, res:ApiResponse<WorkshopAttendances[]>) => {
+router.post("/attendance", async (req:ApiRequest<{workshopId:string,attendance:WorkshopAttendances[]}>, res:ApiResponse<WorkshopAttendances[]>) => {
 	try {
-		const workshopId: number = req.body.workshopId;
+		const workshopId: string = req.body.workshopId;
 		const attendance: WorkshopAttendances[] = req.body.attendance;
 		const currentAtteandance: WorkshopAttendances[] = await workshop.listWorkshopAttendancesByWorkshopId(workshopId);
 		const toAdd: WorkshopAttendances[] = _.difference(attendance, currentAtteandance);
@@ -261,9 +343,9 @@ router.post("/attendance", async (req:ApiRequest<{workshopId:number,attendance:W
 		}
 	
 		if (workshopsList) {
-			res.send(workshopsList);
+			res.status(200).send(workshopsList);
 		} else {
-			res.status(401).send({err:401,data:[]});
+			res.status(201).send([]);
 		}
 	} catch (error) {
 		console.error(error);
@@ -273,12 +355,12 @@ router.post("/attendance", async (req:ApiRequest<{workshopId:number,attendance:W
 
 router.get("/mentor/instances/:workshopId", async (req:ApiRequest<undefined>, res:ApiResponse<WorkshopInstances[]>) => {
 	try {
-		let workshopInstancesList: WorkshopInstances[] = await workshop.listWorkshopInstancesByWorkshopId(parseInt(req.params.workshopId));
+		let workshopInstancesList: WorkshopInstances[] = await workshop.listWorkshopInstancesByWorkshopId(req.params.workshopId);
 		let newArray = _.groupBy(workshopInstancesList, "workshopDate");
 		if (newArray) {
-			res.send(newArray);
+			res.status(200).send(newArray);
 		} else {
-			res.status(401).send({err:401,data:[]});
+			res.status(201).send([]);
 		}
 	} catch (error) {
 		console.error(error);
@@ -298,7 +380,7 @@ router.post("/add", async (req:ApiRequest<Workshop>, res:ApiResponse<Workshop | 
 		res.status(500).send({err:500, data:null});
 	}
 });
-router.post("/add/instance", async (req:ApiRequest<{workshopId:number,teamIds:number[],date:Date,details:{[key:string]:any},trainer:string}>, res:ApiResponse<WorkshopInstances[]>) => {
+router.post("/add/instance", async (req:ApiRequest<{workshopId:string,teamIds:string[],date:Date,details:{[key:string]:any},trainer:string}>, res:ApiResponse<WorkshopInstances[]>) => {
 	try {
 		const workshopId = req.body.workshopId;
 		const teamIds = req.body.teamIds;

@@ -1,5 +1,5 @@
 export interface Workshop {
-    workshopId: number;
+    workshopId: string;
     workshopName: string;
 }
 
@@ -9,9 +9,9 @@ export interface WorkshopDetails
 }
 
 export interface WorkshopInstances {
-    workshopInstanceId: number;
-    workshopId: number;
-    teamId: number;
+    workshopInstanceId: string;
+    workshopId: string;
+    teamId: string;
     trainerName: string;
     workshopDate: Date;
     workshopDetails: WorkshopDetails;
@@ -20,10 +20,10 @@ export interface WorkshopInstancesExtended extends WorkshopInstances {
 	
 } 
 export interface WorkshopAttendances {
-    attendanceId: number;
+    attendanceId: string;
     attendanceDate: Date;
-    userId: number;
-    workshopInstanceId: number;
+    userId: string;
+    workshopInstanceId: string;
 }
 
 

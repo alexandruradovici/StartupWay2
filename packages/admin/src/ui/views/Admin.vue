@@ -117,7 +117,7 @@ export default Vue.extend({
 			ui: UI.getInstance(),
 			allUsers: [] as User[],
 			teams: [] as (Team & Product)[],
-			viewTeams: [] as {name:string,value:number}[],
+			viewTeams: [] as {name:string,value:string}[],
 			loadingPage:false,
 		};
 	},
@@ -126,8 +126,7 @@ export default Vue.extend({
 			immediate: true,
 			async handler(newUser: User):Promise<void> {
 				if(newUser) {
-					const role = JSON.parse(this.user.role);
-					if (role["Admin"] || role["SuperAdmin"]) {
+					if (newUser.role === "Admin" || newUser.role === "SuperAdmin") {
 						try {
 							const response = await this.ui.api.get<(Team & Product)[]>("/api/v1/teams/mentor/teams/" + newUser.userId);
 							if (response) {
@@ -159,17 +158,17 @@ export default Vue.extend({
 	},
 	methods: {
 		modifyUsers(users: User[]): User[] {
-			users.forEach(element => {
-				if (element.role) {
-					// as any to replace role: {"Role_name":true} with "Role_name"
-					const roleObj = element.role;
-					for (const prop in roleObj) {
-						if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
-							(element.role as any) = prop;
-						}
-					}
-				}
-			});
+			// users.forEach(element => {
+			// 	if (element.role) {
+			// 		// as any to replace role: {"Role_name":true} with "Role_name"
+			// 		const roleObj = element.role;
+			// 		for (const prop in roleObj) {
+			// 			if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
+			// 				(element.role as any) = prop;
+			// 			}
+			// 		}
+			// 	}
+			// });
 			return users;
 		},
 		async getAllUsers():Promise<boolean> {

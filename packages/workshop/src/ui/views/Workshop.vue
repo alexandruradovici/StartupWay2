@@ -56,9 +56,11 @@ import {
 	// WorkshopInstancesExtended,
 	// WorkshopAttendances
 } from "../../common";
+import { Team, Product } from "@startupway/teams/lib/ui";
 import { User, UserExtended,UserDetails} from "@startupway/users/lib/ui";
 import { UI } from "@startupway/main/lib/ui";
 import * as _ from "lodash";
+import { v4 as uiidv4 } from 'uuid';
 export default Vue.extend({
 	name: "Workshop",
 	async mounted() {
@@ -82,25 +84,21 @@ export default Vue.extend({
 			teams: [] as any,
 			selected: 0 as number,
 			attendance: [] as WorkshopAttendances[],
-			userRole: false
+			userRole: ""
 		};
 	},
 	watch: {
 		user: {
 			immediate: true,
 			async handler(newUser: User):Promise<void> {
-				if (newUser.role["Mentor"]) {
-					this.userRole = newUser.role["Mentor"];
-				} else if(newUser.role["Admin"]) {
-					this.userRole = newUser.role["Admin"];
-				} else if(newUser.role["SuperAdmin"]) {
-					this.userRole = newUser.role["SuperAdmin"];
+				if (newUser.role === "Mentor" || newUser.role === "Admin" || newUser.role === "SuperAdmin") {
+					this.userRole = newUser.role;
 				}
 			}
 		},
 		selected: {
 			immediate: true,
-			async handler(newWorkshopId: number):Promise<void> {
+			async handler(newWorkshopId: string):Promise<void> {
 				await this.getWorkshopInstances(newWorkshopId);
 				await this.getAttendance(newWorkshopId);
 				for (var date in this.instances) {
@@ -113,10 +111,10 @@ export default Vue.extend({
 							if (response) {
 								let name = "";
 								for (let team of this.teams) {
-									if (this.user.role["Admin"]) {
+									if (this.user.role === "Admin") {
 										if(team.teams_teamId === workshop.teamId)
 											name = team.teams_teamName;
-									} else if(this.user.role["Mentor"]) {
+									} else if(this.user.role === "Mentor") {
 										if(team.teamId === workshop.teamId)
 											name = team.teams_teamName;
 									}
@@ -153,15 +151,14 @@ export default Vue.extend({
 		})
 	},
 	methods: {
-		async getWorkshopInstances(newWorkshopId: number):Promise<boolean> {
+		async getWorkshopInstances(newWorkshopId: string):Promise<boolean> {
 			try {
-				if (this.user.role["Mentor"]) {
+				if (this.user.role === "Mentor") {
 					// as any same as canvas
-					let response = await this.ui.api.get<any[]>("/api/v1/teams/mentor/teams/" + this.user.userId);
+					let response = await this.ui.api.get<(Team & Product)[]>("/api/v1/teams/mentor/teams/" + this.user.userId);
 					if (response) this.teams = response.data;
-				} else if(this.user.role["Admin"]) {
-					// as any same as canvas
-					let response = await this.ui.api.get<any[]>("/api/v1/admin/teams/");
+				} else if(this.user.role === "Admin") {
+					let response = await this.ui.api.get<(Team & Product)[]>("/api/v1/admin/teams/");
 					if (response) this.teams = response.data;
 				}
 				if (this.teams.length > 0) {
@@ -183,7 +180,7 @@ export default Vue.extend({
 			}
 			return false;
 		},
-		async getAttendance(newWorkshopId: number):Promise<boolean> {
+		async getAttendance(newWorkshopId: string):Promise<boolean> {
 			try {
 				let response = await this.ui.api.get<WorkshopAttendances[]>("/api/v1/workshop/attendance/" + newWorkshopId);
 				if (response) {
@@ -197,7 +194,7 @@ export default Vue.extend({
 			return false;
 		},
 		async pushToAttendance(user: UserExtended, date: Date):Promise<void> {
-			let workshopInstanceId: number = 0;
+			let workshopInstanceId: string = "";
 			if (!user.programmingDetails["present"]) {
 				// as any this.instances = _.Dictionary<WorkshopInstances> | {[key:string]:WorkshopInstances} ?
 				for (let workshop of (this.instances as any)[(date as any) as string]) {
@@ -208,7 +205,7 @@ export default Vue.extend({
 				}
 				user.programmingDetails["present"] = true;
 				this.attendance.push({
-					attendanceId:(null as unknown) as number,
+					attendanceId:uiidv4(),
 					workshopInstanceId: workshopInstanceId,
 					attendanceDate: date,
 					userId: user.userId

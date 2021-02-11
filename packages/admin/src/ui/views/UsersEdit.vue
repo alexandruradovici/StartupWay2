@@ -145,7 +145,7 @@
 <script lang="ts">
 import { mapGetters } from "vuex";
 import Vue from "vue";
-import { Roles, User, UserTeams } from "@startupway/users/lib/ui";
+import { User, UserTeams } from "@startupway/users/lib/ui";
 import { UI } from "@startupway/main/lib/ui";
 export default Vue.extend({
 	name: "UsersEdit",
@@ -189,9 +189,9 @@ export default Vue.extend({
 				{ text: "Last Login", value: "lastLogin", sortable: false },
 			],
 			item: {
-				userId: 0,
-				userProductId:0,
-				teamId:0,
+				userId: "",
+				userProductId:"",
+				teamId:"",
 				firstName: "",
 				lastName: "",
 				password: "",
@@ -202,7 +202,7 @@ export default Vue.extend({
 				socialMedia: {},
 				birthDate: new Date(),
 				userDetails: {},
-				role: ({} as (Roles | string)),
+				role: "",
 				avatarUu: "",
 				lastLogin: new Date()
 			} as (User&UserTeams) ,
@@ -223,10 +223,6 @@ export default Vue.extend({
 		user: {
 			immediate: true,
 			async handler(newUser: User):Promise<void> {
-				let userRole = newUser.role["Admin"];
-				if(!userRole) {
-					userRole = newUser.role["SuperAdmin"];
-				}
 			}
 		}
 	},
@@ -256,16 +252,6 @@ export default Vue.extend({
 					(user as (User&UserTeams | User) & {faculty:string,group:string}).group = user.userDetails["group"];
 				} else {
 					(user as (User&UserTeams | User) & {faculty:string,group:string}).group = "";
-				}
-				if (user.role) {
-					const roleObj = user.role;
-					for (const prop in roleObj) {
-						if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
-							// as any to replace role: {"Role_name":true} with "Role_name"
-							(user as any).role = prop;
-							break;
-						}
-					}
 				}
 				// const session = await this.ui.application.api.get("/api/v1/lastLogin/" + user.userId);
 				// if(session) {
@@ -336,9 +322,7 @@ export default Vue.extend({
 					socialMedia: this.item.socialMedia,
 					birthDate: this.item.birthDate,
 					userDetails: this.item.userDetails,
-					role: {
-						[this.item.role]:true,
-					},
+					role: this.item.role,
 					avatarUu:this.item.avatarUu,
 					lastLogin: this.item.lastLogin
 				};
@@ -355,9 +339,7 @@ export default Vue.extend({
 					socialMedia: this.item.socialMedia,
 					birthDate: this.item.birthDate,
 					userDetails: this.item.userDetails,
-					role: {
-						[this.item.role]:true,
-					},
+					role: this.item.role,
 					avatarUu: this.item.avatarUu,
 					lastLogin: this.item.lastLogin
 				};
@@ -370,9 +352,9 @@ export default Vue.extend({
 				});
 				if(response) {
 					this.item= {
-						userId: 0,
-						userProductId:0,
-						teamId:0,
+						userId: "",
+						userProductId:"",
+						teamId:"",
 						firstName: "",
 						lastName: "",
 						password: "",
@@ -382,7 +364,7 @@ export default Vue.extend({
 						socialMedia: {},
 						birthDate: new Date(),
 						userDetails: {},
-						role: ({} as (Roles & string)),
+						role: "",
 						avatarUu: "",
 						lastLogin: new Date()
 					};
@@ -396,9 +378,9 @@ export default Vue.extend({
 		},
 		exitDialog():void {
 			this.item= {
-				userId: 0,
-				userProductId:0,
-				teamId:0,
+				userId:"",
+				userProductId:"",
+				teamId:"",
 				firstName: "",
 				lastName: "",
 				password: "",
@@ -408,7 +390,7 @@ export default Vue.extend({
 				socialMedia: {},
 				birthDate: new Date(),
 				userDetails: {},
-				role: ({} as (Roles & string)),
+				role: "",
 				avatarUu: "",
 				lastLogin: new Date()
 			};

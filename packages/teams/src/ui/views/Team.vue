@@ -229,7 +229,7 @@ import { mapGetters } from "vuex";
 import moment from "moment";
 import { UI } from '@startupway/main/lib/ui';
 import { Team, VisualUser} from "../../common";
-import { User, UserTeams, universities, Roles } from "@startupway/users/lib/ui";
+import { User, UserTeams, universities } from "@startupway/users/lib/ui";
 import { SnackBarOptions, SnackBarTypes } from "@startupway/menu/lib/ui";
 export default Vue.extend({
 	name: "Team",
@@ -237,7 +237,8 @@ export default Vue.extend({
 		user: {
 			immediate: true,
 			async handler(newUser: User):Promise<void> {
-				this.userRole = newUser.role["CEO"];
+				if(newUser.role === "CEO")
+					this.userRole = newUser.role;
 				if(this.userRole) {
 					await this.getAllUsers();
 				}
@@ -247,7 +248,7 @@ export default Vue.extend({
 			immediate: true,
 			async handler(newTeam: Team):Promise<void> {
 				this.teamId = newTeam.teamId;
-				if (this.teamId === 0) {
+				if (this.teamId === "") {
 					if(this.$route.path !== "/workspace")
 						this.$router.push("/workspace");
 				} else {
@@ -298,8 +299,8 @@ export default Vue.extend({
 				"Hardware Specialist",
 				"Other"
 			],
-			teamId: 0 as number,
-			userRole: false as boolean,
+			teamId: "",
+			userRole: "",
 			selected: [],
 			singleSelect: false,
 			users: [] as (User & UserTeams)[] | User[],
@@ -400,28 +401,6 @@ export default Vue.extend({
 					(user as ((User & UserTeams) & VisualUser)).transport = "";
 				}
 
-				if (user.role) {
-					const roleObj = user.role;
-					for (const prop in roleObj) {
-						if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
-							// as any to overwrite property from {"Role_Name":true} to "Role_Name" for visualizing in frontend
-							// TODO find a better way to visualize the role
-							((user as ((User & UserTeams) & VisualUser)) as any).role = prop;
-							break;
-						}
-					}
-				} else if (user.role) {
-					const roleObj = user.role;
-					for (const prop in roleObj) {
-						if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
-							// as any to overwrite property from {"Role_Name":true} to "Role_Name" for visualizing in frontend
-							// TODO find a better way to visualize the role
-							((user as ((User & UserTeams) & VisualUser)) as any).role = prop;
-							break;
-						}
-					}
-				}
-
 				if(user.avatarUu !== "" && user.avatarUu !== undefined && user.avatarUu !== null){
 					(user as ((User & UserTeams) & VisualUser)).image = await this.getUserImage(user.avatarUu, user.userId);
 				} else {
@@ -430,9 +409,9 @@ export default Vue.extend({
 			}
 			return users;
 		},
-		async getUserImage(avatar:string,userId:number):Promise<string> {
+		async getUserImage(avatar:string,userId:string):Promise<string> {
 			if(avatar !== "" && avatar !== null) {
-				if(userId !== 0) {
+				if(userId !== "") {
 					try {
 						const response = await this.ui.api.post<string | null>("/api/v1/uploadDownload/get/file/user/avatar", {userId:userId});
 						if(response.data) {
@@ -533,7 +512,7 @@ export default Vue.extend({
 			this.toRemove = [];
 			this.loadingPage = false;
 		},
-		async getUsers(teamId: number):Promise<boolean> {
+		async getUsers(teamId: string):Promise<boolean> {
 			try {
 				const response = await this.ui.api.get<(User & UserTeams)[]>(
 					"/api/v1/teams/team/users/" + teamId
@@ -602,9 +581,9 @@ export default Vue.extend({
 				);
 				if (response.data) {
 					this.item = {
-						userId: 0,
-						userProductId: 0,
-						teamId: 0,
+						userId: "",
+						userProductId: "",
+						teamId: "",
 						firstName: "",
 						lastName: "",
 						password: "",
@@ -616,7 +595,7 @@ export default Vue.extend({
 						userDetails: {
 							details: ""
 						},
-						role: ({} as Roles & string),
+						role: "",
 						avatarUu: "",
 						lastLogin: new Date(),
 						faculty:"",
@@ -640,10 +619,10 @@ export default Vue.extend({
 				console.error(e);
 			}
 			if(user.userId === this.user.userId)
-				if(user.role["CEO"] === true)
-					this.userRole = true;
+				if(user.role === "CEO")
+					this.userRole = user.role;
 				else
-					this.userRole = false;
+					this.userRole = "";
 			this.dialog = false;
 			this.$forceUpdate();
 			this.loadingPage = false;
@@ -657,9 +636,9 @@ export default Vue.extend({
 		},
 		exitDialog():void {
 			this.item = {
-				userId: 0,
-				userProductId: 0,
-				teamId: 0,
+				userId: "",
+				userProductId: "",
+				teamId: "",
 				firstName: "",
 				lastName: "",
 				password: "",
@@ -671,7 +650,7 @@ export default Vue.extend({
 				userDetails: {
 					details: ""
 				},
-				role: ({} as Roles & string),
+				role: "",
 				avatarUu: "",
 				lastLogin: new Date(),
 				faculty:"",

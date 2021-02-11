@@ -29,7 +29,7 @@ export default Vue.extend({
 				if(newTeam) {
 					this.options.menuName = newTeam.teamName;
 					try {
-						if(newTeam.teamId !== 0 && newTeam.teamId !== undefined) {
+						if(newTeam.teamId !== "" && newTeam.teamId !== undefined) {
 							const response = await this.ui.api.get<{data:string,type:string,ext:string,uuid:string}[] | null>("/api/v1/uploadDownload/get/file/product/logo/"+ newTeam.productId);
 							if(response.data) {
 								const aux = this.options;
@@ -69,7 +69,7 @@ export default Vue.extend({
 						icon: "mdi-group",
 						img:this.img.data
 					}
-					if(this.options.items.find((letter:{id:number}) => {
+					if(this.options.items.find((letter:{id:string}) => {
 						return letter.id === item.id;
 					}) === undefined) {
 						this.options.items.push(item)
@@ -83,7 +83,7 @@ export default Vue.extend({
 			immediate:true,
 			async handler (newUser:User):Promise<void> {	
 				if(newUser) {
-					if( newUser.userId != 0 || newUser.userId )
+					if( newUser.userId !== "" || newUser.userId )
 					{
 						try {
 							await this.ui.storeDispatch("teams/loadTeams",newUser.userId);
@@ -127,7 +127,7 @@ export default Vue.extend({
 	},
 	methods: {
 		async getTeamImage(team:Team):Promise<void> {
-			if(team.teamId !== 0 && team.teamId !== undefined) {
+			if(team.teamId !== "" && team.teamId !== undefined) {
 				const response = await this.ui.api.get<{data:string,type:string,ext:string,uuid:string}[] | null>("/api/v1/uploadDownload/get/file/product/logo/"+ team.productId);
 				if(response.data) {
 					if(response.data.length > 0)

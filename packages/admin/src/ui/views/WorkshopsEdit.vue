@@ -164,10 +164,10 @@ export default Vue.extend({
 			dateMenu: false,
 			allUsers:[] as User[],
 			workshops:[] as Workshop[],
-			viewWorkshops:[] as {"name":string,"value":number}[],
+			viewWorkshops:[] as {"name":string,"value":string}[],
 			teams:[] as Team[],
-			viewTeams:[] as {"name":string,"value":number}[],
-			auxViewTeams:[] as {"name":string,"value":number}[],
+			viewTeams:[] as {"name":string,"value":string}[],
+			auxViewTeams:[] as {"name":string,"value":string}[],
 			allTeams:[] as (Team & Product)[],
 			date: new Date().toISOString().substr(0, 10),
 			instanceDialog:false,
@@ -178,8 +178,8 @@ export default Vue.extend({
 			workshopName:"",
 			activeUsers: {} as UserDetails,
 			instances: {} as {[key:string]:WorkshopInstances},
-			teamIds: [] as number[],
-			selected: 0 as number,
+			teamIds: [] as string[],
+			selected: "",
 			attendance: [] as WorkshopAttendances[],
 		};
 	},
@@ -187,7 +187,7 @@ export default Vue.extend({
 		user: {
 			immediate:true, 
 			async handler (newUser:User):Promise<void> {
-				if(newUser.role["SuperAdmin"] || newUser.role["Admin"]){
+				if(newUser.role === "Admin" || newUser.role === "SuperAdmin"){
 					try {
 						const response = await this.ui.api.get<((Team & Product)[])>("/api/v1/admin/teams/"+newUser.userDetails["location"]);
 						if(response) {
@@ -233,7 +233,7 @@ export default Vue.extend({
 		},
 		selected: {
 			immediate: true,
-			async handler(newWorkshopId: number):Promise<void> {
+			async handler(newWorkshopId: string):Promise<void> {
 				await this.getWorkshopInstances(newWorkshopId);
 				await this.getAttendance(newWorkshopId);
 				for (var date in this.instances) {
@@ -245,10 +245,10 @@ export default Vue.extend({
 							if (response) {
 								let name = "";
 								for (const team of this.teams) {
-									if (this.user.role["Admin"]) {
+									if (this.user.role === "Admin") {
 										if(team.teamId === workshop.teamId)
 											name = team.teamName;
-									} else if(this.user.role["Mentor"]) {
+									} else if(this.user.role === "Mentor") {
 										if(team.teamId === workshop.teamId)
 											name = team.teamName;
 									}
@@ -278,7 +278,7 @@ export default Vue.extend({
 		},
 		workshop: {
 			immediate: true,
-			async handler(newWorkshopId: number):Promise<void> {
+			async handler(newWorkshopId: string):Promise<void> {
 				const instances = [];
 				const response = await this.ui.api.get<WorkshopInstances[]>(
 					"/api/v1/workshop/mentor/instances/" + newWorkshopId
@@ -303,26 +303,26 @@ export default Vue.extend({
 	},
 	methods: {
 		modifyUsers(users:User[]):User[] {
-			users.forEach(element => {
-				if(element.role){
-					const roleObj = element.role;
-					for(const prop in roleObj) {
-						if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
-							// as any to replace role: {"Role_name":true} with "Role_name"
-							(element.role as any) = prop;
-						}
-					}
-				}
+			// users.forEach(element => {
+			// 	if(element.role){
+			// 		const roleObj = element.role;
+			// 		for(const prop in roleObj) {
+			// 			if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
+			// 				// as any to replace role: {"Role_name":true} with "Role_name"
+			// 				(element.role as any) = prop;
+			// 			}
+			// 		}
+			// 	}
 				
-			});
+			// });
 			return users;
 		},
-		async getWorkshopInstances(newWorkshopId: number):Promise<boolean> {
+		async getWorkshopInstances(newWorkshopId: string):Promise<boolean> {
 			try {
-				if (this.user.role["Mentor"]) {
+				if (this.user.role === "Mentor") {
 					const response = await this.ui.api.get<(Team & Product)[]>("/api/v1/teams/mentor/teams/" + this.user.userId);
 					if (response) this.teams = response.data;
-				} else if(this.user.role["Admin"]) {
+				} else if(this.user.role === "Admin") {
 					const response = await this.ui.api.get<(Team & Product)[]>("/api/v1/admin/teams/");
 					if (response) this.teams = response.data;
 				}
@@ -344,7 +344,7 @@ export default Vue.extend({
 			}
 			return false;
 		},
-		async getAttendance(newWorkshopId: number):Promise<boolean> {
+		async getAttendance(newWorkshopId: string):Promise<boolean> {
 			try {
 				const response = await this.ui.api.get<WorkshopAttendances[]>("/api/v1/workshop/attendance/" + newWorkshopId);
 				if (response) {
@@ -374,7 +374,7 @@ export default Vue.extend({
 				});
 				if(instances.data) {
 					const aux = this.selected;
-					this.selected = 0;
+					this.selected = "";
 					this.selected = aux;
 					this.workshop =  "";
 					this.teams = [];

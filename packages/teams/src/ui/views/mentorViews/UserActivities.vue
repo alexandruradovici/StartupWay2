@@ -173,7 +173,7 @@ export default Vue.extend({
 		$route:{
 			immediate:true,
 			async handler(newRoute):Promise<void> {
-				this.teamId = parseInt (this.$route.params.teamId);
+				this.teamId = this.$route.params.teamId;
 				try {
 					if(await this.getUsers(this.teamId))
 						await this.getAllUsers();
@@ -190,8 +190,7 @@ export default Vue.extend({
 			immediate: true,
 			async handler(newUser: User):Promise<void>  {
 				if(newUser) {
-					const role = JSON.parse(this.user.role);
-					if(role["Admin"] || role["SuperAdmin"]) {
+					if(newUser.role === "Admin" || newUser.role === "SuperAdmin") {
 						try {
 							this.location = newUser.userDetails["location"];
 							const response = await this.ui.api.get<Team[]>("/api/v1/admin/teams/");
@@ -201,7 +200,7 @@ export default Vue.extend({
 						} catch (e) {
 							console.error(e);
 						}
-					} else if (role["Mentor"]) {
+					} else if (newUser.role === "Mentor") {
 						try {
 							this.location = newUser.userDetails["location"];
 							const response = await this.ui.api.get<(Team & Product)[]>("/api/v1/teams/mentor/teams/" + newUser.userId);
@@ -233,7 +232,7 @@ export default Vue.extend({
 			immediate:true,
 			async handler(newUser:(User & UserTeams)):Promise<void>  {
 				const newUserId=newUser.userId;
-				if(newUserId !== 0) {
+				if(newUserId !== "") {
 					const response = await this.ui.api.post<UserActivity[]>("/api/v1/teams/team/activity", {
 						userId: newUserId,
 						teamId: this.teamId
@@ -264,8 +263,8 @@ export default Vue.extend({
 			viewDialog:false,
 			users:[] as User[],
 			allUsers:[] as User[],
-			userId:0,
-			teamId:0,
+			userId:"",
+			teamId:"",
 			edited:null as UserActivity | null,
 			mentoredUser:{},
 			team:"",
@@ -294,7 +293,7 @@ export default Vue.extend({
 			}
 			return false;
 		},
-		async getUsers(teamId: number):Promise<boolean> {
+		async getUsers(teamId: string):Promise<boolean> {
 			try {
 				const response = await this.ui.api.get<(User & UserTeams)[]>("/api/v1/teams/team/users/" + teamId);
 				if (response.data) {
@@ -338,22 +337,12 @@ export default Vue.extend({
 				} else {
 					(user as User & {faculty:string,group:string}).group = "";
 				}
-				if (user.role) {
-					const roleObj = user.role;
-					for (const prop in roleObj) {
-						if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
-							// as any to overwrite property from {"Role_Name":true} to "Role_Name" for visualizing in frontend
-							(user.role as any) = prop;
-							break;
-						}
-					}
-				}
 			}
 			return users;
 		},
-		async getUserImage(avatar:string,userId:number):Promise<string> {
+		async getUserImage(avatar:string,userId:string):Promise<string> {
 			if(avatar !== "" && avatar !== null) {
-				if(userId !== 0) {
+				if(userId !== "") {
 					try {
 						const response = await this.ui.api.post<string | null>("/api/v1/uploadDownload/get/file/user/avatar", {userId:userId});
 						if(response.data) {

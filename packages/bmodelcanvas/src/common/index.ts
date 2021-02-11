@@ -4,8 +4,8 @@ export interface CanvasField
 }
 
 export interface BModelCanvas {
-	modelId:number,
-	productId:number,
+	modelId:string,
+	productId:string,
 	date: Date,
 	fields:CanvasField
 

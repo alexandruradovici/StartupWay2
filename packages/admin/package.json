@@ -28,7 +28,6 @@
     "@startupway/workspace": "*",
     "@startupway/workshop": "*",
     "@startupway/teams": "*",
-    "@startupway/feed": "*",
     "express": "^4.17.1"
   },
   "devDependencies": {
