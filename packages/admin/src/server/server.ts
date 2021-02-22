@@ -118,8 +118,8 @@ export class AdminServer {
 					facebook: "",
 					mentorNotes: "",
 					adminNotes: "",
-					assesment20May: "",
-					assesment12Oct: ""
+					assesmentFinals: "",
+					assesmentSemifinals: ""
 				},
 				updatedAt:new Date(),
 				lastMentorUpdate:new Date(),
@@ -223,7 +223,6 @@ export class AdminServer {
 			if(conn) {
 				const queryOptions:QueryOptions = {
 					namedPlaceholders:true,
-					nestTables:"_",
 					sql:"SELECT IF(JSON_EXTRACT(productDetails,'$.assessment20May') = \"Yes\",\"DA\",\ Echipa,JSON_EXTRACT(t.teamDetails,'$.mentor') as Mentor,IF((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"pres\")>0,\"DA\",\"NU\") as 'Au prezentare pptx incarcata?',IF((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"image\")>0,(SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"image\"),0) as 'Au poze la \"Product Images\"?',IF((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"demoVid\")>0,\"DA\",\"NU\") as 'Au \"Tehnic Demo Video\" incarcat?', IF((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"presVid\")>0,\"DA\",\"NU\") as 'Au \"Product Presentation Video\" incarcat?',IF((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"logo\")>0,\"DA\",\"NU\") as 'Au \"Logo\" incarcat?',IF((JSON_EXTRACT(p.productDetails,'$.website')=''),'NU','DA') as 'Au link catre pagina web a produsului?',IF((JSON_EXTRACT(p.productDetails,'$.facebook')=''),'NU','DA') as 'Au link catre pagina de facebook a produsului?',DATE_FORMAT(p.lastMentorUpdate, \"%d %M %Y\") as \"Ultima actualizare a descrierii RO\",DATE_FORMAT(p.lastMentorUpdate, \"%d %M %Y\") as \"Ultima actualizare a descrierii ENG\",CONCAT((SELECT count(*) from (SELECT u.avatarUu, t1.teamId,IF(u.avatarUu!='',\"Yes\",\"No\") as has from users u inner join userTeams uT on u.userId = uT.userId inner join teams t1 on t1.teamId = uT.teamId ) as t2 where t2.teamId = t.teamId and t2.has =\"Yes\" ),'|',(SELECT count(*) from (SELECT u.avatarUu, t1.teamId, IF(u.avatarUu!='',\"Yes\",\"No\") as has from users u inner join userTeams uT on u.userId = uT.userId inner join teams t1 on t1.teamId = uT.teamId ) as t2 where t2.teamId = t.teamId)) as \"Au toti membrii echipei poza incarcata?\", IFNULL(DATE_FORMAT(tab.date, '%d %M %Y'),'') as \"Ultima actualizare a Lean Model Canvas\",DATE_FORMAT(p.updatedAt, \"%d %M %Y\") as \"Ultima actualizare\" from teams t inner join products p on t.productId = p.productId and JSON_EXTRACT(productDetails,'$.assessment20May') = \"Yes\" left join (SELECT date, productId from bModelCanvas group by productId) as tab on p.productId = tab.productId;"
 				}
 				const response:any[] = await conn.query(queryOptions);
@@ -372,8 +371,10 @@ export class AdminServer {
 				
 				const queryOptions:QueryOptions = {
 					namedPlaceholders:true,
-					sql:"INSERT INTO recoveries (recoveryId,userId,email,recoveryLink) VALUES(:recoveryId,:userId,:email,:recoveryLink) RETURNING recoveryId,userId,email,recoveryLink"
+					sql:"INSERT INTO recoveries (recoveryId,userId,email,recoveryLink) VALUES(:recoveryId,:userId,:email,:recoveryLink)"
 				}
+				await conn.query(queryOptions,recovery);
+				queryOptions.sql = "SELECT recoveryId,userId,email,recoveryLink FROM recoveries WHERE recoveryId=:recoveryId"
 				const newRecovery:Recovery[] = await conn.query(queryOptions,recovery);
 				if(newRecovery && newRecovery.length > 0 && newRecovery[0]) {
 					// const options = admin.createMailOptions(
@@ -420,10 +421,12 @@ export class AdminServer {
 				await conn.beginTransaction();
 				const queryOptions:QueryOptions = {
 					namedPlaceholders:true,
-					sql:"DELETE FROM recoveries WHERE recoveryId=:recoveryId RETURNING recoveryId as deleted_id"
+					sql:"DELETE FROM recoveries WHERE recoveryId=:recoveryId"
 				}
-				const response:{deleted_id:string}[] = await conn.query(queryOptions,{recoveryId});
-				if(response && response.length > 0 && response[0]) {
+				await conn.query(queryOptions,{recoveryId});
+				queryOptions.sql = "SELECT recoveryId FROM recoveries WHERE recoveryId=:recoveryId";
+				const response:{deleted_id:string}[] = await conn.query(queryOptions, {recoveryId});
+				if(response && response.length === 0) {
 					await conn.commit();
 					await conn.end();
 					return true;
@@ -939,6 +942,10 @@ router.get("/users", async (req:ApiRequest<undefined>,res:ApiResponse<(User & Us
 			users.push(...auxUsers);
 		}
 		if(users) {
+			for(let user of users) {
+				user.socialMedia = JSON.parse((user.socialMedia as any) as string);
+				user.userDetails = JSON.parse((user.userDetails as any) as string);
+			}
 			res.send(users);
 		} else {
 			console.error("Error on route \"/users/\" in \"admin\" router");
@@ -962,6 +969,10 @@ router.get("/teams/:location", async (req:ApiRequest<undefined>,res:ApiResponse<
 			teamsArray = await teams.getTeams();
 		} else {
 			teamsArray = await teams.getTeamsByLocation(req.params.location);
+		}
+		for(let team of teamsArray) {
+			team.productDetails = JSON.parse((team.productDetails as any) as string);
+			team.teamDetails = JSON.parse((team.teamDetails as any) as string);
 		}
 		if(teamsArray) {
 			res.send(teamsArray);
@@ -1015,21 +1026,19 @@ router.post("/teams/review", async (req:ApiRequest<{type:string,location:string,
 			teamsArray = await teams.getTeams();
 		}
 		const reviews:Review[] = [];
-		console.log(type);
-		console.log(teamsArray);
 		for (const team of teamsArray) {
 			// as any because TODO parse json in backend
 			const mentor:User | null = await users.getUserByEmail(JSON.parse(team.teamDetails as any)["mentor"]);
 			const product = JSON.parse(team.productDetails as any);
 			let review:Review;
 			if(mentor && product) {
-				let asses20May = "";
-				let asses12Oct = "";
+				let assesFinals = false;
+				let assesSemifinals = false;
 				if(product.assessment20May !== undefined) {
-					asses20May = product.assessment20May;
+					assesFinals = product.assessment20May;
 				}
 				if(product.assessment12Oct !== undefined) {
-					asses12Oct = product.assessment12Oct;
+					assesSemifinals = product.assessment12Oct;
 				}
 				review = {
 					location:team.location,
@@ -1043,8 +1052,8 @@ router.post("/teams/review", async (req:ApiRequest<{type:string,location:string,
 					teamId:team.teamId,
 					mentorNotes:product.mentorNotes,
 					adminNotes:product.adminNotes,
-					assessment20May:asses20May,
-					assessment12Oct:asses12Oct,
+					assessment20May:assesFinals,
+					assessment12Oct:assesSemifinals,
 					updatedAt: admin.formatDate(team.updatedAt),
 					lastMentorUpdate: admin.formatDate(team.lastMentorUpdate)
 				}
@@ -1093,10 +1102,11 @@ router.post("/teams/review/update", async (req:ApiRequest<{reviews:Review[],type
 				}
 				team.location=review.location;
 				team.teamName=review.startupName;
+				team.teamDetails = JSON.parse((team.teamDetails as any) as string);
 				team.teamDetails["mentor"] = review.mentor;
 	
 				const newTeam = await teams.modifyTeam(team);
-				if(newTeam) {
+				if(!newTeam) {
 					console.error("Error on route \"/teams/review/update\" in \"admin\" router");
 					console.error("Error, team not updated");
 					res.status(401).send({err:401});
@@ -1106,9 +1116,12 @@ router.post("/teams/review/update", async (req:ApiRequest<{reviews:Review[],type
 				product.businessTrack = (review.businessTrack  as BusinessTrack);
 				product.workshopDay = (review.workshopNr as WorkshopDay);
 				product.descriptionEN = review.description;
+				product.productDetails = JSON.parse((product.productDetails as any) as string);
 				product.productDetails["website"] = review.webLink;
 				product.productDetails["assessment20May"] = review.assessment20May;
 				product.productDetails["assessment12Oct"] = review.assessment12Oct;
+				product.lastMentorUpdate = new Date(review.lastMentorUpdate);
+				product.updatedAt = new Date(review.updatedAt);
 				const prodRes:(Product | null) = await teams.updateProduct(product);
 				if(prodRes) {
 					revRes.push(review);

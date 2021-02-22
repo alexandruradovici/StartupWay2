@@ -5,6 +5,7 @@ import { QueryOptions, Connection } from "mariadb";
 import { getAuthorizationFunction } from "@startupway/users/lib/server";
 import { Team, UserTeams, UserActivity, Product } from "../common";
 import { User } from "@startupway/users/lib/server";
+import { v4 as uiidv4 } from 'uuid';
 
 export class TeamsServer {
 
@@ -19,12 +20,16 @@ export class TeamsServer {
 				let o: Team & Product;
 				const queryOptions: QueryOptions = {
 					namedPlaceholders: true,
-					sql: `INSERT INTO products (productId,startupName,businessTrack,teamType,workshopDay,mentorId,descriptionEN,descriptionRO,pendingDescriptionEN,pendingDescriptionRO,productDetails,updatedAt,lastMentorUpdate) VALUES(:productId,:startupName,:businessTrack,:teamType,:workshopDay,:mentorId,:descriptionEN,:descriptionRO,:pendingDescriptionEN,:pendingDescriptionRO,:productDetails,:updatedAt,:lastMentorUpdate) RETURNING productId,startupName,businessTrack,teamType,workshopDay,mentorId,descriptionEN,descriptionRO,pendingDescriptionEN,pendingDescriptionRO,productDetails,updatedAt,lastMentorUpdate`
+					sql: `INSERT INTO products (productId,startupName,businessTrack,teamType,workshopDay,mentorId,descriptionEN,descriptionRO,pendingDescriptionEN,pendingDescriptionRO,productDetails,updatedAt,lastMentorUpdate) VALUES(:productId,:startupName,:businessTrack,:teamType,:workshopDay,:mentorId,:descriptionEN,:descriptionRO,:pendingDescriptionEN,:pendingDescriptionRO,:productDetails,:updatedAt,:lastMentorUpdate)`
 				};
+				await conn.query(queryOptions,product);
+				queryOptions.sql = " SELECT productId,startupName,businessTrack,teamType,workshopDay,mentorId,descriptionEN,descriptionRO,pendingDescriptionEN,pendingDescriptionRO,productDetails,updatedAt,lastMentorUpdate FROM products WHERE productId=:productId";
 				const productResponse: Product[] = await conn.query(queryOptions, product);
 				if (productResponse && productResponse.length > 0 && productResponse[0]) {
 					team.productId = productResponse[0].productId;
-					queryOptions.sql = "INSERT INTO teams (teamId,productId,teamName,teamDetails,location,year) VALUES(teamId,:productId,:teamName,:teamDetails,:location,:year) RETURNING teamId,productId,teamName,teamDetails,location,year";
+					queryOptions.sql = "INSERT INTO teams (teamId,productId,teamName,teamDetails,location,year) VALUES(teamId,:productId,:teamName,:teamDetails,:location,:year)";
+					await conn.query(queryOptions,team);
+					queryOptions.sql = "SELECT teamId,productId,teamName,teamDetails,location,year FROM teams WHERE teamId=:teamId";
 					const teamResponse: Team[] = await conn.query(queryOptions, team);;
 					if (teamResponse && teamResponse.length > 0 && teamResponse[0]) {
 						team = teamResponse[0];
@@ -88,16 +93,22 @@ export class TeamsServer {
 				await conn.beginTransaction();
 				const queryOptions: QueryOptions = {
 					namedPlaceholders: true,
-					sql: "DELETE FROM userTeams WHERE userTeams.teamId=:teamId RETURNING teamId as deleted_id"
+					sql: "DELETE FROM userTeams WHERE userTeams.teamId=:teamId"
 				}
+				await conn.query(queryOptions,{ teamId: team.teamId });
+				queryOptions.sql = "SELECT teamId as deleted_id FROM userTeams WHERE teamId=:teamId";
 				const deleteUT:{deleted_id:string}[] = await conn.query(queryOptions, { teamId: team.teamId });
-				if(deleteUT && deleteUT.length > 0 && deleteUT[0]) {
+				if(deleteUT && deleteUT.length === 0) {
 					queryOptions.sql = "DELETE FROM teams WHERE teams.teamId=:teamId";
+					await conn.query(queryOptions,{ teamId: team.teamId });
+					queryOptions.sql = "SELECT teamId as deleted_id FROM teams WHERE teamId=:teamId";
 					const deleteT:{deleted_id:string}[] = await conn.query(queryOptions, { teamId: team.teamId });
-					if(deleteT && deleteT.length > 0 && deleteT[0]) {
+					if(deleteT && deleteT.length === 0) {
 						queryOptions.sql = "DELETE FROM products WHERE product.productId=:productId";
+						await conn.query(queryOptions,{ teamId: team.teamId });
+						queryOptions.sql = "SELECT productId as deleted_id FROM products WHERE productId=:productId";
 						const deleteP:{deleted_id:string}[] = await conn.query(queryOptions, { productId: team.productId });
-						if(deleteP && deleteP.length > 0 && deleteP[0]) {
+						if(deleteP && deleteP.length === 0) {
 							await conn.commit();
 							await conn.end();
 							return true;
@@ -128,8 +139,10 @@ export class TeamsServer {
 				await conn.beginTransaction();
 				const queryOptions: QueryOptions = {
 					namedPlaceholders: true,
-					sql: "UPDATE teams SET productId=:productId, teamName=:teamName, teamDetails=:teamDetails, location=:location, year=:year, reproductId=:reproductId WHERE teamId=:teamId RETURNING teamId,productId,teamName,teamDetails,location,year"
+					sql: "UPDATE teams SET productId=:productId, teamName=:teamName, teamDetails=:teamDetails, location=:location, year=:year WHERE teamId=:teamId"
 				};
+				await conn.query(queryOptions,team);
+				queryOptions.sql = "SELECT teamId,productId,teamName,teamDetails,location,year FROM teams WHERE teamId=:teamId"
 				const teamResponse: Team[] = await conn.query(queryOptions, team);
 				if (teamResponse && teamResponse.length > 0 && teamResponse[0]) {
 					await conn.commit();
@@ -160,9 +173,12 @@ export class TeamsServer {
 				await conn.beginTransaction();
 				const queryOptions: QueryOptions = {
 					namedPlaceholders: true,
-					sql: "INSERT INTO userTeams (userProductId,userId,teamId,role) VALUES(:userProductId,:userId,:teamId,:role) RETURNING userProductId,userId,teamId,role"
+					sql: "INSERT INTO userTeams (userProductId,userId,teamId,role) VALUES(:userProductId,:userId,:teamId,:role)"
 				};
-				const userInTeam: UserTeams[] = await conn.query(queryOptions, { userId: user.userId, teamId: team.teamId, role: role });
+				const userProductId = uiidv4();
+				await conn.query(queryOptions,{ userProductId: userProductId, userId:user.userId, teamId: team.teamId, role:role });
+				queryOptions.sql = "SELECT userProductId,userId,teamId,role FROM userTeams WHERE userProductId=:userProductId"
+				const userInTeam: UserTeams[] = await conn.query(queryOptions, {  userProductId: userProductId });
 				if (userInTeam && userInTeam.length > 0 && userInTeam[0]) {
 					await conn.commit();
 					await conn.end();
@@ -193,10 +209,12 @@ export class TeamsServer {
 				await conn.beginTransaction();
 				const queryOptions: QueryOptions = {
 					namedPlaceholders: true,
-					sql: "DELETE FROM userTeams WHERE userTeams.userId=:userId AND teamId=:teamId RETURNING userProductId as deleted_id"
+					sql: "DELETE FROM userTeams WHERE userTeams.userId=:userId AND teamId=:teamId"
 				};
+				await conn.query(queryOptions, { userId: user.userId, teamId: team.teamId});
+				queryOptions.sql = "SELECT userProductId as deleted_id FROM userTeams WHERE userTeams.userId=:userId AND teamId=:teamId";
 				const response:{deleted_id:string}[] = await conn.query(queryOptions, { userId: user.userId, teamId: team.teamId });
-				if(response && response.length > 0 && response[0]) {
+				if(response && response.length === 0) {
 					await conn.commit();
 					await conn.end();
 					return true;
@@ -218,17 +236,16 @@ export class TeamsServer {
 		}
 	}
 	// changed param from User to number, (userId)
-	async getUserTeams(userId: string): Promise<(Team)[]> {
+	async getUserTeams(userId: string): Promise<(Team & UserTeams)[]> {
 		let conn:Connection | null = null;
 		try {
 			conn = await getPool().getConnection();
 			if(conn) {
 				const queryOptions: QueryOptions = {
 					namedPlaceholders: true,
-					nestTables: "_",
 					sql: "SELECT teams.*, userTeams.userProductId, userTeams.role, userTeams.userId FROM teams INNER JOIN userTeams ON userTeams.teamId = teams.teamId WHERE userTeams.userId=:userId"
 				};
-				const teamsReponse: Team[] = await conn.query(queryOptions, { userId });
+				const teamsReponse: (Team & UserTeams)[] = await conn.query(queryOptions, { userId });
 				if (teamsReponse && teamsReponse.length > 0) {
 					await conn.end();
 					return teamsReponse;
@@ -254,7 +271,6 @@ export class TeamsServer {
 			if(conn) {
 				const queryOptions: QueryOptions = {
 					namedPlaceholders: true,
-					nestTables: "_",
 					sql: "SELECT teams.teamId, teams.teamName, teams.teamDetails, teams.location, teams.year, products.* FROM teams INNER JOIN products ON teams.productId = products.productId"
 				};
 				const teamsReponse: (Team & Product)[] = await conn.query(queryOptions);
@@ -282,7 +298,6 @@ export class TeamsServer {
 			if(conn) {
 				const queryOptions: QueryOptions = {
 					namedPlaceholders: true,
-					nestTables: "_",
 					sql: "SELECT teams.teamId, teams.teamName, teams.teamDetails, teams.location, teams.year, products.* FROM teams INNER JOIN products ON teams.productId = products.productId and teams.location=:location"
 				};
 				const teamsReponse: (Team & Product)[] = await conn.query(queryOptions, { location });
@@ -610,7 +625,6 @@ export class TeamsServer {
 			if(conn) {
 				const queryOptions: QueryOptions = {
 					namedPlaceholders: true,
-					nestTables: "_",
 					sql: "SELECT userTeams.userProductId, userTeams.teamId, users.* FROM userTeams INNER JOIN users ON users.userId=userTeams.userId WHERE userTeams.teamId=:teamId"
 				};
 				const teamResponse: (User & UserTeams)[] = await conn.query(queryOptions, { teamId });
@@ -672,7 +686,6 @@ export class TeamsServer {
 			if(conn) {
 				const queryOptions: QueryOptions = {
 					namedPlaceholders: true,
-					nestTables: "_",
 					sql: "SELECT teams.teamId, teams.teamName, teams.teamDetails, teams.location, teams.year, products.* FROM teams INNER JOIN products ON teams.productId=products.productId AND products.mentorId=:mentorId"
 				};
 				const teamResponse: (Team & Product)[] = await conn.query(queryOptions, { mentorId });
@@ -700,7 +713,6 @@ export class TeamsServer {
 			if(conn) {
 				const queryOptions: QueryOptions = {
 					namedPlaceholders: true,
-					nestTables: "_",
 					sql: "SELECT teams.* FROM teams INNER JOIN products ON products.productId=teams.productId WHERE products.mentorId=:mentorId"
 				};
 				const teamResponse: (Team & Product)[] = await conn.query(queryOptions, { mentorId });
@@ -756,8 +768,10 @@ export class TeamsServer {
 				await conn.beginTransaction();
 				const queryOptions: QueryOptions = {
 					namedPlaceholders: true,
-					sql: "UPDATE products SET startupName=:startupName, businessTrack=:businessTrack, teamType=:teamType, workshopDay=:workshopDay, mentorId=:mentorId, descriptionEN=:descriptionEN, descriptionRO=:descriptionRO, pendingDescriptionEN=:pendingDescriptionEN, pendingDescriptionRO=:pendingDescriptionRO, productDetails=:productdetails, updatedAt=:updatedAt, lastMentorUpdate=:lastMentorUpdate WHERE productId=:productId RETURNING productId, startupName, businessTrack, teamType, workshopDay, mentorId, descriptionEN, descriptionRO, pendingDescriptionEN, pendingDescriptionRO, productDetails, updatedAt, lastMentorUpdate"
+					sql: "UPDATE products SET startupName=:startupName, businessTrack=:businessTrack, teamType=:teamType, workshopDay=:workshopDay, mentorId=:mentorId, descriptionEN=:descriptionEN, descriptionRO=:descriptionRO, pendingDescriptionEN=:pendingDescriptionEN, pendingDescriptionRO=:pendingDescriptionRO, productDetails=:productDetails, updatedAt=:updatedAt, lastMentorUpdate=:lastMentorUpdate WHERE productId=:productId"
 				};
+				await conn.query(queryOptions,product);
+				queryOptions.sql = "SELECT productId, startupName, businessTrack, teamType, workshopDay, mentorId, descriptionEN, descriptionRO, pendingDescriptionEN, pendingDescriptionRO, productDetails, updatedAt, lastMentorUpdate FROM products WHERE productId=:productId";
 				const teamResponse: Product[] = await conn.query(queryOptions, product);
 				if (teamResponse && teamResponse.length > 0 && teamResponse[0]) {
 					await conn.commit();
@@ -788,8 +802,10 @@ export class TeamsServer {
 				await conn.beginTransaction();
 				const queryOptions: QueryOptions = {
 					namedPlaceholders: true,
-					sql: "UPDATE teams SET productId=:productId, teamName=:teamName, teamDetails=:teamDetails, location=:location, year=:year, reproductId=:reproductId WHERE teamId=:teamId RETURNING teamId,productId,teamName,teamDetails,location,year"
+					sql: "UPDATE teams SET productId=:productId, teamName=:teamName, teamDetails=:teamDetails, location=:location, year=:year WHERE teamId=:teamId"
 				};
+				await conn.query(queryOptions,team);
+				queryOptions.sql = "SELECT teamId,productId,teamName,teamDetails,location,year FROM teams WHERE teamId=:teamId";
 				const teamResponse: Team[] = await conn.query(queryOptions, team);
 				if (teamResponse && teamResponse.length > 0 && teamResponse[0]){
 					await conn.commit();
@@ -820,7 +836,7 @@ export class TeamsServer {
 				product.descriptionRO = product.pendingDescriptionRO;
 			product.pendingDescriptionEN = "";
 			product.pendingDescriptionRO = "";
-
+			product.updatedAt = new Date();
 			const productResponse = await this.updateProduct(product);
 			if (productResponse)
 				return productResponse;
@@ -875,8 +891,10 @@ export class TeamsServer {
 					await conn.end();
 					return null;
 				} else {
-					queryOptions.sql = "INSERT INTO userActivities (activityId,userId,teamId,noOfHours,date,description) VALUES(:activityId,:userId,:teamId,:noOfHours,:date,:description) RETURNING activityId,userId,teamId,noOfHours,date,description";
-					const activity: UserActivity[] = await conn.query(queryOptions, userActivity);;
+					queryOptions.sql = "INSERT INTO userActivities (activityId,userId,teamId,noOfHours,date,description) VALUES(:activityId,:userId,:teamId,:noOfHours,:date,:description)";
+					await conn.query(queryOptions,userActivity);
+					queryOptions.sql = "SELECT activityId,userId,teamId,noOfHours,date,description FROM userActivities WHERE activityId=:activityId";
+					const activity: UserActivity[] = await conn.query(queryOptions, userActivity);
 					if (activity && activity.length > 0 && activity[0]) {
 						await conn.commit();
 						await conn.end();
@@ -910,10 +928,12 @@ export class TeamsServer {
 					namedPlaceholders: true,
 					sql: "SELECT * FROM userActivities WHERE userId=:userId AND teamId=:teamId AND (WEEK(date, 7)=WEEK(CURDATE(), 7) OR WEEK(date, 7)=(WEEK(CURDATE(), 7)-1)) AND WEEK(date, 7)=WEEK(:date, 7)"
 				};
-				const activityResponse: UserActivity[] = await conn.query(queryOptions, { userActivity });
+				const activityResponse: UserActivity[] = await conn.query(queryOptions, userActivity);
 				if (activityResponse && activityResponse.length > 0 && activityResponse[0]) {
-					queryOptions.sql = "UPDATE userActivities SET userId=:userId, teamId=:teamId, noOfHours=:noOfHours, date=:date, description=:description RETURNING activityId,userId,teamId,noOfHours,date,description";
-					const activity: UserActivity[] = await conn.query(queryOptions, { userActivity });
+					queryOptions.sql = "UPDATE userActivities SET userId=:userId, teamId=:teamId, noOfHours=:noOfHours, date=:date, description=:description";
+					await conn.query(queryOptions, userActivity);
+					queryOptions.sql= "SELECT activityId,userId,teamId,noOfHours,date,description FROM userActivities WHERE activityId=:activityId";
+					const activity: UserActivity[] = await conn.query(queryOptions, userActivity);
 					if (activity && activity.length > 0 && activity[0]) {
 						await conn.commit();
 						await conn.end();
@@ -948,9 +968,11 @@ export class TeamsServer {
 				await conn.beginTransaction();
 				const queryOptions: QueryOptions = {
 					namedPlaceholders: true,
-					sql: "UPDATE userActivities SET userId=:userId, teamId=:teamId, noOfHours=:noOfHours, date=:date, description=:description RETURNING activityId,userId,teamId,noOfHours,date,description"
+					sql: "UPDATE userActivities SET userId=:userId, teamId=:teamId, noOfHours=:noOfHours, date=:date, description=:description WHERE activityId=:activityId"
 				};
-				const activity: UserActivity[] = await conn.query(queryOptions, { userActivity });
+				await conn.query(queryOptions, userActivity);
+				queryOptions.sql = "SELECT activityId,userId,teamId,noOfHours,date,description FROM userActivities WHERE activityId=:activityId";
+				const activity: UserActivity[] = await conn.query(queryOptions, userActivity);
 				if (activity && activity.length > 0 && activity[0]) {
 					await conn.commit();
 					await conn.end();
@@ -980,9 +1002,11 @@ export class TeamsServer {
 				await conn.beginTransaction();
 				const queryOptions: QueryOptions = {
 					namedPlaceholders: true,
-					sql: "UPDATE userTeams SET userId=:userId, teamId=:teamId, role=:role RETURNING userProductId,teamId,userId,role"
+					sql: "UPDATE userTeams SET userId=:userId, teamId=:teamId, role=:role WHERE userId=:userId and teamId=:teamId"
 				};
-				const activity: UserTeams[] = await conn.query(queryOptions, { userTeam });
+				await conn.query(queryOptions, userTeam);
+				queryOptions.sql = "SELECT userProductId,teamId,userId,role FROM userTeams WHERE teamId=:teamId AND userId=:userId"
+				const activity: UserTeams[] = await conn.query(queryOptions, userTeam);
 				if (activity && activity.length > 0 && activity[0]) {
 					await conn.commit();
 					await conn.end();
@@ -1021,9 +1045,13 @@ if (authFunct)
 	router.use(authFunct);
 // Bypass params dictionary and send authorization Function
 
-router.get("/teams:userId", async (req: ApiRequest<undefined>, res: ApiResponse<Team[]>) => {
+router.get("/teams:userId", async (req: ApiRequest<undefined>, res: ApiResponse<(Team & UserTeams)[]>) => {
 	try {
-		const all_teams: Team[] = await teams.getUserTeams(req.params.userId);
+		const all_teams: (Team & UserTeams)[] = await teams.getUserTeams(req.params.userId);
+		
+		for(let team of all_teams) {
+			team.teamDetails = JSON.parse((team.teamDetails as any) as string);
+		}
 		if (all_teams)
 			res.send(all_teams);
 		else
@@ -1037,6 +1065,11 @@ router.get("/teams:userId", async (req: ApiRequest<undefined>, res: ApiResponse<
 router.get("/mentor/teamsAndProduct/:mentorId", async (req: ApiRequest<undefined>, res: ApiResponse<(Team & Product)[]>) => {
 	try {
 		const allTeams: (Team & Product)[] = await teams.getTeamAndProductByMentorId(req.params.mentorId);
+		
+		for(let team of allTeams) {
+			team.productDetails = JSON.parse((team.productDetails as any) as string);
+			team.teamDetails = JSON.parse((team.teamDetails as any) as string);
+		}
 		if (allTeams)
 			res.status(200).send(allTeams);
 		else
@@ -1048,9 +1081,13 @@ router.get("/mentor/teamsAndProduct/:mentorId", async (req: ApiRequest<undefined
 
 });
 
-router.get("/mentor/teams/:mentorId", async (req: ApiRequest<undefined>, res: ApiResponse<(Team & Product)[]>) => {
+router.get("/mentor/teams/:mentorId", async (req: ApiRequest<undefined>, res: ApiResponse<(Team)[]>) => {
 	try {
-		const allTeams: (Team & Product)[] = await teams.getTeamByMentorId(req.params.mentorId);
+		const allTeams: (Team)[] = await teams.getTeamByMentorId(req.params.mentorId);
+		
+		for(let team of allTeams) {
+			team.teamDetails = JSON.parse((team.teamDetails as any) as string);
+		}
 		if (allTeams)
 			res.status(200).send(allTeams);
 		else
@@ -1091,8 +1128,13 @@ router.get("/team/:teamId", async (req: ApiRequest<undefined>, res: ApiResponse<
 router.get("/team/users/:teamId", async (req: ApiRequest<undefined>, res: ApiResponse<(User & UserTeams)[]>) => {
 	try {
 		const users: (User & UserTeams)[] = await teams.getUsersByTeamId(req.params.teamId);
-		if (users)
+		if (users) {
+			for(let user of users) {
+				user.socialMedia = JSON.parse((user.socialMedia as any) as string);
+				user.userDetails = JSON.parse((user.userDetails as any) as string)
+			}
 			res.status(200).send(users);
+		}
 		else
 			res.status(204).send([]);
 	} catch (e) {
@@ -1104,6 +1146,7 @@ router.get("/team/users/:teamId", async (req: ApiRequest<undefined>, res: ApiRes
 
 router.post("/team/activity", async (req: ApiRequest<{ userId: string, teamId: string }>, res: ApiResponse<UserActivity[]>) => {
 	try {
+		console.log(req.body);
 		const userActivities: UserActivity[] = await teams.getUserActivity(req.body.userId, req.body.teamId);
 		if (userActivities)
 			res.status(200).send(userActivities);
@@ -1187,9 +1230,10 @@ router.post("/product", async (req: ApiRequest<{ team: Team, product: Product }>
 router.get("/product/:teamId", async (req: ApiRequest<undefined>, res: ApiResponse<Product | null>) => {
 	try {
 		const product: Product | null = await teams.getProductByTeamId(req.params.teamId);
-		if (product)
+		if (product) {
+			product.productDetails = JSON.parse((product.productDetails as any) as string);
 			res.status(200).send(product);
-		else
+		} else
 			res.status(204).send(null);
 	} catch (e) {
 		console.error(e);

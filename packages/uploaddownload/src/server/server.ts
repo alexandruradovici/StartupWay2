@@ -88,8 +88,10 @@ export class UploadDownloadServer {
 				}
 				const queryOptions:QueryOptions = {
 					namedPlaceholders:true,
-					sql: `INSERT INTO uploadDownload (uuid,productId,fileType,extension,uploadTime) values(:uuid,:productId,:fileType,:extension,:uploadTime) RETURNING uuid,productId,fileType,extension,uploadTime`
+					sql: `INSERT INTO uploadDownload (uuid,productId,fileType,extension,uploadTime) values(:uuid,:productId,:fileType,:extension,:uploadTime)`
 				}
+				await conn.query(queryOptions, uploadDownloadLink);
+				queryOptions.sql = "SELECT uuid,productId,fileType,extension,uploadTime FROM uploadDownload WHERE uuid=:uuid"
 				const response:UploadDownloadLink[] = await conn.query(queryOptions, uploadDownloadLink);
 				if(response && response.length > 0 && response[0]){
 					await conn.commit();
@@ -120,10 +122,12 @@ export class UploadDownloadServer {
 				await conn.beginTransaction();
 				const queryOptions:QueryOptions = {
 					namedPlaceholders:true,
-					sql: "DELETE FROM uploadDownload where uuid=:uuid RETURNING uuid as deleted_id"
+					sql: "DELETE FROM uploadDownload where uuid=:uuid"
 				}
+				await conn.query(queryOptions,uuid);
+				queryOptions.sql = "SELECT uuid as deleted_id FROM uploadDownload WHERE uuid=:uuid";
 				const response:{deleted_id:string}[] = await conn.query(queryOptions,uuid);
-				if(response && response.length > 0 && response[0]) {
+				if(response && response.length === 0) {
 					await conn.commit();
 					await conn.end();
 					return true;
@@ -217,11 +221,11 @@ export class UploadDownloadServer {
 					queryOptions.sql = "SELECT * FROM uploadDownload WHERE productId=:productId";
 					links = await conn.query(queryOptions,{productId});
 				} else if(date === "may") {
-					queryOptions.nestTables="_";
+					// queryOptions.nestTables="_";
 					queryOptions.sql = "SELECT uploadDownload.* products.* FROM uploadDownload INNER JOIN products ON products.productId = uploadDownload.productId AND JSON_EXTRACT(productDetails,'$.assessment20May') = 'Yes' WHERE uploadDownload.productId=:productId ";
 					links = await conn.query(queryOptions,{productId});
 				} else if(date === "oct") {
-					queryOptions.nestTables="_";
+					// queryOptions.nestTables="_";
 					queryOptions.sql = "SELECT uploadDownload.* products.* FROM uploadDownload INNER JOIN products ON products.productId = uploadDownload.productId AND JSON_EXTRACT(productDetails,'$.assessment20May') = 'Yes' AND JSON_EXTRACT(productDetails,'$.assessment12Oct') = 'Yes' WHERE uploadDownload.productId=:productId ";
 					links = await conn.query(queryOptions,{productId});
 				}
@@ -252,7 +256,6 @@ export class UploadDownloadServer {
 			if(conn) {
 				const queryOptions:QueryOptions = {
 					namedPlaceholders:true,
-					nestTables:"_",
 					sql: ""
 				};
 				let links:UploadDownloadLink[] = [];
@@ -1199,7 +1202,7 @@ router.post("/download/team/zip/:type/:date", async(req:ApiRequest<{type:string,
 							if(prId !== "" && product !== undefined) {
 								const date = uploadDownload.formatDate(link.uploadTime);
 								let name = "";
-
+								console.log(name + " ");
 								if(link.fileType === "demoVid") {
 									name = product.teamName+'/Videos/'+product.location + "_" + product.teamName + "_tehnic_demo_video_" + date + "." + link.extension;
 								} else if(link.fileType ==="presVid") {
@@ -1213,7 +1216,6 @@ router.post("/download/team/zip/:type/:date", async(req:ApiRequest<{type:string,
 								} else {
 									res.status(400).send('Unidentified link');
 								}
-								console.log(name);
 								await uploadDownload.getS3Object(link.uuid);
 								
 							} else {
@@ -1568,7 +1570,7 @@ router.post("/upload/file/user/avatar", async(req:ApiRequest<{base64Encode:strin
 		res.status(500).send({err:500,data:false});
 	}
 });
-router.post("/get/file/user/avatar/", async(req:ApiRequest<{userId:string}>, res:ApiResponse<string | null>) => {
+router.post("/get/file/user/avatar", async(req:ApiRequest<{userId:string}>, res:ApiResponse<string | null>) => {
 	try {
 		const userId = req.body.userId;
 		if(userId !== "" && userId !== undefined) {

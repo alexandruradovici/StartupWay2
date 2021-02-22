@@ -28,9 +28,11 @@ export class UsersServer {
 				user.password = UsersServer.passwordGenerator (user.password);
 				const queryOptions:QueryOptions = {
 					namedPlaceholders:true,
-					sql: `INSERT INTO ${TABLE_USERS} (userId,firstName,lastName,username,password,email,phone,birthDate,avatarUu,socialMedia,userDetails,role,lastLogin) VALUES(:userId,:firstName,:lastName,:username,:password,:email,:phone,:birthDate,:avatarUu,:socialMedia,:userDetails,:role,:lastLogin) RETURNING userId,firstName,lastName,username,password,email,phone,birthDate,avatarUu,socialMedia,userDetails,role,lastLogin`
+					sql: `INSERT INTO ${TABLE_USERS} (userId,firstName,lastName,username,password,email,phone,birthDate,avatarUu,socialMedia,userDetails,role,lastLogin) VALUES(:userId,:firstName,:lastName,:username,:password,:email,:phone,:birthDate,:avatarUu,:socialMedia,:userDetails,:role,:lastLogin)`
 				}
-				const response:User[] = await conn.query(queryOptions,user);
+				await conn.query(queryOptions, user);
+				queryOptions.sql = `SELECT userId,firstName,lastName,username,email,phone,birthDate,avatarUu,socialMedia,userDetails,role,lastLogin FROM ${TABLE_USERS} WHERE userId=:userId`;
+				const response:User[] = await conn.query(queryOptions, user);
 				if(response && response.length > 0 && response[0]) {
 					await conn.commit();
 					await conn.end();
@@ -56,7 +58,6 @@ export class UsersServer {
 		try {
 			conn = await getPool().getConnection();
 			const queryOptions:QueryOptions = {
-				nestTables:"_",
 				sql: "SELECT users.*, userTeams.teamId, userTeams.role FROM users INNER JOIN userTeams ON user.userId!=:userTeams.userId"
 			}
 			const allUserTeams:(User&UserTeams)[] = await conn.query(queryOptions);
@@ -83,10 +84,12 @@ export class UsersServer {
 				await conn.beginTransaction();
 				const queryOptions:QueryOptions = {
 					namedPlaceholders:true,
-					sql: "DELETE FROM users where userId=:userId RETURNING userId as deleted_id"
+					sql: "DELETE FROM users WHERE userId=:userId"
 				}
-				const response:{deleted_id:string}[] = await conn.query(queryOptions,user);
-				if(response && response.length > 0 && response[0]) {
+				await conn.query(queryOptions, user);
+				queryOptions.sql = "SELECT userId as deleted_id FROM users WHERE userId=:userId";
+				const response:{deleted_id:string}[] = await conn.query(queryOptions, user);
+				if(response && response.length === 0) {
 					await conn.commit();
 					await conn.end();
 					return true;
@@ -131,9 +134,11 @@ export class UsersServer {
 						const token:string = generate({ length: 100 });
 						queryOptions = {
 							namedPlaceholders:true,
-							sql: "INSERT INTO sessions (sessionId, userId, token) VALUES(:sessionId,:userId,:token) RETURNING sessionId, userId, token"
+							sql: "INSERT INTO sessions (sessionId, userId, token) VALUES(:sessionId,:userId,:token)"
 						}
-						const resSession:Session[] =await conn.query(queryOptions,{sessionId, userId, token}) as Session[];
+						await conn.query(queryOptions, {sessionId, userId, token});
+						queryOptions.sql = "SELECT sessionId, userId, token FROM sessions WHERE sessionId=:sessionId"
+						const resSession:Session[] = await conn.query(queryOptions,{sessionId}) as Session[];
 						if(resSession && resSession.length > 0 && resSession[0]) {
 							await conn.commit();
 							await conn.end();
@@ -186,15 +191,17 @@ export class UsersServer {
 			conn = await getPool().getConnection();
 			if(conn) {
 				await conn.beginTransaction();
-				if(changedPass) {
-					user.password = UsersServer.passwordGenerator(user.password);
-				}
-				// TODO TRANSACTION
 				const queryOptions:QueryOptions = {
 					namedPlaceholders:true,
-					sql: "UPDATE users SET firstName=:firstName, lastName=:lastName, username=:username, password=:password, email=:email, phone=:phone, socialMedia=:socialMedia, birthDate=:birthDate, userDetails=:userDetails, role=:role, avatarUu=:avatarUu, lastLogin=:lastLogin WHERE userId=:userId RETURNING userId,firstName,lastName,username,password,email,phone,birthDate,avatarUu,socialMedia,userDetails,role,lastLogin"
+					sql: "UPDATE users SET firstName=:firstName, lastName=:lastName, username=:username, email=:email, phone=:phone, socialMedia=:socialMedia, birthDate=:birthDate, userDetails=:userDetails, role=:role, avatarUu=:avatarUu, lastLogin=:lastLogin WHERE userId=:userId"
 				}
-				const resp:User[] = await conn.query(queryOptions,user);
+				if(changedPass) {
+					user.password = UsersServer.passwordGenerator(user.password);
+					queryOptions.sql = "UPDATE users SET firstName=:firstName, lastName=:lastName, username=:username, password=:password, email=:email, phone=:phone, socialMedia=:socialMedia, birthDate=:birthDate, userDetails=:userDetails, role=:role, avatarUu=:avatarUu, lastLogin=:lastLogin WHERE userId=:userId";
+				}
+				await conn.query(queryOptions, user);
+				queryOptions.sql = "SELECT userId,firstName,lastName,username,email,phone,birthDate,avatarUu,socialMedia,userDetails,role,lastLogin FROM users WHERE userId=:userId";
+				const resp:User[] = await conn.query(queryOptions, user);
 				if(resp && resp.length > 0 && resp[0]) {
 					await conn.commit();
 					await conn.end();
@@ -295,20 +302,22 @@ export class UsersServer {
 				};
 				let values:{token?:string,sessionId?:string} = {};
 				if(sessionId){
-					queryOptions.sql = "DELETE FROM sessions WHERE sessions.token=:token AND sessions.sessionId=:sessionId RETURNING sessionId as sessionId";
+					queryOptions.sql = "DELETE FROM sessions WHERE sessions.token=:token AND sessions.sessionId=:sessionId";
 					values = {
 						token,
 						sessionId
 					}
 				}
 				else {
-					queryOptions.sql = "DELETE FROM sessions WHERE sessions.token=:token RETURNING sessionId as deleted_id";
+					queryOptions.sql = "DELETE FROM sessions WHERE sessions.token=:token";
 					values = {
 						token,
 					}
 				}
+				await conn.query(queryOptions, values);
+				queryOptions.sql = "SELECT sessionId as deleted_id FROM sessions WHERE token=:token";
 				const response:{deleted_id:string}[] = await conn.query(queryOptions,values);
-				if(response && response.length > 0 && response[0]) {
+				if(response && response.length === 0) {
 					await conn.commit();
 					await conn.end();
 					return true;
@@ -356,10 +365,16 @@ export class UsersServer {
 		try {
 			conn = await getPool().getConnection();
 			const queryOptions:QueryOptions = {
-				sql: "SELECT * FROM users WHERE role!='{\"Mentor\":true}' AND role!='{\"Admin\":true}'"
+				sql: "SELECT * FROM users WHERE role!='Mentor' AND role!='Admin'"
 			}
 			const users:User[] = await conn.query(queryOptions) as User[];
 			if(users && users.length > 0) {
+				for(const u of users) {
+					if(u.socialMedia)
+						u.socialMedia = JSON.parse((u.socialMedia as any) as string);
+					if(u.userDetails)
+						u.userDetails = JSON.parse((u.userDetails as any) as string);
+				}
 				await conn.end();
 				return users;
 			}
@@ -488,7 +503,12 @@ if(authFunct)
 
 router.get("/user", async (req:ApiRequest<undefined>, res:ApiResponse<User|null>, next) => {
 	if((req as any).user) {
-		res.send((req as any).user);
+		const u:User | null = (req as any).user
+		if(u) {
+			u.socialMedia = JSON.parse((u.socialMedia as any) as string);
+			u.userDetails = JSON.parse((u.userDetails as any) as string);
+		}
+		res.send(u);
 	} else {
 		res.send(null);
 	}
@@ -539,6 +559,16 @@ router.get("/users", async (req:ApiRequest<undefined>, res:ApiResponse<User[]>) 
 	try {
 		const usersList:User[] = await usersServer.getUsers();
 		if(usersList) {
+			// for(let user of usersList) {
+			// 	console.log(user.socialMedia);
+			// 	console.log(typeof user.socialMedia);
+			// 	if(typeof user.socialMedia === "string") {
+			// 		user.socialMedia = JSON.parse((user.socialMedia as any) as string);
+			// 	}
+			// 	if(typeof user.userDetails === "string") {
+			// 		user.userDetails = JSON.parse((user.userDetails as any) as string);
+			// 	}
+			// }
 			res.status(200).send(usersList);
 		} else {
 			res.status(204).send([]);
@@ -552,6 +582,10 @@ router.get("/users/all", async (req:ApiRequest<undefined>, res:ApiResponse<User[
 	try {
 		const usersList:User[] = await usersServer.getAllUsers();
 		if(usersList) {
+			for(let user of usersList) {
+				user.socialMedia = JSON.parse((user.socialMedia as any) as string);
+				user.userDetails = JSON.parse((user.userDetails as any) as string);
+			}
 			res.status(200).send(usersList);
 		} else {
 			res.status(204).send([]);
@@ -562,24 +596,22 @@ router.get("/users/all", async (req:ApiRequest<undefined>, res:ApiResponse<User[
 	}
 });
 
-router.post("/logout", async (req:ApiRequest<{sessionId:string}>, res:ApiResponse<boolean>, next) => {
+router.post("/logout", async (req:ApiRequest<{sessionId:string}> & {token:string}, res:ApiResponse<boolean>, next) => {
 	if(req.body.sessionId) {
-		const respSession = await usersServer.deleteSession((req as any).token, req.body.sessionId);
+		const respSession = await usersServer.deleteSession(req.token, req.body.sessionId);
 		if(respSession) {
 			res.status(200).send(respSession);
 		} else {
 			res.status(201).send(false);
 		}
-	}
-	else{
-		const respToken = await usersServer.deleteSession((req as any).token);
+	} else {
+		const respToken = await usersServer.deleteSession(req.token);
 		if(respToken) {
 			res.status(200).send(respToken);
 		} else {
 			res.status(201).send(false);
 		}
 	}
-	res.send(true);
 });
 router.get("/session/:userId", async (req:ApiRequest<undefined>, res:ApiResponse<Session | null>) => {
 	try {

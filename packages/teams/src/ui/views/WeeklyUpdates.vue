@@ -38,7 +38,7 @@
 			</v-card-text>
 		</v-card>
 		<v-dialog v-model="editDialog" max-width="450">
-			<v-card flat width="450">
+			<v-card flat width="450" v-if="edited">
 				<v-card-title class="justify-center" style="font-family: Georgia, serif;">
 					{{formatDate(edited.date)}}
 				</v-card-title>
@@ -72,7 +72,7 @@
 		</v-dialog>
 
 		<v-dialog v-model="viewDialog" max-width="450">
-			<v-card flat width="450">
+			<v-card flat width="450" v-if="edited">
 				<v-card-title class="justify-center" style="font-family: Georgia, serif;">
 					View activity
 				</v-card-title>
@@ -119,6 +119,11 @@ export default Vue.extend({
 							this.$router.push("/workspace");
 					} else {
 						try {
+							console.log(this.user);
+							console.log(this.userId);
+							if(!this.userId) {
+								this.userId = this.user.userId;
+							}
 							const response = await this.ui.api.post<UserActivity[]>("/api/v1/teams/team/activity", {
 								userId: this.userId,
 								teamId: this.teamId
@@ -135,7 +140,7 @@ export default Vue.extend({
 		},
 		user: {
 			immediate: true,
-			async handler (newUser: User):Promise<void> {
+			async handler (newUser: User):Promise<User> {
 				if(this.user) {
 					this.userId = newUser.userId;
 					if(this.userId === "") {
@@ -149,12 +154,14 @@ export default Vue.extend({
 							});
 							if(response) {
 								this.activities = response.data;
+								console.log(this.activities);
 							}
 						} catch(e) {
 							console.error(e)
 						}
 					}
 				}
+				return newUser;
 			}
 		},
 		activities: {
@@ -232,8 +239,8 @@ export default Vue.extend({
 		async updateWeek(week:UserActivity):Promise<void> {
 			this.loadingPage = true;
 			try {
-				await this.ui.api.post<UserActivity | null>("/api/v1/teams/team/activity/update", {
-					activity: {
+				await this.ui.api.post<UserActivity | null>("/api/v1/teams/team/activity/update",
+					{
 						noOfHours:week.noOfHours,
 						description:week.description,
 						userId:week.userId,
@@ -241,7 +248,7 @@ export default Vue.extend({
 						date:week.date,
 						teamId:week.teamId
 					} as UserActivity
-				});	
+				);	
 				const response = await this.ui.api.post<UserActivity[]>("/api/v1/teams/team/activity", {
 					userId: this.userId,
 					teamId: this.teamId

@@ -3,9 +3,8 @@ import VueRouter, { RouteConfig } from "vue-router";
 import Vuex, { Module, StoreOptions, Store } from "vuex";
 import Vuetify, { UserVuetifyPreset } from "vuetify";
 import 'vuetify/dist/vuetify.min.css';
-// import '@mdi/font/css/materialdesignicons.css';
 import axios, {AxiosInstance} from "axios";
-
+// import '@mdi/font/css/materialdesignicons.css';
 import Application from "./views/Application.vue";
 export interface RootState {
     version: string;
@@ -34,10 +33,7 @@ export class UI {
 					error: '#971c19',
 				},
 			},
-		},
-		icons: {
-			iconfont: 'md',
-		},
+		}
 	};;
 
 	public routes: RouteConfig[] = [];
@@ -87,9 +83,12 @@ export class UI {
 		}
 	}
 
-	storeDispatch (action: string, obj: any): Promise<any>
+	storeDispatch (action: string, obj: any, global?:{ root: boolean }): Promise<any>
 	{
-		return this.store.dispatch (action, obj);
+		if(!global)
+			return this.store.dispatch (action, obj);
+		else
+			return this.store.dispatch (action, obj, global);
 	}
 	registerRoute (newRoute: RouteConfig, parent?:string):void {
 		if(parent && typeof parent === "string") {

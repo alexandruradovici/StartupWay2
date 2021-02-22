@@ -17,19 +17,21 @@ export class FeedServer {
 				conn.beginTransaction();
 				const queryOptions:QueryOptions = {
 					namedPlaceholders:true,
-					sql:"SELECT feeds.* FROM feeds WHERE feed.teamId=:teamId AND DATE(feed.date)=DATE(NOW()",
+					sql:"SELECT feeds.* FROM feeds WHERE feeds.teamId=:teamId AND DATE(feeds.date)=DATE(NOW())",
 				}
 				const values = {
 					teamId: feedParam.teamId
 				}
 				const feeds: Feed[] = await conn.query(queryOptions,values);
-				if(feeds && feeds.length > 0 && feeds[0]) {
+				if(feeds) {
 					if(feeds.length > 3) {
 						await conn.commit();
 						await conn.end();
 						return null;
 					} else {
-						queryOptions.sql = "INSERT INTO feeds (feedId, teamId, feedType, text, date) VALUES(feedId,:teamId,:feedType,:text,:date) RETURNING feedId, teamId, feedType, text, date";
+						queryOptions.sql = "INSERT INTO feeds (feedId, teamId, feedType, text, date) VALUES(:feedId,:teamId,:feedType,:text,:date)";
+						await conn.query(queryOptions,feedParam);
+						queryOptions.sql = "SELECT feedId, teamId, feedType, text, date FROM feeds WHERE feedId=:feedId";
 						const resp: Feed[] = await conn.query(queryOptions,feedParam);
 						if(resp && resp.length > 0 && resp[0]) {
 							await conn.commit();
@@ -67,8 +69,10 @@ export class FeedServer {
 				conn.beginTransaction();
 				let queryOptions:QueryOptions = {
 					namedPlaceholders:true,
-					sql:"UPDATE feeds set teamId=:teamId, feedType=:feedType, text=:text, date=:date WHERE feeds.feedId=:feedId RETURNING feedId, teamId, feedType, text, date",
+					sql:"UPDATE feeds set teamId=:teamId, feedType=:feedType, text=:text, date=:date WHERE feeds.feedId=:feedId",
 				}
+				await conn.query(queryOptions,feedParam);
+				queryOptions.sql = "SELECT feedId, teamId, feedType, text, date FROM feeds WHERE feedId=:feedId";
 				const resp:Feed[] = await conn.query(queryOptions,feedParam);
 				if(resp && resp.length > 0 && resp[0]) {
 					await conn.commit();
@@ -100,10 +104,12 @@ export class FeedServer {
 				conn.beginTransaction();
 				const queryOptions:QueryOptions = {
 					namedPlaceholders:true,
-					sql:"DELETE FROM feeds WHERE feed.feedId=:feedId RETURNING feedId as deleted_id",
+					sql:"DELETE FROM feeds WHERE feed.feedId=:feedId",
 				}
+				await conn.query(queryOptions,{feedId:feedParam.feedId});
+				queryOptions.sql = "SELECT feedId as deleted_id FROM feeds where feedId=:feedId";
 				const response:{deleted_id:string}[] = await conn.query(queryOptions,{feedId:feedParam.feedId});
-				if(response && response.length > 0 && response[0]) {
+				if(response && response.length === 0) {
 					await conn.commit();
 					await conn.end();
 					return true;
@@ -132,7 +138,7 @@ export class FeedServer {
 			if(conn) {
 				const queryOptions:QueryOptions = {
 					namedPlaceholders:true,
-					sql:"SELECT feeds.* FROM feeds WHERE feed.teamId=:teamId ORDER BY feeds.date",
+					sql:"SELECT feeds.* FROM feeds WHERE feeds.teamId=:teamId ORDER BY feeds.date",
 				}
 				const feeds: Feed[] = await conn.query(queryOptions,{teamId});
 				if(feeds && feeds.length > 0) {
@@ -178,9 +184,12 @@ if(authFunct)
 router.get("/:teamId", async (req:ApiRequest<undefined>, res:ApiResponse<Feed[]>) => {
 	try {
 		const userFeed = await feed.getFeedByTeamId(req.params.teamId);
-		if (userFeed)
+		if (userFeed) {
+			for(let uF of userFeed) {
+				uF.text = JSON.parse((uF.text as any) as string);
+			}
 			res.send(userFeed);
-		else
+		} else
 			res.status(401).send({err:401, data:[]});
 	} catch (error) {
 		res.status(500).send({err:500, data:[]});

@@ -14,6 +14,7 @@ export class BModelCanvasServer {
 		try {
 			conn = await getPool().getConnection();
 			if(conn) {
+				console.log(canvas);
 				conn.beginTransaction();
 				let queryOptions:QueryOptions = {
 					namedPlaceholders:true,
@@ -26,13 +27,15 @@ export class BModelCanvasServer {
 				if(canvases && canvases.length > 0 && canvases[0]) {
 					queryOptions = {
 						namedPlaceholders:true,
-						sql: "UPDATE bModelCanvas SET bModelCanvas.fields=:fields, bModelCanvas.date=:date WHERE bModelCanvas.modelId=:modelId RETURNING modelId,productId,date,fields"
+						sql: "UPDATE bModelCanvas SET bModelCanvas.fields=:fields, bModelCanvas.date=:date WHERE bModelCanvas.modelId=:modelId"
 					};
 					const updateValues = {
 						fields:canvas.fields,
 						date:canvas.date,
 						modelId:canvas.modelId
 					};
+					await conn.query(queryOptions,updateValues);
+					queryOptions.sql = "SELECT modelId,productId,date,fields from bModelCanvas WHERE bModelCanvas.modelId=:modelId"
 					const canvasResult:BModelCanvas[] = await conn.query(queryOptions,updateValues);
 					if(canvasResult && canvasResult.length > 0 && canvasResult[0]) {
 						await conn.commit();
@@ -46,8 +49,10 @@ export class BModelCanvasServer {
 				} else {
 					queryOptions = {
 						namedPlaceholders:true,
-						sql: "INSERT INTO bModelCanvas values(:modelId,:productId,:date,:fields) RETURNING modelId,productId,date,fields"
+						sql: "INSERT INTO bModelCanvas values(:modelId,:productId,:date,:fields)"
 					};
+					await conn.query(queryOptions,canvas);
+					queryOptions.sql="SELECT modelId,productId,date,fields FROM bModelCanvas WHERE modelId=:modelId"
 					const result:BModelCanvas[] = await conn.query(queryOptions,canvas);
 					if(result && result.length > 0 && result[0]) {
 						await conn.commit();
@@ -79,8 +84,7 @@ export class BModelCanvasServer {
 			if(conn) {
 				const queryOptions:QueryOptions = {
 					namedPlaceholders:true,
-					nestTables:"_",
-					sql: "SELECT bModelCanvas.* FROM bModelCanvas INNER JOIN teams ON team.productId=bModelCanvas.productId AND team.teamId=:tId"
+					sql: "SELECT bModelCanvas.* FROM bModelCanvas INNER JOIN teams ON teams.productId=bModelCanvas.productId AND teams.teamId=:tId"
 				}
 				const values = {
 					tId:teamId
@@ -139,9 +143,12 @@ if(authFunct)
 router.get("/:teamId", async(req:ApiRequest<undefined>,res:ApiResponse<BModelCanvas[]>) => {
 	try {
 		const result = await bModelCanvasServer.getCanvasesForTeam(req.params.teamId);
-		if(result)
+		if(result) {
+			for(let res of result) {
+				res.fields = JSON.parse((res.fields as any) as string);
+			}
 			res.send(result);
-		else
+		} else
 			res.status(401).send({err:401,data:[]});
 	} catch (error) {
 		console.error(error);

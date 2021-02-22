@@ -1,57 +1,50 @@
 <template>
 	<v-app id="app">
-		<v-row no-gutters color="#fcfcfc">
-			<v-col cols="12" sm="6" md="3" lg="3" xl="3">
-				<div style="margin-top: 50px;">
-					<v-list nav dense class="nav" color="#fcfcfc">
-						<v-list-item>
-							<v-list-item-avatar>
-								<v-img :src="badge"></v-img>
-							</v-list-item-avatar>
+		<v-navigation-drawer v-if="role" clipped app permanent expand-on-hover>
+			<v-list>
+				<v-list-item>
+					<v-list-item-avatar>
+						<v-img :src="badge"></v-img>
+					</v-list-item-avatar>
+					<v-list-item-content>
+						<div v-if="role==='Mentor'">
+							<v-list-item-title id="user-title">Mentor View</v-list-item-title>
+						</div>
+						<div v-if="role==='Admin' || role==='SuperAdmin'">
+							<v-list-item-title id="user-title">Admin View</v-list-item-title>
+						</div>
+					</v-list-item-content>
+				</v-list-item>
+			</v-list>
 
-							<v-list-item-content>
-								<div v-if="role==='Mentor'">
-									<v-list-item-title id="user-title">Mentor View</v-list-item-title>
-								</div>
-								<div v-if="role==='Admin' || role==='SuperAdmin'">
-									<v-list-item-title id="user-title">Admin View</v-list-item-title>
-								</div>
-							</v-list-item-content>
-						</v-list-item>
-						<v-divider></v-divider>
-						<v-list-item link
-							v-for="tab in tabs"
-							:key="tab.key"
-							@click="changeRoute(tab.link)"
-							class="menu-item"
-						>
+			<v-divider></v-divider>
+
+			<v-list nav dense>
+				<template v-for="tab in tabs">
+					<v-list-item link :key="tab.key" :to="tab.link + '/' + selectedTeam">
 						<v-list-item-icon>
 							<v-icon color="#197E81">{{ tab.icon }}</v-icon>
 						</v-list-item-icon>
-
-						<v-list-item-content>
-							<v-list-item-title class="active-element" style="font-size: 15px; font-weight: 900;">{{ tab.title }}</v-list-item-title>
-						</v-list-item-content>
-						</v-list-item>
-					</v-list>
-				</div>
-			</v-col>
-			<v-col cols="12" sm="6" md="7" lg="8" xl="9">
-				<transition fluid pa-0 v-if="!loadingPage">
-					<router-view></router-view>
-				</transition>
-				<transition v-else>
-					<v-row justify="center">
-						<v-col md="auto">
-							<v-progress-circular
-							:size="500"
-							color="primary"
-							indeterminate
-							></v-progress-circular>
-						</v-col>
-					</v-row>
-				</transition>
-			</v-col>
+						<v-list-item-title>{{tab.title}}</v-list-item-title>
+					</v-list-item>
+				</template>
+			</v-list>
+		</v-navigation-drawer>
+		<v-row no-gutters color="#fcfcfc">
+			<transition fluid pa-0 v-if="!loadingPage">
+				<router-view></router-view>
+			</transition>
+			<transition v-else>
+				<v-row justify="center">
+					<v-col md="auto">
+						<v-progress-circular
+						:size="500"
+						color="primary"
+						indeterminate
+						></v-progress-circular>
+					</v-col>
+				</v-row>
+			</transition>
 		</v-row>
 	</v-app>
 </template>
@@ -74,7 +67,6 @@ export default Vue.extend({
 
 				if(this.selectedTeam !== this.$route.params.teamId) {
 					this.selectedTeam = this.$route.params.teamId;
-					console.log(this.selectedTeam);
 					try {
 						if(await this.getUsers(this.selectedTeam))
 							await this.getAllUsers();
@@ -309,7 +301,7 @@ export default Vue.extend({
 		},
 		async getAllUsers():Promise<boolean> {
 			try {
-				const response = await this.ui.api.get("/api/v1/users");
+				const response = await this.ui.api.get("/api/v1/users/users");
 				if (response) {
 					this.allUsers = this.modifyUsers(response.data);
 					this.allUsers = this.allUsers.filter((user:User) => { return !this.hasUser(user)});
@@ -323,11 +315,6 @@ export default Vue.extend({
 		},
 		modifyUsers(users: (User | (User & UserTeams))[]): (User | (User & UserTeams))[] {
 			for(const user of users) {
-				if(typeof user.userDetails === "string") {
-					user.userDetails = JSON.parse(user.userDetails);
-					// as any because TODO Parse json in backend
-					user.socialMedia = JSON.parse((user as any).socialMedia);
-				}
 				if (user.userDetails["faculty"] !== undefined) {
 					(user as (User & {faculty:string, group:string})).faculty = user.userDetails["faculty"]; 
 				} else {

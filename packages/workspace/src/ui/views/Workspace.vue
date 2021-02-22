@@ -82,49 +82,51 @@ export default Vue.extend({
 				if(this.tabs.length > 0) {
 					this.tabs = [];
 				}
-				this.$router.push("/dashboard")
-			} else if(this.user) {
+				if(this.$route.path !== "/dashboard")
+					this.$router.push("/dashboard");
+			} else {
 				this.tabs = [];
 				await this.ui.storeDispatch("teams/loadTeams",this.user.userId);
 				this.pushToTabs({
-					key:this.tabs.length,
+					key:this.tabs.length+1,
 					title:"Dashboard",
 					icon:"mdi-view-dashboard",
 					link:"/frontPage"
 				});
 				this.pushToTabs({
-					key:this.tabs.length,
+					key:this.tabs.length+1,
 					title:"View Team",
 					icon:"mdi-account-supervisor",
-					link:"/team"
+					link:"/team/members"
 				});
 				this.pushToTabs({
-					key:this.tabs.length,
+					key:this.tabs.length+1,
 					title:"Weekly Updates",
 					icon:"mdi-calendar-edit",
 					link:"/team/updates"
 				});
 				this.pushToTabs({
-					key:this.tabs.length,
+					key:this.tabs.length+1,
 					title:"Business Canvas",
 					icon:"mdi-clipboard-text-multiple",
 					link:"/product/canvas"
 				});
 				this.pushToTabs({
-					key:this.tabs.length,
+					key:this.tabs.length+1,
 					title:"Summary",
 					icon:"mdi-chart-bar",
 					link:"/product/summary"
 				});
 				this.pushToTabs({
-					key:this.tabs.length,
+					key:this.tabs.length+1,
 					title:"Feed",
 					icon:"mdi-cog-clockwise",
 					link:"/product/feed"
 				});
 				
 				this.userMenu.title = "User Menu";
-				this.$router.push("/frontPage");
+				if(this.$route.path !== "/frontPage")
+					this.$router.push("/frontPage");
 			}
 			this.loading = false;
 			this.loadingPage = false;
@@ -145,7 +147,6 @@ export default Vue.extend({
 			type: "",
 			loadingPage:false,
 			loading:false,
-			selectedTeam: 0,
 			logoImage:logo
 		};
 	},
@@ -163,17 +164,25 @@ export default Vue.extend({
 			immediate:true,
 			async handler(newRoute):Promise<void> {
 				if(newRoute.path === "/workspace") {
-					if(this.user.role === "Mentor") {
-						this.role=false;
-						this.type="mentor";
-					} else if(this.user.role === "Admin") {
-						this.role=false;
-						this.type="admin";
-					} else if(this.user.role === "SuperAdmin") {
-						this.role=false;
-						this.type="superAdmin";
-					} else {
-						this.role=true;
+					if(this.user) {
+						if(this.user.role === "Mentor") {
+							this.role=false;
+							this.type="mentor";
+						} else if(this.user.role === "Admin") {
+							this.role=false;
+							this.type="admin";
+						} else if(this.user.role === "SuperAdmin") {
+							this.role=false;
+							this.type="superAdmin";
+						} else {
+							this.role=true;
+							if(this.$route.path !== "/frontPage")
+								this.$router.push("/frontPage");
+						}
+						if(!this.role) {
+							if(this.$route.path !== "/dashboard")
+								this.$router.push("/dashboard");
+						}
 					}
 				}
 			}

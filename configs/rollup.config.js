@@ -35,6 +35,6 @@ export default {
                 include: ['src/ui', 'src/common']
             }
 		  }),  
-  		css({ output: false })
+  		css({ output: true })
     ],
 };

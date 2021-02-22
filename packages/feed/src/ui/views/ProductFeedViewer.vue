@@ -55,7 +55,7 @@ export default Vue.extend({
 				try {
 					if(await this.getUsers(this.teamId))
 						await this.getAllUsers();
-					const found= await this.ui.api.get<Team | null>("/api/v1/teams/team" + this.teamId);
+					const found= await this.ui.api.get<Team | null>("/api/v1/teams/team/" + this.teamId);
 					if(found.data) {
 						this.team = found.data.teamName;
 					}
@@ -164,11 +164,6 @@ export default Vue.extend({
 		},
 		modifyUsers(users: (User[] | (User&UserTeams)[])): (User[] | (User&UserTeams)[]) {
 			for(const user of users) {
-				if(typeof user.userDetails === "string") {
-					user.userDetails = JSON.parse(user.userDetails);
-					// as any because TODO parse json in backend
-					user.socialMedia = JSON.parse((user as any).socialMedia);
-				}
 				if (user.userDetails["faculty"] !== undefined) {
 					(user as User & {faculty:string,group:string}).faculty = user.userDetails["faculty"]; 
 				} else {

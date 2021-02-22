@@ -19,8 +19,10 @@ export class WorkshopServer {
 				await conn.beginTransaction();
 				const queryOptions:QueryOptions = {
 					namedPlaceholders:true,
-					sql:"INSERT INTO workshops (workshopId, workshopName) VALUES(:workshopId,:workshopName) RETURNING workshopId, workshopName",
+					sql:"INSERT INTO workshops (workshopId, workshopName) VALUES(:workshopId,:workshopName)",
 				}
+				await conn.query(queryOptions,workshopParam);
+				queryOptions.sql = "SELECT workshopId, workshopName FROM workshops WHERE workshopId=:workshopId";
 				const response:Workshop[] = await conn.query(queryOptions,workshopParam);
 				if(response && response.length > 0 && response[0]) {
 					await conn.commit();
@@ -52,8 +54,10 @@ export class WorkshopServer {
 				await conn.beginTransaction();
 				const queryOptions:QueryOptions = {
 					namedPlaceholders:true,
-					sql:"INSERT INTO workshopInstances (workshopInstanceId,workshopId,teamId,trainerName,workshopDate,workshopDetails) VALUES(:workshopInstanceId,:workshopId,:teamId,:trainerName,:workshopDate,:workshopDetails) RETURNING workshopInstanceId,workshopId,teamId,trainerName,workshopDate,workshopDetails",
+					sql:"INSERT INTO workshopInstances (workshopInstanceId,workshopId,teamId,trainerName,workshopDate,workshopDetails) VALUES(:workshopInstanceId,:workshopId,:teamId,:trainerName,:workshopDate,:workshopDetails)",
 				}
+				await conn.query(queryOptions, workshopInstance);
+				queryOptions.sql = "SELECT workshopInstanceId,workshopId,teamId,trainerName,workshopDate,workshopDetails FROM workshopInstances WHERE workshopInstanceId=:workshopInstanceId";
 				const response:WorkshopInstances[] = await conn.query(queryOptions,workshopInstance);
 				if(response && response.length > 0 && response[0]) {
 					await conn.commit();
@@ -85,8 +89,10 @@ export class WorkshopServer {
 				await conn.beginTransaction();
 				const queryOptions:QueryOptions = {
 					namedPlaceholders:true,
-					sql:"INSERT INTO WorkshopAttendances (attendanceId,attendanceDate,userId,workshopInstanceId) VALUES(:attendanceId,:attendanceDate,:userId,:workshopInstanceId) RETURNING attendanceId,attendanceDate,userId,workshopInstanceId",
+					sql:"INSERT INTO workshopAttendances (attendanceId,attendanceDate,userId,workshopInstanceId) VALUES(:attendanceId,:attendanceDate,:userId,:workshopInstanceId)",
 				}
+				await conn.query(queryOptions,workshopAttendance);
+				queryOptions.sql = "SELECT attendanceId,attendanceDate,userId,workshopInstanceId FROM workshopAttendances WHERE attendanceId=:attendanceId";
 				const response:WorkshopAttendances[] = await conn.query(queryOptions,workshopAttendance);
 				if(response && response.length > 0 && response[0]) {
 					await conn.commit();
@@ -118,12 +124,14 @@ export class WorkshopServer {
 				await conn.beginTransaction();
 				const queryOptions:QueryOptions = {
 					namedPlaceholders:true,
-					sql: "DELETE FROM workshopAttendances WHERE attendanceId=:attendanceId RETURNING attendanceId as deleted_id"
+					sql: "DELETE FROM workshopAttendances WHERE attendanceId=:attendanceId"
 				}
+				await conn.query(queryOptions, {attendanceId});
+				queryOptions.sql = "SELECT attendanceId as deleted_id FROM workshopAttendances WHERE attendanceId=:attendanceId";
 				const response:{deleted_id:string}[] = await conn.query(queryOptions,{attendanceId});
-				if(response && response.length > 0 && response[0]) {
+				if(response && response.length === 0) {
 					await conn.commit();
-					await conn.end();
+					await conn.end(); 
 					return true;
 				} else {
 					await conn.rollback();
@@ -257,7 +265,6 @@ export class WorkshopServer {
 			conn = await getPool().getConnection();
 			if(conn) {
 				const queryOptions:QueryOptions = {
-					nestTables:"_",
 					sql: "SELECT workshopInstances.*, workshopAttendances.* FROM workshopInstances INNER JOIN ON workshopAttendances.workshopInstanceId=workshopInstances.workshopInstanceId WHERE workshopInstances.workshopId=:workshopId"
 				}
 				const workshopInstances:(WorkshopInstances & WorkshopAttendances)[] = await conn.query(queryOptions,{workshopId});

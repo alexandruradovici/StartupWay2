@@ -263,13 +263,13 @@ export default Vue.extend({
 								this.teams = response.data;
 								
 							}
-							const demoResponse = await this.ui.api.get<number[]>("/api/v1/teams/teams/demoDay");
-							if(demoResponse.data) {
-								this.presetTeams.push({
-									text:"DemoDay Teams",
-									value:demoResponse.data
-								})
-							}
+							// const demoResponse = await this.ui.api.get<number[]>("/api/v1/teams/teams/demoDay");
+							// if(demoResponse.data) {
+							// 	this.presetTeams.push({
+							// 		text:"DemoDay Teams",
+							// 		value:demoResponse.data
+							// 	})
+							// }
 						} catch (e) {
 							console.error(e);
 						}

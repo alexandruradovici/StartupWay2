@@ -43,7 +43,7 @@
 					</v-card-text>
 				</v-card>
 				<v-dialog v-model="editDialog" max-width="450">
-			<v-card flat width="450">
+			<v-card flat width="450" v-if="edited">
 				<v-card-title class="justify-center" style="font-family: Georgia, serif; font-weight: bold;">
 					Edit {{edited.feedType}} 
 				</v-card-title>
@@ -117,8 +117,10 @@ export default Vue.extend({
 			immediate: true,
 			async handler(newTeam: Team | null) {
 				if(newTeam) {
+					console.log(newTeam);
+					console.log(newTeam.teamId);
 					this.teamId = newTeam.teamId;
-					if (this.teamId === "") {
+					if (this.teamId === "" || this.teamId === undefined) {
 						if(this.$route.path!=="/workspace")
 							this.$router.push("/workspace");
 						this.productUpdates = [];
@@ -147,7 +149,7 @@ export default Vue.extend({
 	},
 	data() {
 		return {
-			ui:{} as UI,
+			ui:UI.getInstance(),
 			productUpdates: [] as Feed[],
 			items: [
 				{

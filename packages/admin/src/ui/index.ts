@@ -1,6 +1,7 @@
 export * from "./ui";
 export * from "../common";
 import { RouteConfig } from "vue-router";
+import { UI } from '@startupway/main/lib/ui';
 import { WorkspaceUI, ToolbarButtonPosition } from '@startupway/workspace/lib/ui';
 
 import Admin from "./views/Admin.vue";
@@ -11,6 +12,8 @@ import WorkshopsEdit from "./views/WorkshopsEdit.vue";
 import AdminMenu from "./views/AdminMenu.vue";
 import ExportView from "./views/ExportView.vue";
 import Dashboard from "./views/Dashboard.vue";
+import Assessment from "./views/Assessment.vue";
+import store from "./store";
 
 const workspaceUi = WorkspaceUI.getInstance();
 workspaceUi.registerToolbarButton (AdminMenu, {
@@ -59,8 +62,16 @@ const workspaceRoutes: RouteConfig[] = [
 		name:"Dashboard",
 		children:[],
 		component: Dashboard
+	},
+	{
+		path: '/assessment',
+		name:"Assessment",
+		children:[],
+		component: Assessment
 	}
 ]
 for(const route of workspaceRoutes) {
 	workspaceUi.registerWorkspaceRoutes(route);
 }
+const ui = UI.getInstance();
+ui.registerStore("admin",store());

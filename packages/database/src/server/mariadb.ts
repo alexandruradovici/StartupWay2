@@ -112,13 +112,16 @@ export class MariaDBServer {
 				await tableConn.query("CREATE TABLE `recoveries` (`recoveryId` varchar(36) NOT NULL, `userId` varchar(36) NOT NULL,`email` varchar(100) NOT NULL,`recoveryLink` varchar(100) NOT NULL,PRIMARY KEY (`recoveryId`),UNIQUE KEY `token` (`recoveryLink`),KEY `FK_7902dfcee5a16cb1377e04d3d7a` (`userId`),CONSTRAINT `FK_7902dfcee5a16cb1377e04d3d7a` FOREIGN KEY (`userId`) REFERENCES `users` (`userId`) ON DELETE NO ACTION ON UPDATE NO ACTION) ENGINE=InnoDB");
 				// feeds
 				await tableConn.query("CREATE TABLE `feeds` (`feedId` varchar(36) NOT NULL,  `teamId` varchar(36) NOT NULL, `feedType` varchar(30) NOT NULL, `text` text NOT NULL, `date` datetime NOT NULL, PRIMARY KEY (`feedId`), KEY `FK_87caf98485e27800f1e171ccf6c` (`teamId`), CONSTRAINT `FK_87caf98485e27800f1e171ccf6c` FOREIGN KEY (`teamId`) REFERENCES `teams` (`teamId`) ON DELETE NO ACTION ON UPDATE NO ACTION) ENGINE=InnoDB")
+
 				await tableConn.end();
 				await tablePool.end();
+
 				console.log("Database created succsessfuly");
 			}
+
 			await auxConn.end();
 			await auxPool.end();
-			
+
 			const respPool = await this.createPoolConn();
 			if(respPool)
 				return true;

@@ -225,7 +225,7 @@ export default Vue.extend({
 					if(r) {
 						await this.getAllUsers();
 					}
-					const found= await this.ui.api.get<Team | null>("/api/v1/teams/team" + this.teamId);
+					const found= await this.ui.api.get<Team | null>("/api/v1/teams/team/" + this.teamId);
 					if(found.data) {
 						this.team = found.data.teamName;
 					}
@@ -384,7 +384,7 @@ export default Vue.extend({
 		},
 		async getAllUsers():Promise<boolean>  {
 			try {
-				const response = await this.ui.api.get<User[]>("/api/v1/users");
+				const response = await this.ui.api.get<User[]>("/api/v1/users/users");
 				if (response.status === 200) {
 					this.allUsers = await this.modifyUsers(response.data);
 					this.allUsers = this.allUsers.filter((user:(User&UserTeams)) => { return !this.hasUser(user)});
@@ -409,12 +409,6 @@ export default Vue.extend({
 		},
 		async modifyUsers(users: (User[] | (User&UserTeams)[])):Promise<(User[] | (User & UserTeams)[])>  {
 			for(let user of users) {
-
-				if(typeof user.userDetails === "string") {
-					user.userDetails = JSON.parse(user.userDetails);
-					// as any because TODO parse json in backend
-					user.socialMedia = JSON.parse((user as any).socialMedia);
-				}
 				user = user as (User & {});
 				if (user.userDetails["faculty"] !== undefined) {
 					(user as User & VisualUser).faculty = user.userDetails["faculty"]; 
@@ -490,7 +484,9 @@ export default Vue.extend({
 				socialMedia: this.item.socialMedia,
 				birthDate: this.item.birthDate,
 				userDetails: userDetails,
-				role: this.item.role
+				role: this.item.role,
+				avatarUu: this.item.avatarUu,
+				lastLogin: this.item.lastLogin
 			};
 			const userTeam:UserTeams = {
 				userProductId:this.item.userProductId,
@@ -687,7 +683,7 @@ export default Vue.extend({
 				this.snackbar = true;
 				this.loading = false;
 			}
-			const foundTeam = await this.ui.api.get<Team | null>("/api/v1/teams/team" + this.teamId);
+			const foundTeam = await this.ui.api.get<Team | null>("/api/v1/teams/team/" + this.teamId);
 			let initDate;
 			const allActivities = [];
 			if(foundTeam.data && foundTeam.data.location === "Bucharest"){

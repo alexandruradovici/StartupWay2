@@ -328,7 +328,7 @@ export default Vue.extend({
 	},
 	data() {
 		return {
-			ui:{} as UI,
+			ui:UI.getInstance(),
 			checkLength: false,
 			types: [] as string[],
 			lengthRules: [(v: string | null) => (v || '' ).length <= 250 || 'Description must be 250 characters or less'],
@@ -389,12 +389,13 @@ export default Vue.extend({
 							["Revenue Streams"]: this.revenue
 						} 
 			let canvas = {
+				modelId: uiidv4(),
 				date: new Date(),
 				productId: this.productId,
 				fields: fields
 			} as BModelCanvas;
 			try {
-				const response = await this.ui.api.post<BModelCanvas | null>("/api/v1/canvas/" + this.teamId, { canvas: canvas });
+				const response = await this.ui.api.post<BModelCanvas | null>("/api/v1/canvas/" + this.teamId, canvas);
 				if (response.data) {
 					let res = await this.ui.api.get<BModelCanvas[]>("/api/v1/canvas/" + this.teamId);
 					if (res.data) {

@@ -83,6 +83,7 @@ export default function teamsStore () {
 			async updateProduct(store, data:{product:Product, upload:string, ext:string, teamId:string}):Promise<boolean> {
 				let updateResponse;
 				try {
+					console.log(data.product);
 					updateResponse = await ui.api.post<Product | null>("/api/v1/teams/product/update", 
 					{
 						product: data.product,

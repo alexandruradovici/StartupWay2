@@ -31,7 +31,7 @@ const workspaceRoutes: RouteConfig[] = [
 		component: FrontPage
 	},
 	{
-		path:'/team',
+		path:'/team/members',
 		name:"View Team",
 		component: Team
 	},

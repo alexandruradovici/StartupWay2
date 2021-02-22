@@ -3,6 +3,7 @@ import { Workshop } from '@startupway/workshop/lib/common/';
 import { User } from '@startupway/users/lib/common/';
 
 export type TeamId = Exclude<number,0>;
+
 export interface ParsedCSV {
 	teamId:TeamId, 
 	team?:Team, 
@@ -29,8 +30,8 @@ export interface Review {
 	teamId:string,
 	mentorNotes:string,
 	adminNotes:string,
-	assessment20May:string,
-	assessment12Oct:string,
+	assessment20May:boolean,
+	assessment12Oct:boolean,
 	updatedAt:string,
 	lastMentorUpdate:string
 }
@@ -41,6 +42,8 @@ export interface ModifiedTeam {
 	year:number,
 	location:string,
 	teamName:string,
+	mentor:string,
+	description:string,
 	teamDetails:{[key:string]:string},
 	businessTrack:BusinessTrack,
 	teamType:TeamType,

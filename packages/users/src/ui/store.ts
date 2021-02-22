@@ -67,6 +67,7 @@ export default function usersStore ():Module<UsersState, RootState> {
                 {
                     await ui.api.post<Session>("/api/v1/users/logout");
                     storeParam.commit ('token', null);
+                    storeParam.commit ('user', null);
 
                     return true;
                 }

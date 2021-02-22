@@ -238,11 +238,6 @@ export default Vue.extend({
 		},
 		async modifyUsers(users: (User)[] | (User&UserTeams)[]):Promise<(User)[] | (User&UserTeams)[]> {
 			for(const user of users) {
-				if(typeof user.userDetails === "string") {
-					user.userDetails = JSON.parse(user.userDetails);
-					// TODO parse json in backend
-					user.socialMedia = JSON.parse((user as any).socialMedia);
-				}
 				if (user.userDetails["faculty"] !== undefined) {
 					(user as (User&UserTeams | User) & {faculty:string,group:string}).faculty = user.userDetails["faculty"]; 
 				} else {
@@ -290,9 +285,7 @@ export default Vue.extend({
 				socialMedia:this.item.socialMedia,
 				birthDate: this.item.birthDate,
 				userDetails: this.item.userDetails,
-				role: {
-					none: true
-				}
+				role: ""
 			};
 			try {
 				await this.ui.api.post("/api/v1/admin/add/user", { user: user });

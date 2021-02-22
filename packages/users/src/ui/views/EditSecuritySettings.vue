@@ -87,7 +87,6 @@
 </template>
 
 <script lang="ts">
-///TODO Adaugat camp poza de profil dupa 1 aprilie
 import Vue from "vue";
 import { UI } from "@startupway/main/lib/ui";
 import { User, UserSocialMedia, UserDetails, universities} from "../../common";
@@ -96,7 +95,6 @@ export default Vue.extend({
 	name: "EditSecuritySettings",
 	async mounted() {
 		try {
-			this.ui = UI.getInstance();
 			if (await this.ui.storeDispatch("users/load", {})) {
 				if(this.user) {
 					try {
@@ -127,7 +125,7 @@ export default Vue.extend({
 	},
 	data() {
 		return {
-			ui:{} as UI,
+			ui:UI.getInstance(),
 			extendDialog: false,
 			loadingPage:false,
 			showNew: false,

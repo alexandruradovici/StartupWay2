@@ -150,7 +150,7 @@ export default Vue.extend({
 	name: "WorkshopsEdit",
 	async mounted() {
 		try {
-			const response = await this.ui.api.get<Workshop[]>("/api/v1/workshops");
+			const response = await this.ui.api.get<Workshop[]>("/api/v1/workshop/workshops");
 			if (response.data) {
 				this.workshops = response.data;
 			}
@@ -193,7 +193,7 @@ export default Vue.extend({
 						if(response) {
 							this.allTeams = response.data;
 						}
-						const respW = await this.ui.api.get<Workshop[]>("/api/v1/workshops");
+						const respW = await this.ui.api.get<Workshop[]>("/api/v1/workshop/workshops");
 						if(respW) {
 							this.workshops = respW.data;
 						}
@@ -280,19 +280,21 @@ export default Vue.extend({
 			immediate: true,
 			async handler(newWorkshopId: string):Promise<void> {
 				const instances = [];
-				const response = await this.ui.api.get<WorkshopInstances[]>(
-					"/api/v1/workshop/mentor/instances/" + newWorkshopId
-				);
-				this.auxViewTeams = [];
-				for(const wInst of response.data) {
-					// as any this.instances = _.Dictionary<WorkshopInstances> | {[key:string]:WorkshopInstances} ?
-					instances.push(...(wInst as any));
+				if(newWorkshopId) {
+					const response = await this.ui.api.get<WorkshopInstances[]>(
+						"/api/v1/workshop/mentor/instances/" + newWorkshopId
+					);
+					this.auxViewTeams = [];
+					for(const wInst of response.data) {
+						// as any this.instances = _.Dictionary<WorkshopInstances> | {[key:string]:WorkshopInstances} ?
+						instances.push(...(wInst as any));
+					}
+					for (const instance of instances) {
+						this.auxViewTeams.push(...this.viewTeams.filter(team => {
+							return team.value !== (instance as WorkshopInstances).teamId;
+						}));
+					} 
 				}
-				for (const instance of instances) {
-					this.auxViewTeams.push(...this.viewTeams.filter(team => {
-						return team.value !== (instance as WorkshopInstances).teamId;
-					}));
-				} 
 			}
 		},
 	},
@@ -319,24 +321,26 @@ export default Vue.extend({
 		},
 		async getWorkshopInstances(newWorkshopId: string):Promise<boolean> {
 			try {
-				if (this.user.role === "Mentor") {
-					const response = await this.ui.api.get<(Team & Product)[]>("/api/v1/teams/mentor/teams/" + this.user.userId);
-					if (response) this.teams = response.data;
-				} else if(this.user.role === "Admin") {
-					const response = await this.ui.api.get<(Team & Product)[]>("/api/v1/admin/teams/");
-					if (response) this.teams = response.data;
-				}
-				if (this.teams.length > 0) {
-					for (const team of this.teams) {
-						this.teamIds.push((team as Team).teamId);
+				if(newWorkshopId) {
+					if (this.user.role === "Mentor") {
+						const response = await this.ui.api.get<(Team & Product)[]>("/api/v1/teams/mentor/teams/" + this.user.userId);
+						if (response) this.teams = response.data;
+					} else if(this.user.role === "Admin") {
+						const response = await this.ui.api.get<(Team & Product)[]>("/api/v1/admin/teams/");
+						if (response) this.teams = response.data;
 					}
-					const response = await this.ui.api.get<_.Dictionary<WorkshopInstances>>(
-						"/api/v1/workshop/mentor/instances/" + newWorkshopId
-					);
-					if (response) {
-						this.instances = response.data;
-						return true;
-					} 
+					if (this.teams.length > 0) {
+						for (const team of this.teams) {
+							this.teamIds.push((team as Team).teamId);
+						}
+						const response = await this.ui.api.get<_.Dictionary<WorkshopInstances>>(
+							"/api/v1/workshop/mentor/instances/" + newWorkshopId
+						);
+						if (response) {
+							this.instances = response.data;
+							return true;
+						} 
+					}
 				}
 			} catch (e) {
 				console.error(e);
@@ -346,10 +350,12 @@ export default Vue.extend({
 		},
 		async getAttendance(newWorkshopId: string):Promise<boolean> {
 			try {
-				const response = await this.ui.api.get<WorkshopAttendances[]>("/api/v1/workshop/attendance/" + newWorkshopId);
-				if (response) {
-					this.attendance.push(...response.data);
-					return true;
+				if(newWorkshopId) {
+					const response = await this.ui.api.get<WorkshopAttendances[]>("/api/v1/workshop/attendance/" + newWorkshopId);
+					if (response) {
+						this.attendance.push(...response.data);
+						return true;
+					}
 				}
 			} catch (e) {
 				console.error(e);

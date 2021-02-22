@@ -365,12 +365,6 @@ export default Vue.extend({
 		},
 		async modifyUsers(users: ((User & UserTeams)[] | User[])):Promise<(User & UserTeams)[] | User[]> {
 			for(const user of users) {
-				if(typeof user.userDetails === "string") {
-					user.userDetails = JSON.parse(user.userDetails);
-					// TODO -> Parse in backend
-					user.socialMedia = JSON.parse((user as any).socialMedia);
-				}
-
 				if (user.userDetails["faculty"] !== undefined) {
 					(user as ((User & UserTeams) & VisualUser)).faculty = user.userDetails["faculty"]; 
 				} else {
@@ -561,9 +555,9 @@ export default Vue.extend({
 				socialMedia: this.item.socialMedia,
 				birthDate: this.item.birthDate,
 				userDetails: userDetails,
-				role: {
-					[this.item.role]: true
-				}
+				role: this.item.role,
+				avatarUu: this.item.avatarUu,
+				lastLogin: this.item.lastLogin
 			};
 			const userTeam: UserTeams = {
 				userProductId: this.item.userProductId,
@@ -732,7 +726,7 @@ export default Vue.extend({
 				this.snackbar = true;
 				this.loading = false;
 			}
-			const foundTeam = await this.ui.api.get<Team | null>("/api/v1/teams/team" + this.teamId);
+			const foundTeam = await this.ui.api.get<Team | null>("/api/v1/teams/team/" + this.teamId);
 			let initDate;
 			const allActivities = [];
 			if(foundTeam.data && foundTeam.data.location === "Bucharest"){

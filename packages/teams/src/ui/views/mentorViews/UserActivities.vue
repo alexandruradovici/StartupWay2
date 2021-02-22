@@ -75,7 +75,7 @@
 						</v-card-text>
 					</v-card>
 					<v-dialog v-model="editDialog" max-width="450">
-						<v-card flat width="450">
+						<v-card flat width="450" v-if="edited">
 							<v-card-title class="justify-center" style="font-family: Georgia, serif;">
 								Edit {{mentoredUser.firstName}}'s activity
 							</v-card-title>
@@ -121,7 +121,7 @@
 						</v-card>
 					</v-dialog>
 					<v-dialog v-model="viewDialog" max-width="450">
-						<v-card flat width="450">
+						<v-card flat width="450" v-if="edited">
 							<v-card-title class="justify-center" style="font-family: Georgia, serif;">
 								View {{mentoredUser.firstName}}'s activity
 							</v-card-title>
@@ -177,7 +177,7 @@ export default Vue.extend({
 				try {
 					if(await this.getUsers(this.teamId))
 						await this.getAllUsers();
-					const found = await this.ui.api.get<Team | null>("/api/v1/teams/team" + this.teamId);
+					const found = await this.ui.api.get<Team | null>("/api/v1/teams/team/" + this.teamId);
 					if(found.data) {
 						this.team = found.data.teamName;
 					}
@@ -231,17 +231,19 @@ export default Vue.extend({
 		mentoredUser: {
 			immediate:true,
 			async handler(newUser:(User & UserTeams)):Promise<void>  {
-				const newUserId=newUser.userId;
-				if(newUserId !== "") {
-					const response = await this.ui.api.post<UserActivity[]>("/api/v1/teams/team/activity", {
-						userId: newUserId,
-						teamId: this.teamId
-					});
-					if(response.data) {
-						this.weeks = response.data;
-						this.weeks.forEach( (week) => {
-							(week as (UserActivity & {stringDate:Date | string})).stringDate = week.date;
-						})
+				if(newUser) {
+					const newUserId=newUser.userId;
+					if(newUserId) {
+						const response = await this.ui.api.post<UserActivity[]>("/api/v1/teams/team/activity", {
+							userId: newUserId,
+							teamId: this.teamId
+						});
+						if(response.data) {
+							this.weeks = response.data;
+							this.weeks.forEach( (week) => {
+								(week as (UserActivity & {stringDate:Date | string})).stringDate = week.date;
+							})
+						}
 					}
 				}
 			}
@@ -298,6 +300,7 @@ export default Vue.extend({
 				const response = await this.ui.api.get<(User & UserTeams)[]>("/api/v1/teams/team/users/" + teamId);
 				if (response.data) {
 					this.users = this.modifyUsers(response.data) as (User & UserTeams)[];
+					console.log(this.users);
 					return true;
 				}
 			} catch (e) {
@@ -322,11 +325,6 @@ export default Vue.extend({
 		},
 		modifyUsers(users: (User[] | (User&UserTeams)[])): (User[] | (User&UserTeams)[]) {
 			for(const user of users) {
-				if(typeof user.userDetails === "string") {
-					user.userDetails = JSON.parse(user.userDetails);
-					// as any TODO PArse json in backend
-					user.socialMedia = JSON.parse((user as any).socialMedia);
-				}
 				if (user.userDetails["faculty"] !== undefined) {
 					(user as User & {faculty:string,group:string}).faculty = user.userDetails["faculty"]; 
 				} else {
@@ -384,6 +382,7 @@ export default Vue.extend({
 		async saveActivity(week:UserActivity):Promise<void>  {
 			this.loadingPage=true;
 			this.editDialog = false;
+			console.log(this.userId);
 			try {
 				await this.ui.api.post<UserActivity | null>("/api/v1/teams/team/activity/update", {
 					activity: {

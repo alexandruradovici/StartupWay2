@@ -2,31 +2,35 @@
 	<v-app>
 		<v-main background-color="#fcfcfc">
 			<v-container fluid pr-7 pl-7 background-color="#fcfcfc">
-				<div v-show="currentContent">
+				<div>
 					<div class="justify-center">
-							<v-row class="mb-6" justify="center" no-gutters>
-								<v-col>
-									<v-row class="justify-center" align="center">
-										<h1 v-if="role!=='Mentor' && role!=='User'" class="landing-message">Admin View</h1>
-										<h1 v-else class="landing-message">Mentor View</h1>
-									</v-row>
-									<v-row>
-										<v-divider></v-divider>
-									</v-row>
+						<v-row class="mb-6" justify="center" no-gutters>
+							<v-row class="justify-center" align="center">
+								<v-col class="d-flex align-start flex-column">
+									<h1 v-if="role!=='Mentor' && role!=='User'" class="landing-message">Admin View</h1>
+									<h1 v-else class="landing-message">Mentor View</h1>
 								</v-col>
+								<v-col class="d-flex align-end flex-column">
+									<v-btn @click="changeRoute('/assessment')">Check Assesments</v-btn>
+								</v-col>
+							</v-row>
 						</v-row>
 						<v-row class="mb-6" justify="center" >
 							<v-card class="mx-auto" flat color="#fcfcfc">
-								<v-container fluid pl-7 pr-7 v-show="!loadingPage">
+								<v-container fluid pl-7 pr-7>
 								<v-data-table
 									item-key="startupName"
 									:headers="headers"
 									:items="filteredReviews"
 									:search="search"
-									:expanded.sync="expanded"
 									:single-expand="false"
-									multi-sort
+									:itemsPerPage="-1"
 									show-expand
+									multi-sort
+									:sort-by.sync="sortBy"
+									:sort-desc.sync="sortDesc"
+									:expanded.sync="expanded"
+									loading-text="Loading teams"
 								>
 									<template v-slot:top>
 										<v-text-field
@@ -184,15 +188,19 @@
 															<v-select 
 																color="primary"
 																prepend-icon="mdi-clipboard-check-outline"
-																:items="values" 
-																label="Assessment 20 May" 
+																:items="values"
+																item-text="text"
+																item-value="value"
+																label="Assessment Finals" 
 																v-model="team.assessment20May">
 															</v-select>
 															<v-select
 																color="primary"
 																prepend-icon="mdi-clipboard-check-outline"
-																:items="values" 
-																label="Assessment 12 Oct" 
+																:items="values"
+																item-text="text"
+																item-value="value"
+																label="Assessment SemiFinals" 
 																v-model="team.assessment12Oct">
 															</v-select>
 														</v-card-text>
@@ -205,17 +213,35 @@
 											</v-dialog>
 										</div>
 									</template>
-									<template v-slot:actions="{ item }">
-										<v-icon small @click="openDialog(item)">
-											mdi-pencil mdi-24px
-										</v-icon>
+									<template v-slot:[`item.actions`]="{ item }">
+										<v-btn @click="openDialog(item)">
+											Edit
+											<v-icon small @click="openDialog(item)">
+												mdi-pencil mdi-24px
+											</v-icon>
+										</v-btn>
 									</template>
-									<template v-slot:updated="{ item }">
-										<v-icon small :color="updateColor(item)" :disabled="disabledIcon(item)" @click="openForApprove(item)">
-											mdi-chat-processing mdi-24px
-										</v-icon>
+									<template v-slot:[`item.updated`]="{ item }">
+										<v-btn small :color="updateColor(item)" :disabled="disabledIcon(item)" @click="openForApprove(item)">
+											Approve Description
+											<v-icon small :color="updateColor(item)" :disabled="disabledIcon(item)" @click="openForApprove(item)">
+												mdi-chat-processing mdi-24px
+											</v-icon>
+										</v-btn>
 									</template>
 									
+									<template v-slot:[`item.assessment12Oct`]="{ item }">
+										<v-simple-checkbox
+										v-model="item.assessment12Oct"
+										disabled
+										></v-simple-checkbox>
+									</template>
+									<template v-slot:[`item.assessment20May`]="{ item }">
+										<v-simple-checkbox
+										v-model="item.assessment20May"
+										disabled
+										></v-simple-checkbox>
+									</template>
 									<template v-slot:expanded-item="{ headers, item }">
 										<td :colspan="headers.length">
 										<v-card flat outlined>
@@ -226,10 +252,9 @@
 												{{allDescriptions[item.teamId]}}
 											</v-card-text>
 											<v-card-actions class="justify-center">
-												<v-btn :disabled="item.webLink.trim() === ''" @click="openLink(item)">Visit Website</v-btn>
-													<v-btn @click="goToTeam(item)">
-													Team Details
-												</v-btn> 
+												<!-- {{item.webLink}} -->
+												<v-btn rounded color="primary" :disabled="item.webLink.trim() === ''" @click="openLink(item)">Visit Website</v-btn>
+												<!-- <v-btn @click="goToTeam(item)">Team Details</v-btn>  -->
 												<v-btn rounded color="primary" @click="selectTeam(item)">Edit Team</v-btn>
 												<v-btn rounded color="primary" @click="editProduct(item)">Edit Product</v-btn>
 												<v-btn rounded color="primary" @click="teamActivity(item)">Team Activity</v-btn>
@@ -262,16 +287,16 @@
 										</v-select>
 									</v-col>
 									<v-col md="auto">
-										<v-select v-model="may20Filter" :items="values" label="Assesment 20 May">
+										<v-select v-model="finalsFilter" :items="values" item-text="text" item-value="value" label="Assessment Finals">
 											<template v-slot:prepend>
-												<v-btn v-if="may20Filter.trim() !== ''" icon @click="may20Filter = ''"><v-icon>mdi-close</v-icon></v-btn>
+												<v-btn v-if="finalsFilter !== null" icon @click="finalsFilter = ''"><v-icon>mdi-close</v-icon></v-btn>
 											</template>
 										</v-select>
 									</v-col>
 									<v-col md="auto">
-										<v-select v-model="oct12Filter" :items="values" label="Assesment 12 Oct">
+										<v-select v-model="semifinalsFilter" :items="values" item-text="text" item-value="value" label="Assessment SemiFinals">
 											<template v-slot:prepend>
-												<v-btn v-if="oct12Filter.trim() !== ''" icon @click="oct12Filter = ''"><v-icon>mdi-close</v-icon></v-btn>
+												<v-btn v-if="semifinalsFilter !== null" icon @click="semifinalsFilter = ''"><v-icon>mdi-close</v-icon></v-btn>
 											</template>
 										</v-select>
 									</v-col>
@@ -299,7 +324,17 @@
 					</div>
 				</div>
 			</v-container>
-			
+			<!-- <v-container v-else>
+				<v-row class="justify-center">
+					<v-col>
+						<v-progress-circular
+						:size="250"
+						color="primary"
+						indeterminate
+						></v-progress-circular>
+					</v-col>
+				</v-row>
+			</v-container> -->
 		</v-main>
 	</v-app>
 </template>
@@ -329,15 +364,16 @@ export default Vue.extend({
 		this._enumToData(TeamType, name);
 		name = _varToString({ WorkshopDay });
 		this._enumToData(WorkshopDay, name);
-		try {
-			await this.ui.storeDispatch("teams/loadProduct", this.teamId);
-		} catch (e) {
-			console.error(e);
-		}
+		// try {
+		// 	await this.ui.storeDispatch("teams/loadProduct", this.teamId);
+		// } catch (e) {
+		// 	console.error(e);
+		// }
 	},
 	data() {
 		return {
 			ui:UI.getInstance(),
+			changed:false,
 			allTeams: [] as (Team & Product)[],
 			startupRules: [
 				(value: string) => {
@@ -359,7 +395,6 @@ export default Vue.extend({
 			},
 			router:false,
 			show:true,
-			currentContent:true,
 			currentRoute:"" as string,
 			mentoredTeams:[] as (ModifiedTeam)[],
 			selectedMentoredTeam: {} as Team,
@@ -369,9 +404,9 @@ export default Vue.extend({
 			dialog: false,
 			team: null as (Team & Product) | null,
 			values:[
-				"Yes",
-				"Maybe",
-				"No"
+				{text:"Yes", value:true},
+				{text:"No", value:false},
+				{text:"NONE", value:null},
 			],
 			teamTypes: [
 				"Spin-off",
@@ -400,15 +435,8 @@ export default Vue.extend({
 			type: "",
 			loadingPage:false,
 			loading:false,
-			oct12Filter:"" as string,
-			may20Filter:"" as string,
-			businessTracksFilter:"" as string,
-			teamTypeFilter:"" as string,
-			locationFilter:"" as string,
-			workshopFilter:"" as string,
 			expanded: [],
 			singleSelect: false,
-			search:"",
 			headers: [
 				{
 					text: "Location",
@@ -422,13 +450,14 @@ export default Vue.extend({
 				{ text: "Business Track", value: "businessTrack" },
 				{ text: "Startup Name", value: "startupName" },
 				{ text: "Web Page Link", value: "webLink"},
-				{ text: "Assesment 20 May", value:"assessment20May"},
-				{ text: "Assesment 12 Oct", value:"assessment12Oct"},
+				{ text: "Assessment Finals", value:"assessment20May"},
+				{ text: "Assessment SemiFinals", value:"assessment12Oct"},
 				{ text: "Actions", value: "actions", sortable: false },
 				{ text: "Updated Description", value: "updated", sortable: false },
 				{ text: "Last Team Update", value: "updatedAt", sortable: false},
 				{ text: "Last Mentor Update", value: "lastMentorUpdate", sortable: false}
 			],
+			tableOptions:{},
 			existsUpdate: false,
 			approveDescriptions: [] as (Team & Product)[],
 			updated: null as (Team & Product) | null,
@@ -479,8 +508,6 @@ export default Vue.extend({
 				this.router=false;
 			} else if(to.path == "/login") {
 				this.tabs=[];
-			} else {
-				this.currentContent = false;
 			}
 			this.currentRoute=to.name;
 			if (this.role === "Mentor") {
@@ -530,10 +557,8 @@ export default Vue.extend({
 								this.mentoredTeams = this.modifyTeams(response.data);
 								for(let team in this.mentoredTeams) {
 									this.mentoredTeams[team].teamId;
-									// as any to insert prop for visualisation
-									(this.mentoredTeams[team] as any).description = response.data[team].descriptionEN;
-									// as any to insert prop for visualisation
-									(this.mentoredTeams[team] as any).mentor = JSON.parse((this.mentoredTeams[team] as any).teamDetails).mentor;
+									this.mentoredTeams[team].description = response.data[team].descriptionEN;
+									this.mentoredTeams[team].mentor = this.mentoredTeams[team].teamDetails.mentor;
 								}
 							}
 							
@@ -545,90 +570,10 @@ export default Vue.extend({
 								this.mentoredTeams = this.modifyTeams(response.data);
 								for(let team in this.mentoredTeams) {
 									this.mentoredTeams[team].teamId;
-									// as any to insert prop for visualisation
-									(this.mentoredTeams[team] as any).description = response.data[team].descriptionEN;
+									this.mentoredTeams[team].description = response.data[team].descriptionEN;
 								}
 							}
 						}
-						this.pushToTabs({
-							key:this.tabs.length,
-							title:"Workshops",
-							icon:"mdi-briefcase",
-							link:"/workshop"
-						});
-						this.pushToTabs({
-							key:this.tabs.length,
-							title:"Review Teams",
-							icon:"mdi-account-search",
-							link:"/teams/review"
-						});
-						this.pushToTabs({
-							key:this.tabs.length,
-							title:"Team Composition",
-							icon:"mdi-account-group",
-							link:"/viewTeam/composition"
-						});
-						this.pushToTabs({
-							key:this.tabs.length,
-							title:"Product Details",
-							icon:"mdi-chart-bar",
-							link:"/viewTeam/product"
-						});
-						this.pushToTabs({
-							key:this.tabs.length,
-							title:"User Activities",
-							icon:"mdi-calendar",
-							link:"/viewTeam/activities"
-						});
-						this.pushToTabs({
-							key:this.tabs.length,
-							title:"Product Feed",
-							icon:"mdi-cog-clockwise",
-							link:"/viewTeam/updates"
-						});
-						this.pushToTabs({
-							key:this.tabs.length,
-							title:"Business Canvas",
-							icon:"mdi-clipboard-text-multiple",
-							link:"/viewTeam/canvas"
-						});
-						this.menuName.title = "Mentor Menu";
-					} else if(newUser.userId !== "") {
-						this.tabs = [];
-						this.role="User";
-						await this.ui.storeDispatch("teams/loadTeams",newUser.userId);
-						this.pushToTabs({
-							key:this.tabs.length,
-							title:"View Team",
-							icon:"mdi-account-supervisor",
-							link:"/team"
-						});
-						this.pushToTabs({
-							key:this.tabs.length,
-							title:"Weekly Updates",
-							icon:"mdi-calendar-edit",
-							link:"/team/updates"
-						});
-						this.pushToTabs({
-							key:this.tabs.length,
-							title:"Business Canvas",
-							icon:"mdi-clipboard-text-multiple",
-							link:"/product/canvas"
-						});
-						this.pushToTabs({
-							key:this.tabs.length,
-							title:"Summary",
-							icon:"mdi-chart-bar",
-							link:"/product/summary"
-						});
-						this.pushToTabs({
-							key:this.tabs.length,
-							title:"Feed",
-							icon:"mdi-cog-clockwise",
-							link:"/product/feed"
-						});
-						
-						this.menuName.title = "User Menu";
 					}
 					try {
 						let id = newUser.userId;
@@ -660,7 +605,7 @@ export default Vue.extend({
 						team.teamType = product.teamType;
 					}
 				}
-			},
+			}
 		}
 	},
 	computed: {
@@ -672,6 +617,78 @@ export default Vue.extend({
 			_teams: "teams/teams",
 			feed: "feed/feed"
 		}),
+		sortBy: {
+			get():string | string[] {
+				return this.$store.state.admin.sortBy;
+			},
+			set(value:string | string[]):void {
+				this.ui.storeDispatch('admin/updateSortBy',value, {root:true});
+			}
+		},
+		sortDesc: {
+			get():string | string[] {
+				return this.$store.state.admin.sortDesc;
+			},
+			set(value:string | string[]):void {
+				this.ui.storeDispatch('admin/updateSortDesc',value, {root:true});
+			}
+		},
+		search:{
+			get():string {
+				return this.$store.state.admin.search;
+			},
+			set(value:string):void {
+				this.ui.storeDispatch('admin/updateSearch',value, {root:true});
+			}
+		},
+		semifinalsFilter:{
+			get():boolean | null {
+				return this.$store.state.admin.semifinalsFilter;
+			},
+			set(value:boolean | null):void {
+				this.ui.storeDispatch('admin/updateSemifinalsFilter',value, {root:true});
+			}
+		},
+		finalsFilter:{
+			get():boolean | null {
+				return this.$store.state.admin.finalsFilter;
+			},
+			set(value:boolean | null):void {
+				this.ui.storeDispatch('admin/updateFinalsFilter',value, {root:true});
+			}
+		},
+		businessTracksFilter:{
+			get():string {
+				return this.$store.state.admin.businessTracksFilter;
+			},
+			set(value:string):void {
+				this.ui.storeDispatch('admin/updateBusinessTracksFilter',value, {root:true});
+			}
+		},
+		teamTypeFilter:{
+			get():string {
+				return this.$store.state.admin.teamTypeFilter;
+			},
+			set(value:string):void {
+				this.ui.storeDispatch('admin/updateTeamTypeFilter',value, {root:true});
+			}
+		},
+		locationFilter:{
+			get():string {
+				return this.$store.state.admin.locationFilter;
+			},
+			set(value:string):void {
+				this.ui.storeDispatch('admin/updateLocationFilter',value, {root:true});
+			}
+		},
+		workshopFilter:{
+			get():string {
+				return this.$store.state.admin.workshopFilter;
+			},
+			set(value:string):void {
+				this.ui.storeDispatch('admin/updateWorkshopFilter',value, {root:true});
+			}
+		},
 		teams (): Team[] {
 			return this._teams as Team[];
 		},
@@ -679,12 +696,33 @@ export default Vue.extend({
 			let filteredRev:Review[] = [];
 			if(this.reviews.length > 0) {
 				filteredRev = this.reviews.filter((review:Review) => {
-					return review.teamTrack.includes(this.teamTypeFilter) &&
-						review.businessTrack.includes(this.businessTracksFilter) &&
-						review.assessment20May.includes(this.may20Filter) &&
-						review.location.includes(this.locationFilter) &&
-						review.workshopNr.includes(this.workshopFilter) &&
-						review.assessment12Oct.includes(this.oct12Filter);
+					if(this.finalsFilter !== null) {
+						if(this.semifinalsFilter !== null) {
+							return review.teamTrack.includes(this.teamTypeFilter) &&
+								review.businessTrack.includes(this.businessTracksFilter) &&
+								review.location.includes(this.locationFilter) &&
+								review.workshopNr.includes(this.workshopFilter) &&
+								review.assessment20May === this.finalsFilter &&
+								review.assessment12Oct === this.semifinalsFilter;
+						}
+						return review.teamTrack.includes(this.teamTypeFilter) &&
+							review.businessTrack.includes(this.businessTracksFilter) &&
+							review.location.includes(this.locationFilter) &&
+							review.workshopNr.includes(this.workshopFilter) &&
+							review.assessment20May === this.finalsFilter;
+					} else {
+						if(this.semifinalsFilter !== null) {
+							return review.teamTrack.includes(this.teamTypeFilter) &&
+								review.businessTrack.includes(this.businessTracksFilter) &&
+								review.location.includes(this.locationFilter) &&
+								review.workshopNr.includes(this.workshopFilter) &&
+								review.assessment12Oct === this.semifinalsFilter;
+						}
+						return  review.teamTrack.includes(this.teamTypeFilter) &&
+							review.businessTrack.includes(this.businessTracksFilter) &&
+							review.location.includes(this.locationFilter) &&
+							review.workshopNr.includes(this.workshopFilter);
+					}
 					});
 			}
 			return filteredRev;
@@ -736,8 +774,8 @@ export default Vue.extend({
 			}
 		},
 		clearFilters():void {
-			this.oct12Filter = "";
-			this.may20Filter = "";
+			this.semifinalsFilter = null;
+			this.finalsFilter = null;
 			this.teamTypeFilter = "";
 			this.businessTracksFilter = "";
 			this.workshopFilter = "";
@@ -752,19 +790,20 @@ export default Vue.extend({
 		},
 		async goToTeam(item:Review) {
 			let teamId = item.teamId;
+			await this.$store.dispatch("teams/mentorTeam",teamId);
 			const path = "/viewTeam/product/"
 			if(this.$route.path !== path)
 				this.$router.push(path + teamId);
-			await this.$store.dispatch("teams/mentorTeam",teamId);
 		},
 		async changeData() {
 			if(this.team !== null && this.team.startupName != "") {
-				// this.loading = true;
-				// this.loadingPage = true;
+				this.loading = true;
+				this.loadingPage = true;
 				
 				// as any because error it's null 
 				let productIndex = this.reviews.findIndex((el: Review) => el.startupName === (this.team as any).startupName);
-				this.reviews[productIndex].lastMentorUpdate = (this.formatDate(new Date()) as unknown as Date).toString();
+				this.reviews[productIndex].updatedAt = (this.formatDate(new Date()) as unknown as Date).toString();
+				console.log(this.reviews);
 				let response = await this.ui.api.post<Review[]>("/api/v1/admin/teams/review/update", 
 				{
 					reviews:this.reviews,
@@ -778,7 +817,9 @@ export default Vue.extend({
 						try {
 							let product = await this.ui.api.get<Product | null>("/api/v1/teams/product/" + this.allTeams[productToUpdate].teamId);
 							if(product.data) {
+								console.log(product.data);
 								product.data.lastMentorUpdate = (this.formatDate(new Date()) as unknown as Date) ;
+								product.data.updatedAt = (this.formatDate(new Date()) as unknown as Date) ;
 								try {
 									await this.ui.api.post<Product | null>("/api/v1/teams/product/update", {
 										product: product.data,
@@ -801,7 +842,7 @@ export default Vue.extend({
 						} catch (e) {
 							console.error(e);
 						}
-						let Product = {
+						let prd = {
 							productId: this.allTeams[productToUpdate].productId,
 							mentorId: this.allTeams[productToUpdate].mentorId,
 							startupName: this.allTeams[productToUpdate].startupName,
@@ -813,11 +854,12 @@ export default Vue.extend({
 							pendingDescriptionEN: this.allTeams[productToUpdate].pendingDescriptionEN,
 							pendingDescriptionRO: this.allTeams[productToUpdate].pendingDescriptionRO,
 							productDetails: this.allTeams[productToUpdate].productDetails,
-							lastMentorUpdate: (this.formatDate(new Date()) as unknown as Date)
+							lastMentorUpdate: (this.formatDate(new Date()) as unknown as Date),
+							updatedAt: this.allTeams[productToUpdate].updatedAt
 						} as Product;
 					try {
 						await this.ui.storeDispatch("teams/updateProduct", {
-							product: Product,
+							product: prd,
 							teamId: this.allTeams[productToUpdate].teamId
 						});
 					} catch (e) {
@@ -828,8 +870,8 @@ export default Vue.extend({
 
 				this.dialog = false;
 				this.$forceUpdate();
-				// this.loadingPage = false;
-				// this.loading = false;
+				this.loadingPage = false;
+				this.loading = false;
 			}
 		},
 		editTeam(team: Team & Product) {
@@ -853,8 +895,7 @@ export default Vue.extend({
 		async approveDescription() {
 			try {
 				if(this.updated) {
-					let response = await this.ui.api.post<Product | null>("/api/v1/teams/product/approve/description", {
-						product: {
+					let response = await this.ui.api.post<Product | null>("/api/v1/teams/product/approve/description",{
 							productId: this.updated.productId,
 							startupName: this.updated.startupName,
 							businessTrack: this.updated.businessTrack,
@@ -868,8 +909,7 @@ export default Vue.extend({
 							productDetails: this.updated.productDetails,
 							lastMentorUpdate: (this.formatDate(new Date()) as unknown as Date),
 							updatedAt: this.updated.updatedAt
-						}
-					})
+						})
 					if(response.data) {
 						
 						let res = await this.ui.api.get<Product | null>("/api/v1/teams/product/" + this.selectedTeam);
@@ -888,6 +928,7 @@ export default Vue.extend({
 									this.updated.pendingDescriptionEN = product.pendingDescriptionEN;
 									this.updated.productDetails = product.productDetails;
 									this.updated.lastMentorUpdate = product.lastMentorUpdate;
+									this.updated.updatedAt = product.updatedAt;
 									// let found = this.filteredReviews.findIndex((el: any) => el.teamId === this.updated.teamId);
 									// this.filteredReviews[found] = this.updated;
 
@@ -959,7 +1000,9 @@ export default Vue.extend({
 					pendingDescriptionRO: team.pendingDescriptionRO,
 					pendingDescriptionEN: team.pendingDescriptionEN,
 					updatedAt: team.updatedAt,
-					lastMentorUpdate: team.lastMentorUpdate
+					lastMentorUpdate: team.lastMentorUpdate,
+					mentor:"",
+					description:""
 				}
 				newArray.push(newTeam);
 			}
@@ -992,8 +1035,8 @@ export default Vue.extend({
 		},
 		changeRoute(link:string):void {
 			if((this.role==="Mentor" || this.role==="Admin" || this.role ==="SuperAdmin") && this.selectedMentoredTeam.teamId !== "" && link.split("/")[1] === "viewTeam") {
-				if(this.$route.path !== link + "/" + this.selectedMentoredTeam.teamId)
-					this.$router.push(link + "/" + this.selectedMentoredTeam.teamId);
+				if(this.$route.path !== link + "/" + this.id)
+					this.$router.push(link + "/" + this.id);
 			}
 			else {
 				if(this.$route.path !== link)

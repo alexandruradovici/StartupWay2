@@ -38,7 +38,28 @@ module.exports = env => {
 				{
 					test: /\.css$/,
         			use: ["style-loader", "css-loader"],
-				  },
+				},
+				{
+					test: /\.less$/,
+					use: [
+						{
+							loader: 'vue-style-loader',
+							options: {
+								// convertToAbsoluteUrls: true
+							}
+						},
+						{
+							loader: 'css-loader',
+							options: { url: false }
+						},
+						{
+							loader: 'less-loader',
+							options: {
+								relativeUrls: false
+							}
+						}
+					]
+				},
 			],
 		},
 		mode: mode,

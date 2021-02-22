@@ -509,7 +509,7 @@ export default Vue.extend({
 						this.pending_descr_ENG = newProduct.descriptionEN;
 					else
 						this.pending_descr_ENG = newProduct.pendingDescriptionEN;
-
+	
 					this.startupName = newProduct.startupName;
 					this.businessTrack = newProduct.businessTrack; 
 					this.teamType = newProduct.teamType; 

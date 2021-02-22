@@ -194,7 +194,6 @@
 </template>
 
 <script lang="ts">
-///TODO Adaugat camp poza de profil dupa 1 aprilie
 import Vue from "vue";
 import { UI } from "@startupway/main/lib/ui";
 import { User, UserSocialMedia, UserDetails, universities} from "../../common";
@@ -203,7 +202,6 @@ export default Vue.extend({
 	name: "EditAccount",
 	async mounted() {
 		try {
-			this.ui = UI.getInstance();
 			if (await this.ui.storeDispatch("users/load", {})) {
 				this.firstName = this.user.firstName;
 				this.lastName = this.user.lastName;
@@ -234,7 +232,7 @@ export default Vue.extend({
 	},
 	data() {
 		return {
-			ui:{} as UI,
+			ui:UI.getInstance(),
 			extendedImage: "",
 			extendDialog: false,
 			loadingPage:false,

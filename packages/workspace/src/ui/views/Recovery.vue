@@ -57,12 +57,9 @@ export default Vue.extend({
 	components: {
 		VueRecaptcha
 	},
-	mounted() {
-		this.ui = UI.getInstance();
-	},
 	data() {
 		return {
-			ui:{} as UI,
+			ui:UI.getInstance(),
             password:"",
             newPassword:"",
 			token:"",
