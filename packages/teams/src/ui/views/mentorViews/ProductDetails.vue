@@ -1,7 +1,6 @@
 <template>
 	<v-app id="app">
 		<v-container v-if="!loadingPage" class="content" fluid pl-7 pr-7>
-			<div class="component-title">Edit Product</div>
 			<v-divider></v-divider>
 			<v-card flat style="margin: auto;" max-width="1000" color="#fcfcfc">
 				<v-form v-model="productValid" lazy-validation>

@@ -28,13 +28,13 @@ export default Vue.extend({
 						id: MENU.ADMIN_PANEL,
 						title:"Manage",
 						icon:"mdi-wan",
-						link:"/admin"
+						link:"/admin/users"
 					},
 					{
 						id: MENU.CSV,
 						title:"Import CSV",
 						icon:"mdi-file-delimited",
-						link:"/csv"
+						link:"/admin/csv"
 					}
 				]
 			} as SimpleMenuOptions

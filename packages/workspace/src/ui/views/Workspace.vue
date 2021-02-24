@@ -3,11 +3,12 @@
 		<v-navigation-drawer v-if="role" clipped app permanent expand-on-hover>
 			<v-list>
 				<v-list-item>
+					<v-list-item-avatar small>
+						<v-img :src="badge"></v-img>
+					</v-list-item-avatar>
 					<v-list-item-content>
-					<v-list-item-title class="title">
-						{{userMenu.title}}
-					</v-list-item-title>
-					<v-list-item-subtitle>{{userMenu.subtitle}}</v-list-item-subtitle>
+						<v-list-item-title id="user-title">{{userMenu.title}}</v-list-item-title>
+						<v-list-item-subtitle>{{userMenu.subtitle}}</v-list-item-subtitle>
 					</v-list-item-content>
 				</v-list-item>
 			</v-list>
@@ -18,14 +19,14 @@
 				<template v-for="tab in tabs">
 					<v-list-item link :key="tab.key" :to="tab.link">
 						<v-list-item-icon>
-						<v-icon>{{tab.icon}}</v-icon>
+						<v-icon  color="#197E81">{{tab.icon}}</v-icon>
 						</v-list-item-icon>
 						<v-list-item-title>{{tab.title}}</v-list-item-title>
 					</v-list-item>
 				</template>
 			</v-list>
 		</v-navigation-drawer>
-		<v-app-bar app clipped-left dark flat color="primary">
+		<v-app-bar app clipped-left clipped-right dark flat color="primary">
 			<v-toolbar-title link contain>
 				<a href="/#/workspace"
 					><v-img left contain :src="logoImage" max-height="45" max-width="250"></v-img
@@ -46,9 +47,7 @@
 			</component>
 		</v-app-bar>
 		<v-main background-color="#fcfcfc">
-			<v-container>
-				<router-view ></router-view>
-			</v-container>
+			<router-view ></router-view>
 		</v-main>
 	</v-app>
 </template>
@@ -57,6 +56,7 @@
 import Vue from "vue";
 import moment from "moment";
 import logo from "../img/startupway-white-668px.png";
+import badgeImage from "../img/badge1-1650px.png";
 import { mapGetters } from "vuex";
 import { UI } from "@startupway/main/lib/ui";
 import { ToolbarButton, ToolbarButtonPosition } from "../../common/";
@@ -135,6 +135,7 @@ export default Vue.extend({
 	data() {
 		return {
 			ui:UI.getInstance(),
+			badge:badgeImage,
 			role:false,
 			userMenu:{
 				title:"",

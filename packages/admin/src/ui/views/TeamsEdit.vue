@@ -17,14 +17,14 @@
 					style="width: 500px; margin: 0 auto;"
 					class="justify-center"
 				></v-select>
-				<v-container grid-list-xs v-if="selectedTeam != 0">
+				<v-container grid-list-xs>
 					<v-card flat>
 						<v-card-title class="justify-center" style="font-family: Georgia, serif;">Team Composition</v-card-title>
 						<v-divider></v-divider>
 						<v-card-text>
 							<v-text-field
 								v-model="search"
-								append-icon="search"
+								append-icon="mdi-magnify"
 								label="Search"
 								single-line
 								hide-details
@@ -121,28 +121,16 @@ export default Vue.extend({
 	methods: {
 		async getUsers(teamId:string):Promise<void>{
 			try {
+				this.users = [];
 				const response = await this.ui.api.get<(User & UserTeams)[]>("/api/v1/teams/team/users/" + teamId);
 				if(response) {
-					this.users = this.modifyUsers(response.data);
+					for(let us of response.data)
+						this.users.push(us);
+					console.log(this.users);
 				}
 			} catch (e) {
 				console.error(e);
 			}
-		},
-		modifyUsers(users:(User & UserTeams)[]):(User & UserTeams)[] {
-			// users.forEach(element => {
-			// 	if(element.role){
-			// 		const roleObj = element.role;
-			// 		for(const prop in roleObj) {
-			// 			if (Object.prototype.hasOwnProperty.call(roleObj, prop)) {
-			// 				// as any to replace role: {"Role_name":true} with "Role_name"
-			// 				(element.role as any) = prop;
-			// 			}
-			// 		}
-			// 	}
-				
-			// });
-			return users;
 		},
 	}
 });

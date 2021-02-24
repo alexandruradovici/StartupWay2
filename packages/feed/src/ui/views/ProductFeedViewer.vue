@@ -1,7 +1,6 @@
 <template>
 	<v-app id="app">
 		<v-container class="content" width="1000">
-				<div class="component-title" style="margin-bottom: 30px;">Product Feed</div>
 				<v-divider></v-divider>
 				<template v-if="productUpdates"> 
 					<v-card flat outlined v-for="(item, index) in productUpdates" :key="index" width="800" class="justify-center" style="margin: auto; margin-bottom: 20px; margin-top: 30px;">

@@ -44,7 +44,7 @@ routes.push(
 		component:TeamsEdit
 	},
 	{
-		path: "/csv",
+		path: "/admin/csv",
 		name:"CSV Upload",
 		component: CSV
 	}

@@ -1,6 +1,5 @@
 <template>
 	<v-app id="app">
-		<div class="component-title">Weekly Updates</div>
 		<v-card flat style="margin: auto; margin-top: 50px;" max-width="1000" color="#fcfcfc">
 			<v-divider></v-divider>
 			<v-card-text style="margin-top: 20px;">

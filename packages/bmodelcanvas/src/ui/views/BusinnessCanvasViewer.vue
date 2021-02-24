@@ -1,7 +1,6 @@
 <template>
 	<v-app id="app">
 		<v-container class="content" width="1000">
-				<div class="component-title" style="margin-bottom: 30px;">Business Canvas</div>
 				<v-divider style="margin-bottom: 30px;"></v-divider>
 				<v-expansion-panels popout v-if="canvases" >
 					<v-expansion-panel v-for="(canvas, index) in canvases" :key="index">

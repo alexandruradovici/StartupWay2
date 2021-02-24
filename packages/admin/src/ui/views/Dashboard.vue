@@ -1,329 +1,273 @@
 <template>
 	<v-app>
-		<v-main background-color="#fcfcfc">
-			<v-container fluid pr-7 pl-7 background-color="#fcfcfc">
-				<div>
-					<div class="justify-center">
-						<v-row class="mb-6" justify="center" no-gutters>
-							<v-row class="justify-center" align="center">
-								<v-col class="d-flex align-start flex-column">
-									<h1 v-if="role!=='Mentor' && role!=='User'" class="landing-message">Admin View</h1>
-									<h1 v-else class="landing-message">Mentor View</h1>
-								</v-col>
-								<v-col class="d-flex align-end flex-column">
-									<v-btn @click="changeRoute('/assessment')">Check Assesments</v-btn>
-								</v-col>
-							</v-row>
-						</v-row>
-						<v-row class="mb-6" justify="center" >
-							<v-card class="mx-auto" flat color="#fcfcfc">
-								<v-container fluid pl-7 pr-7>
-								<v-data-table
-									item-key="startupName"
-									:headers="headers"
-									:items="filteredReviews"
-									:search="search"
-									:single-expand="false"
-									:itemsPerPage="-1"
-									show-expand
-									multi-sort
-									:sort-by.sync="sortBy"
-									:sort-desc.sync="sortDesc"
-									:expanded.sync="expanded"
-									loading-text="Loading teams"
-								>
-									<template v-slot:top>
-										<v-text-field
-											v-model="search"
-											append-icon="search"
-											label="Search"
-											single-line
-											hide-details
-										></v-text-field>
-									</template>
-									<template v-slot:header>
-										<div>
-											<v-divider class="mx-4" inset vertical></v-divider>
-											<v-spacer></v-spacer>
-											<v-dialog persistent v-model="approveDialog" v-if="updated" max-width="600px">
-												<v-card>
-													<v-form lazy-validation v-model="validDesc">
-														<v-card-title class="justify-center" style="font-family: Georgia, serif;">Approve Pending Description</v-card-title>
-														<v-divider></v-divider>
-														<v-card-text>
-															<div>Startup Name</div>
-															<v-text-field
-																readonly
-																outlined
-																rounded
-																color="primary"
-																:rules="startupRules"
-																v-model="updated.startupName"
-															></v-text-field>
-															<div>Pending English Description</div>
-															<v-textarea
-																outlined
-																rounded
-																color="primary"
-																v-model="updated.pendingDescriptionEN"
-																:rules="rulesDesc"
-																no-resize counter="600"
-															></v-textarea>
-															<div>Pending Romanian Description</div>
-															<v-textarea
-																outlined
-																rounded
-																color="primary"
-																v-model="updated.pendingDescriptionRO"
-																:rules="rulesDesc"
-																no-resize counter="600"
-															></v-textarea>
-														</v-card-text>
-														<v-card-actions>
-															<v-card-actions class="justify-center">
-																<v-btn :disabled="!validDesc" rounded color="primary" @click="approveDescription()">Approve Descriptions</v-btn>
-																<v-btn color="primary" text @click="exitApproveDialog()">Exit</v-btn>
-															</v-card-actions>
-														</v-card-actions>
-													</v-form>
-												</v-card>
-											</v-dialog>
-											<v-dialog persistent v-model="dialog" max-width="600px">
-												<v-card>
-													<v-form lazy-validation v-model="valid" v-if="team">
-														<v-card-title class="justify-center" style="font-family: Georgia, serif;">Edit Team Details</v-card-title>
-														<v-divider></v-divider>
-														<v-card-text style="margin-top: 50px;">
-															<v-text-field 
-																outlined 
-																rounded 
-																color="primary" 
-																prepend-icon="mdi-lightbulb-on-outline" 
-																v-model="team.startupName" 
-																label="Startup Name" 
-																optional
-																:rules="startupRules"
-															></v-text-field>
-															<v-text-field 
-																outlined 
-																rounded 
-																color="primary"
-																prepend-icon="mdi-map-marker-outline" 
-																v-model="team.location" 
-																label="Location" 
-																optional
-															></v-text-field>
-															<v-text-field 
-																outlined 
-																rounded 
-																color="primary" 
-																prepend-icon="mdi-account-tie-outline"
-																v-model="team.mentor" 
-																label="Mentor" 
-																optional
-															></v-text-field>
-															<v-text-field 
-																outlined 
-																rounded 
-																color="primary"
-																prepend-icon="mdi-web" 
-																v-model="team.webLink" 
-																label="Website" 
-																optional
-															></v-text-field>
-															<v-textarea 
-																rounded
-																outlined
-																color="primary"
-																prepend-icon="mdi-script-text-outline"
-																:rules="rulesDesc"
-																v-model="team.description" 
-																label="Description" 
-																optional
-															></v-textarea>
-															<v-select 
-																v-model="team.teamTrack" 
-																label="Team Track" 
-																optional 
-																:items="teamTypes"
-																prepend-icon="mdi-briefcase-search-outline"
-																color="primary"
-															></v-select>
-															<v-select 
-																v-model="team.businessTrack" 
-																label="Business Track" 
-																:items="businessTracks" 
-																optional
-																prepend-icon="mdi-domain"
-																color="primary"
-															></v-select>
-															<v-text-field 
-																outlined
-																rounded
-																color="primary"
-																prepend-icon="mdi-calendar-month-outline"
-																v-model="team.workshopNr" 
-																label="Workshop Nr." 
-																optional></v-text-field>
-															<v-textarea 
-																rounded
-																outlined
-																color="primary"
-																prepend-icon="mdi-note-text-outline"
-																v-if="user.role === 'Mentor'" 
-																v-model="team.mentorNotes" 
-																label="Mentor Notes" 
-																optional
-															></v-textarea>
-															<v-textarea 
-																rounded
-																outlined
-																color="primary"
-																prepend-icon="mdi-note-text-outline"
-																v-if="user.role === 'Admin'" 
-																v-model="team.adminNotes" 
-																label="Admin Notes" 
-																optional
-															></v-textarea>
-															<v-select 
-																color="primary"
-																prepend-icon="mdi-clipboard-check-outline"
-																:items="values"
-																item-text="text"
-																item-value="value"
-																label="Assessment Finals" 
-																v-model="team.assessment20May">
-															</v-select>
-															<v-select
-																color="primary"
-																prepend-icon="mdi-clipboard-check-outline"
-																:items="values"
-																item-text="text"
-																item-value="value"
-																label="Assessment SemiFinals" 
-																v-model="team.assessment12Oct">
-															</v-select>
-														</v-card-text>
-														<v-card-actions class="justify-center">
-															<v-btn :disabled="!valid" rounded color="primary" @click="changeData()">Apply</v-btn>
-															<v-btn color="primary" text @click="exitDialog()">Exit</v-btn>
-														</v-card-actions>
-													</v-form>
-												</v-card>
-											</v-dialog>
-										</div>
-									</template>
-									<template v-slot:[`item.actions`]="{ item }">
-										<v-btn @click="openDialog(item)">
-											Edit
-											<v-icon small @click="openDialog(item)">
-												mdi-pencil mdi-24px
-											</v-icon>
-										</v-btn>
-									</template>
-									<template v-slot:[`item.updated`]="{ item }">
-										<v-btn small :color="updateColor(item)" :disabled="disabledIcon(item)" @click="openForApprove(item)">
-											Approve Description
-											<v-icon small :color="updateColor(item)" :disabled="disabledIcon(item)" @click="openForApprove(item)">
-												mdi-chat-processing mdi-24px
-											</v-icon>
-										</v-btn>
-									</template>
-									
-									<template v-slot:[`item.assessment12Oct`]="{ item }">
-										<v-simple-checkbox
-										v-model="item.assessment12Oct"
-										disabled
-										></v-simple-checkbox>
-									</template>
-									<template v-slot:[`item.assessment20May`]="{ item }">
-										<v-simple-checkbox
-										v-model="item.assessment20May"
-										disabled
-										></v-simple-checkbox>
-									</template>
-									<template v-slot:expanded-item="{ headers, item }">
-										<td :colspan="headers.length">
-										<v-card flat outlined>
-											<v-card-title style="font-family: Georgia, serif; font-size: 18px; font-weight: 600;">
-												Team Description
-											</v-card-title>
-											<v-card-text style="font-family: Georgia; font-size: 16px;">
-												{{allDescriptions[item.teamId]}}
-											</v-card-text>
-											<v-card-actions class="justify-center">
-												<!-- {{item.webLink}} -->
-												<v-btn rounded color="primary" :disabled="item.webLink.trim() === ''" @click="openLink(item)">Visit Website</v-btn>
-												<!-- <v-btn @click="goToTeam(item)">Team Details</v-btn>  -->
-												<v-btn rounded color="primary" @click="selectTeam(item)">Edit Team</v-btn>
-												<v-btn rounded color="primary" @click="editProduct(item)">Edit Product</v-btn>
-												<v-btn rounded color="primary" @click="teamActivity(item)">Team Activity</v-btn>
-												<v-btn rounded color="primary" @click="productNewUpdates(item)">Product Updates</v-btn>
-												<v-btn rounded color="primary" @click="openCanvas(item)">Canvas</v-btn>
-											</v-card-actions>
+		<v-container background-color="#fcfcfc">
+			<div class="justify-center">
+				<v-row class="mb-6" justify="center" no-gutters>
+					<v-row class="justify-center" align="center">
+						<v-col class="d-flex align-start flex-column">
+							<h1 v-if="role!=='Mentor' && role!=='User'" class="landing-message">Admin View</h1>
+							<h1 v-else class="landing-message">Mentor View</h1>
+						</v-col>
+						<v-col class="d-flex align-end flex-column">
+							<v-tooltip bottom>
+								<template v-slot:activator="{on, attrs}">
+									<v-btn v-on="on" v-bind="attrs" @click="changeRoute('/assessment')" fab medium right color="#197E81">
+										<v-icon color="#fcfcfc">mdi-chart-box-outline</v-icon>
+									</v-btn>
+								</template>
+								<span>Check Assessments</span>
+							</v-tooltip>
+						</v-col>
+					</v-row>
+				</v-row>
+				<v-row class="mb-6" justify="center" >
+					<v-card class="mx-auto" flat color="#fcfcfc">
+						<v-data-table
+							item-key="startupName"
+							class="elevation-2"
+							:headers="headers"
+							:items="filteredReviews"
+							:search="search"
+							:single-expand="false"
+							:itemsPerPage="-1"
+							show-expand
+							multi-sort
+							:sort-by.sync="sortBy"
+							:sort-desc.sync="sortDesc"
+							:expanded.sync="expanded"
+							loading-text="Loading teams"
+						>
+							<template v-slot:top>
+								<v-text-field
+									v-model="search"
+									append-icon="mdi-magnify"
+									label="Search"
+									single-line
+									hide-details
+								></v-text-field>
+							</template>
+							<template v-slot:header>
+								<div>
+									<v-divider class="mx-4" inset vertical></v-divider>
+									<v-spacer></v-spacer>
+									<v-dialog persistent v-model="approveDialog" v-if="updated" max-width="600px">
+										<v-card>
+											<v-form lazy-validation v-model="validDesc">
+												<v-card-title class="justify-center" style="font-family: Georgia, serif;">Approve Pending Description</v-card-title>
+												<v-divider></v-divider>
+												<v-card-text>
+													<div>Startup Name</div>
+													<v-text-field
+														readonly
+														outlined
+														rounded
+														color="primary"
+														:rules="startupRules"
+														v-model="updated.startupName"
+													></v-text-field>
+													<div>Pending English Description</div>
+													<v-textarea
+														outlined
+														rounded
+														color="primary"
+														v-model="updated.pendingDescriptionEN"
+														:rules="rulesDesc"
+														no-resize counter="600"
+													></v-textarea>
+													<div>Pending Romanian Description</div>
+													<v-textarea
+														outlined
+														rounded
+														color="primary"
+														v-model="updated.pendingDescriptionRO"
+														:rules="rulesDesc"
+														no-resize counter="600"
+													></v-textarea>
+												</v-card-text>
+												<v-card-actions>
+													<v-card-actions class="justify-center">
+														<v-btn :disabled="!validDesc" rounded color="primary" @click="approveDescription()">Approve Descriptions</v-btn>
+														<v-btn color="primary" text @click="exitApproveDialog()">Exit</v-btn>
+													</v-card-actions>
+												</v-card-actions>
+											</v-form>
 										</v-card>
-										</td>
-									</template>
-								</v-data-table>
-								<v-divider style="margin-top: 30px; margin-bottom: 30px;"></v-divider>
-								<v-row class="mb-6" justify="center" no-gutters>
-									<v-col md="auto" style="font-family: Georgia, serif; font-size: 18px; font-weight: bold;">
-										Table Filters
-									</v-col>
-								</v-row>
-								<v-row class="mb-6" justify="center" no-gutters>
-									<v-col md="auto">
-										<v-select v-model="teamTypeFilter" :items="teamTypes" label="Team Track">
-											<template v-slot:prepend>
-												<v-btn v-if="teamTypeFilter.trim() !== ''" icon @click="teamTypeFilter = ''"><v-icon>mdi-close</v-icon></v-btn>
-											</template>
-										</v-select>
-									</v-col>
-									<v-col md="auto">
-										<v-select v-model="businessTracksFilter" :items="businessTracks" label="Business Track">
-											<template v-slot:prepend>
-												<v-btn v-if="businessTracksFilter.trim() !== ''" icon @click="businessTracksFilter = ''"><v-icon>mdi-close</v-icon></v-btn>
-											</template>
-										</v-select>
-									</v-col>
-									<v-col md="auto">
-										<v-select v-model="finalsFilter" :items="values" item-text="text" item-value="value" label="Assessment Finals">
-											<template v-slot:prepend>
-												<v-btn v-if="finalsFilter !== null" icon @click="finalsFilter = ''"><v-icon>mdi-close</v-icon></v-btn>
-											</template>
-										</v-select>
-									</v-col>
-									<v-col md="auto">
-										<v-select v-model="semifinalsFilter" :items="values" item-text="text" item-value="value" label="Assessment SemiFinals">
-											<template v-slot:prepend>
-												<v-btn v-if="semifinalsFilter !== null" icon @click="semifinalsFilter = ''"><v-icon>mdi-close</v-icon></v-btn>
-											</template>
-										</v-select>
-									</v-col>
-									<v-col md="auto">
-										<v-select v-model="locationFilter" :items="locations" label="Location">
-											<template v-slot:prepend>
-												<v-btn v-if="locationFilter.trim() !== ''" icon @click="locationFilter = ''"><v-icon>mdi-close</v-icon></v-btn>
-											</template>
-										</v-select>
-									</v-col>
-									<v-col md="auto">
-										<v-select v-model="workshopFilter" :items="workshopDays" label="Workshop">
-											<template v-slot:prepend>
-												<v-btn v-if="workshopFilter.trim() !== ''" icon @click="workshopFilter = ''"><v-icon>mdi-close</v-icon></v-btn>
-											</template>
-										</v-select>
-									</v-col>
-									<v-col md="auto">
-										<v-btn outlined rounded color="primary" @click="clearFilters()">Clear Filters</v-btn>
-									</v-col>
-								</v-row>
-							</v-container>
-							</v-card>
-						</v-row>
-					</div>
-				</div>
-			</v-container>
+									</v-dialog>
+									<v-dialog persistent v-model="dialog" max-width="600px">
+										<v-card>
+											<v-form lazy-validation v-model="valid" v-if="team">
+												<v-card-title class="justify-center" style="font-family: Georgia, serif;">Edit Team Details</v-card-title>
+												<v-divider></v-divider>
+												<v-card-text style="margin-top: 50px;">
+													<v-text-field 
+														outlined 
+														rounded 
+														color="primary" 
+														prepend-icon="mdi-lightbulb-on-outline" 
+														v-model="team.startupName" 
+														label="Startup Name" 
+														optional
+														:rules="startupRules"
+													></v-text-field>
+													<v-text-field 
+														outlined 
+														rounded 
+														color="primary"
+														prepend-icon="mdi-map-marker-outline" 
+														v-model="team.location" 
+														label="Location" 
+														optional
+													></v-text-field>
+													<v-text-field 
+														outlined 
+														rounded 
+														color="primary" 
+														prepend-icon="mdi-account-tie-outline"
+														v-model="team.mentor" 
+														label="Mentor" 
+														optional
+													></v-text-field>
+													<v-text-field 
+														outlined 
+														rounded 
+														color="primary"
+														prepend-icon="mdi-web" 
+														v-model="team.webLink" 
+														label="Website" 
+														optional
+													></v-text-field>
+													<v-textarea 
+														rounded
+														outlined
+														color="primary"
+														prepend-icon="mdi-script-text-outline"
+														:rules="rulesDesc"
+														v-model="team.description" 
+														label="Description" 
+														optional
+													></v-textarea>
+													<v-select 
+														v-model="team.teamTrack" 
+														label="Team Track" 
+														optional 
+														:items="teamTypes"
+														prepend-icon="mdi-briefcase-search-outline"
+														color="primary"
+													></v-select>
+													<v-select 
+														v-model="team.businessTrack" 
+														label="Business Track" 
+														:items="businessTracks" 
+														optional
+														prepend-icon="mdi-domain"
+														color="primary"
+													></v-select>
+													<v-text-field 
+														outlined
+														rounded
+														color="primary"
+														prepend-icon="mdi-calendar-month-outline"
+														v-model="team.workshopNr" 
+														label="Workshop Nr." 
+														optional></v-text-field>
+													<v-textarea 
+														rounded
+														outlined
+														color="primary"
+														prepend-icon="mdi-note-text-outline"
+														v-if="user.role === 'Mentor'" 
+														v-model="team.mentorNotes" 
+														label="Mentor Notes" 
+														optional
+													></v-textarea>
+													<v-textarea 
+														rounded
+														outlined
+														color="primary"
+														prepend-icon="mdi-note-text-outline"
+														v-if="user.role === 'Admin'" 
+														v-model="team.adminNotes" 
+														label="Admin Notes" 
+														optional
+													></v-textarea>
+													<v-select 
+														color="primary"
+														prepend-icon="mdi-clipboard-check-outline"
+														:items="values"
+														item-text="text"
+														item-value="value"
+														label="Assessment Finals" 
+														v-model="team.assessment20May">
+													</v-select>
+													<v-select
+														color="primary"
+														prepend-icon="mdi-clipboard-check-outline"
+														:items="values"
+														item-text="text"
+														item-value="value"
+														label="Assessment SemiFinals" 
+														v-model="team.assessment12Oct">
+													</v-select>
+												</v-card-text>
+												<v-card-actions class="justify-center">
+													<v-btn :disabled="!valid" rounded color="primary" @click="changeData()">Apply</v-btn>
+													<v-btn color="primary" text @click="exitDialog()">Exit</v-btn>
+												</v-card-actions>
+											</v-form>
+										</v-card>
+									</v-dialog>
+								</div>
+							</template>
+							<template v-slot:[`item.actions`]="{ item }">
+								<v-icon small @click="openDialog(item)">
+									mdi-pencil mdi-24px
+								</v-icon>
+							</template>
+							<template v-slot:[`item.updated`]="{ item }">
+								<v-icon small :color="updateColor(item)" :disabled="disabledIcon(item)" @click="openForApprove(item)">
+									mdi-chat-processing mdi-24px
+								</v-icon>
+							</template>
+							
+							<template v-slot:[`item.assessment12Oct`]="{ item }">
+								<v-simple-checkbox
+								v-model="item.assessment12Oct"
+								disabled
+								></v-simple-checkbox>
+							</template>
+							<template v-slot:[`item.assessment20May`]="{ item }">
+								<v-simple-checkbox
+								v-model="item.assessment20May"
+								disabled
+								></v-simple-checkbox>
+							</template>
+							<template v-slot:expanded-item="{ headers, item }">
+								<td :colspan="headers.length">
+								<v-card flat outlined>
+									<v-card-title style="font-family: Georgia, serif; font-size: 18px; font-weight: 600;">
+										Team Description
+									</v-card-title>
+									<v-card-text style="font-family: Georgia; font-size: 16px;">
+										{{allDescriptions[item.teamId]}}
+									</v-card-text>
+									<v-card-actions class="justify-center">
+										<!-- {{item.webLink}} -->
+										<v-btn rounded color="primary" :disabled="item.webLink.trim() === ''" @click="openLink(item)">Visit Website</v-btn>
+										<!-- <v-btn @click="goToTeam(item)">Team Details</v-btn>  -->
+										<v-btn rounded color="primary" @click="selectTeam(item)">Edit Team</v-btn>
+										<v-btn rounded color="primary" @click="editProduct(item)">Edit Product</v-btn>
+										<v-btn rounded color="primary" @click="teamActivity(item)">Team Activity</v-btn>
+										<v-btn rounded color="primary" @click="productNewUpdates(item)">Product Updates</v-btn>
+										<v-btn rounded color="primary" @click="openCanvas(item)">Canvas</v-btn>
+									</v-card-actions>
+								</v-card>
+								</td>
+							</template>
+						</v-data-table>
+						<v-divider style="margin-top: 30px; margin-bottom: 30px;"></v-divider>
+					</v-card>
+				</v-row>
+			</div>
 			<!-- <v-container v-else>
 				<v-row class="justify-center">
 					<v-col>
@@ -335,7 +279,107 @@
 					</v-col>
 				</v-row>
 			</v-container> -->
-		</v-main>
+		</v-container>
+		<v-navigation-drawer  v-model="drawer" clipped app permanent right :mini-variant.sync="mini">
+			<v-list>
+				<v-list-item>
+					<v-btn v-if="!mini" icon @click.stop="mini = !mini">
+						<v-icon>mdi-chevron-right</v-icon>
+					</v-btn>
+					<v-list-item-icon>
+						<v-icon>mdi-filter</v-icon>
+					</v-list-item-icon>
+					<v-list-item-title>
+						Table Filters
+					</v-list-item-title>
+				</v-list-item>
+			</v-list>
+
+			<v-divider></v-divider>
+
+			<v-list nav dense>
+				<v-list-item link>
+					<v-list-item-icon>
+						<v-icon v-if="teamTypeFilter.trim() !== ''" color="#197E81">mdi-radar</v-icon>
+						<v-icon v-else>mdi-radar</v-icon>
+					</v-list-item-icon>
+					<v-list-item-content>
+						<v-select v-model="teamTypeFilter" :items="teamTypes" label="Team Track">
+							<template v-slot:prepend>
+								<v-btn v-if="teamTypeFilter.trim() !== ''" icon @click="teamTypeFilter = ''"><v-icon>mdi-close</v-icon></v-btn>
+							</template>
+						</v-select>
+					</v-list-item-content>
+				</v-list-item>
+				<v-list-item link>
+					<v-list-item-icon>
+						<v-icon v-if="businessTracksFilter.trim() !== ''" color="#197E81">mdi-domain</v-icon>
+						<v-icon v-else>mdi-domain</v-icon>
+					</v-list-item-icon>
+					<v-list-item-content>
+						<v-select v-model="businessTracksFilter" :items="businessTracks" label="Business Track">
+							<template v-slot:prepend>
+								<v-btn v-if="businessTracksFilter.trim() !== ''" icon @click="businessTracksFilter = ''"><v-icon>mdi-close</v-icon></v-btn>
+							</template>
+						</v-select>
+					</v-list-item-content>
+				</v-list-item>
+				<v-list-item link>
+					<v-list-item-icon>
+						<v-icon v-if="finalsFilter !== null" color="#197E81">mdi-flag-checkered</v-icon>
+						<v-icon v-else>mdi-flag-checkered</v-icon>
+					</v-list-item-icon>
+					<v-list-item-content>
+						<v-select v-model="finalsFilter" :items="values" item-text="text" item-value="value" label="Assessment Finals">
+						</v-select>
+					</v-list-item-content>
+				</v-list-item>
+				<v-list-item link>
+					<v-list-item-icon>
+						<v-icon v-if="semifinalsFilter !== null" color="#197E81">mdi-flag</v-icon>
+						<v-icon v-else>mdi-flag</v-icon>
+					</v-list-item-icon>
+					<v-list-item-content>
+						<v-select v-model="semifinalsFilter" :items="values" item-text="text" item-value="value" label="Assessment SemiFinals">
+						</v-select>
+					</v-list-item-content>
+				</v-list-item>
+				<v-list-item link>
+					<v-list-item-icon>
+						<v-icon v-if="locationFilter.trim() !== ''" color="#197E81">mdi-city</v-icon>
+						<v-icon v-else>mdi-city</v-icon>
+					</v-list-item-icon>
+					<v-list-item-content>
+						<v-select v-model="locationFilter" :items="locations" label="Location">
+							<template v-slot:prepend>
+								<v-btn v-if="locationFilter.trim() !== ''" icon @click="locationFilter = ''"><v-icon>mdi-close</v-icon></v-btn>
+							</template>
+						</v-select>
+					</v-list-item-content>
+				</v-list-item>
+				<v-list-item link>
+					<v-list-item-icon>
+						<v-icon v-if="workshopFilter.trim() !== ''" color="#197E81">mdi-briefcase</v-icon>
+						<v-icon v-else>mdi-briefcase</v-icon>
+					</v-list-item-icon>
+					<v-list-item-content>
+						<v-select v-model="workshopFilter" :items="workshopDays" label="Workshop">
+							<template v-slot:prepend>
+								<v-btn v-if="workshopFilter.trim() !== ''" icon @click="workshopFilter = ''"><v-icon>mdi-close</v-icon></v-btn>
+							</template>
+						</v-select>
+					</v-list-item-content>
+				</v-list-item>
+				<v-list-item>
+					<v-list-item-icon>
+						<v-icon>mdi-filter-off</v-icon>
+					</v-list-item-icon>
+					<v-list-item-content>
+						<v-btn outlined rounded color="primary" @click="clearFilters()">Clear Filters</v-btn>
+					</v-list-item-content>
+				</v-list-item>
+			</v-list>
+		</v-navigation-drawer>
 	</v-app>
 </template>
 
@@ -345,14 +389,8 @@ import moment from "moment";
 import { mapGetters } from "vuex";
 import { UI } from "@startupway/main/lib/ui";
 import { User } from "@startupway/users/lib/ui";
-import { Team, Product, TeamType, WorkshopDay, BusinessTrack } from "@startupway/teams/lib/ui";
+import { Team, Product, TeamType, WorkshopDay, BusinessTrack, Tab } from "@startupway/teams/lib/ui";
 import { ModifiedTeam, Review } from "../../common";
-interface Tab {
-	key:number,
-	title:string,
-	icon:string,
-	link:string
-}
 export default Vue.extend({
 	name: "Dashboard",
 	components: {},
@@ -386,6 +424,8 @@ export default Vue.extend({
 			rulesDesc: [
 				(value:string) => !value || value.length <= 600 || 'Description must have at most 600 characters',
 			],
+        	drawer: true,
+			mini: true,
 			valid:true,
 			validDesc:true,
 			teamId: "",

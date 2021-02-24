@@ -30,7 +30,7 @@
 				</template>
 			</v-list>
 		</v-navigation-drawer>
-		<v-row no-gutters color="#fcfcfc">
+		<v-container class="justify-center" fluid pl-7 pr-7>
 			<transition fluid pa-0 v-if="!loadingPage">
 				<router-view></router-view>
 			</transition>
@@ -45,7 +45,7 @@
 					</v-col>
 				</v-row>
 			</transition>
-		</v-row>
+		</v-container>
 	</v-app>
 </template>
 
@@ -54,7 +54,7 @@ import Vue from "vue";
 import badgeImage from "../img/badge1-1650px.png";
 import { mapGetters } from "vuex";
 import { UI } from "@startupway/main/lib/ui";
-import { Team,	Product } from "../../common";
+import { Team,	Product, Tab } from "../../common";
 import { User, UserTeams } from "@startupway/users/lib/ui";
 
 export default Vue.extend({
@@ -243,7 +243,7 @@ export default Vue.extend({
 			mentoredTeams:[] as (Team & Product)[],
 			selectedMentoredTeam: undefined as (Team & Product) | Team | undefined,
 			id:"",
-			tabs: [] as {key:number,title:string,icon:string,link:string}[],
+			tabs: [] as Tab[],
 			type: "",
 			location:"",
 			component:"",

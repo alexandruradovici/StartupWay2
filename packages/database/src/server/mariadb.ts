@@ -26,6 +26,7 @@ export class MariaDBServer {
 				password:process.env.DB_PASS,
 				database:process.env.DB_NAME,
 				connectionLimit:10,
+				idleTimeout: 0,
 				rowsAsArray:false
 			});
 			return true;

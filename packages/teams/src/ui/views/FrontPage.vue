@@ -1,23 +1,29 @@
 <template>
 	<v-app>
-		<v-main background-color="#fcfcfc">
-			<v-container>
-				<v-row no-gutters>
-					<v-col cols="12" sm="6" md="8" lg="9" xl="9">
-						<div class="justify-center">
-							<v-row justify="center" no-gutters>
-								<v-col md="auto">
-									<h1 v-if="user" style="font-family: Georgia, serif; text-align: center; text-weight: bold, font-size: 20px; margin-top: 70px;"> Hello {{user.firstName}} {{user.lastName}} and welcome to StartupWay!</h1>
-									<h1 v-if="teams.length === 0" style="font-family: Georgia, serif; text-align: center; text-weight: bold, font-size: 20px; margin-top: 20px;">Oops, it seems like you are not enroled in any team, please contact your mentor for more details.</h1>
-									<h1 v-else style="font-family: Georgia, serif; text-align: center; text-weight: bold, font-size: 20px; margin-top: 20px;">You are currently enroled in {{ teams.length }} <div v-if="teams.length===1">team.</div> <div v-else>teams.</div></h1>
-									<h1 v-if="!currentTeam" style="font-family: Georgia, serif; text-align: center; text-weight: bold, font-size: 20px; margin-top: 20px;">Please select your team from the top right corner.</h1>
-								</v-col>
-							</v-row>
+		<v-container>
+			<div class="justify-center">
+				<v-row justify="center">
+					<h1 v-if="user" style="font-family: Georgia, serif; text-align: center; text-weight: bold, font-size: 20px; margin-top: 70px;"> 
+						Hello {{user.firstName}} {{user.lastName}} and welcome to StartupWay!
+					</h1>
+					<h1 v-if="teams.length === 0" style="font-family: Georgia, serif; text-align: center; text-weight: bold, font-size: 20px; margin-top: 20px;">
+						Oops, it seems like you are not enroled in any team, please contact your mentor for more details.
+					</h1>
+					<h1 v-else style="font-family: Georgia, serif; text-align: center; text-weight: bold, font-size: 20px; margin-top: 20px;">
+						You are currently enroled in {{ teams.length }} 
+						<div v-if="teams.length===1">
+							team.
+						</div> 
+						<div v-else>
+							teams.
 						</div>
-					</v-col>
+					</h1>
+					<h1 v-if="!currentTeam" style="font-family: Georgia, serif; text-align: center; text-weight: bold, font-size: 20px; margin-top: 20px;">
+						Please select your team from the top right corner.
+					</h1>
 				</v-row>
-			</v-container>
-		</v-main>
+			</div>
+		</v-container>
 	</v-app>
 </template>
 

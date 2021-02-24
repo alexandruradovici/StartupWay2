@@ -1,7 +1,6 @@
 <template>
 	<v-app id="app">
 		<v-container v-if="!loadingPage" class="content" fluid pl-7 pr-7 >
-			<div class="component-title">Edit Team</div>
 			<v-divider></v-divider>
 			<v-card flat style="margin: auto;" max-width="1000" color="#fcfcfc">
 					<v-list nav dense color="#fcfcfc">
@@ -146,7 +145,7 @@
 							<template v-slot:top>
 								<v-text-field
 									v-model="search2"
-									append-icon="search"
+									append-icon="mdi-magnify"
 									label="Search"
 									single-line
 									hide-details

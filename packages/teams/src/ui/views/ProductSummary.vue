@@ -1,7 +1,6 @@
 <template>
 	<v-app id="app">							
 		<v-container pr-7 pl-7 v-if="!loadingPage">
-			<div class="component-title">Product Summary</div>
 			<v-card flat style="margin: auto; padding-top: 20px;" color="#fcfcfc">
 				<v-form v-model="productValid" lazy-validation>
 					<v-divider></v-divider>

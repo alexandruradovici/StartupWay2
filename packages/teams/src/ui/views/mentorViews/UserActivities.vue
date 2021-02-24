@@ -1,7 +1,6 @@
 <template>
 	<v-app id="app">
 		<v-container v-if="!loadingPage" class="content" fluid pl-7 pr-7>
-				<div class="component-title">Users activity</div>
 				<v-divider></v-divider>
 				<v-card flat style="margin: auto;" width="800" color="#fcfcfc">
 					<v-list nav dense color="#fcfcfc">

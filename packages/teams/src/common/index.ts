@@ -41,6 +41,12 @@ export enum WorkshopDay {
     
 }
 
+export interface Tab {
+	key:number,
+	title:string,
+	icon:string,
+	link:string
+}
 export interface UserActivity {
 	activityId:string,
 	userId:string,

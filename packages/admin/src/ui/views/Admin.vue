@@ -1,106 +1,65 @@
 <template>
 	<v-app>
-		<v-row no-gutters>
-			<v-col  cols="12" sm="6" md="3" lg="3" xl="3">
-				<div class="content">
-					<v-list nav dense style="margin-top: 20px; background-color: #fcfcfc;">
-						<v-list-item class="menu-item" two-line>
-							<v-list-item-content>
-								<v-list-item-title class="user-title" style="font-size:20px; font-weight: bold;">Admin Panel</v-list-item-title>
-								<v-list-item-subtitle class="user-subtitle" style="font-size:18px;">Innovation Labs 2020</v-list-item-subtitle>
-							</v-list-item-content>
-						</v-list-item>
+		<v-navigation-drawer app clipped permanent style="border-left:#ffb100 solid 10px;">
+			<v-list>
+				<v-list-item two-line>
+					<v-list-item-content>
+						<v-list-item-title>Admin Panel</v-list-item-title>
+						<v-list-item-subtitle>Innovation Labs 2021</v-list-item-subtitle>
+					</v-list-item-content>
+				</v-list-item>
+				<v-divider></v-divider>
+				<v-list-item class="menu-item" link to="/admin/users">
+					<v-list-item-icon>
+						<v-icon color="primary">mdi-account-multiple</v-icon>
+					</v-list-item-icon>
+					<v-list-item-content>
+						<v-list-item-title>Users</v-list-item-title>
+					</v-list-item-content>
+				</v-list-item>
+				<v-list-item class="menu-item" link to="/admin/teams">
+					<v-list-item-icon>
+						<v-icon color="primary">mdi-account-group</v-icon>
+					</v-list-item-icon>
+					<v-list-item-content>
+						<v-list-item-title>Teams</v-list-item-title>
+					</v-list-item-content>
+				</v-list-item>
+				<v-list-item class="menu-item" link to="/admin/workshops">
+					<v-list-item-icon>
+						<v-icon color="primary">mdi-domain</v-icon>
+					</v-list-item-icon>
 
-						<v-divider></v-divider>
+						<v-list-item-content>
+						<v-list-item-title>Workshops</v-list-item-title>
+					</v-list-item-content>
+				</v-list-item>
+				<v-list-item class="menu-item" link to="/admin/csv">
+					<v-list-item-icon>
+						<v-icon color="primary">mdi-file-import-outline</v-icon>
+					</v-list-item-icon> 
 
-						<v-list-item class="menu-item" link to="/admin/users">
-							<v-list-item-icon>
-								<v-icon color="primary">mdi-account-multiple</v-icon>
-							</v-list-item-icon>
-							<v-list-item-content>
-								<v-list-item-title class="active-element" style="font-size: 16px; font-weight: 900;">Users</v-list-item-title>
-							</v-list-item-content>
-						</v-list-item>
-						<v-list-item class="menu-item" link to="/admin/teams">
-							<v-list-item-icon>
-								<v-icon color="primary">mdi-account-group</v-icon>
-							</v-list-item-icon>
-							<v-list-item-content>
-								<v-list-item-title class="active-element" style="font-size: 16px; font-weight: 900;">Teams</v-list-item-title>
-							</v-list-item-content>
-						</v-list-item>
-						<v-list-item class="menu-item" link to="/admin/workshops">
-							<v-list-item-icon>
-								<v-icon color="primary">mdi-domain</v-icon>
-							</v-list-item-icon>
+					<v-list-item-content>
+						<v-list-item-title>Import CSV</v-list-item-title>
+					</v-list-item-content>
+				</v-list-item>
 
-								<v-list-item-content>
-								<v-list-item-title class="active-element" style="font-size: 16px; font-weight: 900;">Workshops</v-list-item-title>
-							</v-list-item-content>
-						</v-list-item>
-						<v-list-item class="menu-item" link to="/csv">
-							<v-list-item-icon>
-								<v-icon color="primary">mdi-file-import-outline</v-icon>
-							</v-list-item-icon> 
+				<v-list-item class="menu-item" link to="/admin/exports">
+					<v-list-item-icon>
+						<v-icon color="primary">mdi-file-export-outline</v-icon>
+					</v-list-item-icon> 
 
-							<v-list-item-content>
-								<v-list-item-title class="active-element" style="font-size: 16px; font-weight: 900;">Import CSV</v-list-item-title>
-							</v-list-item-content>
-						</v-list-item>
-
-						<v-list-item class="menu-item" link to="/admin/exports">
-							<v-list-item-icon>
-								<v-icon color="primary">mdi-file-export-outline</v-icon>
-							</v-list-item-icon> 
-
-							<v-list-item-content>
-								<v-list-item-title class="active-element" style="font-size: 16px; font-weight: 900;">Exports</v-list-item-title>
-							</v-list-item-content>
-						</v-list-item>
-					</v-list>
-					<!-- <v-navigation-drawer app permanent style="border-left:#ffb100 solid 10px;">
-						<v-list>
-							<v-list-item two-line>
-								<v-list-item-content>
-									<v-list-item-title>Admin Panel</v-list-item-title>
-									<v-list-item-subtitle>Innovation Labs 2020</v-list-item-subtitle>
-								</v-list-item-content>
-							</v-list-item>
-							<v-divider></v-divider>
-							<v-list-item link to="/admin/users">
-								<v-list-item-icon>
-									<v-icon>mdi-account-multiple</v-icon>
-								</v-list-item-icon>
-								<v-list-item-content>
-									<v-list-item-title>Users</v-list-item-title>
-								</v-list-item-content>
-							</v-list-item>
-							<v-list-item link to="/admin/teams">
-								<v-list-item-icon>
-									<v-icon>mdi-account-group</v-icon>
-								</v-list-item-icon>
-								<v-list-item-content>
-									<v-list-item-title>Teams</v-list-item-title>
-								</v-list-item-content>
-							</v-list-item>
-							<v-list-item link to="/admin/workshops">
-								<v-list-item-icon>
-									<v-icon>mdi-domain</v-icon>
-								</v-list-item-icon>
-								<v-list-item-content>
-									<v-list-item-title>Workshops</v-list-item-title>
-								</v-list-item-content>
-							</v-list-item>
-						</v-list>
-					</v-navigation-drawer> -->
-				</div>
-			</v-col>
-			<v-col cols="12" sm="6" md="7" lg="9" xl="9" >
-				<transition fluid pa-0 v-if="!loadingPage">
-					<router-view></router-view>
-				</transition>
-			</v-col>
-		</v-row>
+					<v-list-item-content>
+						<v-list-item-title>Exports</v-list-item-title>
+					</v-list-item-content>
+				</v-list-item>
+			</v-list>
+		</v-navigation-drawer>
+		<v-container>
+			<transition fluid pa-0 v-if="!loadingPage">
+				<router-view></router-view>
+			</transition>
+		</v-container>
 	</v-app>
 </template>
 

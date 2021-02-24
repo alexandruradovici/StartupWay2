@@ -1,7 +1,6 @@
 <template>
 	<v-app>
 		<v-container class="content" width="1000">
-		<div class="component-title">Feed</div>
 		<v-card flat style="margin: auto; margin-top: 20px;"  max-width="1000" color="#fcfcfc">
 			<v-divider></v-divider>
 			<div align="center" style="margin-top: 20px; margin-bottom: 20px;">Please select the type of update you would like to publish.</div>

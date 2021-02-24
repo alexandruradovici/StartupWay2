@@ -1,108 +1,146 @@
 <template>
 	<v-app>
-		<v-main background-color="#fcfcfc">
-			<v-container fluid pr-7 pl-7 background-color="#fcfcfc">
-				<div>
-					<div class="justify-center">
-						<v-row class="mb-6" justify="center" no-gutters>
-							<v-col>
-								<v-row class="justify-center" align="center">
-									<h1 class="landing-message">Assessment View</h1>
-								</v-row>
-								<v-row>
-									<v-divider></v-divider>
-								</v-row>
-							</v-col>
+		<v-container background-color="#fcfcfc">
+			<div class="justify-center">
+				<v-row class="mb-6" justify="center" no-gutters>
+					<v-col>
+						<v-row class="justify-center" align="center">
+							<h1 class="landing-message">Assessment View</h1>
 						</v-row>
-						<v-row class="mb-6" justify="center" >
-							<v-card class="mx-auto" flat color="#fcfcfc">
-								<v-container fluid pl-7 pr-7 v-show="!loadingPage">
-								<v-data-table
-									item-key="startupName"
-									:headers="headers"
-									:items="filteredTeams"
-									:search="searchAssessment"
-									multi-sort
-									:itemsPerPage="-1"
-									:sort-by.sync="sortByAssessment"
-									:sort-desc.sync="sortDescAssessment"
-									loading-text="Loading teams"
-								>
-									<template v-slot:top>
-										<v-text-field
-											v-model="searchAssessment"
-											append-icon="search"
-											label="Search"
-											single-line
-											hide-details
-										></v-text-field>
-									</template>
-									<template v-slot:[`item.assesSemiFinals`]="{ item }">
-										<v-simple-checkbox
-										v-model="item.assesSemiFinals"
-										@input="updateProduct(item)"
-										></v-simple-checkbox>
-									</template>
-									<template v-slot:[`item.assesFinals`]="{ item }">
-										<v-simple-checkbox
-										v-model="item.assesFinals"
-										@input="updateProduct(item)"
-										></v-simple-checkbox>
-									</template>
-								</v-data-table>
-								<v-divider style="margin-top: 30px; margin-bottom: 30px;"></v-divider>
-								<v-row class="mb-6" justify="center" no-gutters>
-									<v-col md="auto" style="font-family: Georgia, serif; font-size: 18px; font-weight: bold;">
-										Table Filters
-									</v-col>
-								</v-row>
-								<v-row class="mb-6" justify="center" no-gutters>
-									<v-col md="auto">
-										<v-select v-model="teamTypeFilterAssessment" :items="teamTypes" label="Team Track">
-											<template v-slot:prepend>
-												<v-btn v-if="teamTypeFilterAssessment.trim() !== ''" icon @click="teamTypeFilterAssessment = ''"><v-icon>mdi-close</v-icon></v-btn>
-											</template>
-										</v-select>
-									</v-col>
-									<v-col md="auto">
-										<v-select v-model="businessTracksFilterAssessment" :items="businessTracks" label="Business Track">
-											<template v-slot:prepend>
-												<v-btn v-if="businessTracksFilterAssessment.trim() !== ''" icon @click="businessTracksFilterAssessment = ''"><v-icon>mdi-close</v-icon></v-btn>
-											</template>
-										</v-select>
-									</v-col>
-									<v-col md="auto">
-										<v-select v-model="finalsFilterAssessment" :items="values" item-text="text" item-value="value" label="Assesment Finals">
-											<template v-slot:prepend>
-												<v-btn v-if="finalsFilterAssessment !== null" icon @click="finalsFilterAssessment = ''"><v-icon>mdi-close</v-icon></v-btn>
-											</template>
-										</v-select>
-									</v-col>
-									<v-col md="auto">
-										<v-select v-model="semifinalsFilterAssessment" :items="values" item-text="text" item-value="value" label="Assesment SemiFinals">
-											<template v-slot:prepend>
-												<v-btn v-if="semifinalsFilterAssessment !== null" icon @click="semifinalsFilterAssessment = ''"><v-icon>mdi-close</v-icon></v-btn>
-											</template>
-										</v-select>
-									</v-col>
-									<v-col md="auto">
-										<v-select v-model="locationFilterAssessment" :items="locations" label="Location">
-											<template v-slot:prepend>
-												<v-btn v-if="locationFilterAssessment.trim() !== ''" icon @click="locationFilterAssessment = ''"><v-icon>mdi-close</v-icon></v-btn>
-											</template>
-										</v-select>
-									</v-col>
-									<v-col md="auto">
-										<v-btn outlined rounded color="primary" @click="clearFilters()">Clear Filters</v-btn>
-									</v-col>
-								</v-row>
-							</v-container>
-							</v-card>
+						<v-row>
+							<v-divider></v-divider>
 						</v-row>
-					</div>
-				</div>
-			</v-container>
-		</v-main>
+					</v-col>
+				</v-row>
+				<v-row class="mb-6" justify="center" >
+					<v-card class="mx-auto" flat color="#fcfcfc">
+						<v-data-table
+							item-key="startupName"
+							:headers="headers"
+							:items="filteredTeams"
+							:search="searchAssessment"
+							multi-sort
+							:itemsPerPage="-1"
+							:sort-by.sync="sortByAssessment"
+							:sort-desc.sync="sortDescAssessment"
+							loading-text="Loading teams"
+						>
+							<template v-slot:top>
+								<v-text-field
+									v-model="searchAssessment"
+									append-icon="mdi-magnify"
+									label="Search"
+									single-line
+									hide-details
+								></v-text-field>
+							</template>
+							<template v-slot:[`item.assesSemiFinals`]="{ item }">
+								<v-simple-checkbox
+								color="#197E81"
+								v-model="item.assesSemiFinals"
+								@input="updateProduct(item)"
+								></v-simple-checkbox>
+							</template>
+							<template v-slot:[`item.assesFinals`]="{ item }">
+								<v-simple-checkbox
+								color="#197E81"
+								v-model="item.assesFinals"
+								@input="updateProduct(item)"
+								></v-simple-checkbox>
+							</template>
+						</v-data-table>
+						<v-divider style="margin-top: 30px; margin-bottom: 30px;"></v-divider>
+					</v-card>
+				</v-row>
+			</div>
+		</v-container>
+		<v-navigation-drawer v-model="drawer" clipped app permanent right :mini-variant.sync="mini">
+			<v-list>
+				<v-list-item>
+					<v-btn v-if="!mini" icon @click.stop="mini = !mini">
+						<v-icon>mdi-chevron-right</v-icon>
+					</v-btn>
+					<v-list-item-icon>
+						<v-icon>mdi-filter</v-icon>
+					</v-list-item-icon>
+					<v-list-item-title>
+						Table Filters
+					</v-list-item-title>
+				</v-list-item>
+			</v-list>
+
+			<v-divider></v-divider>
+
+			<v-list nav dense>
+				<v-list-item link>
+					<v-list-item-icon>
+						<v-icon v-if="teamTypeFilterAssessment.trim() !== ''" color="#197E81">mdi-radar</v-icon>
+						<v-icon v-else>mdi-radar</v-icon>
+					</v-list-item-icon>
+					<v-list-item-content>
+						<v-select v-model="teamTypeFilterAssessment" :items="teamTypes" label="Team Track">
+							<template v-slot:prepend>
+								<v-btn v-if="teamTypeFilterAssessment.trim() !== ''" icon @click="teamTypeFilterAssessment = ''"><v-icon>mdi-close</v-icon></v-btn>
+							</template>
+						</v-select>
+					</v-list-item-content>
+				</v-list-item>
+				<v-list-item link>
+					<v-list-item-icon>
+						<v-icon v-if="businessTracksFilterAssessment.trim() !== ''" color="#197E81">mdi-domain</v-icon>
+						<v-icon v-else>mdi-domain</v-icon>
+					</v-list-item-icon>
+					<v-list-item-content>
+						<v-select v-model="businessTracksFilterAssessment" :items="businessTracks" label="Business Track">
+							<template v-slot:prepend>
+								<v-btn v-if="businessTracksFilterAssessment.trim() !== ''" icon @click="businessTracksFilterAssessment = ''"><v-icon>mdi-close</v-icon></v-btn>
+							</template>
+						</v-select>
+					</v-list-item-content>
+				</v-list-item>
+				<v-list-item link>
+					<v-list-item-icon>
+						<v-icon v-if="finalsFilterAssessment !== null" color="#197E81">mdi-flag-checkered</v-icon>
+						<v-icon v-else>mdi-flag-checkered</v-icon>
+					</v-list-item-icon>
+					<v-list-item-content>
+						<v-select v-model="finalsFilterAssessment" :items="values" item-text="text" item-value="value" label="Assesment Finals">
+						</v-select>
+					</v-list-item-content>
+				</v-list-item>
+				<v-list-item link>
+					<v-list-item-icon>
+						<v-icon v-if="semifinalsFilterAssessment !== null" color="#197E81">mdi-flag</v-icon>
+						<v-icon v-else>mdi-flag</v-icon>
+					</v-list-item-icon>
+					<v-list-item-content>
+						<v-select v-model="semifinalsFilterAssessment" :items="values" item-text="text" item-value="value" label="Assesment SemiFinals">
+						</v-select>
+					</v-list-item-content>
+				</v-list-item>
+				<v-list-item link>
+					<v-list-item-icon>
+						<v-icon v-if="locationFilterAssessment.trim() !== ''" color="#197E81">mdi-city</v-icon>
+						<v-icon v-else>mdi-city</v-icon>
+					</v-list-item-icon>
+					<v-list-item-content>
+						<v-select v-model="locationFilterAssessment" :items="locations" label="Location">
+							<template v-slot:prepend>
+								<v-btn v-if="locationFilterAssessment.trim() !== ''" icon @click="locationFilterAssessment = ''"><v-icon>mdi-close</v-icon></v-btn>
+							</template>
+						</v-select>
+					</v-list-item-content>
+				</v-list-item>
+				<v-list-item>
+					<v-list-item-icon>
+						<v-icon>mdi-filter-off</v-icon>
+					</v-list-item-icon>
+					<v-list-item-content>
+						<v-btn outlined rounded color="primary" @click="clearFilters()">Clear Filters</v-btn>
+					</v-list-item-content>
+				</v-list-item>
+			</v-list>
+		</v-navigation-drawer>
 	</v-app>
 </template>
 
@@ -131,6 +169,8 @@ export default Vue.extend({
 			ui:UI.getInstance(),
 			teamId: "",
 			role:"" as string,
+        	drawer: true,
+			mini: true,
 			router:false,
 			show:true,
 			currentContent:true,

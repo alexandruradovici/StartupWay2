@@ -1,7 +1,6 @@
 <template>
 	<v-app>
 		<v-container fluid pl-7 pr-7 v-if="!loadingPage">
-			<div class="component-title">View Team</div>
 			<v-card color="#fcfcfc" flat style="margin: auto; margin-top: 50px;">
 				
 				<v-divider></v-divider>
@@ -154,7 +153,7 @@
 							<template v-slot:top>
 								<v-text-field
 									v-model="search2"
-									append-icon="search"
+									append-icon="mdi-magnify"
 									label="Search"
 									single-line
 									hide-details

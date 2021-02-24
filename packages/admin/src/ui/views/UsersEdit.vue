@@ -12,7 +12,7 @@
 							<v-text-field
 								style="flex: 0 1 auto;"
 								v-model="search"
-								prepend-icon="search"
+								append-icon="mdi-magnify"
 								label="Search"
 								single-line
 								hide-details								
@@ -65,7 +65,7 @@
 														v-model="item.birthDate"
 														label="BirthDate"
 														persistent-hint
-														prepend-icon="event"
+														prepend-icon="mdi-event"
 														v-on="on"
 													></v-text-field>
 												</template>
