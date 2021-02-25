@@ -21,8 +21,8 @@
 						v-model="team"
 						:items="teams"
 						label="Select a team you wish to export"
-						item-text="teams_teamName"
-						item-value="teams_productId"
+						item-text="teamName"
+						item-value="productId"
 						hint="Please make sure to select a value"
 						persistent-hint
 					></v-select>

@@ -413,7 +413,6 @@ export default Vue.extend({
 			let filteredTeam:(Team & Product & {assesFinals:boolean,assesSemiFinals:boolean})[] = [];
 			if(this.teams.length > 0) {
 				filteredTeam = this.teams.filter((team:Team & Product & {assesFinals:boolean,assesSemiFinals:boolean}) => {
-					console.log(team);
 					if(this.finalsFilterAssessment !== null) {
 						if(this.semifinalsFilterAssessment !== null) {
 							return team.teamType.includes(this.teamTypeFilterAssessment) &&
@@ -489,7 +488,6 @@ export default Vue.extend({
 		modifyTeams(newTeams:(Team & Product & {assesFinals:boolean,assesSemiFinals:boolean})[]):(Team & Product & {assesFinals:boolean,assesSemiFinals:boolean})[] {
 			let newArray:(Team & Product & {assesFinals:boolean,assesSemiFinals:boolean})[]=[];
 			for(let team of newTeams) {
-				console.log(team);
 				team.assesSemiFinals = team.productDetails["assessment12Oct"];
 				team.assesFinals = team.productDetails["assessment20May"];
 				newArray.push(team);

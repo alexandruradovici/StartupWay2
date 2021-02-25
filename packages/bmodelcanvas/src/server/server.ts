@@ -14,7 +14,6 @@ export class BModelCanvasServer {
 		try {
 			conn = await getPool().getConnection();
 			if(conn) {
-				console.log(canvas);
 				conn.beginTransaction();
 				let queryOptions:QueryOptions = {
 					namedPlaceholders:true,

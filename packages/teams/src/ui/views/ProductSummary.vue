@@ -2,7 +2,7 @@
 	<v-app id="app">							
 		<v-container pr-7 pl-7 v-if="!loadingPage">
 			<v-card flat style="margin: auto; padding-top: 20px;" color="#fcfcfc">
-				<v-form v-model="productValid" lazy-validation>
+				<v-form v-model="productValid" lazy-validation v-if="product">
 					<v-divider></v-divider>
 					<div class="details">Startup name</div>
 					<v-text-field 
@@ -840,7 +840,7 @@ export default Vue.extend({
 		async deleteObj(uuid:string):Promise<void> {
 			try {
 				const response = await this.ui.api.post<boolean>("/api/v1/uploadDownload/delete/file", {uuid:uuid});
-				if(response.data) {
+				if(response.status === 200) {
 					this.snackOptions.text = "Delete Successful";
 					this.snackOptions.type = SnackBarTypes.SUCCESS;
 					this.snackOptions.timeout = 2000;
@@ -927,8 +927,8 @@ export default Vue.extend({
 						productId:this.product.productId,
 						fileType:type,
 						ext:file.name.split('.').pop()
-					})
-					if(response.data) {
+					});
+					if(response.status === 200) {
 						this.snackOptions.text = "Upload Successful";
 						this.snackOptions.type = SnackBarTypes.SUCCESS;
 						this.snackOptions.timeout = 2000;

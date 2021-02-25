@@ -116,8 +116,6 @@ export default Vue.extend({
 			immediate: true,
 			async handler(newTeam: Team | null) {
 				if(newTeam) {
-					console.log(newTeam);
-					console.log(newTeam.teamId);
 					this.teamId = newTeam.teamId;
 					if (this.teamId === "" || this.teamId === undefined) {
 						if(this.$route.path!=="/workspace")

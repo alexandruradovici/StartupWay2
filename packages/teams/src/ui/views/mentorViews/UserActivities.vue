@@ -299,7 +299,6 @@ export default Vue.extend({
 				const response = await this.ui.api.get<(User & UserTeams)[]>("/api/v1/teams/team/users/" + teamId);
 				if (response.data) {
 					this.users = this.modifyUsers(response.data) as (User & UserTeams)[];
-					console.log(this.users);
 					return true;
 				}
 			} catch (e) {
@@ -381,7 +380,6 @@ export default Vue.extend({
 		async saveActivity(week:UserActivity):Promise<void>  {
 			this.loadingPage=true;
 			this.editDialog = false;
-			console.log(this.userId);
 			try {
 				await this.ui.api.post<UserActivity | null>("/api/v1/teams/team/activity/update", {
 					activity: {

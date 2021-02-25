@@ -126,7 +126,6 @@ export default Vue.extend({
 				if(response) {
 					for(let us of response.data)
 						this.users.push(us);
-					console.log(this.users);
 				}
 			} catch (e) {
 				console.error(e);

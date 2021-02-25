@@ -1146,7 +1146,6 @@ router.get("/team/users/:teamId", async (req: ApiRequest<undefined>, res: ApiRes
 
 router.post("/team/activity", async (req: ApiRequest<{ userId: string, teamId: string }>, res: ApiResponse<UserActivity[]>) => {
 	try {
-		console.log(req.body);
 		const userActivities: UserActivity[] = await teams.getUserActivity(req.body.userId, req.body.teamId);
 		if (userActivities)
 			res.status(200).send(userActivities);

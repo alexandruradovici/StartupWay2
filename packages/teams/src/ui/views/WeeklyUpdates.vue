@@ -118,8 +118,6 @@ export default Vue.extend({
 							this.$router.push("/workspace");
 					} else {
 						try {
-							console.log(this.user);
-							console.log(this.userId);
 							if(!this.userId) {
 								this.userId = this.user.userId;
 							}
@@ -153,7 +151,6 @@ export default Vue.extend({
 							});
 							if(response) {
 								this.activities = response.data;
-								console.log(this.activities);
 							}
 						} catch(e) {
 							console.error(e)

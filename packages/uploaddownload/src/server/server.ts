@@ -124,9 +124,9 @@ export class UploadDownloadServer {
 					namedPlaceholders:true,
 					sql: "DELETE FROM uploadDownload where uuid=:uuid"
 				}
-				await conn.query(queryOptions,uuid);
+				await conn.query(queryOptions,{uuid});
 				queryOptions.sql = "SELECT uuid as deleted_id FROM uploadDownload WHERE uuid=:uuid";
-				const response:{deleted_id:string}[] = await conn.query(queryOptions,uuid);
+				const response:{deleted_id:string}[] = await conn.query(queryOptions,{uuid});
 				if(response && response.length === 0) {
 					await conn.commit();
 					await conn.end();
@@ -261,13 +261,13 @@ export class UploadDownloadServer {
 				let links:UploadDownloadLink[] = [];
 	
 				if(date === "none") {
-					queryOptions.sql = "SELECT uploadDownload.*, products.* FROM uploadDownload INNER JOIN products ON products.productId=uploadDownload.productId WHERE uploadDownload.fileType=:fileType";
+					queryOptions.sql = "SELECT uploadDownload.uuid, uploadDownload.fileType, uploadDownload.extension, uploadDownload.uploadTime, products.* FROM uploadDownload INNER JOIN products ON products.productId=uploadDownload.productId WHERE uploadDownload.fileType=:fileType";
 					links = await conn.query(queryOptions,{fileType});
 				} else if(date === "may") {
-					queryOptions.sql = "SELECT uploadDownload.*, products.* FROM uploadDownload INNER JOIN products ON products.productId=uploadDownload.productId AND JSON_EXTRACT(productDetails,'$.assessment20May') = 'Yes' WHERE uploadDownload.fileType=:fileType";
+					queryOptions.sql = "SELECT uploadDownload.uuid, uploadDownload.fileType, uploadDownload.extension, uploadDownload.uploadTime, products.* FROM uploadDownload INNER JOIN products ON products.productId=uploadDownload.productId AND JSON_EXTRACT(productDetails,'$.assessment20May') = 'Yes' WHERE uploadDownload.fileType=:fileType";
 					links = await conn.query(queryOptions,{fileType});
 				} else if(date === "oct") {
-					queryOptions.sql = "SELECT uploadDownload.*, products.* FROM uploadDownload INNER JOIN products ON products.productId=uploadDownload.productId AND JSON_EXTRACT(productDetails,'$.assessment20May') = 'Yes' AND JSON_EXTRACT(productDetails,'$.assessment12Oct') = 'Yes' WHERE uploadDownload.fileType=:fileType";
+					queryOptions.sql = "SELECT uploadDownload.uuid, uploadDownload.fileType, uploadDownload.extension, uploadDownload.uploadTime, products.* FROM uploadDownload INNER JOIN products ON products.productId=uploadDownload.productId AND JSON_EXTRACT(productDetails,'$.assessment20May') = 'Yes' AND JSON_EXTRACT(productDetails,'$.assessment12Oct') = 'Yes' WHERE uploadDownload.fileType=:fileType";
 					links = await conn.query(queryOptions,{fileType});
 				}
 			
@@ -442,7 +442,7 @@ export class UploadDownloadServer {
 						console.error("Error", err);
 						return false;
 					} if (data) {
-						console.log("Upload Success", data);
+						console.log("Delete Success", data);
 						return true;
 					}
 				}))
@@ -1430,12 +1430,11 @@ router.post("/upload/file/chunk", async(req:ApiRequest<{finish:string,fileName:s
 								extension:req.body.ext,
 								uploadTime: new Date()
 							}
-							if(fileType === "demoVid" || fileType === "presVid" || fileType === "pres" || fileType === "logo") {
+							if(fileType === "demoVid" || fileType === "presVid" || fileType === "image" || fileType === "logo") {
 								let links:UploadDownloadLink[] = await uploadDownload.getLinksByProductIdAndFileType(productId.toString(),fileType);
 								if(links.length > 0) {
 									const file = await uploadDownload.getS3Object(links[0].uuid);
-									
-									if(file !== undefined) {
+									if(file !== "") {
 										if(await uploadDownload.deleteS3File(links[0].uuid)) {
 											if(!await uploadDownload.deleteLink(links[0].uuid)) {
 												let name = uiidv4();
@@ -1446,8 +1445,12 @@ router.post("/upload/file/chunk", async(req:ApiRequest<{finish:string,fileName:s
 												await fs.remove(tmpFile);
 												res.status(500).send({err:500,data:false});
 											}
+										} else {
+											await fs.remove(filePath);
+											res.status(500).send({err:500,data:false});
 										}
-										else {
+									} else {
+										if(!await uploadDownload.deleteLink(links[0].uuid)) {
 											await fs.remove(filePath);
 											res.status(500).send({err:500,data:false});
 										}
@@ -1490,8 +1493,7 @@ router.post("/upload/file/chunk", async(req:ApiRequest<{finish:string,fileName:s
 				let links:UploadDownloadLink[] = await uploadDownload.getLinksByProductIdAndFileType(productId.toString(),fileType);
 				if(links.length > 0) {
 					const file = await uploadDownload.getS3Object(links[0].uuid);
-				
-					if(file !== undefined) {
+					if(file !== "") {
 						if(await uploadDownload.deleteS3File(links[0].uuid)) {
 							if(!await uploadDownload.deleteLink(links[0].uuid)) {
 								let name = uiidv4();
@@ -1502,8 +1504,12 @@ router.post("/upload/file/chunk", async(req:ApiRequest<{finish:string,fileName:s
 								await fs.remove(tmpFile);
 								res.status(500).send({err:500,data:false});
 							}
+						} else {
+							await fs.remove(filePath);
+							res.status(500).send({err:500,data:false});
 						}
-						else {
+					} else {
+						if(!await uploadDownload.deleteLink(links[0].uuid)) {
 							await fs.remove(filePath);
 							res.status(500).send({err:500,data:false});
 						}
@@ -1512,8 +1518,7 @@ router.post("/upload/file/chunk", async(req:ApiRequest<{finish:string,fileName:s
 				const newLink = await uploadDownload.addLink(link);
 				if(newLink) {
 					let upload:Boolean = false;
-					if(filePath !== "")
-					{
+					if(filePath !== "") {
 						upload = await uploadDownload.addS3File(link.uuid, filePath, "path");
 						if(upload) {
 							await fs.remove(filePath);

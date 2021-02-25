@@ -843,7 +843,6 @@ export default Vue.extend({
 				// as any because error it's null 
 				let productIndex = this.reviews.findIndex((el: Review) => el.startupName === (this.team as any).startupName);
 				this.reviews[productIndex].updatedAt = (this.formatDate(new Date()) as unknown as Date).toString();
-				console.log(this.reviews);
 				let response = await this.ui.api.post<Review[]>("/api/v1/admin/teams/review/update", 
 				{
 					reviews:this.reviews,
@@ -857,7 +856,6 @@ export default Vue.extend({
 						try {
 							let product = await this.ui.api.get<Product | null>("/api/v1/teams/product/" + this.allTeams[productToUpdate].teamId);
 							if(product.data) {
-								console.log(product.data);
 								product.data.lastMentorUpdate = (this.formatDate(new Date()) as unknown as Date) ;
 								product.data.updatedAt = (this.formatDate(new Date()) as unknown as Date) ;
 								try {

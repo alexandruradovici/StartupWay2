@@ -39,7 +39,6 @@ export default function feedStore ():Module<FeedState, RootState> {
 			},
 			async addFeed(storeParam, feed:Feed):Promise<boolean> {
 				try {
-					console.log(feed);
 					const response = await ui.api.post<Feed | null>("/api/v1/feed/add", feed);
 					if(response.status === 200) {
 						return true;
