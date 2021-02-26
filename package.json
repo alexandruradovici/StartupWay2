@@ -21,7 +21,7 @@
   "scripts": {
     "bootstrap": "lerna bootstrap --hoist",
     "build": "lerna run build",
-    "start": "sudo npm install -f; cd distributions/startupway; npm run start",
+    "start": "npm install; npm run bootstrap; npm run build; cd distributions/startupway; npm run start",
     "format": "npx tslint -c tslint.json --fix  'packages/**/src/**/*.ts' && npx tslint -c tslint.json --fix  'distributions/**/src/**/*.ts'",
     "clean": "lerna clean -y && lerna run clean"
   },
