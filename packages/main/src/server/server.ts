@@ -42,8 +42,8 @@ export class Server {
 			let n = 0;
 			const networks = networkInterfaces();
 			for (const network in networks) {
-				if (network.hasOwnProperty(network))
-				{
+				// if (network.hasOwnProperty(network))
+				// {
 					for (const networkAddress of networks[network]!)
 					{
 						if (networkAddress.family === "IPv4" && !networkAddress.address.startsWith ("127"))
@@ -52,7 +52,7 @@ export class Server {
 							console.log ("StartupWay running at http://"+networkAddress.address+":"+(serverListener.address() as AddressInfo).port);
 						}
 					}
-				}
+				// }
 			}
 			if (n === 0)
 			{
