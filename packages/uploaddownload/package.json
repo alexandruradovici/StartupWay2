@@ -25,7 +25,8 @@
     "@startupway/database": "*",
     "@startupway/users": "*",
     "@startupway/teams": "*",
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "jszip": "^3.5.0"
   },
   "devDependencies": {
     "@mdi/font": "^5.8.55",
@@ -41,7 +42,6 @@
     "@types/uuid": "^8.3.0",
     "@types/jszip": "^3.4.1",
     "fluent-ffmpeg": "^2.1.2",
-    "jszip": "^3.5.0",
     "uuid": "^8.3.0",
     "fs-extra": "^8.1.0",
     "aws-sdk": "^2.752.0",
