@@ -7,7 +7,7 @@ import AWS from "aws-sdk";
 import ffmpeg from "fluent-ffmpeg";
 import fs from "fs-extra";
 import path from "path";
-import jszip from "JSZip";
+import jszip from "jszip";
 import { Server, ApiRequest, ApiResponse } from "@startupway/main/lib/server";
 import { getPool } from "@startupway/database/lib/server";
 import { QueryOptions, Connection } from "mariadb";
