@@ -1,7 +1,7 @@
 import "@startupway/main/lib/ui";
 import "@startupway/workspace/lib/ui";
 import "@startupway/menu/lib/ui";
-import "@startupway/uploadDownload/lib/ui";
+import "@startupway/uploaddownload/lib/ui";
 import "@startupway/workshop/lib/ui";
 import "@startupway/admin/lib/ui";
 import "@startupway/teams/lib/ui";

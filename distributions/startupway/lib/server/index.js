@@ -76,7 +76,7 @@ var setup = function () { return __awaiter(void 0, void 0, void 0, function () {
 }); };
 setup();
 require("@startupway/users/lib/server");
-require("@startupway/uploadDownload/lib/server");
+require("@startupway/uploaddownload/lib/server");
 require("@startupway/workshop/lib/server");
 require("@startupway/admin/lib/server");
 require("@startupway/teams/lib/server");
