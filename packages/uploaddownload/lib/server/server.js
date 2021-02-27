@@ -59,7 +59,7 @@ var aws_sdk_1 = __importDefault(require("aws-sdk"));
 var fluent_ffmpeg_1 = __importDefault(require("fluent-ffmpeg"));
 var fs_extra_1 = __importDefault(require("fs-extra"));
 var path_1 = __importDefault(require("path"));
-var JSZip_1 = __importDefault(require("JSZip"));
+var jszip_1 = __importDefault(require("jszip"));
 var server_1 = require("@startupway/main/lib/server");
 var server_2 = require("@startupway/database/lib/server");
 var server_3 = require("@startupway/users/lib/server");
@@ -722,7 +722,7 @@ var UploadDownloadServer = /** @class */ (function () {
                 switch (_m.label) {
                     case 0:
                         _m.trys.push([0, 124, , 125]);
-                        UploadDownloadServer.zips[linkUuid] = new JSZip_1.default;
+                        UploadDownloadServer.zips[linkUuid] = new jszip_1.default;
                         zip = UploadDownloadServer.zips[linkUuid];
                         if (!(type === "all")) return [3 /*break*/, 28];
                         return [4 /*yield*/, teams.getTeams()];
@@ -1714,7 +1714,7 @@ router.get("/download/zip/:type/:date", function (req, res) { return __awaiter(v
             case 1:
                 links = _b.sent();
                 if (!(links.length !== 0)) return [3 /*break*/, 12];
-                zip = new JSZip_1.default();
+                zip = new jszip_1.default();
                 _b.label = 2;
             case 2:
                 _b.trys.push([2, 9, 10, 11]);
@@ -1916,7 +1916,7 @@ router.post("/download/team/zip/:type/:date", function (req, res) { return __awa
                 _j.trys.push([0, 101, , 102]);
                 type_2 = req.params.type;
                 date_6 = req.params.date;
-                zip = new JSZip_1.default();
+                zip = new jszip_1.default();
                 exists = false;
                 if (!(type_2 === "team")) return [3 /*break*/, 29];
                 productId = req.body.productId;
