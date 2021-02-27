@@ -25,7 +25,7 @@ const setup = async () => {
 setup();
 
 import "@startupway/users/lib/server";
-import "@startupway/uploadDownload/lib/server";
+import "@startupway/uploaddownload/lib/server";
 import "@startupway/workshop/lib/server";
 import "@startupway/admin/lib/server";
 import "@startupway/teams/lib/server";
