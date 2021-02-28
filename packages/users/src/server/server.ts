@@ -30,9 +30,9 @@ export class UsersServer {
 					namedPlaceholders:true,
 					sql: `INSERT INTO ${TABLE_USERS} (userId,firstName,lastName,username,password,email,phone,birthDate,avatarUu,socialMedia,userDetails,role,lastLogin) VALUES(:userId,:firstName,:lastName,:username,:password,:email,:phone,:birthDate,:avatarUu,:socialMedia,:userDetails,:role,:lastLogin)`
 				}
-				let res:{insertId:string|number} = await conn.query(queryOptions, user);
+				await conn.query(queryOptions, user);
 				queryOptions.sql = `SELECT userId,firstName,lastName,username,email,phone,birthDate,avatarUu,socialMedia,userDetails,role,lastLogin FROM ${TABLE_USERS} WHERE userId=:userId`;
-				const response:User[] = await conn.query(queryOptions, {userId:res.insertId});
+				const response:User[] = await conn.query(queryOptions, {userId:user.userId});
 				if(response && response.length > 0 && response[0]) {
 					await conn.commit();
 					await conn.end();
@@ -136,9 +136,9 @@ export class UsersServer {
 							namedPlaceholders:true,
 							sql: "INSERT INTO sessions (sessionId, userId, token) VALUES(:sessionId,:userId,:token)"
 						}
-						let res:{insertId:string|number} = await conn.query(queryOptions, {sessionId, userId, token});
+						await conn.query(queryOptions, {sessionId, userId, token});
 						queryOptions.sql = "SELECT sessionId, userId, token FROM sessions WHERE sessionId=:sessionId"
-						const resSession:Session[] = await conn.query(queryOptions,{sessionId:res.insertId}) as Session[];
+						const resSession:Session[] = await conn.query(queryOptions,{sessionId:sessionId}) as Session[];
 						if(resSession && resSession.length > 0 && resSession[0]) {
 							await conn.commit();
 							await conn.end();

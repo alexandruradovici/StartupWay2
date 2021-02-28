@@ -22,21 +22,15 @@ export class TeamsServer {
 					namedPlaceholders: true,
 					sql: `INSERT INTO products (productId,startupName,businessTrack,teamType,workshopDay,mentorId,descriptionEN,descriptionRO,pendingDescriptionEN,pendingDescriptionRO,productDetails,updatedAt,lastMentorUpdate) VALUES(:productId,:startupName,:businessTrack,:teamType,:workshopDay,:mentorId,:descriptionEN,:descriptionRO,:pendingDescriptionEN,:pendingDescriptionRO,:productDetails,:updatedAt,:lastMentorUpdate)`
 				};
-				console.log(product);
-				let res:{insertId:string|number} = await conn.query(queryOptions,product);
+				await conn.query(queryOptions,product);
 				queryOptions.sql = "SELECT productId,startupName,businessTrack,teamType,workshopDay,mentorId,descriptionEN,descriptionRO,pendingDescriptionEN,pendingDescriptionRO,productDetails,updatedAt,lastMentorUpdate FROM products WHERE productId=:productId";
-				const productResponse: Product[] = await conn.query(queryOptions, {productId:res.insertId});
-				const productResponse2: Product[] = await conn.query(queryOptions, {productId:product.productId});
-				console.log(res);
-				console.log(productResponse);
-				console.log(productResponse2);
+				const productResponse: Product[] = await conn.query(queryOptions, {productId:product.productId});
 				if (productResponse && productResponse.length > 0 && productResponse[0]) {
 					team.productId = productResponse[0].productId;
 					queryOptions.sql = "INSERT INTO teams (teamId,productId,teamName,teamDetails,location,year) VALUES(:teamId,:productId,:teamName,:teamDetails,:location,:year)";
-					res = await conn.query(queryOptions,team);
+					await conn.query(queryOptions,team);
 					queryOptions.sql = "SELECT teamId,productId,teamName,teamDetails,location,year FROM teams WHERE teamId=:teamId";
-					const teamResponse: Team[] = await conn.query(queryOptions, {teamId:res.insertId});
-					console.log(res);
+					const teamResponse: Team[] = await conn.query(queryOptions, {teamId:team.teamId});
 					console.log(teamResponse);
 					if (teamResponse && teamResponse.length > 0 && teamResponse[0]) {
 						team = teamResponse[0];
@@ -183,9 +177,9 @@ export class TeamsServer {
 					sql: "INSERT INTO userTeams (userProductId,userId,teamId,role) VALUES(:userProductId,:userId,:teamId,:role)"
 				};
 				const userProductId = uiidv4();
-				let res:{insertId:string|number} = await conn.query(queryOptions,{ userProductId: userProductId, userId:user.userId, teamId: team.teamId, role:role });
+				await conn.query(queryOptions,{ userProductId: userProductId, userId:user.userId, teamId: team.teamId, role:role });
 				queryOptions.sql = "SELECT userProductId,userId,teamId,role FROM userTeams WHERE userProductId=:userProductId"
-				const userInTeam: UserTeams[] = await conn.query(queryOptions, {  userProductId: res.insertId });
+				const userInTeam: UserTeams[] = await conn.query(queryOptions, {  userProductId: userProductId });
 				if (userInTeam && userInTeam.length > 0 && userInTeam[0]) {
 					await conn.commit();
 					await conn.end();
@@ -899,9 +893,9 @@ export class TeamsServer {
 					return null;
 				} else {
 					queryOptions.sql = "INSERT INTO userActivities (activityId,userId,teamId,noOfHours,date,description) VALUES(:activityId,:userId,:teamId,:noOfHours,:date,:description)";
-					let res:{insertId:string|number} = await conn.query(queryOptions,userActivity);
+					await conn.query(queryOptions,userActivity);
 					queryOptions.sql = "SELECT activityId,userId,teamId,noOfHours,date,description FROM userActivities WHERE activityId=:activityId";
-					const activity: UserActivity[] = await conn.query(queryOptions, {activityId:res.insertId});
+					const activity: UserActivity[] = await conn.query(queryOptions, {activityId:userActivity.activityId});
 					if (activity && activity.length > 0 && activity[0]) {
 						await conn.commit();
 						await conn.end();

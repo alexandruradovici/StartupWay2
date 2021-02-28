@@ -58,7 +58,7 @@ var BModelCanvasServer = /** @class */ (function () {
     }
     BModelCanvasServer.prototype.addCanvas = function (canvas) {
         return __awaiter(this, void 0, void 0, function () {
-            var conn, queryOptions, values, canvases, updateValues, canvasResult, res, result, error_1;
+            var conn, queryOptions, values, canvases, updateValues, canvasResult, result, error_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -121,9 +121,9 @@ var BModelCanvasServer = /** @class */ (function () {
                         };
                         return [4 /*yield*/, conn.query(queryOptions, canvas)];
                     case 13:
-                        res = _a.sent();
+                        _a.sent();
                         queryOptions.sql = "SELECT modelId,productId,date,fields FROM bModelCanvas WHERE modelId=:modelId";
-                        return [4 /*yield*/, conn.query(queryOptions, { modelId: res.insertId })];
+                        return [4 /*yield*/, conn.query(queryOptions, { modelId: canvas.modelId })];
                     case 14:
                         result = _a.sent();
                         if (!(result && result.length > 0 && result[0])) return [3 /*break*/, 17];

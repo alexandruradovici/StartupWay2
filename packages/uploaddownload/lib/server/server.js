@@ -135,7 +135,7 @@ var UploadDownloadServer = /** @class */ (function () {
     };
     UploadDownloadServer.prototype.addLink = function (uploadDownloadLink) {
         return __awaiter(this, void 0, void 0, function () {
-            var conn, uuid, queryOptions, res, response, e_3;
+            var conn, uuid, queryOptions, response, e_3;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -160,9 +160,9 @@ var UploadDownloadServer = /** @class */ (function () {
                         };
                         return [4 /*yield*/, conn.query(queryOptions, uploadDownloadLink)];
                     case 4:
-                        res = _a.sent();
+                        _a.sent();
                         queryOptions.sql = "SELECT uuid,productId,fileType,extension,uploadTime FROM uploadDownload WHERE uuid=:uuid";
-                        return [4 /*yield*/, conn.query(queryOptions, { uuid: res.insertId })];
+                        return [4 /*yield*/, conn.query(queryOptions, { uuid: uploadDownloadLink.uuid })];
                     case 5:
                         response = _a.sent();
                         if (!(response && response.length > 0 && response[0])) return [3 /*break*/, 8];

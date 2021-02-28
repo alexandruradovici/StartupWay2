@@ -62,7 +62,7 @@ var WorkshopServer = /** @class */ (function () {
     }
     WorkshopServer.prototype.addWorkshop = function (workshopParam) {
         return __awaiter(this, void 0, void 0, function () {
-            var conn, queryOptions, res, response, error_1;
+            var conn, queryOptions, response, error_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -83,9 +83,9 @@ var WorkshopServer = /** @class */ (function () {
                         };
                         return [4 /*yield*/, conn.query(queryOptions, workshopParam)];
                     case 4:
-                        res = _a.sent();
+                        _a.sent();
                         queryOptions.sql = "SELECT workshopId, workshopName FROM workshops WHERE workshopId=:workshopId";
-                        return [4 /*yield*/, conn.query(queryOptions, { workshopId: res.insertId })];
+                        return [4 /*yield*/, conn.query(queryOptions, { workshopId: workshopParam.workshopId })];
                     case 5:
                         response = _a.sent();
                         if (!(response && response.length > 0 && response[0])) return [3 /*break*/, 8];
@@ -125,7 +125,7 @@ var WorkshopServer = /** @class */ (function () {
     };
     WorkshopServer.prototype.addWorkshopInstance = function (workshopInstance) {
         return __awaiter(this, void 0, void 0, function () {
-            var conn, queryOptions, res, response, error_2;
+            var conn, queryOptions, response, error_2;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -146,9 +146,9 @@ var WorkshopServer = /** @class */ (function () {
                         };
                         return [4 /*yield*/, conn.query(queryOptions, workshopInstance)];
                     case 4:
-                        res = _a.sent();
+                        _a.sent();
                         queryOptions.sql = "SELECT workshopInstanceId,workshopId,teamId,trainerName,workshopDate,workshopDetails FROM workshopInstances WHERE workshopInstanceId=:workshopInstanceId";
-                        return [4 /*yield*/, conn.query(queryOptions, { workshopInstanceId: res.insertId })];
+                        return [4 /*yield*/, conn.query(queryOptions, { workshopInstanceId: workshopInstance.workshopInstanceId })];
                     case 5:
                         response = _a.sent();
                         if (!(response && response.length > 0 && response[0])) return [3 /*break*/, 8];
@@ -188,7 +188,7 @@ var WorkshopServer = /** @class */ (function () {
     };
     WorkshopServer.prototype.addWorkshopAttendance = function (workshopAttendance) {
         return __awaiter(this, void 0, void 0, function () {
-            var conn, queryOptions, res, response, error_3;
+            var conn, queryOptions, response, error_3;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -209,9 +209,9 @@ var WorkshopServer = /** @class */ (function () {
                         };
                         return [4 /*yield*/, conn.query(queryOptions, workshopAttendance)];
                     case 4:
-                        res = _a.sent();
+                        _a.sent();
                         queryOptions.sql = "SELECT attendanceId,attendanceDate,userId,workshopInstanceId FROM workshopAttendances WHERE attendanceId=:attendanceId";
-                        return [4 /*yield*/, conn.query(queryOptions, { attendanceId: res.insertId })];
+                        return [4 /*yield*/, conn.query(queryOptions, { attendanceId: workshopAttendance.attendanceId })];
                     case 5:
                         response = _a.sent();
                         if (!(response && response.length > 0 && response[0])) return [3 /*break*/, 8];

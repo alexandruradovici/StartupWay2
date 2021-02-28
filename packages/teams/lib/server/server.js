@@ -58,18 +58,18 @@ var TeamsServer = /** @class */ (function () {
     }
     TeamsServer.prototype.addTeam = function (team, product) {
         return __awaiter(this, void 0, void 0, function () {
-            var conn, o, queryOptions, res, productResponse, productResponse2, teamResponse, error_1;
+            var conn, o, queryOptions, productResponse, teamResponse, error_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 25, , 29]);
+                        _a.trys.push([1, 24, , 28]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 23];
+                        if (!conn) return [3 /*break*/, 22];
                         return [4 /*yield*/, conn.beginTransaction()];
                     case 3:
                         _a.sent();
@@ -78,33 +78,25 @@ var TeamsServer = /** @class */ (function () {
                             namedPlaceholders: true,
                             sql: "INSERT INTO products (productId,startupName,businessTrack,teamType,workshopDay,mentorId,descriptionEN,descriptionRO,pendingDescriptionEN,pendingDescriptionRO,productDetails,updatedAt,lastMentorUpdate) VALUES(:productId,:startupName,:businessTrack,:teamType,:workshopDay,:mentorId,:descriptionEN,:descriptionRO,:pendingDescriptionEN,:pendingDescriptionRO,:productDetails,:updatedAt,:lastMentorUpdate)"
                         };
-                        console.log(product);
                         return [4 /*yield*/, conn.query(queryOptions, product)];
                     case 4:
-                        res = _a.sent();
+                        _a.sent();
                         queryOptions.sql = "SELECT productId,startupName,businessTrack,teamType,workshopDay,mentorId,descriptionEN,descriptionRO,pendingDescriptionEN,pendingDescriptionRO,productDetails,updatedAt,lastMentorUpdate FROM products WHERE productId=:productId";
-                        return [4 /*yield*/, conn.query(queryOptions, { productId: res.insertId })];
+                        return [4 /*yield*/, conn.query(queryOptions, { productId: product.productId })];
                     case 5:
                         productResponse = _a.sent();
-                        return [4 /*yield*/, conn.query(queryOptions, { productId: product.productId })];
-                    case 6:
-                        productResponse2 = _a.sent();
-                        console.log(res);
-                        console.log(productResponse);
-                        console.log(productResponse2);
-                        if (!(productResponse && productResponse.length > 0 && productResponse[0])) return [3 /*break*/, 19];
+                        if (!(productResponse && productResponse.length > 0 && productResponse[0])) return [3 /*break*/, 18];
                         team.productId = productResponse[0].productId;
                         queryOptions.sql = "INSERT INTO teams (teamId,productId,teamName,teamDetails,location,year) VALUES(:teamId,:productId,:teamName,:teamDetails,:location,:year)";
                         return [4 /*yield*/, conn.query(queryOptions, team)];
-                    case 7:
-                        res = _a.sent();
+                    case 6:
+                        _a.sent();
                         queryOptions.sql = "SELECT teamId,productId,teamName,teamDetails,location,year FROM teams WHERE teamId=:teamId";
-                        return [4 /*yield*/, conn.query(queryOptions, { teamId: res.insertId })];
-                    case 8:
+                        return [4 /*yield*/, conn.query(queryOptions, { teamId: team.teamId })];
+                    case 7:
                         teamResponse = _a.sent();
-                        console.log(res);
                         console.log(teamResponse);
-                        if (!(teamResponse && teamResponse.length > 0 && teamResponse[0])) return [3 /*break*/, 15];
+                        if (!(teamResponse && teamResponse.length > 0 && teamResponse[0])) return [3 /*break*/, 14];
                         team = teamResponse[0];
                         product = productResponse[0];
                         o = {
@@ -127,52 +119,52 @@ var TeamsServer = /** @class */ (function () {
                             updatedAt: product.updatedAt,
                             lastMentorUpdate: product.lastMentorUpdate
                         };
-                        if (!o) return [3 /*break*/, 11];
+                        if (!o) return [3 /*break*/, 10];
                         return [4 /*yield*/, conn.commit()];
+                    case 8:
+                        _a.sent();
+                        return [4 /*yield*/, conn.end()];
                     case 9:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
-                    case 10:
-                        _a.sent();
                         return [2 /*return*/, o];
-                    case 11: return [4 /*yield*/, conn.rollback()];
+                    case 10: return [4 /*yield*/, conn.rollback()];
+                    case 11:
+                        _a.sent();
+                        return [4 /*yield*/, conn.end()];
                     case 12:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
-                    case 13:
-                        _a.sent();
                         return [2 /*return*/, null];
-                    case 14: return [3 /*break*/, 18];
-                    case 15: return [4 /*yield*/, conn.rollback()];
+                    case 13: return [3 /*break*/, 17];
+                    case 14: return [4 /*yield*/, conn.rollback()];
+                    case 15:
+                        _a.sent();
+                        return [4 /*yield*/, conn.end()];
                     case 16:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
-                    case 17:
-                        _a.sent();
                         return [2 /*return*/, null];
-                    case 18: return [3 /*break*/, 22];
-                    case 19: return [4 /*yield*/, conn.rollback()];
+                    case 17: return [3 /*break*/, 21];
+                    case 18: return [4 /*yield*/, conn.rollback()];
+                    case 19:
+                        _a.sent();
+                        return [4 /*yield*/, conn.end()];
                     case 20:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
-                    case 21:
-                        _a.sent();
                         return [2 /*return*/, null];
-                    case 22: return [3 /*break*/, 24];
-                    case 23: return [2 /*return*/, null];
-                    case 24: return [3 /*break*/, 29];
-                    case 25:
+                    case 21: return [3 /*break*/, 23];
+                    case 22: return [2 /*return*/, null];
+                    case 23: return [3 /*break*/, 28];
+                    case 24:
                         error_1 = _a.sent();
-                        if (!conn) return [3 /*break*/, 28];
+                        if (!conn) return [3 /*break*/, 27];
                         return [4 /*yield*/, conn.rollback()];
+                    case 25:
+                        _a.sent();
+                        return [4 /*yield*/, conn.end()];
                     case 26:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
-                    case 27:
-                        _a.sent();
-                        _a.label = 28;
-                    case 28: return [2 /*return*/, null];
-                    case 29: return [2 /*return*/];
+                        _a.label = 27;
+                    case 27: return [2 /*return*/, null];
+                    case 28: return [2 /*return*/];
                 }
             });
         });
@@ -319,7 +311,7 @@ var TeamsServer = /** @class */ (function () {
     };
     TeamsServer.prototype.addUserToTeam = function (user, team, role) {
         return __awaiter(this, void 0, void 0, function () {
-            var conn, queryOptions, userProductId, res, userInTeam, e_1;
+            var conn, queryOptions, userProductId, userInTeam, e_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -341,9 +333,9 @@ var TeamsServer = /** @class */ (function () {
                         userProductId = uuid_1.v4();
                         return [4 /*yield*/, conn.query(queryOptions, { userProductId: userProductId, userId: user.userId, teamId: team.teamId, role: role })];
                     case 4:
-                        res = _a.sent();
+                        _a.sent();
                         queryOptions.sql = "SELECT userProductId,userId,teamId,role FROM userTeams WHERE userProductId=:userProductId";
-                        return [4 /*yield*/, conn.query(queryOptions, { userProductId: res.insertId })];
+                        return [4 /*yield*/, conn.query(queryOptions, { userProductId: userProductId })];
                     case 5:
                         userInTeam = _a.sent();
                         if (!(userInTeam && userInTeam.length > 0 && userInTeam[0])) return [3 /*break*/, 8];
@@ -1533,7 +1525,7 @@ var TeamsServer = /** @class */ (function () {
     };
     TeamsServer.prototype.addActivityForUser = function (userActivity) {
         return __awaiter(this, void 0, void 0, function () {
-            var conn, queryOptions, activityResponse, res, activity, error_11;
+            var conn, queryOptions, activityResponse, activity, error_11;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -1567,9 +1559,9 @@ var TeamsServer = /** @class */ (function () {
                         queryOptions.sql = "INSERT INTO userActivities (activityId,userId,teamId,noOfHours,date,description) VALUES(:activityId,:userId,:teamId,:noOfHours,:date,:description)";
                         return [4 /*yield*/, conn.query(queryOptions, userActivity)];
                     case 8:
-                        res = _a.sent();
+                        _a.sent();
                         queryOptions.sql = "SELECT activityId,userId,teamId,noOfHours,date,description FROM userActivities WHERE activityId=:activityId";
-                        return [4 /*yield*/, conn.query(queryOptions, { activityId: res.insertId })];
+                        return [4 /*yield*/, conn.query(queryOptions, { activityId: userActivity.activityId })];
                     case 9:
                         activity = _a.sent();
                         if (!(activity && activity.length > 0 && activity[0])) return [3 /*break*/, 12];

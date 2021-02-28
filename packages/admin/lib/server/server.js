@@ -487,7 +487,7 @@ var AdminServer = /** @class */ (function () {
      */
     AdminServer.prototype.addRecovery = function (recovery) {
         return __awaiter(this, void 0, void 0, function () {
-            var conn, user, queryOptions, res, newRecovery, options, transporter, error_1;
+            var conn, user, queryOptions, newRecovery, options, transporter, error_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -516,9 +516,9 @@ var AdminServer = /** @class */ (function () {
                         };
                         return [4 /*yield*/, conn.query(queryOptions, recovery)];
                     case 5:
-                        res = _a.sent();
+                        _a.sent();
                         queryOptions.sql = "SELECT recoveryId,userId,email,recoveryLink FROM recoveries WHERE recoveryId=:recoveryId";
-                        return [4 /*yield*/, conn.query(queryOptions, { recoveryId: res.insertId })];
+                        return [4 /*yield*/, conn.query(queryOptions, { recoveryId: recovery.recoveryId })];
                     case 6:
                         newRecovery = _a.sent();
                         if (!(newRecovery && newRecovery.length > 0 && newRecovery[0])) return [3 /*break*/, 9];

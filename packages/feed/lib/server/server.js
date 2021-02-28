@@ -58,7 +58,7 @@ var FeedServer = /** @class */ (function () {
     }
     FeedServer.prototype.addFeed = function (feedParam) {
         return __awaiter(this, void 0, void 0, function () {
-            var conn, queryOptions, values, feeds, res, resp, e_1;
+            var conn, queryOptions, values, feeds, resp, e_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -94,9 +94,9 @@ var FeedServer = /** @class */ (function () {
                         queryOptions.sql = "INSERT INTO feeds (feedId, teamId, feedType, text, date) VALUES(:feedId,:teamId,:feedType,:text,:date)";
                         return [4 /*yield*/, conn.query(queryOptions, feedParam)];
                     case 7:
-                        res = _a.sent();
+                        _a.sent();
                         queryOptions.sql = "SELECT feedId, teamId, feedType, text, date FROM feeds WHERE feedId=:feedId";
-                        return [4 /*yield*/, conn.query(queryOptions, { feedId: res.insertId })];
+                        return [4 /*yield*/, conn.query(queryOptions, { feedId: feedParam.feedId })];
                     case 8:
                         resp = _a.sent();
                         if (!(resp && resp.length > 0 && resp[0])) return [3 /*break*/, 11];

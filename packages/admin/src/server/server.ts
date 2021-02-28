@@ -388,9 +388,9 @@ export class AdminServer {
 					namedPlaceholders:true,
 					sql:"INSERT INTO recoveries (recoveryId,userId,email,recoveryLink) VALUES(:recoveryId,:userId,:email,:recoveryLink)"
 				}
-				let res:{insertId:string|number} = await conn.query(queryOptions,recovery);
+				await conn.query(queryOptions,recovery);
 				queryOptions.sql = "SELECT recoveryId,userId,email,recoveryLink FROM recoveries WHERE recoveryId=:recoveryId"
-				const newRecovery:Recovery[] = await conn.query(queryOptions,{recoveryId:res.insertId});
+				const newRecovery:Recovery[] = await conn.query(queryOptions,{recoveryId:recovery.recoveryId});
 				if(newRecovery && newRecovery.length > 0 && newRecovery[0]) {
 					const options = admin.createMailOptions(
 						(process.env.MAIL_USER as string),

@@ -30,9 +30,9 @@ export class FeedServer {
 						return null;
 					} else {
 						queryOptions.sql = "INSERT INTO feeds (feedId, teamId, feedType, text, date) VALUES(:feedId,:teamId,:feedType,:text,:date)";
-						let res:{insertId:string|number} = await conn.query(queryOptions,feedParam);
+						await conn.query(queryOptions,feedParam);
 						queryOptions.sql = "SELECT feedId, teamId, feedType, text, date FROM feeds WHERE feedId=:feedId";
-						const resp: Feed[] = await conn.query(queryOptions,{feedId:res.insertId});
+						const resp: Feed[] = await conn.query(queryOptions,{feedId:feedParam.feedId});
 						if(resp && resp.length > 0 && resp[0]) {
 							await conn.commit();
 							await conn.end();
