@@ -181,13 +181,19 @@ var AdminServer = /** @class */ (function () {
             if (teamTrack !== undefined) {
                 tT = teamTrack.split("-")[0].toUpperCase();
             }
+            var wD = "";
+            if (workshopNo !== undefined) {
+                wD = days[parseInt(workshopNo)];
+            }
             var bTValue = parseEnum(server_4.BusinessTrack, bT);
+            var tTValue = parseEnum(server_4.TeamType, tT);
+            var wDValue = parseEnum(server_4.WorkshopDay, wD);
             parsedCSV.product = {
                 productId: productId,
                 startupName: teamName,
                 mentorId: "",
                 // Need to index enum based on string
-                businessTrack: server_4.BusinessTrack.SMARTCITY,
+                businessTrack: server_4.BusinessTrack[bT],
                 teamType: server_4.TeamType[tT],
                 workshopDay: server_4.WorkshopDay[days[parseInt(workshopNo)]],
                 descriptionEN: "",
@@ -206,8 +212,14 @@ var AdminServer = /** @class */ (function () {
                 updatedAt: new Date(),
                 lastMentorUpdate: new Date(),
             };
+            if (parsedCSV.product && wDValue) {
+                parsedCSV.product.workshopDay = wDValue;
+            }
             if (parsedCSV.product && bTValue) {
                 parsedCSV.product.businessTrack = bTValue;
+            }
+            if (parsedCSV.product && tTValue) {
+                parsedCSV.product.teamType = tTValue;
             }
             if (parsedCSV.product && shortDesc) {
                 parsedCSV.product.descriptionEN = shortDesc;
@@ -474,7 +486,7 @@ var AdminServer = /** @class */ (function () {
      */
     AdminServer.prototype.addRecovery = function (recovery) {
         return __awaiter(this, void 0, void 0, function () {
-            var conn, user, queryOptions, newRecovery, options, transporter, error_1;
+            var conn, user, queryOptions, res, newRecovery, options, transporter, error_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -503,9 +515,9 @@ var AdminServer = /** @class */ (function () {
                         };
                         return [4 /*yield*/, conn.query(queryOptions, recovery)];
                     case 5:
-                        _a.sent();
+                        res = _a.sent();
                         queryOptions.sql = "SELECT recoveryId,userId,email,recoveryLink FROM recoveries WHERE recoveryId=:recoveryId";
-                        return [4 /*yield*/, conn.query(queryOptions, recovery)];
+                        return [4 /*yield*/, conn.query(queryOptions, { recoveryId: res.insertId })];
                     case 6:
                         newRecovery = _a.sent();
                         if (!(newRecovery && newRecovery.length > 0 && newRecovery[0])) return [3 /*break*/, 9];
@@ -997,7 +1009,7 @@ router.post("/uploadCSV", function (req, res) { return __awaiter(void 0, void 0,
             case 7: return [4 /*yield*/, teams.getTeamByYearAndLocation(entry.team.year, entry.team.location, entry.team.teamName)];
             case 8:
                 team = _g.sent();
-                if (!!team) return [3 /*break*/, 10];
+                if (!(team === null)) return [3 /*break*/, 10];
                 return [4 /*yield*/, teams.addTeam(entry.team, entry.product)];
             case 9:
                 team = _g.sent();
@@ -1069,17 +1081,19 @@ router.post("/uploadCSV", function (req, res) { return __awaiter(void 0, void 0,
                 return [4 /*yield*/, teams.addActivityForUser(userActivity)];
             case 19:
                 response = _g.sent();
+                console.log(response);
                 if (!response) {
                     console.error("Error on route \"/uploadCSV\" in \"admin\" router");
                     console.error("No activity added");
                     res.status(401).send({ err: 401, data: null });
+                    return [3 /*break*/, 22];
                 }
                 return [3 /*break*/, 21];
             case 20:
                 console.error("Error on route \"/uploadCSV\" in \"admin\" router");
                 console.error("No activity added");
                 res.status(401).send({ err: 401, data: null });
-                _g.label = 21;
+                return [3 /*break*/, 22];
             case 21:
                 i++;
                 return [3 /*break*/, 18];

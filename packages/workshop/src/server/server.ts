@@ -21,9 +21,9 @@ export class WorkshopServer {
 					namedPlaceholders:true,
 					sql:"INSERT INTO workshops (workshopId, workshopName) VALUES(:workshopId,:workshopName)",
 				}
-				await conn.query(queryOptions,workshopParam);
+				let res:{insertId:string|number} = await conn.query(queryOptions,workshopParam);
 				queryOptions.sql = "SELECT workshopId, workshopName FROM workshops WHERE workshopId=:workshopId";
-				const response:Workshop[] = await conn.query(queryOptions,workshopParam);
+				const response:Workshop[] = await conn.query(queryOptions,{workshopId:res.insertId});
 				if(response && response.length > 0 && response[0]) {
 					await conn.commit();
 					await conn.end();
@@ -56,9 +56,9 @@ export class WorkshopServer {
 					namedPlaceholders:true,
 					sql:"INSERT INTO workshopInstances (workshopInstanceId,workshopId,teamId,trainerName,workshopDate,workshopDetails) VALUES(:workshopInstanceId,:workshopId,:teamId,:trainerName,:workshopDate,:workshopDetails)",
 				}
-				await conn.query(queryOptions, workshopInstance);
+				let res:{insertId:string|number} = await conn.query(queryOptions, workshopInstance);
 				queryOptions.sql = "SELECT workshopInstanceId,workshopId,teamId,trainerName,workshopDate,workshopDetails FROM workshopInstances WHERE workshopInstanceId=:workshopInstanceId";
-				const response:WorkshopInstances[] = await conn.query(queryOptions,workshopInstance);
+				const response:WorkshopInstances[] = await conn.query(queryOptions,{workshopInstanceId:res.insertId});
 				if(response && response.length > 0 && response[0]) {
 					await conn.commit();
 					await conn.end();
@@ -91,9 +91,9 @@ export class WorkshopServer {
 					namedPlaceholders:true,
 					sql:"INSERT INTO workshopAttendances (attendanceId,attendanceDate,userId,workshopInstanceId) VALUES(:attendanceId,:attendanceDate,:userId,:workshopInstanceId)",
 				}
-				await conn.query(queryOptions,workshopAttendance);
+				let res:{insertId:string|number} = await conn.query(queryOptions,workshopAttendance);
 				queryOptions.sql = "SELECT attendanceId,attendanceDate,userId,workshopInstanceId FROM workshopAttendances WHERE attendanceId=:attendanceId";
-				const response:WorkshopAttendances[] = await conn.query(queryOptions,workshopAttendance);
+				const response:WorkshopAttendances[] = await conn.query(queryOptions,{attendanceId:res.insertId});
 				if(response && response.length > 0 && response[0]) {
 					await conn.commit();
 					await conn.end();

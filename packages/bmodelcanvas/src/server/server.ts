@@ -50,9 +50,9 @@ export class BModelCanvasServer {
 						namedPlaceholders:true,
 						sql: "INSERT INTO bModelCanvas values(:modelId,:productId,:date,:fields)"
 					};
-					await conn.query(queryOptions,canvas);
+					let res:{insertId:string|number} = await conn.query(queryOptions,canvas);
 					queryOptions.sql="SELECT modelId,productId,date,fields FROM bModelCanvas WHERE modelId=:modelId"
-					const result:BModelCanvas[] = await conn.query(queryOptions,canvas);
+					const result:BModelCanvas[] = await conn.query(queryOptions,{modelId:res.insertId});
 					if(result && result.length > 0 && result[0]) {
 						await conn.commit();
 						await conn.end();

@@ -65,7 +65,7 @@ var UsersServer = /** @class */ (function () {
     };
     UsersServer.prototype.addUser = function (user) {
         return __awaiter(this, void 0, void 0, function () {
-            var conn, queryOptions, response, error_1;
+            var conn, queryOptions, res, response, error_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -87,9 +87,9 @@ var UsersServer = /** @class */ (function () {
                         };
                         return [4 /*yield*/, conn.query(queryOptions, user)];
                     case 4:
-                        _a.sent();
+                        res = _a.sent();
                         queryOptions.sql = "SELECT userId,firstName,lastName,username,email,phone,birthDate,avatarUu,socialMedia,userDetails,role,lastLogin FROM " + tables_1.TABLE_USERS + " WHERE userId=:userId";
-                        return [4 /*yield*/, conn.query(queryOptions, user)];
+                        return [4 /*yield*/, conn.query(queryOptions, { userId: res.insertId })];
                     case 5:
                         response = _a.sent();
                         if (!(response && response.length > 0 && response[0])) return [3 /*break*/, 8];
@@ -229,7 +229,7 @@ var UsersServer = /** @class */ (function () {
     };
     UsersServer.prototype.createSession = function (username, password) {
         return __awaiter(this, void 0, void 0, function () {
-            var conn, queryOptions, resUsername, user, sessionId, userId, token, resSession, error_4, errorSession, e_1, errorSession;
+            var conn, queryOptions, resUsername, user, sessionId, userId, token, res, resSession, error_4, errorSession, e_1, errorSession;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -272,9 +272,9 @@ var UsersServer = /** @class */ (function () {
                         };
                         return [4 /*yield*/, conn.query(queryOptions, { sessionId: sessionId, userId: userId, token: token })];
                     case 7:
-                        _a.sent();
+                        res = _a.sent();
                         queryOptions.sql = "SELECT sessionId, userId, token FROM sessions WHERE sessionId=:sessionId";
-                        return [4 /*yield*/, conn.query(queryOptions, { sessionId: sessionId })];
+                        return [4 /*yield*/, conn.query(queryOptions, { sessionId: res.insertId })];
                     case 8:
                         resSession = _a.sent();
                         if (!(resSession && resSession.length > 0 && resSession[0])) return [3 /*break*/, 11];

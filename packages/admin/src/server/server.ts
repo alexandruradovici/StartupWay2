@@ -99,13 +99,19 @@ export class AdminServer {
 			if(teamTrack !== undefined) {
 				tT = (teamTrack as string).split("-")[0].toUpperCase();
 			}
+			let wD = "";
+			if(workshopNo !== undefined) {
+				wD = days[parseInt(workshopNo as string)];
+			}
 			const bTValue = parseEnum<BusinessTrack,typeof BusinessTrack>(BusinessTrack,bT);
+			const tTValue = parseEnum<TeamType,typeof TeamType>(TeamType,tT);
+			const wDValue = parseEnum<WorkshopDay,typeof WorkshopDay>(WorkshopDay,wD);
 			parsedCSV.product = {
 				productId:productId,
 				startupName:teamName,
 				mentorId:"",
 				// Need to index enum based on string
-				businessTrack:BusinessTrack.SMARTCITY,
+				businessTrack:(BusinessTrack as any)[bT],
 				teamType:(TeamType as any)[tT],
 				workshopDay:(WorkshopDay as any)[days[parseInt(workshopNo as string)]],
 				descriptionEN:"",
@@ -125,8 +131,16 @@ export class AdminServer {
 				lastMentorUpdate:new Date(),
 			}
 
+			if(parsedCSV.product && wDValue) {
+				parsedCSV.product.workshopDay = wDValue;
+			}
+
 			if(parsedCSV.product && bTValue) {
 				parsedCSV.product.businessTrack = bTValue;
+			}
+
+			if(parsedCSV.product && tTValue) {
+				parsedCSV.product.teamType = tTValue;
 			}
 			if(parsedCSV.product && shortDesc) {
 				parsedCSV.product.descriptionEN = shortDesc;
@@ -373,9 +387,9 @@ export class AdminServer {
 					namedPlaceholders:true,
 					sql:"INSERT INTO recoveries (recoveryId,userId,email,recoveryLink) VALUES(:recoveryId,:userId,:email,:recoveryLink)"
 				}
-				await conn.query(queryOptions,recovery);
+				let res:{insertId:string|number} = await conn.query(queryOptions,recovery);
 				queryOptions.sql = "SELECT recoveryId,userId,email,recoveryLink FROM recoveries WHERE recoveryId=:recoveryId"
-				const newRecovery:Recovery[] = await conn.query(queryOptions,recovery);
+				const newRecovery:Recovery[] = await conn.query(queryOptions,{recoveryId:res.insertId});
 				if(newRecovery && newRecovery.length > 0 && newRecovery[0]) {
 					const options = admin.createMailOptions(
 						(process.env.MAIL_USER as string),
@@ -736,7 +750,7 @@ router.post("/uploadCSV", async(req:ApiRequest<{encode:string}>,res:ApiResponse<
 						}
 					}
 					team = await teams.getTeamByYearAndLocation(entry.team.year, entry.team.location, entry.team.teamName);
-					if(!team) {
+					if(team === null) {
 						team = await teams.addTeam(entry.team,entry.product);
 					}
 				}
@@ -794,15 +808,18 @@ router.post("/uploadCSV", async(req:ApiRequest<{encode:string}>,res:ApiResponse<
 								description:""
 							}
 							const response = await teams.addActivityForUser((userActivity as UserActivity));
+							console.log(response);
 							if(!response){
 								console.error("Error on route \"/uploadCSV\" in \"admin\" router");
-								console.error("No activity added")
+								console.error("No activity added");
 								res.status(401).send({err:401, data:null});
+								break;
 							}
 						} else {
 							console.error("Error on route \"/uploadCSV\" in \"admin\" router");
 							console.error("No activity added")
 							res.status(401).send({err:401, data:null});
+							break;
 						}
 					}
 				}

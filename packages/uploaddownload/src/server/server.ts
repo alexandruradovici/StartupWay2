@@ -90,9 +90,9 @@ export class UploadDownloadServer {
 					namedPlaceholders:true,
 					sql: `INSERT INTO uploadDownload (uuid,productId,fileType,extension,uploadTime) values(:uuid,:productId,:fileType,:extension,:uploadTime)`
 				}
-				await conn.query(queryOptions, uploadDownloadLink);
+				let res:{insertId:string|number} = await conn.query(queryOptions, uploadDownloadLink);
 				queryOptions.sql = "SELECT uuid,productId,fileType,extension,uploadTime FROM uploadDownload WHERE uuid=:uuid"
-				const response:UploadDownloadLink[] = await conn.query(queryOptions, uploadDownloadLink);
+				const response:UploadDownloadLink[] = await conn.query(queryOptions, {uuid:res.insertId});
 				if(response && response.length > 0 && response[0]){
 					await conn.commit();
 					await conn.end();
