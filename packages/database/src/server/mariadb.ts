@@ -60,10 +60,10 @@ export class MariaDBServer {
 
 			let queryOptions:QueryOptions = {
 				namedPlaceholders:true,
-				sql: `SELECT schema_name FROM information_schema.schemata WHERE schema_name = ${DB_NAME}`
+				sql: `SELECT schema_name FROM information_schema.schemata WHERE schema_name = :db`
 			};
 			// Get DB schemba name 
-			const r:any[] = await auxConn.query(queryOptions);
+			const r:any[] = await auxConn.query(queryOptions, {db:DB_NAME});
 			if(r[0] === undefined || r[0].length < 1) {
 				queryOptions = {
 					namedPlaceholders:true,

@@ -110,9 +110,9 @@ var MariaDBServer = /** @class */ (function () {
                         auxConn = _a.sent();
                         queryOptions = {
                             namedPlaceholders: true,
-                            sql: "SELECT schema_name FROM information_schema.schemata WHERE schema_name = " + tables_1.DB_NAME
+                            sql: "SELECT schema_name FROM information_schema.schemata WHERE schema_name = :db"
                         };
-                        return [4 /*yield*/, auxConn.query(queryOptions)];
+                        return [4 /*yield*/, auxConn.query(queryOptions, { db: tables_1.DB_NAME })];
                     case 2:
                         r = _a.sent();
                         if (!(r[0] === undefined || r[0].length < 1)) return [3 /*break*/, 20];
