@@ -93,7 +93,7 @@
 											</v-form>
 										</v-card>
 									</v-dialog>
-									<v-dialog persistent v-model="dialog" max-width="600px">
+									<v-dialog persistent v-model="dialog" v-if="team" max-width="600px">
 										<v-card>
 											<v-form lazy-validation v-model="valid" v-if="team">
 												<v-card-title class="justify-center" style="font-family: Georgia, serif;">Edit Team Details</v-card-title>
@@ -841,7 +841,7 @@ export default Vue.extend({
 				this.loadingPage = true;
 				
 				// as any because error it's null 
-				let productIndex = this.reviews.findIndex((el: Review) => el.startupName === (this.team as any).startupName);
+				let productIndex = this.reviews.findIndex((el: Review) => el.startupName === (this.team as (Team&Product)).startupName);
 				this.reviews[productIndex].updatedAt = (this.formatDate(new Date()) as unknown as Date).toString();
 				let response = await this.ui.api.post<Review[]>("/api/v1/admin/teams/review/update", 
 				{

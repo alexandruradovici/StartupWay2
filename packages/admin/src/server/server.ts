@@ -813,13 +813,11 @@ router.post("/uploadCSV", async(req:ApiRequest<{encode:string}>,res:ApiResponse<
 							if(!response){
 								console.error("Error on route \"/uploadCSV\" in \"admin\" router");
 								console.error("No activity added");
-								res.status(401).send({err:401, data:null});
 								break;
 							}
 						} else {
 							console.error("Error on route \"/uploadCSV\" in \"admin\" router");
 							console.error("No activity added")
-							res.status(401).send({err:401, data:null});
 							break;
 						}
 					}

@@ -1086,14 +1086,12 @@ router.post("/uploadCSV", function (req, res) { return __awaiter(void 0, void 0,
                 if (!response) {
                     console.error("Error on route \"/uploadCSV\" in \"admin\" router");
                     console.error("No activity added");
-                    res.status(401).send({ err: 401, data: null });
                     return [3 /*break*/, 22];
                 }
                 return [3 /*break*/, 21];
             case 20:
                 console.error("Error on route \"/uploadCSV\" in \"admin\" router");
                 console.error("No activity added");
-                res.status(401).send({ err: 401, data: null });
                 return [3 /*break*/, 22];
             case 21:
                 i++;
