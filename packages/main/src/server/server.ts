@@ -38,7 +38,7 @@ export class Server {
 		this.app.use ('/api/v1', express.json({limit:314572800}));
 		this.app.use ('/api/v1', this.apiv1);
 		const server = createServer(this.app);
-		const serverListener = server.listen (port, () => {
+		const serverListener = server.listen (process.env.port || port, () => {
 			let n = 0;
 			const networks = networkInterfaces();
 			for (const network in networks) {
