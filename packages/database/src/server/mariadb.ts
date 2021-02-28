@@ -1,5 +1,6 @@
 import {createPool, Pool, Connection, QueryOptions} from "mariadb";
 import dotenv from 'dotenv';
+import { DB_NAME, DB_COLLATE, DB_CHARSET } from './tables';
 dotenv.config();
 export class MariaDBServer {
 	private static INSTANCE?: MariaDBServer;
@@ -58,18 +59,17 @@ export class MariaDBServer {
 			const auxConn = await auxPool.getConnection();
 
 			let queryOptions:QueryOptions = {
-				sql: "SELECT schema_name FROM information_schema.schemata WHERE schema_name = ?"
+				namedPlaceholders:true,
+				sql: `SELECT schema_name FROM information_schema.schemata WHERE schema_name = ${DB_NAME}`
 			};
-			let values:(string|undefined)[] = [process.env.DB_NAME];
 			// Get DB schemba name 
-			const r:any[] = await auxConn.query(queryOptions, values);
+			const r:any[] = await auxConn.query(queryOptions);
 			if(r[0] === undefined || r[0].length < 1) {
 				queryOptions = {
 					namedPlaceholders:true,
-					sql:"CREATE DATABASE ? CHARACTER SET ? COLLATE ?"
+					sql:`CREATE DATABASE ${DB_NAME} CHARACTER SET ${DB_CHARSET} COLLATE ${DB_COLLATE}`
 				};
-				values = [process.env.DB_NAME,process.env.DB_CHARSET,process.env.DB_COLLATE];
-				await auxConn.query(queryOptions,values);
+				await auxConn.query(queryOptions);
 				const tablePool = createPool({
 					host:process.env.DB_HOST,
 					user:process.env.DB_USER,

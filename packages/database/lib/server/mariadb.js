@@ -42,6 +42,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getPool = exports.MariaDBServer = void 0;
 var mariadb_1 = require("mariadb");
 var dotenv_1 = __importDefault(require("dotenv"));
+var tables_1 = require("./tables");
 dotenv_1.default.config();
 var MariaDBServer = /** @class */ (function () {
     function MariaDBServer() {
@@ -92,7 +93,7 @@ var MariaDBServer = /** @class */ (function () {
     // }
     MariaDBServer.prototype.createDB = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var auxPool, auxConn, queryOptions, values, r, tablePool, tableConn, respPool, error_1;
+            var auxPool, auxConn, queryOptions, r, tablePool, tableConn, respPool, error_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -108,19 +109,18 @@ var MariaDBServer = /** @class */ (function () {
                     case 1:
                         auxConn = _a.sent();
                         queryOptions = {
-                            sql: "SELECT schema_name FROM information_schema.schemata WHERE schema_name = ?"
+                            namedPlaceholders: true,
+                            sql: "SELECT schema_name FROM information_schema.schemata WHERE schema_name = " + tables_1.DB_NAME
                         };
-                        values = [process.env.DB_NAME];
-                        return [4 /*yield*/, auxConn.query(queryOptions, values)];
+                        return [4 /*yield*/, auxConn.query(queryOptions)];
                     case 2:
                         r = _a.sent();
                         if (!(r[0] === undefined || r[0].length < 1)) return [3 /*break*/, 20];
                         queryOptions = {
                             namedPlaceholders: true,
-                            sql: "CREATE DATABASE ? CHARACTER SET ? COLLATE ?"
+                            sql: "CREATE DATABASE " + tables_1.DB_NAME + " CHARACTER SET " + tables_1.DB_CHARSET + " COLLATE " + tables_1.DB_COLLATE
                         };
-                        values = [process.env.DB_NAME, process.env.DB_CHARSET, process.env.DB_COLLATE];
-                        return [4 /*yield*/, auxConn.query(queryOptions, values)];
+                        return [4 /*yield*/, auxConn.query(queryOptions)];
                     case 3:
                         _a.sent();
                         tablePool = mariadb_1.createPool({
