@@ -85,7 +85,7 @@ var Server = /** @class */ (function () {
                 this.app.use('/api/v1', express_1.default.json({ limit: 314572800 }));
                 this.app.use('/api/v1', this.apiv1);
                 server = http_1.createServer(this.app);
-                serverListener = server.listen(process.env.port || port, function () {
+                serverListener = server.listen(process.env.PORT || port, function () {
                     var e_1, _a;
                     var n = 0;
                     var networks = os_1.networkInterfaces();
