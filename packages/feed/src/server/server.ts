@@ -2,7 +2,7 @@ import { Feed} from "../common";
 import { Router } from "express";
 import { Server, ApiRequest, ApiResponse } from "@startupway/main/lib/server";
 import { getPool } from "@startupway/database/lib/server";
-import { QueryOptions, Connection } from "mariadb";
+import { QueryOptions, PoolConnection } from "mariadb";
 import { getAuthorizationFunction } from "@startupway/users/lib/server";
 // import { v4 as uiidv4 } from 'uuid';
 export class FeedServer {
@@ -10,7 +10,7 @@ export class FeedServer {
 	private static INSTANCE?: FeedServer;
 
 	async addFeed(feedParam: Feed): Promise<Feed | null> {
-		let conn:Connection | null = null
+		let conn:PoolConnection | null = null
 		try {
 			conn = await getPool().getConnection();
 			if(conn) {
@@ -26,7 +26,7 @@ export class FeedServer {
 				if(feeds) {
 					if(feeds.length > 3) {
 						await conn.commit();
-						await conn.end();
+						await conn.release();
 						return null;
 					} else {
 						queryOptions.sql = "INSERT INTO feeds (feedId, teamId, feedType, text, date) VALUES(:feedId,:teamId,:feedType,:text,:date)";
@@ -35,17 +35,17 @@ export class FeedServer {
 						const resp: Feed[] = await conn.query(queryOptions,{feedId:feedParam.feedId});
 						if(resp && resp.length > 0 && resp[0]) {
 							await conn.commit();
-							await conn.end();
+							await conn.release();
 							return resp[0];
 						} else {
 							await conn.rollback();
-							await conn.end();
+							await conn.release();
 							return null
 						}
 					}
 				} else {
 					await conn.rollback();
-					await conn.end();
+					await conn.release();
 					return null;
 				}
 			} else {
@@ -55,14 +55,14 @@ export class FeedServer {
 			console.error(e);
 			if(conn) {
 				await conn.rollback();
-				await conn.end();
+				await conn.release();
 			}
 			return null;
 		}
 	}
 
 	async updateFeed(feedParam: Feed): Promise<Feed|null> {
-		let conn:Connection | null = null
+		let conn:PoolConnection | null = null
 		try {
 			conn = await getPool().getConnection();
 			if(conn) {
@@ -76,11 +76,11 @@ export class FeedServer {
 				const resp:Feed[] = await conn.query(queryOptions,feedParam);
 				if(resp && resp.length > 0 && resp[0]) {
 					await conn.commit();
-					await conn.end();
+					await conn.release();
 					return resp[0];
 				} else {
 					await conn.rollback();
-					await conn.end();
+					await conn.release();
 					return null;
 				}
 			} else {
@@ -90,14 +90,14 @@ export class FeedServer {
 			console.error(e);
 			if(conn) {
 				await conn.rollback();
-				await conn.end();
+				await conn.release();
 			}
 			return null;
 		}
 	}
 
 	async deleteFeed(feedParam: Feed): Promise<boolean> {
-		let conn:Connection | null = null
+		let conn:PoolConnection | null = null
 		try {
 			conn = await getPool().getConnection();
 			if(conn) {
@@ -111,11 +111,11 @@ export class FeedServer {
 				const response:{deleted_id:string}[] = await conn.query(queryOptions,{feedId:feedParam.feedId});
 				if(response && response.length === 0) {
 					await conn.commit();
-					await conn.end();
+					await conn.release();
 					return true;
 				} else {
 					await conn.rollback();
-					await conn.end();
+					await conn.release();
 					return false;
 				}
 			} else {
@@ -125,14 +125,14 @@ export class FeedServer {
 			console.error(e);
 			if(conn) {
 				await conn.rollback();
-				await conn.end();
+				await conn.release();
 			}
 			return false;
 		}
 	}
 
 	async getFeedByTeamId(teamId: string): Promise<Feed[]> {
-		let conn:Connection | null = null
+		let conn:PoolConnection | null = null
 		try {
 			conn = await getPool().getConnection();
 			if(conn) {
@@ -142,10 +142,10 @@ export class FeedServer {
 				}
 				const feeds: Feed[] = await conn.query(queryOptions,{teamId});
 				if(feeds && feeds.length > 0) {
-					await conn.end();
+					await conn.release();
 					return feeds;
 				} else {
-					await conn.end();
+					await conn.release();
 					return []
 				}
 			} else {
@@ -154,7 +154,7 @@ export class FeedServer {
 		} catch (e) {
 			console.error(e);
 			if(conn)
-				await conn.end();
+				await conn.release();
 			return [];
 		}
 	}

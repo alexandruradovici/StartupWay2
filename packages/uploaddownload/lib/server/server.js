@@ -113,7 +113,7 @@ var UploadDownloadServer = /** @class */ (function () {
                                 finally { if (e_2) throw e_2.error; }
                             }
                         }
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 4:
                         _b.sent();
                         return [2 /*return*/, true];
@@ -123,7 +123,7 @@ var UploadDownloadServer = /** @class */ (function () {
                         e_1 = _b.sent();
                         console.error(e_1);
                         if (!conn) return [3 /*break*/, 9];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 8:
                         _b.sent();
                         _b.label = 9;
@@ -169,14 +169,14 @@ var UploadDownloadServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.commit()];
                     case 6:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 7:
                         _a.sent();
                         return [2 /*return*/, response[0]];
                     case 8: return [4 /*yield*/, conn.rollback()];
                     case 9:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 10:
                         _a.sent();
                         return [2 /*return*/, null];
@@ -190,7 +190,7 @@ var UploadDownloadServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.rollback()];
                     case 15:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 16:
                         _a.sent();
                         _a.label = 17;
@@ -232,14 +232,14 @@ var UploadDownloadServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.commit()];
                     case 6:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 7:
                         _a.sent();
                         return [2 /*return*/, true];
                     case 8: return [4 /*yield*/, conn.rollback()];
                     case 9:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 10:
                         _a.sent();
                         return [2 /*return*/, false];
@@ -253,7 +253,7 @@ var UploadDownloadServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.rollback()];
                     case 15:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 16:
                         _a.sent();
                         _a.label = 17;
@@ -285,11 +285,11 @@ var UploadDownloadServer = /** @class */ (function () {
                     case 3:
                         uploadDownloadLink = _a.sent();
                         if (!(uploadDownloadLink && uploadDownloadLink.length > 0 && uploadDownloadLink[0])) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 4:
                         _a.sent();
                         return [2 /*return*/, uploadDownloadLink[0]];
-                    case 5: return [4 /*yield*/, conn.end()];
+                    case 5: return [4 /*yield*/, conn.release()];
                     case 6:
                         _a.sent();
                         return [2 /*return*/, null];
@@ -300,7 +300,7 @@ var UploadDownloadServer = /** @class */ (function () {
                         error_2 = _a.sent();
                         console.error(error_2);
                         if (!conn) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 11:
                         _a.sent();
                         _a.label = 12;
@@ -332,11 +332,11 @@ var UploadDownloadServer = /** @class */ (function () {
                     case 3:
                         uploadDownloadLinks = _a.sent();
                         if (!(uploadDownloadLinks && uploadDownloadLinks.length > 0)) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 4:
                         _a.sent();
                         return [2 /*return*/, uploadDownloadLinks];
-                    case 5: return [4 /*yield*/, conn.end()];
+                    case 5: return [4 /*yield*/, conn.release()];
                     case 6:
                         _a.sent();
                         return [2 /*return*/, []];
@@ -347,7 +347,7 @@ var UploadDownloadServer = /** @class */ (function () {
                         error_3 = _a.sent();
                         console.error(error_3);
                         if (!conn) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 11:
                         _a.sent();
                         _a.label = 12;
@@ -400,11 +400,11 @@ var UploadDownloadServer = /** @class */ (function () {
                         _a.label = 8;
                     case 8:
                         if (!links) return [3 /*break*/, 10];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 9:
                         _a.sent();
                         return [2 /*return*/, links];
-                    case 10: return [4 /*yield*/, conn.end()];
+                    case 10: return [4 /*yield*/, conn.release()];
                     case 11:
                         _a.sent();
                         return [2 /*return*/, []];
@@ -415,7 +415,7 @@ var UploadDownloadServer = /** @class */ (function () {
                         e_4 = _a.sent();
                         console.error(e_4);
                         if (!conn) return [3 /*break*/, 17];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 16:
                         _a.sent();
                         _a.label = 17;
@@ -466,11 +466,11 @@ var UploadDownloadServer = /** @class */ (function () {
                         _a.label = 8;
                     case 8:
                         if (!links) return [3 /*break*/, 10];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 9:
                         _a.sent();
                         return [2 /*return*/, links];
-                    case 10: return [4 /*yield*/, conn.end()];
+                    case 10: return [4 /*yield*/, conn.release()];
                     case 11:
                         _a.sent();
                         return [2 /*return*/, []];
@@ -481,7 +481,7 @@ var UploadDownloadServer = /** @class */ (function () {
                         e_5 = _a.sent();
                         console.error(e_5);
                         if (!conn) return [3 /*break*/, 17];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 16:
                         _a.sent();
                         _a.label = 17;

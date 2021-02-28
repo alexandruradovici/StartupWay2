@@ -2,7 +2,7 @@ import { Server, ApiResponse, ApiRequest } from "@startupway/main/lib/server";
 import { getPool } from "@startupway/database/lib/server";
 import { getAuthorizationFunction } from "@startupway/users/lib/server";
 import { BModelCanvas } from "../common";
-import {QueryOptions, Connection} from 'mariadb';
+import {QueryOptions, PoolConnection} from 'mariadb';
 import {Router} from "express";
 // import { v4 as uiidv4 } from 'uuid';
 export class BModelCanvasServer {
@@ -10,7 +10,7 @@ export class BModelCanvasServer {
 	private static INSTANCE?: BModelCanvasServer;
 
 	async addCanvas (canvas: BModelCanvas): Promise<BModelCanvas | null> {
-		let conn:Connection | null = null;
+		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
 			if(conn) {
@@ -38,11 +38,11 @@ export class BModelCanvasServer {
 					const canvasResult:BModelCanvas[] = await conn.query(queryOptions,updateValues);
 					if(canvasResult && canvasResult.length > 0 && canvasResult[0]) {
 						await conn.commit();
-						await conn.end();
+						await conn.release();
 						return canvasResult[0];
 					} else {
 						await conn.rollback();
-						await conn.end();
+						await conn.release();
 						return null;
 					}
 				} else {
@@ -55,11 +55,11 @@ export class BModelCanvasServer {
 					const result:BModelCanvas[] = await conn.query(queryOptions,{modelId:canvas.modelId});
 					if(result && result.length > 0 && result[0]) {
 						await conn.commit();
-						await conn.end();
+						await conn.release();
 						return result[0];
 					} else {
 						await conn.rollback();
-						await conn.end();
+						await conn.release();
 						return null;
 					}
 				}
@@ -70,14 +70,14 @@ export class BModelCanvasServer {
 			console.error(error);
 			if(conn) {
 				await conn.rollback();
-				await conn.end();
+				await conn.release();
 			}
 			return null;
 		}
 	}
 
 	async getCanvasesForTeam (teamId: string): Promise<BModelCanvas[]> {
-		let conn:Connection | null = null;
+		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
 			if(conn) {
@@ -90,10 +90,10 @@ export class BModelCanvasServer {
 				}
 				const canvases:BModelCanvas[] =  await conn.query(queryOptions, values);
 				if(canvases && canvases.length > 0) {
-					await conn.end();
+					await conn.release();
 					return canvases;
 				} else {
-					await conn.end();
+					await conn.release();
 					return [];
 				}
 			} else {
@@ -102,7 +102,7 @@ export class BModelCanvasServer {
 		} catch (error) {
 			console.error(error);
 			if(conn)
-				await conn.end();
+				await conn.release();
 			return [];
 		}
 	}

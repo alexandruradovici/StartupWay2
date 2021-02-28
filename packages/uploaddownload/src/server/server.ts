@@ -10,7 +10,7 @@ import path from "path";
 import jszip from "jszip";
 import { Server, ApiRequest, ApiResponse } from "@startupway/main/lib/server";
 import { getPool } from "@startupway/database/lib/server";
-import { QueryOptions, Connection } from "mariadb";
+import { QueryOptions, PoolConnection } from "mariadb";
 import { getAuthorizationFunction, UsersServer } from "@startupway/users/lib/server";
 import { TeamsServer } from "@startupway/teams/lib/server";
 
@@ -46,7 +46,7 @@ export class UploadDownloadServer {
 		return year + "-" + month + "-" + day;
 	}
 	async checkZipsDB():Promise<boolean> {
-		let conn:Connection | null = null;
+		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
 			if(conn) {
@@ -63,7 +63,7 @@ export class UploadDownloadServer {
 						}
 					}
 				}
-				await conn.end();
+				await conn.release();
 				return true;
 			} else {
 				return false;
@@ -71,13 +71,13 @@ export class UploadDownloadServer {
 		} catch (e) {
 			console.error(e);
 			if(conn) {
-				await conn.end();
+				await conn.release();
 			}
 			return false;
 		}
 	}
 	async addLink(uploadDownloadLink:UploadDownloadLink): Promise<UploadDownloadLink | null> {
-		let conn:Connection | null = null;
+		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
 			if(conn) {
@@ -95,11 +95,11 @@ export class UploadDownloadServer {
 				const response:UploadDownloadLink[] = await conn.query(queryOptions, {uuid:uploadDownloadLink.uuid});
 				if(response && response.length > 0 && response[0]){
 					await conn.commit();
-					await conn.end();
+					await conn.release();
 					return response[0];
 				} else {
 					await conn.rollback();
-					await conn.end();
+					await conn.release();
 					return null;
 				}
 			} else {
@@ -109,13 +109,13 @@ export class UploadDownloadServer {
 			console.error(e);
 			if(conn) {
 				await conn.rollback();
-				await conn.end();
+				await conn.release();
 			}
 			return null;
 		}
 	}
 	async deleteLink(uuid:string): Promise<Boolean> {
-		let conn:Connection | null = null;
+		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
 			if(conn) {
@@ -129,11 +129,11 @@ export class UploadDownloadServer {
 				const response:{deleted_id:string}[] = await conn.query(queryOptions,{uuid});
 				if(response && response.length === 0) {
 					await conn.commit();
-					await conn.end();
+					await conn.release();
 					return true;
 				} else {
 					await conn.rollback();
-					await conn.end();
+					await conn.release();
 					return false;
 				}
 			} else {
@@ -143,13 +143,13 @@ export class UploadDownloadServer {
 			console.error(error);
 			if(conn) {
 				await conn.rollback();
-				await conn.end();
+				await conn.release();
 			}
 			return false;
 		}
 	}
 	async getLinkByUuid(uuid:string): Promise<UploadDownloadLink | null> {
-		let conn:Connection | null = null;
+		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
 			if(conn) {
@@ -159,10 +159,10 @@ export class UploadDownloadServer {
 				};
 				const uploadDownloadLink:UploadDownloadLink[] = await conn.query(queryOptions,{uuid}) as UploadDownloadLink[];
 				if(uploadDownloadLink && uploadDownloadLink.length > 0 && uploadDownloadLink[0]) {
-					await conn.end();
+					await conn.release();
 					return uploadDownloadLink[0];
 				} else {
-					await conn.end();
+					await conn.release();
 					return null;
 				}
 			} else {
@@ -171,14 +171,14 @@ export class UploadDownloadServer {
 		} catch (error) {
 			console.error(error);
 			if(conn) {
-				await conn.end();
+				await conn.release();
 			}
 			return null;
 		}
 	}
 
 	async getLinksByProductIdAndFileType(productId:string, fileType:string): Promise<UploadDownloadLink[]> {
-		let conn:Connection | null = null;
+		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
 			if(conn) {
@@ -188,10 +188,10 @@ export class UploadDownloadServer {
 				};
 				const uploadDownloadLinks:UploadDownloadLink[] = await conn.query(queryOptions,{productId,fileType}) as UploadDownloadLink[];
 				if(uploadDownloadLinks && uploadDownloadLinks.length > 0) {
-					await conn.end()
+					await conn.release()
 					return uploadDownloadLinks;
 				} else {
-					await conn.end();
+					await conn.release();
 					return [];
 				}
 			} else {
@@ -200,14 +200,14 @@ export class UploadDownloadServer {
 		} catch (error) {
 			console.error(error);
 			if(conn) {
-				await conn.end();
+				await conn.release();
 			}
 			return [];
 		}
 	}
 
 	async getLinksByProductId(productId:string, date:string): Promise<UploadDownloadLink[]> {
-		let conn:Connection | null = null;
+		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
 			if(conn) {
@@ -231,10 +231,10 @@ export class UploadDownloadServer {
 				}
 
 				if(links) {
-					await conn.end()
+					await conn.release()
 					return links;
 				} else {
-					await conn.end()
+					await conn.release()
 					return [];
 				}
 			} else {
@@ -243,14 +243,14 @@ export class UploadDownloadServer {
 		} catch (e) {
 			console.error(e);
 			if(conn) {
-				await conn.end();
+				await conn.release();
 			}
 			return [];
 		}
 	}
 
 	async getLinksByFileTypePass(fileType:string,date:string): Promise<UploadDownloadLink[]> {
-		let conn:Connection | null = null;
+		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
 			if(conn) {
@@ -272,10 +272,10 @@ export class UploadDownloadServer {
 				}
 			
 				if(links) {
-					await conn.end();
+					await conn.release();
 					return links;
 				} else {
-					await conn.end();
+					await conn.release();
 					return [];
 				}
 			} else {
@@ -284,7 +284,7 @@ export class UploadDownloadServer {
 		} catch (e) {
 			console.error(e);
 			if(conn) {
-				await conn.end();
+				await conn.release();
 			}
 			return [];
 		}

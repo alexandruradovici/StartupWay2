@@ -96,11 +96,11 @@ var UsersServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.commit()];
                     case 6:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 7:
                         _a.sent();
                         return [2 /*return*/, response[0]];
-                    case 8: return [4 /*yield*/, conn.end()];
+                    case 8: return [4 /*yield*/, conn.release()];
                     case 9:
                         _a.sent();
                         return [2 /*return*/, null];
@@ -114,7 +114,7 @@ var UsersServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.rollback()];
                     case 14:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 15:
                         _a.sent();
                         _a.label = 16;
@@ -144,11 +144,11 @@ var UsersServer = /** @class */ (function () {
                     case 3:
                         allUserTeams = _a.sent();
                         if (!(allUserTeams && allUserTeams.length > 0)) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 4:
                         _a.sent();
                         return [2 /*return*/, allUserTeams];
-                    case 5: return [4 /*yield*/, conn.end()];
+                    case 5: return [4 /*yield*/, conn.release()];
                     case 6:
                         _a.sent();
                         return [2 /*return*/, []];
@@ -157,7 +157,7 @@ var UsersServer = /** @class */ (function () {
                         error_2 = _a.sent();
                         console.error(error_2);
                         if (!conn) return [3 /*break*/, 10];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 9:
                         _a.sent();
                         _a.label = 10;
@@ -199,11 +199,11 @@ var UsersServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.commit()];
                     case 6:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 7:
                         _a.sent();
                         return [2 /*return*/, true];
-                    case 8: return [4 /*yield*/, conn.end()];
+                    case 8: return [4 /*yield*/, conn.release()];
                     case 9:
                         _a.sent();
                         return [2 /*return*/, false];
@@ -217,7 +217,7 @@ var UsersServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.rollback()];
                     case 14:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 15:
                         _a.sent();
                         _a.label = 16;
@@ -281,7 +281,7 @@ var UsersServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.commit()];
                     case 9:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 10:
                         _a.sent();
                         return [2 /*return*/, resSession[0]];
@@ -300,18 +300,18 @@ var UsersServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.rollback()];
                     case 13:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 14:
                         _a.sent();
                         return [2 /*return*/, errorSession];
                     case 15: return [3 /*break*/, 16];
                     case 16: return [3 /*break*/, 19];
-                    case 17: return [4 /*yield*/, conn.end()];
+                    case 17: return [4 /*yield*/, conn.release()];
                     case 18:
                         _a.sent();
                         return [2 /*return*/, { sessionId: "", token: "cred", userId: "", createdAt: new Date(0) }];
                     case 19: return [3 /*break*/, 22];
-                    case 20: return [4 /*yield*/, conn.end()];
+                    case 20: return [4 /*yield*/, conn.release()];
                     case 21:
                         _a.sent();
                         return [2 /*return*/, { sessionId: "", token: "cred", userId: "", createdAt: new Date(0) }];
@@ -327,14 +327,14 @@ var UsersServer = /** @class */ (function () {
                         };
                         errorSession.token = "error";
                         if (!conn) return [3 /*break*/, 25];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 24:
                         _a.sent();
                         _a.label = 25;
                     case 25: return [2 /*return*/, errorSession];
                     case 26:
                         if (!conn) return [3 /*break*/, 28];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 27:
                         _a.sent();
                         _a.label = 28;
@@ -379,7 +379,7 @@ var UsersServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.commit()];
                     case 6:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 7:
                         _a.sent();
                         return [2 /*return*/, true];
@@ -391,14 +391,14 @@ var UsersServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.rollback()];
                     case 10:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 11:
                         _a.sent();
                         _a.label = 12;
                     case 12: return [2 /*return*/, false];
                     case 13:
                         if (!conn) return [3 /*break*/, 15];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 14:
                         _a.sent();
                         _a.label = 15;
@@ -429,7 +429,7 @@ var UsersServer = /** @class */ (function () {
                         user = _a.sent();
                         if (!(user && user.length > 0 && user[0])) return [3 /*break*/, 5];
                         if (!user[0]) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 4:
                         _a.sent();
                         return [2 /*return*/, user[0]];
@@ -440,7 +440,7 @@ var UsersServer = /** @class */ (function () {
                         return [3 /*break*/, 7];
                     case 7:
                         if (!conn) return [3 /*break*/, 9];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 8:
                         _a.sent();
                         _a.label = 9;
@@ -471,7 +471,7 @@ var UsersServer = /** @class */ (function () {
                         user = _a.sent();
                         if (!(user && user.length > 0 && user[0])) return [3 /*break*/, 5];
                         if (!user[0]) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 4:
                         _a.sent();
                         return [2 /*return*/, user[0]];
@@ -482,7 +482,7 @@ var UsersServer = /** @class */ (function () {
                         return [3 /*break*/, 7];
                     case 7:
                         if (!conn) return [3 /*break*/, 9];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 8:
                         _a.sent();
                         _a.label = 9;
@@ -513,7 +513,7 @@ var UsersServer = /** @class */ (function () {
                         user = _a.sent();
                         if (!(user && user.length > 0 && user[0])) return [3 /*break*/, 5];
                         if (!user[0]) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 4:
                         _a.sent();
                         return [2 /*return*/, user[0]];
@@ -524,7 +524,7 @@ var UsersServer = /** @class */ (function () {
                         return [3 /*break*/, 7];
                     case 7:
                         if (!conn) return [3 /*break*/, 9];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 8:
                         _a.sent();
                         _a.label = 9;
@@ -579,7 +579,7 @@ var UsersServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.commit()];
                     case 6:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 7:
                         _a.sent();
                         return [2 /*return*/, true];
@@ -593,14 +593,14 @@ var UsersServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.rollback()];
                     case 12:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 13:
                         _a.sent();
                         _a.label = 14;
                     case 14: return [2 /*return*/, false];
                     case 15:
                         if (!conn) return [3 /*break*/, 17];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 16:
                         _a.sent();
                         _a.label = 17;
@@ -630,7 +630,7 @@ var UsersServer = /** @class */ (function () {
                     case 3:
                         session = _a.sent();
                         if (!(session && session.length > 0 && session[0])) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 4:
                         _a.sent();
                         return [2 /*return*/, session[0]];
@@ -641,7 +641,7 @@ var UsersServer = /** @class */ (function () {
                         return [3 /*break*/, 7];
                     case 7:
                         if (!conn) return [3 /*break*/, 9];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 8:
                         _a.sent();
                         _a.label = 9;
@@ -687,7 +687,7 @@ var UsersServer = /** @class */ (function () {
                             }
                             finally { if (e_2) throw e_2.error; }
                         }
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 4:
                         _b.sent();
                         return [2 /*return*/, users];
@@ -698,7 +698,7 @@ var UsersServer = /** @class */ (function () {
                         return [3 /*break*/, 7];
                     case 7:
                         if (!conn) return [3 /*break*/, 9];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 8:
                         _b.sent();
                         _b.label = 9;
@@ -727,7 +727,7 @@ var UsersServer = /** @class */ (function () {
                     case 3:
                         users = _a.sent();
                         if (!(users && users.length > 0)) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 4:
                         _a.sent();
                         return [2 /*return*/, users];
@@ -738,7 +738,7 @@ var UsersServer = /** @class */ (function () {
                         return [3 /*break*/, 7];
                     case 7:
                         if (!conn) return [3 /*break*/, 9];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 8:
                         _a.sent();
                         _a.label = 9;
@@ -776,7 +776,7 @@ var UsersServer = /** @class */ (function () {
                     case 4:
                         user = _a.sent();
                         if (!(user && user.length > 0 && user[0])) return [3 /*break*/, 6];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 5:
                         _a.sent();
                         return [2 /*return*/, user[0]];
@@ -787,7 +787,7 @@ var UsersServer = /** @class */ (function () {
                         return [3 /*break*/, 8];
                     case 8:
                         if (!conn) return [3 /*break*/, 10];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 9:
                         _a.sent();
                         _a.label = 10;
@@ -902,10 +902,11 @@ router.get("/user", function (req, res, next) { return __awaiter(void 0, void 0,
     });
 }); });
 router.post("/user/update", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var user, changedPass, resp;
+    var user, changedPass, resp, error_14;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
+                _a.trys.push([0, 4, , 5]);
                 user = req.body.newUser;
                 changedPass = req.body.changedPass;
                 console.log("Changed" + changedPass);
@@ -923,9 +924,13 @@ router.post("/user/update", function (req, res) { return __awaiter(void 0, void 
             case 2:
                 res.status(401).send({ err: 401, data: false });
                 _a.label = 3;
-            case 3:
-                res.status(201).send(false);
-                return [2 /*return*/];
+            case 3: return [3 /*break*/, 5];
+            case 4:
+                error_14 = _a.sent();
+                console.error(error_14);
+                res.status(500).send({ err: 500, data: false });
+                return [3 /*break*/, 5];
+            case 5: return [2 /*return*/];
         }
     });
 }); });

@@ -1,7 +1,7 @@
 import { Server,ApiRequest,ApiResponse } from "@startupway/main/lib/server";
 import { getPool } from '@startupway/database/lib/server';
 import { getAuthorizationFunction } from '@startupway/users/lib/server';
-import { QueryOptions, Connection } from 'mariadb';
+import { QueryOptions, PoolConnection } from 'mariadb';
 import { Router } from "express";
 import _ from "lodash";
 import { Workshop, WorkshopInstances, WorkshopAttendances } from "../common";
@@ -12,7 +12,7 @@ export class WorkshopServer {
 	private static INSTANCE?: WorkshopServer;
 
 	async addWorkshop(workshopParam: Workshop): Promise<Workshop | null> {
-		let conn:Connection | null = null;
+		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
 			if(conn) {
@@ -26,11 +26,11 @@ export class WorkshopServer {
 				const response:Workshop[] = await conn.query(queryOptions,{workshopId:workshopParam.workshopId});
 				if(response && response.length > 0 && response[0]) {
 					await conn.commit();
-					await conn.end();
+					await conn.release();
 					return response[0];
 				} else {
 					await conn.rollback();
-					await conn.end();
+					await conn.release();
 					return null;
 				}
 			} else {
@@ -40,14 +40,14 @@ export class WorkshopServer {
 			console.error(error);
 			if(conn) {
 				await conn.rollback();
-				await conn.end();
+				await conn.release();
 			}
 			return null;
 		}
 	}
 
 	async addWorkshopInstance(workshopInstance: WorkshopInstances): Promise<WorkshopInstances | null> {
-		let conn:Connection | null = null;
+		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
 			if(conn) {
@@ -61,11 +61,11 @@ export class WorkshopServer {
 				const response:WorkshopInstances[] = await conn.query(queryOptions,{workshopInstanceId:workshopInstance.workshopInstanceId});
 				if(response && response.length > 0 && response[0]) {
 					await conn.commit();
-					await conn.end();
+					await conn.release();
 					return response[0];
 				} else {
 					await conn.rollback();
-					await conn.end();
+					await conn.release();
 					return null;
 				}
 			} else {
@@ -75,14 +75,14 @@ export class WorkshopServer {
 			console.error(error);
 			if(conn) {
 				await conn.rollback();
-				await conn.end();
+				await conn.release();
 			}
 			return null;
 		}
 	}
 
 	async addWorkshopAttendance(workshopAttendance: WorkshopAttendances): Promise<WorkshopAttendances | null> {
-		let conn:Connection | null = null;
+		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
 			if(conn) {
@@ -96,11 +96,11 @@ export class WorkshopServer {
 				const response:WorkshopAttendances[] = await conn.query(queryOptions,{attendanceId:workshopAttendance.attendanceId});
 				if(response && response.length > 0 && response[0]) {
 					await conn.commit();
-					await conn.end();
+					await conn.release();
 					return response[0];
 				} else {
 					await conn.rollback();
-					await conn.end();
+					await conn.release();
 					return null;
 				}
 			} else {
@@ -110,14 +110,14 @@ export class WorkshopServer {
 			console.error(error);
 			if(conn) {
 				await conn.rollback();
-				await conn.end();
+				await conn.release();
 			}
 			return null;
 		}
 	}
 
 	async deleteWorkshopAttendance(attendanceId: string): Promise<boolean> {
-		let conn:Connection | null = null;
+		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
 			if(conn) {
@@ -131,11 +131,11 @@ export class WorkshopServer {
 				const response:{deleted_id:string}[] = await conn.query(queryOptions,{attendanceId});
 				if(response && response.length === 0) {
 					await conn.commit();
-					await conn.end(); 
+					await conn.release(); 
 					return true;
 				} else {
 					await conn.rollback();
-					await conn.end();
+					await conn.release();
 					return false;
 				}
 			} else {
@@ -145,14 +145,14 @@ export class WorkshopServer {
 			console.error(error);
 			if(conn) {
 				await conn.rollback();
-				await conn.end();
+				await conn.release();
 			}
 			return false;
 		}
 	}
 
 	async listWorkshops(): Promise<Workshop[]> {
-		let conn:Connection | null = null;
+		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
 			if(conn) {
@@ -161,10 +161,10 @@ export class WorkshopServer {
 				}
 				const workshops:Workshop[] = await conn.query(queryOptions) as Workshop[];
 				if(workshops && workshops.length > 0) {
-					await conn.end();
+					await conn.release();
 					return workshops;
 				} else {
-					await conn.end();
+					await conn.release();
 					return [];
 				}
 			} else {
@@ -173,13 +173,13 @@ export class WorkshopServer {
 		} catch (error) {
 			console.error(error);
 			if(conn)
-				await conn.end();
+				await conn.release();
 			return [];
 		}
 	}
 
 	async listWorkshopInstancesByTeamIds(teamIds: number[]): Promise<WorkshopInstances[]> {
-		let conn:Connection | null = null;
+		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
 			if(conn) {
@@ -188,10 +188,10 @@ export class WorkshopServer {
 				}
 				const workshops:WorkshopInstances[] = await conn.query(queryOptions,{teamIds}) as WorkshopInstances[];
 				if(workshops && workshops.length > 0) {
-					await conn.end();
+					await conn.release();
 					return workshops;
 				} else {
-					await conn.end();
+					await conn.release();
 					return [];
 				}
 			} else {
@@ -200,13 +200,13 @@ export class WorkshopServer {
 		} catch (error) {
 			console.error(error);
 			if(conn)
-				await conn.end();
+				await conn.release();
 			return [];
 		}
 	}
 
 	async listWorkshopInstancesByWorkshopId(workshopId: string): Promise<WorkshopInstances[]> {
-		let conn:Connection | null = null;
+		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
 			if(conn) {
@@ -215,10 +215,10 @@ export class WorkshopServer {
 				}
 				const workshopInstances:WorkshopInstances[] = await conn.query(queryOptions,{workshopId}) as WorkshopInstances[];
 				if(workshopInstances && workshopInstances.length > 0) {
-					await conn.end();
+					await conn.release();
 					return workshopInstances;
 				} else {
-					await conn.end();
+					await conn.release();
 					return [];
 				}
 			} else {
@@ -227,13 +227,13 @@ export class WorkshopServer {
 		} catch (error) {
 			console.error(error);
 			if(conn)
-				await conn.end();
+				await conn.release();
 			return [];
 		}
 	}
 
 	async listWorkshopAttendances(): Promise<WorkshopAttendances[]> {
-		let conn:Connection | null = null;
+		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
 			if(conn) {
@@ -242,10 +242,10 @@ export class WorkshopServer {
 				}
 				const workshopAttendances:WorkshopAttendances[] = await conn.query(queryOptions) as WorkshopAttendances[];
 				if(workshopAttendances && workshopAttendances.length > 0) {
-					await conn.end();
+					await conn.release();
 					return workshopAttendances;
 				} else {
-					await conn.end();
+					await conn.release();
 					return [];
 				}
 			} else {
@@ -254,13 +254,13 @@ export class WorkshopServer {
 		} catch (error) {
 			console.error(error);
 			if(conn)
-				await conn.end();
+				await conn.release();
 			return [];
 		}
 	}
 
 	async listWorkshopAttendancesByWorkshopId(workshopId: string): Promise<(WorkshopInstances & WorkshopAttendances)[]> {
-		let conn:Connection | null = null;
+		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
 			if(conn) {
@@ -269,10 +269,10 @@ export class WorkshopServer {
 				}
 				const workshopInstances:(WorkshopInstances & WorkshopAttendances)[] = await conn.query(queryOptions,{workshopId});
 				if(workshopInstances && workshopInstances.length > 0) {
-					await conn.end();
+					await conn.release();
 					return workshopInstances;
 				} else {
-					await conn.end();
+					await conn.release();
 					return [];
 				}
 			} else {
@@ -281,7 +281,7 @@ export class WorkshopServer {
 		} catch (error) {
 			console.error(error);
 			if(conn)
-				await conn.end();
+				await conn.release();
 			return [];
 		}
 	}

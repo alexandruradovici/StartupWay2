@@ -92,14 +92,14 @@ var WorkshopServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.commit()];
                     case 6:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 7:
                         _a.sent();
                         return [2 /*return*/, response[0]];
                     case 8: return [4 /*yield*/, conn.rollback()];
                     case 9:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 10:
                         _a.sent();
                         return [2 /*return*/, null];
@@ -113,7 +113,7 @@ var WorkshopServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.rollback()];
                     case 15:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 16:
                         _a.sent();
                         _a.label = 17;
@@ -155,14 +155,14 @@ var WorkshopServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.commit()];
                     case 6:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 7:
                         _a.sent();
                         return [2 /*return*/, response[0]];
                     case 8: return [4 /*yield*/, conn.rollback()];
                     case 9:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 10:
                         _a.sent();
                         return [2 /*return*/, null];
@@ -176,7 +176,7 @@ var WorkshopServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.rollback()];
                     case 15:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 16:
                         _a.sent();
                         _a.label = 17;
@@ -218,14 +218,14 @@ var WorkshopServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.commit()];
                     case 6:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 7:
                         _a.sent();
                         return [2 /*return*/, response[0]];
                     case 8: return [4 /*yield*/, conn.rollback()];
                     case 9:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 10:
                         _a.sent();
                         return [2 /*return*/, null];
@@ -239,7 +239,7 @@ var WorkshopServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.rollback()];
                     case 15:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 16:
                         _a.sent();
                         _a.label = 17;
@@ -281,14 +281,14 @@ var WorkshopServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.commit()];
                     case 6:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 7:
                         _a.sent();
                         return [2 /*return*/, true];
                     case 8: return [4 /*yield*/, conn.rollback()];
                     case 9:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 10:
                         _a.sent();
                         return [2 /*return*/, false];
@@ -302,7 +302,7 @@ var WorkshopServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.rollback()];
                     case 15:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 16:
                         _a.sent();
                         _a.label = 17;
@@ -333,11 +333,11 @@ var WorkshopServer = /** @class */ (function () {
                     case 3:
                         workshops = _a.sent();
                         if (!(workshops && workshops.length > 0)) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 4:
                         _a.sent();
                         return [2 /*return*/, workshops];
-                    case 5: return [4 /*yield*/, conn.end()];
+                    case 5: return [4 /*yield*/, conn.release()];
                     case 6:
                         _a.sent();
                         return [2 /*return*/, []];
@@ -348,7 +348,7 @@ var WorkshopServer = /** @class */ (function () {
                         error_5 = _a.sent();
                         console.error(error_5);
                         if (!conn) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 11:
                         _a.sent();
                         _a.label = 12;
@@ -379,11 +379,11 @@ var WorkshopServer = /** @class */ (function () {
                     case 3:
                         workshops = _a.sent();
                         if (!(workshops && workshops.length > 0)) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 4:
                         _a.sent();
                         return [2 /*return*/, workshops];
-                    case 5: return [4 /*yield*/, conn.end()];
+                    case 5: return [4 /*yield*/, conn.release()];
                     case 6:
                         _a.sent();
                         return [2 /*return*/, []];
@@ -394,7 +394,7 @@ var WorkshopServer = /** @class */ (function () {
                         error_6 = _a.sent();
                         console.error(error_6);
                         if (!conn) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 11:
                         _a.sent();
                         _a.label = 12;
@@ -425,11 +425,11 @@ var WorkshopServer = /** @class */ (function () {
                     case 3:
                         workshopInstances = _a.sent();
                         if (!(workshopInstances && workshopInstances.length > 0)) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 4:
                         _a.sent();
                         return [2 /*return*/, workshopInstances];
-                    case 5: return [4 /*yield*/, conn.end()];
+                    case 5: return [4 /*yield*/, conn.release()];
                     case 6:
                         _a.sent();
                         return [2 /*return*/, []];
@@ -440,7 +440,7 @@ var WorkshopServer = /** @class */ (function () {
                         error_7 = _a.sent();
                         console.error(error_7);
                         if (!conn) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 11:
                         _a.sent();
                         _a.label = 12;
@@ -471,11 +471,11 @@ var WorkshopServer = /** @class */ (function () {
                     case 3:
                         workshopAttendances = _a.sent();
                         if (!(workshopAttendances && workshopAttendances.length > 0)) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 4:
                         _a.sent();
                         return [2 /*return*/, workshopAttendances];
-                    case 5: return [4 /*yield*/, conn.end()];
+                    case 5: return [4 /*yield*/, conn.release()];
                     case 6:
                         _a.sent();
                         return [2 /*return*/, []];
@@ -486,7 +486,7 @@ var WorkshopServer = /** @class */ (function () {
                         error_8 = _a.sent();
                         console.error(error_8);
                         if (!conn) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 11:
                         _a.sent();
                         _a.label = 12;
@@ -517,11 +517,11 @@ var WorkshopServer = /** @class */ (function () {
                     case 3:
                         workshopInstances = _a.sent();
                         if (!(workshopInstances && workshopInstances.length > 0)) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 4:
                         _a.sent();
                         return [2 /*return*/, workshopInstances];
-                    case 5: return [4 /*yield*/, conn.end()];
+                    case 5: return [4 /*yield*/, conn.release()];
                     case 6:
                         _a.sent();
                         return [2 /*return*/, []];
@@ -532,7 +532,7 @@ var WorkshopServer = /** @class */ (function () {
                         error_9 = _a.sent();
                         console.error(error_9);
                         if (!conn) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 11:
                         _a.sent();
                         _a.label = 12;

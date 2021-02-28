@@ -1,11 +1,11 @@
-import {createPool, Pool, Connection, QueryOptions} from "mariadb";
+import {createPool, Pool, PoolConnection, QueryOptions} from "mariadb";
 import dotenv from 'dotenv';
 import { DB_NAME, DB_COLLATE, DB_CHARSET } from './tables';
 dotenv.config();
 export class MariaDBServer {
 	private static INSTANCE?: MariaDBServer;
 	public pool:Pool;
-	public conn:Connection;
+	public conn:PoolConnection;
 	private constructor () {
 		this.createDB().then(async (ret:boolean)=>{
 			if(ret) {
@@ -107,13 +107,13 @@ export class MariaDBServer {
 				// feeds
 				await tableConn.query("CREATE TABLE `feeds` (`feedId` varchar(100) NOT NULL,  `teamId` varchar(100) NOT NULL, `feedType` varchar(30) NOT NULL, `text` text NOT NULL, `date` datetime NOT NULL, PRIMARY KEY (`feedId`), KEY `FK_87caf98485e27800f1e171ccf6c` (`teamId`), CONSTRAINT `FK_87caf98485e27800f1e171ccf6c` FOREIGN KEY (`teamId`) REFERENCES `teams` (`teamId`) ON DELETE NO ACTION ON UPDATE NO ACTION) ENGINE=InnoDB")
 
-				await tableConn.end();
+				await tableConn.release();
 				await tablePool.end();
 
 				console.log("Database created succsessfuly");
 			}
 
-			await auxConn.end();
+			await auxConn.release();
 			await auxPool.end();
 
 			const respPool = await this.createPoolConn();

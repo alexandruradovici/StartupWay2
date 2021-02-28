@@ -2,7 +2,7 @@
 import { Session, User, UserTeams} from '../common';
 import { Server, ApiRequest, ApiResponse } from "@startupway/main/lib/server";
 import { getPool } from '@startupway/database/lib/server';
-import { QueryOptions, Connection } from 'mariadb';
+import { QueryOptions, PoolConnection } from 'mariadb';
 import { NextFunction, Router, Request, Response } from "express";
 import { createHash } from 'crypto';
 import { generate } from 'randomstring';
@@ -20,7 +20,7 @@ export class UsersServer {
 	}
 
 	async addUser(user: User): Promise<User | null> {
-		let conn:Connection | null = null;
+		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
 			if(conn) {
@@ -35,10 +35,10 @@ export class UsersServer {
 				const response:User[] = await conn.query(queryOptions, {userId:user.userId});
 				if(response && response.length > 0 && response[0]) {
 					await conn.commit();
-					await conn.end();
+					await conn.release();
 					return response[0];
 				} else {
-					await conn.end();
+					await conn.release();
 					return null;
 				}
 			} else {
@@ -48,13 +48,13 @@ export class UsersServer {
 			console.error(error);
 			if(conn) {
 				await conn.rollback();
-				await conn.end();
+				await conn.release();
 			}
 			return null;
 		}
 	}
 	async getAllUserTeams(): Promise<User[]> {
-		let conn:Connection | null = null;
+		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
 			const queryOptions:QueryOptions = {
@@ -62,22 +62,22 @@ export class UsersServer {
 			}
 			const allUserTeams:(User&UserTeams)[] = await conn.query(queryOptions);
 			if(allUserTeams && allUserTeams.length > 0) {
-				await conn.end();
+				await conn.release();
 				return allUserTeams;
 			} else { 
-				await conn.end();
+				await conn.release();
 				return [];
 			}
 		} catch (error) {
 			console.error(error);
 			if(conn)
-				await conn.end();
+				await conn.release();
 			return [];
 		}
 	}
 
 	async deleteUser(user: User): Promise<boolean> {
-		let conn:Connection | null = null;
+		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
 			if(conn) {
@@ -91,10 +91,10 @@ export class UsersServer {
 				const response:{deleted_id:string}[] = await conn.query(queryOptions, user);
 				if(response && response.length === 0) {
 					await conn.commit();
-					await conn.end();
+					await conn.release();
 					return true;
 				} else {
-					await conn.end();
+					await conn.release();
 					return false;
 				}
 			} else {
@@ -104,7 +104,7 @@ export class UsersServer {
 			console.error(error);
 			if(conn) {
 				await conn.rollback();
-				await conn.end();
+				await conn.release();
 			}
 			return false;
 		}
@@ -112,7 +112,7 @@ export class UsersServer {
 
 	async createSession(username: string, password: string): Promise<Session | null> {
 		password = UsersServer.passwordGenerator (password);
-		let conn:Connection | null = null;
+		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
 			let queryOptions:QueryOptions = {
@@ -141,7 +141,7 @@ export class UsersServer {
 						const resSession:Session[] = await conn.query(queryOptions,{sessionId:sessionId}) as Session[];
 						if(resSession && resSession.length > 0 && resSession[0]) {
 							await conn.commit();
-							await conn.end();
+							await conn.release();
 							return resSession[0];
 						}
 					} catch (error) {
@@ -155,16 +155,16 @@ export class UsersServer {
 						errorSession.token = "error";
 						if(conn) {
 							await conn.rollback();
-							await conn.end();
+							await conn.release();
 							return errorSession;
 						}
 					}
 				} else {
-					await conn.end();
+					await conn.release();
 					return {sessionId:"",token:"cred",userId:"",createdAt: new Date(0)};
 				}
 			} else {
-				await conn.end();
+				await conn.release();
 				return {sessionId:"",token:"cred",userId:"",createdAt: new Date(0)};
 			}
 		} catch(e) {
@@ -177,16 +177,16 @@ export class UsersServer {
 			};
 			errorSession.token = "error";
 			if(conn)
-				await conn.end();
+				await conn.release();
 			return errorSession;
 		}
 		if(conn)
-			await conn.end();
+			await conn.release();
 		return null;
 	}
 
 	async modifyUser(user: User, changedPass?: string):Promise<boolean> {
-		let conn:Connection | null = null;
+		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
 			if(conn) {
@@ -204,7 +204,7 @@ export class UsersServer {
 				const resp:User[] = await conn.query(queryOptions, user);
 				if(resp && resp.length > 0 && resp[0]) {
 					await conn.commit();
-					await conn.end();
+					await conn.release();
 					return true;
 				}
 			}
@@ -212,17 +212,17 @@ export class UsersServer {
 			console.error(error);
 			if(conn) {
 				await conn.rollback();
-				await conn.end();
+				await conn.release();
 			}
 			return false;
 		}
 		if(conn)
-			await conn.end();
+			await conn.release();
 			return false;
 	}
 
 	async getUserByUsername(username: string): Promise<User | null> {
-		let conn:Connection | null = null;
+		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
 			const queryOptions:QueryOptions = {
@@ -232,7 +232,7 @@ export class UsersServer {
 			const user:User[] = await conn.query(queryOptions,{username}) as User[];
 			if(user && user.length > 0 && user[0]) {
 				if (user[0]) {
-					await conn.end();
+					await conn.release();
 					return user[0];
 				}
 			}
@@ -240,11 +240,11 @@ export class UsersServer {
 			console.error(error);
 		}
 		if(conn)
-			await conn.end();
+			await conn.release();
 		return null;
 	}
 	async getUserByEmail(email: string): Promise<User | null> {
-		let conn:Connection | null = null;
+		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
 			const queryOptions:QueryOptions = {
@@ -254,7 +254,7 @@ export class UsersServer {
 			const user:User[] = await conn.query(queryOptions,{email}) as User[];
 			if(user && user.length > 0 && user[0]) {
 				if (user[0]) {
-					await conn.end();
+					await conn.release();
 					return user[0];
 				}
 			}
@@ -263,12 +263,12 @@ export class UsersServer {
 			console.error(error);
 		}
 		if(conn)
-			await conn.end();
+			await conn.release();
 		return null;
 	}
 
 	async getUserById(userId: string): Promise<User | null> {
-		let conn:Connection | null = null;
+		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
 			const queryOptions:QueryOptions = {
@@ -278,7 +278,7 @@ export class UsersServer {
 			const user:User[] = await conn.query(queryOptions,{userId}) as User[];
 			if(user && user.length > 0 && user[0]) {
 				if (user[0]){
-					await conn.end();
+					await conn.release();
 					return user[0];
 				}
 			}
@@ -286,12 +286,12 @@ export class UsersServer {
 			console.error(error);
 		}
 		if(conn)
-			await conn.end();
+			await conn.release();
 		return null;
 	}
 
 	async deleteSession(token: string, sessionId?: string): Promise<boolean> {
-		let conn:Connection | null = null;
+		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
 			if(conn) {
@@ -319,7 +319,7 @@ export class UsersServer {
 				const response:{deleted_id:string}[] = await conn.query(queryOptions,values);
 				if(response && response.length === 0) {
 					await conn.commit();
-					await conn.end();
+					await conn.release();
 					return true;
 				}
 			} else {
@@ -329,18 +329,18 @@ export class UsersServer {
 			console.error(error);
 			if(conn) {
 				await conn.rollback();
-				await conn.end();
+				await conn.release();
 			}
 			return false;
 		}
 		if(conn)
-			await conn.end();
+			await conn.release();
 		return false;
 	}
 
 
 	async getUserLastSession(userId: string): Promise<Session | null> {
-		let conn:Connection | null = null;
+		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
 			const queryOptions:QueryOptions = {
@@ -349,19 +349,19 @@ export class UsersServer {
 			}
 			const session:Session[] = await conn.query(queryOptions,{userId}) as Session[];
 			if(session && session.length > 0 && session[0]) {
-				await conn.end();
+				await conn.release();
 				return session[0];
 			}
 		} catch (error) {
 			console.error(error);
 		}
 		if(conn)
-			await conn.end();
+			await conn.release();
 		return null;
 	}
 
 	async getUsers():Promise<User[]> {
-		let conn:Connection | null = null;
+		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
 			const queryOptions:QueryOptions = {
@@ -375,18 +375,18 @@ export class UsersServer {
 					if(u.userDetails)
 						u.userDetails = JSON.parse((u.userDetails as any) as string);
 				}
-				await conn.end();
+				await conn.release();
 				return users;
 			}
 		} catch (error) {
 			console.error(error);
 		}
 		if(conn)
-			await conn.end();
+			await conn.release();
 		return [];
 	}
 	async getAllUsers():Promise<User[]> {
-		let conn:Connection | null = null;
+		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
 			const queryOptions:QueryOptions = {
@@ -394,19 +394,19 @@ export class UsersServer {
 			}
 			const users:User[] = await conn.query(queryOptions) as User[];
 			if(users && users.length > 0) {
-				await conn.end();
+				await conn.release();
 				return users;
 			}
 		} catch (error) {
 			console.error(error);
 		}
 		if(conn)
-			await conn.end();
+			await conn.release();
 		return [];
 	}
 
 	async getSessionUser(token: string): Promise<User | null> {
-		let conn:Connection | null = null;
+		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
 			let queryOptions:QueryOptions = {
@@ -421,7 +421,7 @@ export class UsersServer {
 				}
 				const user:User[] = await conn.query(queryOptions,{userId:session[0].userId}) as User[];// where data de azi mai noua decat expirare
 				if(user && user.length > 0 && user[0]) {
-					await conn.end();
+					await conn.release();
 					return user[0];
 				}
 			}
@@ -429,7 +429,7 @@ export class UsersServer {
 			console.error(error);
 		}
 		if(conn)
-			await conn.end();
+			await conn.release();
 		return null;
 	}
 
@@ -516,34 +516,39 @@ router.get("/user", async (req:ApiRequest<undefined>, res:ApiResponse<User|null>
 
 
 router.post("/user/update", async (req:ApiRequest<{newUser:User,changedPass:string}>, res:ApiResponse<boolean>) => {
-	const user:User = req.body.newUser;
-	const changedPass = req.body.changedPass;
-	console.log("Changed" + changedPass);
-	// const options = admin.createMailOptions(
-	// 	(process.env.MAIL_USER as string),
-	// 	user.email,
-	// 	"Innovation Labs Platform Password",
-	// 	"Hello " + user.firstName + " " + user.lastName +" ,\n\n"
-	// 	+ "Here is your new account, please do not disclose these informations to anyone.\n"
-	// 	+ "		Username: " +user.username + "\n"
-	// 	+ "		Password: " +password + "\n"
-	// 	+ "Use these credidentials to login on "+ process.env.HOSTNAME +"\n\n"
-	// 	+ "Regards, Innovation Labs Team\n"
-	// );
-	// const transporter = admin.createMailTransporter()
-	// admin.sendMail(transporter,options);
-
-	if(user) {
-		const resp = await usersServer.modifyUser(user, changedPass);
-		if(resp) {
-			res.status(200).send(resp);
+	try {
+		const user:User = req.body.newUser;
+		const changedPass = req.body.changedPass;
+		console.log("Changed" + changedPass);
+		// const options = admin.createMailOptions(
+		// 	(process.env.MAIL_USER as string),
+		// 	user.email,
+		// 	"Innovation Labs Platform Password",
+		// 	"Hello " + user.firstName + " " + user.lastName +" ,\n\n"
+		// 	+ "Here is your new account, please do not disclose these informations to anyone.\n"
+		// 	+ "		Username: " +user.username + "\n"
+		// 	+ "		Password: " +password + "\n"
+		// 	+ "Use these credidentials to login on "+ process.env.HOSTNAME +"\n\n"
+		// 	+ "Regards, Innovation Labs Team\n"
+		// );
+		// const transporter = admin.createMailTransporter()
+		// admin.sendMail(transporter,options);
+	
+		if(user) {
+			const resp = await usersServer.modifyUser(user, changedPass);
+			if(resp) {
+				res.status(200).send(resp);
+			} else {
+				res.status(201).send(false);
+			}
 		} else {
-			res.status(201).send(false);
+			res.status(401).send({err:401,data:false});
 		}
-	} else {
-		res.status(401).send({err:401,data:false});
+	} catch (error) {
+		console.error(error);
+		res.status(500).send({err:500,data:false});
+		
 	}
-	res.status(201).send(false);
 });
 
 router.get("/user/:email", async (req:ApiRequest<undefined>, res:ApiResponse<User | null>) => {

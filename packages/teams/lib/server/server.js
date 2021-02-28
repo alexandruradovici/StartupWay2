@@ -123,14 +123,14 @@ var TeamsServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.commit()];
                     case 8:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 9:
                         _a.sent();
                         return [2 /*return*/, o];
                     case 10: return [4 /*yield*/, conn.rollback()];
                     case 11:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 12:
                         _a.sent();
                         return [2 /*return*/, null];
@@ -138,7 +138,7 @@ var TeamsServer = /** @class */ (function () {
                     case 14: return [4 /*yield*/, conn.rollback()];
                     case 15:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 16:
                         _a.sent();
                         return [2 /*return*/, null];
@@ -146,7 +146,7 @@ var TeamsServer = /** @class */ (function () {
                     case 18: return [4 /*yield*/, conn.rollback()];
                     case 19:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 20:
                         _a.sent();
                         return [2 /*return*/, null];
@@ -159,7 +159,7 @@ var TeamsServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.rollback()];
                     case 25:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 26:
                         _a.sent();
                         _a.label = 27;
@@ -219,14 +219,14 @@ var TeamsServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.commit()];
                     case 10:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 11:
                         _a.sent();
                         return [2 /*return*/, true];
                     case 12: return [4 /*yield*/, conn.rollback()];
                     case 13:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 14:
                         _a.sent();
                         return [2 /*return*/, true];
@@ -239,72 +239,12 @@ var TeamsServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.rollback()];
                     case 18:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 19:
                         _a.sent();
                         _a.label = 20;
                     case 20: return [2 /*return*/, false];
                     case 21: return [2 /*return*/];
-                }
-            });
-        });
-    };
-    TeamsServer.prototype.modifyTeam = function (team) {
-        return __awaiter(this, void 0, void 0, function () {
-            var conn, queryOptions, teamResponse, error_3;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        conn = null;
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 13, , 17]);
-                        return [4 /*yield*/, server_2.getPool().getConnection()];
-                    case 2:
-                        conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 11];
-                        return [4 /*yield*/, conn.beginTransaction()];
-                    case 3:
-                        _a.sent();
-                        queryOptions = {
-                            namedPlaceholders: true,
-                            sql: "UPDATE teams SET productId=:productId, teamName=:teamName, teamDetails=:teamDetails, location=:location, year=:year WHERE teamId=:teamId"
-                        };
-                        return [4 /*yield*/, conn.query(queryOptions, team)];
-                    case 4:
-                        _a.sent();
-                        queryOptions.sql = "SELECT teamId,productId,teamName,teamDetails,location,year FROM teams WHERE teamId=:teamId";
-                        return [4 /*yield*/, conn.query(queryOptions, team)];
-                    case 5:
-                        teamResponse = _a.sent();
-                        if (!(teamResponse && teamResponse.length > 0 && teamResponse[0])) return [3 /*break*/, 8];
-                        return [4 /*yield*/, conn.commit()];
-                    case 6:
-                        _a.sent();
-                        return [4 /*yield*/, conn.end()];
-                    case 7:
-                        _a.sent();
-                        return [2 /*return*/, teamResponse[0]];
-                    case 8: return [4 /*yield*/, conn.end()];
-                    case 9:
-                        _a.sent();
-                        return [2 /*return*/, null];
-                    case 10: return [3 /*break*/, 12];
-                    case 11: return [2 /*return*/, null];
-                    case 12: return [3 /*break*/, 17];
-                    case 13:
-                        error_3 = _a.sent();
-                        console.error(error_3);
-                        if (!conn) return [3 /*break*/, 16];
-                        return [4 /*yield*/, conn.rollback()];
-                    case 14:
-                        _a.sent();
-                        return [4 /*yield*/, conn.end()];
-                    case 15:
-                        _a.sent();
-                        _a.label = 16;
-                    case 16: return [2 /*return*/, null];
-                    case 17: return [2 /*return*/];
                 }
             });
         });
@@ -342,14 +282,14 @@ var TeamsServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.commit()];
                     case 6:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 7:
                         _a.sent();
                         return [2 /*return*/, userInTeam[0]];
                     case 8: return [4 /*yield*/, conn.rollback()];
                     case 9:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 10:
                         _a.sent();
                         return [2 /*return*/, null];
@@ -363,7 +303,7 @@ var TeamsServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.rollback()];
                     case 15:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 16:
                         _a.sent();
                         _a.label = 17;
@@ -405,14 +345,14 @@ var TeamsServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.commit()];
                     case 6:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 7:
                         _a.sent();
                         return [2 /*return*/, true];
                     case 8: return [4 /*yield*/, conn.rollback()];
                     case 9:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 10:
                         _a.sent();
                         return [2 /*return*/, false];
@@ -426,7 +366,7 @@ var TeamsServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.rollback()];
                     case 15:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 16:
                         _a.sent();
                         _a.label = 17;
@@ -459,11 +399,11 @@ var TeamsServer = /** @class */ (function () {
                     case 3:
                         teamsReponse = _a.sent();
                         if (!(teamsReponse && teamsReponse.length > 0)) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 4:
                         _a.sent();
                         return [2 /*return*/, teamsReponse];
-                    case 5: return [4 /*yield*/, conn.end()];
+                    case 5: return [4 /*yield*/, conn.release()];
                     case 6:
                         _a.sent();
                         return [2 /*return*/, []];
@@ -474,7 +414,7 @@ var TeamsServer = /** @class */ (function () {
                         e_3 = _a.sent();
                         console.error(e_3);
                         if (!conn) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 11:
                         _a.sent();
                         _a.label = 12;
@@ -506,11 +446,11 @@ var TeamsServer = /** @class */ (function () {
                     case 3:
                         teamsReponse = _a.sent();
                         if (!(teamsReponse && teamsReponse.length > 0)) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 4:
                         _a.sent();
                         return [2 /*return*/, teamsReponse];
-                    case 5: return [4 /*yield*/, conn.end()];
+                    case 5: return [4 /*yield*/, conn.release()];
                     case 6:
                         _a.sent();
                         return [2 /*return*/, []];
@@ -521,7 +461,7 @@ var TeamsServer = /** @class */ (function () {
                         e_4 = _a.sent();
                         console.error(e_4);
                         if (!conn) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 11:
                         _a.sent();
                         _a.label = 12;
@@ -553,11 +493,11 @@ var TeamsServer = /** @class */ (function () {
                     case 3:
                         teamsReponse = _a.sent();
                         if (!(teamsReponse && teamsReponse.length > 0)) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 4:
                         _a.sent();
                         return [2 /*return*/, teamsReponse];
-                    case 5: return [4 /*yield*/, conn.end()];
+                    case 5: return [4 /*yield*/, conn.release()];
                     case 6:
                         _a.sent();
                         return [2 /*return*/, []];
@@ -568,7 +508,7 @@ var TeamsServer = /** @class */ (function () {
                         e_5 = _a.sent();
                         console.error(e_5);
                         if (!conn) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 11:
                         _a.sent();
                         _a.label = 12;
@@ -601,16 +541,16 @@ var TeamsServer = /** @class */ (function () {
                     case 3:
                         teamsReponse = _a.sent();
                         if (!(teamsReponse && teamsReponse.length > 0 && teamsReponse[0])) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 4:
                         _a.sent();
                         return [2 /*return*/, teamsReponse[0]];
-                    case 5: return [4 /*yield*/, conn.end()];
+                    case 5: return [4 /*yield*/, conn.release()];
                     case 6:
                         _a.sent();
                         return [2 /*return*/, null];
                     case 7: return [3 /*break*/, 10];
-                    case 8: return [4 /*yield*/, conn.end()];
+                    case 8: return [4 /*yield*/, conn.release()];
                     case 9:
                         _a.sent();
                         return [2 /*return*/, null];
@@ -622,7 +562,7 @@ var TeamsServer = /** @class */ (function () {
                         console.log("GetTeamByID");
                         console.error(e_6);
                         if (!conn) return [3 /*break*/, 15];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 14:
                         _a.sent();
                         _a.label = 15;
@@ -655,16 +595,16 @@ var TeamsServer = /** @class */ (function () {
                     case 3:
                         teamsReponse = _a.sent();
                         if (!(teamsReponse && teamsReponse.length > 0 && teamsReponse[0])) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 4:
                         _a.sent();
                         return [2 /*return*/, teamsReponse[0]];
-                    case 5: return [4 /*yield*/, conn.end()];
+                    case 5: return [4 /*yield*/, conn.release()];
                     case 6:
                         _a.sent();
                         return [2 /*return*/, null];
                     case 7: return [3 /*break*/, 10];
-                    case 8: return [4 /*yield*/, conn.end()];
+                    case 8: return [4 /*yield*/, conn.release()];
                     case 9:
                         _a.sent();
                         return [2 /*return*/, null];
@@ -675,7 +615,7 @@ var TeamsServer = /** @class */ (function () {
                         e_7 = _a.sent();
                         console.error(e_7);
                         if (!conn) return [3 /*break*/, 15];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 14:
                         _a.sent();
                         _a.label = 15;
@@ -707,11 +647,11 @@ var TeamsServer = /** @class */ (function () {
                     case 3:
                         teamsReponse = _a.sent();
                         if (!(teamsReponse && teamsReponse.length > 0 && teamsReponse[0])) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 4:
                         _a.sent();
                         return [2 /*return*/, teamsReponse];
-                    case 5: return [4 /*yield*/, conn.end()];
+                    case 5: return [4 /*yield*/, conn.release()];
                     case 6:
                         _a.sent();
                         return [2 /*return*/, []];
@@ -722,7 +662,7 @@ var TeamsServer = /** @class */ (function () {
                         e_8 = _a.sent();
                         console.error(e_8);
                         if (!conn) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 11:
                         _a.sent();
                         _a.label = 12;
@@ -787,11 +727,11 @@ var TeamsServer = /** @class */ (function () {
                             }
                             finally { if (e_10) throw e_10.error; }
                         }
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 4:
                         _b.sent();
                         return [2 /*return*/, tList];
-                    case 5: return [4 /*yield*/, conn.end()];
+                    case 5: return [4 /*yield*/, conn.release()];
                     case 6:
                         _b.sent();
                         return [2 /*return*/, []];
@@ -802,7 +742,7 @@ var TeamsServer = /** @class */ (function () {
                         e_9 = _b.sent();
                         console.error(e_9);
                         if (!conn) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 11:
                         _b.sent();
                         _b.label = 12;
@@ -835,18 +775,18 @@ var TeamsServer = /** @class */ (function () {
                     case 3:
                         productResponse = _a.sent();
                         if (!(productResponse && productResponse.length > 0 && productResponse[0])) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 4:
                         _a.sent();
                         return [2 /*return*/, productResponse[0]];
-                    case 5: return [4 /*yield*/, conn.end()];
+                    case 5: return [4 /*yield*/, conn.release()];
                     case 6:
                         _a.sent();
                         return [2 /*return*/, null];
                     case 7:
                         ;
                         return [3 /*break*/, 10];
-                    case 8: return [4 /*yield*/, conn.end()];
+                    case 8: return [4 /*yield*/, conn.release()];
                     case 9:
                         _a.sent();
                         return [2 /*return*/, null];
@@ -857,7 +797,7 @@ var TeamsServer = /** @class */ (function () {
                         e_11 = _a.sent();
                         console.error(e_11);
                         if (!conn) return [3 /*break*/, 15];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 14:
                         _a.sent();
                         _a.label = 15;
@@ -889,11 +829,11 @@ var TeamsServer = /** @class */ (function () {
                     case 3:
                         userTeamsResponse = _a.sent();
                         if (!(userTeamsResponse && userTeamsResponse.length > 0 && userTeamsResponse[0])) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 4:
                         _a.sent();
                         return [2 /*return*/, userTeamsResponse[0]];
-                    case 5: return [4 /*yield*/, conn.end()];
+                    case 5: return [4 /*yield*/, conn.release()];
                     case 6:
                         _a.sent();
                         return [2 /*return*/, null];
@@ -904,7 +844,7 @@ var TeamsServer = /** @class */ (function () {
                         e_12 = _a.sent();
                         console.error(e_12);
                         if (!conn) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 11:
                         _a.sent();
                         _a.label = 12;
@@ -936,11 +876,11 @@ var TeamsServer = /** @class */ (function () {
                     case 3:
                         productResponse = _a.sent();
                         if (!(productResponse && productResponse.length > 0 && productResponse[0])) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 4:
                         _a.sent();
                         return [2 /*return*/, productResponse[0]];
-                    case 5: return [4 /*yield*/, conn.end()];
+                    case 5: return [4 /*yield*/, conn.release()];
                     case 6:
                         _a.sent();
                         return [2 /*return*/, null];
@@ -951,7 +891,7 @@ var TeamsServer = /** @class */ (function () {
                         e_13 = _a.sent();
                         console.error(e_13);
                         if (!conn) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 11:
                         _a.sent();
                         _a.label = 12;
@@ -983,11 +923,11 @@ var TeamsServer = /** @class */ (function () {
                     case 3:
                         teamResponse = _a.sent();
                         if (!(teamResponse && teamResponse.length > 0 && teamResponse[0])) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 4:
                         _a.sent();
                         return [2 /*return*/, teamResponse[0]];
-                    case 5: return [4 /*yield*/, conn.end()];
+                    case 5: return [4 /*yield*/, conn.release()];
                     case 6:
                         _a.sent();
                         return [2 /*return*/, null];
@@ -998,7 +938,7 @@ var TeamsServer = /** @class */ (function () {
                         e_14 = _a.sent();
                         console.error(e_14);
                         if (!conn) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 11:
                         _a.sent();
                         _a.label = 12;
@@ -1042,21 +982,21 @@ var TeamsServer = /** @class */ (function () {
                         return [3 /*break*/, 10];
                     case 6:
                         if (!(date === "none")) return [3 /*break*/, 8];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 7:
                         _a.sent();
                         return [2 /*return*/, true];
-                    case 8: return [4 /*yield*/, conn.end()];
+                    case 8: return [4 /*yield*/, conn.release()];
                     case 9:
                         _a.sent();
                         return [2 /*return*/, false];
                     case 10:
                         if (!(response && response.length > 0 && response[0])) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 11:
                         _a.sent();
                         return [2 /*return*/, true];
-                    case 12: return [4 /*yield*/, conn.end()];
+                    case 12: return [4 /*yield*/, conn.release()];
                     case 13:
                         _a.sent();
                         return [2 /*return*/, false];
@@ -1067,7 +1007,7 @@ var TeamsServer = /** @class */ (function () {
                         e_15 = _a.sent();
                         console.error(e_15);
                         if (!conn) return [3 /*break*/, 19];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 18:
                         _a.sent();
                         _a.label = 19;
@@ -1099,11 +1039,11 @@ var TeamsServer = /** @class */ (function () {
                     case 3:
                         teamResponse = _a.sent();
                         if (!(teamResponse && teamResponse.length > 0)) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 4:
                         _a.sent();
                         return [2 /*return*/, teamResponse];
-                    case 5: return [4 /*yield*/, conn.end()];
+                    case 5: return [4 /*yield*/, conn.release()];
                     case 6:
                         _a.sent();
                         return [2 /*return*/, []];
@@ -1114,7 +1054,7 @@ var TeamsServer = /** @class */ (function () {
                         e_16 = _a.sent();
                         console.error(e_16);
                         if (!conn) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 11:
                         _a.sent();
                         _a.label = 12;
@@ -1150,11 +1090,11 @@ var TeamsServer = /** @class */ (function () {
                     case 4:
                         teamResponse = _a.sent();
                         if (!(teamResponse && teamResponse.length > 0 && teamResponse[0])) return [3 /*break*/, 6];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 5:
                         _a.sent();
                         return [2 /*return*/, teamResponse[0]];
-                    case 6: return [4 /*yield*/, conn.end()];
+                    case 6: return [4 /*yield*/, conn.release()];
                     case 7:
                         _a.sent();
                         return [2 /*return*/, null];
@@ -1168,7 +1108,7 @@ var TeamsServer = /** @class */ (function () {
                         console.log("getProductByTeamId");
                         console.error(e_17);
                         if (!conn) return [3 /*break*/, 15];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 14:
                         _a.sent();
                         _a.label = 15;
@@ -1180,7 +1120,7 @@ var TeamsServer = /** @class */ (function () {
     };
     TeamsServer.prototype.getTeamAndProductByMentorId = function (mentorId) {
         return __awaiter(this, void 0, void 0, function () {
-            var conn, queryOptions, teamResponse, error_4;
+            var conn, queryOptions, teamResponse, error_3;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -1200,11 +1140,11 @@ var TeamsServer = /** @class */ (function () {
                     case 3:
                         teamResponse = _a.sent();
                         if (!(teamResponse && teamResponse.length > 0)) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 4:
                         _a.sent();
                         return [2 /*return*/, teamResponse];
-                    case 5: return [4 /*yield*/, conn.end()];
+                    case 5: return [4 /*yield*/, conn.release()];
                     case 6:
                         _a.sent();
                         return [2 /*return*/, []];
@@ -1212,10 +1152,10 @@ var TeamsServer = /** @class */ (function () {
                     case 8: return [2 /*return*/, []];
                     case 9: return [3 /*break*/, 13];
                     case 10:
-                        error_4 = _a.sent();
-                        console.error(error_4);
+                        error_3 = _a.sent();
+                        console.error(error_3);
                         if (!conn) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 11:
                         _a.sent();
                         _a.label = 12;
@@ -1227,7 +1167,7 @@ var TeamsServer = /** @class */ (function () {
     };
     TeamsServer.prototype.getTeamByMentorId = function (mentorId) {
         return __awaiter(this, void 0, void 0, function () {
-            var conn, queryOptions, teamResponse, error_5;
+            var conn, queryOptions, teamResponse, error_4;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -1247,11 +1187,11 @@ var TeamsServer = /** @class */ (function () {
                     case 3:
                         teamResponse = _a.sent();
                         if (!(teamResponse && teamResponse.length > 0)) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 4:
                         _a.sent();
                         return [2 /*return*/, teamResponse];
-                    case 5: return [4 /*yield*/, conn.end()];
+                    case 5: return [4 /*yield*/, conn.release()];
                     case 6:
                         _a.sent();
                         return [2 /*return*/, []];
@@ -1259,10 +1199,10 @@ var TeamsServer = /** @class */ (function () {
                     case 8: return [2 /*return*/, []];
                     case 9: return [3 /*break*/, 13];
                     case 10:
-                        error_5 = _a.sent();
-                        console.error(error_5);
+                        error_4 = _a.sent();
+                        console.error(error_4);
                         if (!conn) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 11:
                         _a.sent();
                         _a.label = 12;
@@ -1274,7 +1214,7 @@ var TeamsServer = /** @class */ (function () {
     };
     TeamsServer.prototype.getProductByMentorId = function (mentorId) {
         return __awaiter(this, void 0, void 0, function () {
-            var conn, queryOptions, productResponse, error_6;
+            var conn, queryOptions, productResponse, error_5;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -1294,11 +1234,11 @@ var TeamsServer = /** @class */ (function () {
                     case 3:
                         productResponse = _a.sent();
                         if (!(productResponse && productResponse.length > 0)) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 4:
                         _a.sent();
                         return [2 /*return*/, productResponse];
-                    case 5: return [4 /*yield*/, conn.end()];
+                    case 5: return [4 /*yield*/, conn.release()];
                     case 6:
                         _a.sent();
                         return [2 /*return*/, []];
@@ -1306,10 +1246,10 @@ var TeamsServer = /** @class */ (function () {
                     case 8: return [2 /*return*/, []];
                     case 9: return [3 /*break*/, 13];
                     case 10:
-                        error_6 = _a.sent();
-                        console.error(error_6);
+                        error_5 = _a.sent();
+                        console.error(error_5);
                         if (!conn) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 11:
                         _a.sent();
                         _a.label = 12;
@@ -1321,7 +1261,7 @@ var TeamsServer = /** @class */ (function () {
     };
     TeamsServer.prototype.updateProduct = function (product) {
         return __awaiter(this, void 0, void 0, function () {
-            var conn, queryOptions, teamResponse, error_7;
+            var conn, queryOptions, teamResponse, error_6;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -1351,14 +1291,14 @@ var TeamsServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.commit()];
                     case 6:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 7:
                         _a.sent();
                         return [2 /*return*/, teamResponse[0]];
                     case 8: return [4 /*yield*/, conn.rollback()];
                     case 9:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 10:
                         _a.sent();
                         return [2 /*return*/, null];
@@ -1366,13 +1306,13 @@ var TeamsServer = /** @class */ (function () {
                     case 12: return [2 /*return*/, null];
                     case 13: return [3 /*break*/, 18];
                     case 14:
-                        error_7 = _a.sent();
-                        console.error(error_7);
+                        error_6 = _a.sent();
+                        console.error(error_6);
                         if (!conn) return [3 /*break*/, 17];
                         return [4 /*yield*/, conn.rollback()];
                     case 15:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 16:
                         _a.sent();
                         _a.label = 17;
@@ -1384,7 +1324,7 @@ var TeamsServer = /** @class */ (function () {
     };
     TeamsServer.prototype.updateTeam = function (team) {
         return __awaiter(this, void 0, void 0, function () {
-            var conn, queryOptions, teamResponse, error_8;
+            var conn, queryOptions, teamResponse, error_7;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -1414,14 +1354,14 @@ var TeamsServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.commit()];
                     case 6:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 7:
                         _a.sent();
                         return [2 /*return*/, teamResponse[0]];
                     case 8: return [4 /*yield*/, conn.rollback()];
                     case 9:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 10:
                         _a.sent();
                         return [2 /*return*/, null];
@@ -1429,13 +1369,13 @@ var TeamsServer = /** @class */ (function () {
                     case 12: return [2 /*return*/, null];
                     case 13: return [3 /*break*/, 18];
                     case 14:
-                        error_8 = _a.sent();
-                        console.error(error_8);
+                        error_7 = _a.sent();
+                        console.error(error_7);
                         if (!conn) return [3 /*break*/, 17];
                         return [4 /*yield*/, conn.rollback()];
                     case 15:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 16:
                         _a.sent();
                         _a.label = 17;
@@ -1447,7 +1387,7 @@ var TeamsServer = /** @class */ (function () {
     };
     TeamsServer.prototype.approveDescription = function (product) {
         return __awaiter(this, void 0, void 0, function () {
-            var productResponse, error_9;
+            var productResponse, error_8;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -1468,8 +1408,8 @@ var TeamsServer = /** @class */ (function () {
                             return [2 /*return*/, null];
                         return [3 /*break*/, 3];
                     case 2:
-                        error_9 = _a.sent();
-                        console.error(error_9);
+                        error_8 = _a.sent();
+                        console.error(error_8);
                         return [2 /*return*/, null];
                     case 3: return [2 /*return*/];
                 }
@@ -1478,7 +1418,7 @@ var TeamsServer = /** @class */ (function () {
     };
     TeamsServer.prototype.getUserActivity = function (userId, teamId) {
         return __awaiter(this, void 0, void 0, function () {
-            var conn, queryOptions, teamResponse, error_10;
+            var conn, queryOptions, teamResponse, error_9;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -1498,11 +1438,11 @@ var TeamsServer = /** @class */ (function () {
                     case 3:
                         teamResponse = _a.sent();
                         if (!(teamResponse && teamResponse.length > 0)) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 4:
                         _a.sent();
                         return [2 /*return*/, teamResponse];
-                    case 5: return [4 /*yield*/, conn.end()];
+                    case 5: return [4 /*yield*/, conn.release()];
                     case 6:
                         _a.sent();
                         return [2 /*return*/, []];
@@ -1510,10 +1450,10 @@ var TeamsServer = /** @class */ (function () {
                     case 8: return [2 /*return*/, []];
                     case 9: return [3 /*break*/, 13];
                     case 10:
-                        error_10 = _a.sent();
-                        console.error(error_10);
+                        error_9 = _a.sent();
+                        console.error(error_9);
                         if (!conn) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 11:
                         _a.sent();
                         _a.label = 12;
@@ -1525,7 +1465,7 @@ var TeamsServer = /** @class */ (function () {
     };
     TeamsServer.prototype.addActivityForUser = function (userActivity) {
         return __awaiter(this, void 0, void 0, function () {
-            var conn, queryOptions, activityResponse, activity, error_11;
+            var conn, queryOptions, activityResponse, activity, error_10;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -1551,7 +1491,7 @@ var TeamsServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.rollback()];
                     case 5:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 6:
                         _a.sent();
                         return [2 /*return*/, null];
@@ -1568,14 +1508,14 @@ var TeamsServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.commit()];
                     case 10:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 11:
                         _a.sent();
                         return [2 /*return*/, activity[0]];
                     case 12: return [4 /*yield*/, conn.rollback()];
                     case 13:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 14:
                         _a.sent();
                         return [2 /*return*/, null];
@@ -1583,13 +1523,13 @@ var TeamsServer = /** @class */ (function () {
                     case 16: return [2 /*return*/, null];
                     case 17: return [3 /*break*/, 22];
                     case 18:
-                        error_11 = _a.sent();
-                        console.error(error_11);
+                        error_10 = _a.sent();
+                        console.error(error_10);
                         if (!conn) return [3 /*break*/, 21];
                         return [4 /*yield*/, conn.rollback()];
                     case 19:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 20:
                         _a.sent();
                         _a.label = 21;
@@ -1601,7 +1541,7 @@ var TeamsServer = /** @class */ (function () {
     };
     TeamsServer.prototype.modifyActivityForUser = function (userActivity) {
         return __awaiter(this, void 0, void 0, function () {
-            var conn, queryOptions, activityResponse, activity, error_12;
+            var conn, queryOptions, activityResponse, activity, error_11;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -1636,14 +1576,14 @@ var TeamsServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.commit()];
                     case 7:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 8:
                         _a.sent();
                         return [2 /*return*/, activity[0]];
                     case 9: return [4 /*yield*/, conn.rollback()];
                     case 10:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 11:
                         _a.sent();
                         return [2 /*return*/, null];
@@ -1651,7 +1591,7 @@ var TeamsServer = /** @class */ (function () {
                     case 13: return [4 /*yield*/, conn.rollback()];
                     case 14:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 15:
                         _a.sent();
                         return [2 /*return*/, null];
@@ -1659,13 +1599,13 @@ var TeamsServer = /** @class */ (function () {
                     case 17: return [2 /*return*/, null];
                     case 18: return [3 /*break*/, 23];
                     case 19:
-                        error_12 = _a.sent();
-                        console.error(error_12);
+                        error_11 = _a.sent();
+                        console.error(error_11);
                         if (!conn) return [3 /*break*/, 22];
                         return [4 /*yield*/, conn.rollback()];
                     case 20:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 21:
                         _a.sent();
                         _a.label = 22;
@@ -1707,14 +1647,14 @@ var TeamsServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.commit()];
                     case 6:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 7:
                         _a.sent();
                         return [2 /*return*/, activity[0]];
                     case 8: return [4 /*yield*/, conn.rollback()];
                     case 9:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 10:
                         _a.sent();
                         return [2 /*return*/, null];
@@ -1728,7 +1668,7 @@ var TeamsServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.rollback()];
                     case 15:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 16:
                         _a.sent();
                         _a.label = 17;
@@ -1770,14 +1710,14 @@ var TeamsServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.commit()];
                     case 6:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 7:
                         _a.sent();
                         return [2 /*return*/, activity[0]];
                     case 8: return [4 /*yield*/, conn.rollback()];
                     case 9:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 10:
                         _a.sent();
                         return [2 /*return*/, null];
@@ -1791,7 +1731,7 @@ var TeamsServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.rollback()];
                     case 15:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 16:
                         _a.sent();
                         _a.label = 17;

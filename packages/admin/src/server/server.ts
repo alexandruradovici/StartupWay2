@@ -7,7 +7,7 @@ import moment from "moment";
 import randomstring from "randomstring";
 
 import { Router } from "express";
-import { QueryOptions, Connection } from "mariadb";
+import { QueryOptions, PoolConnection } from "mariadb";
 import { Server, ApiResponse, ApiRequest } from "@startupway/main/lib/server";
 import { getPool } from "@startupway/database/lib/server";
 import { getAuthorizationFunction, User, UsersServer } from "@startupway/users/lib/server";
@@ -232,7 +232,7 @@ export class AdminServer {
 	 * @returns {Promise<any[]>} an array of informations about each team
 	 */
 	async getUDCData():Promise<any[]> {
-		let conn:Connection | null = null;
+		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
 			if(conn) {
@@ -242,10 +242,10 @@ export class AdminServer {
 				}
 				const response:any[] = await conn.query(queryOptions);
 				if(response && response.length > 0) {
-					await conn.end();
+					await conn.release();
 					return response
 				} else {
-					await conn.end();
+					await conn.release();
 					return [];
 				}
 			} else {
@@ -255,7 +255,7 @@ export class AdminServer {
 			console.log("Error in function \"getUDCData()\"|\"admin\"")
 			console.error(e);
 			if(conn)
-				await conn.end();
+				await conn.release();
 			return [];
 		}
 	}
@@ -265,7 +265,7 @@ export class AdminServer {
 	 * @returns {Promise<any[]>} an array of informations about each team
 	 */
 	async getTeamData():Promise<any[]> {
-		let conn:Connection | null = null;
+		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
 			if(conn) {
@@ -276,10 +276,10 @@ export class AdminServer {
 				}
 				const response:any[] = await conn.query(queryOptions);
 				if(response && response.length > 0) {
-					await conn.end();
+					await conn.release();
 					return response
 				} else {
-					await conn.end();
+					await conn.release();
 					return [];
 				}
 			} else {
@@ -289,7 +289,7 @@ export class AdminServer {
 			console.log("Error in function \"getTeamData()\"|\"admin\"")
 			console.error(e);
 			if(conn)
-				await conn.end();
+				await conn.release();
 			return [];
 		}
 	}
@@ -373,7 +373,7 @@ export class AdminServer {
 	 * @returns {Promise<Recovery>} - a recovery object
 	 */
 	async addRecovery(recovery: Recovery):Promise<Recovery | null> {
-		let conn:Connection | null = null;
+		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
 			if(conn) {
@@ -405,7 +405,7 @@ export class AdminServer {
 					if(transporter)
 						admin.sendMail(transporter,options);
 					await conn.commit();
-					await conn.end();
+					await conn.release();
 					return newRecovery[0];
 				}
 				else throw new Error("Can't add recovery")
@@ -417,7 +417,7 @@ export class AdminServer {
 			console.error(error);
 			if(conn) {
 				await conn.rollback();
-				await conn.end();
+				await conn.release();
 			}
 			return null;
 		}
@@ -429,7 +429,7 @@ export class AdminServer {
 	 * @param recoveryId - unique indentifier to find the specified recovery in the database
 	 */
 	async deleteRecovery(recoveryId:string):Promise<boolean> {
-		let conn:Connection | null = null;
+		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
 			if(conn) {
@@ -443,11 +443,11 @@ export class AdminServer {
 				const response:{deleted_id:string}[] = await conn.query(queryOptions, {recoveryId});
 				if(response && response.length === 0) {
 					await conn.commit();
-					await conn.end();
+					await conn.release();
 					return true;
 				} else {
 					await conn.rollback();
-					await conn.end();
+					await conn.release();
 					return false;
 				}
 			} else {
@@ -458,7 +458,7 @@ export class AdminServer {
 			console.error(error);
 			if(conn) {
 				await conn.rollback();
-				await conn.end();
+				await conn.release();
 			}
 			return false;
 		}
@@ -470,7 +470,7 @@ export class AdminServer {
 	 * @returns {Promise<Recovery>} a recovery object
 	 */
 	async findRecoveryById(recoveryId:string):Promise<Recovery | null> {
-		let conn:Connection | null = null;
+		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
 			if(conn) {
@@ -480,10 +480,10 @@ export class AdminServer {
 				}
 				const recovery:Recovery[] = await conn.query(queryOptions,{recoveryId});
 				if (recovery && recovery.length > 0 && recovery[0]) {
-					await conn.end();
+					await conn.release();
 					return recovery[0];
 				} else {
-					await conn.end();
+					await conn.release();
 					return null;
 				}
 
@@ -494,7 +494,7 @@ export class AdminServer {
 			console.log("Error in function \"findRecoveryById(id)\"|\"admin\"");
 			console.error(error);
 			if(conn)
-				await conn.end();
+				await conn.release();
 			return null;
 		}
 	}
@@ -505,7 +505,7 @@ export class AdminServer {
 	 * @returns {Promise<Recovery>} a recovery object
 	 */
 	async findRecoveryByToken(recoveryLink:string):Promise<Recovery | null> {
-		let conn:Connection | null = null;
+		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
 			if(conn) {
@@ -515,10 +515,10 @@ export class AdminServer {
 				}
 				const recovery:Recovery[] = await conn.query(queryOptions,{recoveryLink});
 				if (recovery && recovery.length > 0 && recovery[0]) {
-					await conn.end();
+					await conn.release();
 					return recovery[0];
 				} else {
-					await conn.end();
+					await conn.release();
 					return null;
 				}
 			} else {
@@ -528,7 +528,7 @@ export class AdminServer {
 			console.log("Error in function \"findRecoveryByToken(recoveryLink)\"|\"admin\"");
 			console.error(error);
 			if(conn)
-				await conn.end();
+				await conn.release();
 			return null;
 		}
 

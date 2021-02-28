@@ -1,8 +1,8 @@
-import { Pool, Connection } from "mariadb";
+import { Pool, PoolConnection } from "mariadb";
 export declare class MariaDBServer {
     private static INSTANCE?;
     pool: Pool;
-    conn: Connection;
+    conn: PoolConnection;
     private constructor();
     private createPoolConn;
     private createDB;

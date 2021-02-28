@@ -201,7 +201,7 @@ var MariaDBServer = /** @class */ (function () {
                     case 17:
                         // feeds
                         _a.sent();
-                        return [4 /*yield*/, tableConn.end()];
+                        return [4 /*yield*/, tableConn.release()];
                     case 18:
                         _a.sent();
                         return [4 /*yield*/, tablePool.end()];
@@ -209,7 +209,7 @@ var MariaDBServer = /** @class */ (function () {
                         _a.sent();
                         console.log("Database created succsessfuly");
                         _a.label = 20;
-                    case 20: return [4 /*yield*/, auxConn.end()];
+                    case 20: return [4 /*yield*/, auxConn.release()];
                     case 21:
                         _a.sent();
                         return [4 /*yield*/, auxPool.end()];

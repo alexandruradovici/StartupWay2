@@ -86,7 +86,7 @@ var FeedServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.commit()];
                     case 4:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 5:
                         _a.sent();
                         return [2 /*return*/, null];
@@ -103,14 +103,14 @@ var FeedServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.commit()];
                     case 9:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 10:
                         _a.sent();
                         return [2 /*return*/, resp[0]];
                     case 11: return [4 /*yield*/, conn.rollback()];
                     case 12:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 13:
                         _a.sent();
                         return [2 /*return*/, null];
@@ -118,7 +118,7 @@ var FeedServer = /** @class */ (function () {
                     case 15: return [4 /*yield*/, conn.rollback()];
                     case 16:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 17:
                         _a.sent();
                         return [2 /*return*/, null];
@@ -132,7 +132,7 @@ var FeedServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.rollback()];
                     case 22:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 23:
                         _a.sent();
                         _a.label = 24;
@@ -172,14 +172,14 @@ var FeedServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.commit()];
                     case 5:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 6:
                         _a.sent();
                         return [2 /*return*/, resp[0]];
                     case 7: return [4 /*yield*/, conn.rollback()];
                     case 8:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 9:
                         _a.sent();
                         return [2 /*return*/, null];
@@ -193,7 +193,7 @@ var FeedServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.rollback()];
                     case 14:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 15:
                         _a.sent();
                         _a.label = 16;
@@ -233,14 +233,14 @@ var FeedServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.commit()];
                     case 5:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 6:
                         _a.sent();
                         return [2 /*return*/, true];
                     case 7: return [4 /*yield*/, conn.rollback()];
                     case 8:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 9:
                         _a.sent();
                         return [2 /*return*/, false];
@@ -254,7 +254,7 @@ var FeedServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.rollback()];
                     case 14:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 15:
                         _a.sent();
                         _a.label = 16;
@@ -286,11 +286,11 @@ var FeedServer = /** @class */ (function () {
                     case 3:
                         feeds = _a.sent();
                         if (!(feeds && feeds.length > 0)) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 4:
                         _a.sent();
                         return [2 /*return*/, feeds];
-                    case 5: return [4 /*yield*/, conn.end()];
+                    case 5: return [4 /*yield*/, conn.release()];
                     case 6:
                         _a.sent();
                         return [2 /*return*/, []];
@@ -301,7 +301,7 @@ var FeedServer = /** @class */ (function () {
                         e_4 = _a.sent();
                         console.error(e_4);
                         if (!conn) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 11:
                         _a.sent();
                         _a.label = 12;

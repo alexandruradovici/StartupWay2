@@ -4,7 +4,6 @@ export declare class TeamsServer {
     private static INSTANCE?;
     addTeam(team: Team, product: Product): Promise<Team & Product | null>;
     deleteTeam(team: Team): Promise<boolean>;
-    modifyTeam(team: Team): Promise<Team | null>;
     addUserToTeam(user: User, team: Team, role: string): Promise<UserTeams | null>;
     deleteUserFromTeam(user: User, team: Team): Promise<boolean>;
     getUserTeams(userId: string): Promise<(Team & UserTeams)[]>;

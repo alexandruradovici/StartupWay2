@@ -102,14 +102,14 @@ var BModelCanvasServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.commit()];
                     case 6:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 7:
                         _a.sent();
                         return [2 /*return*/, canvasResult[0]];
                     case 8: return [4 /*yield*/, conn.rollback()];
                     case 9:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 10:
                         _a.sent();
                         return [2 /*return*/, null];
@@ -130,14 +130,14 @@ var BModelCanvasServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.commit()];
                     case 15:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 16:
                         _a.sent();
                         return [2 /*return*/, result[0]];
                     case 17: return [4 /*yield*/, conn.rollback()];
                     case 18:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 19:
                         _a.sent();
                         return [2 /*return*/, null];
@@ -151,7 +151,7 @@ var BModelCanvasServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.rollback()];
                     case 24:
                         _a.sent();
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 25:
                         _a.sent();
                         _a.label = 26;
@@ -186,11 +186,11 @@ var BModelCanvasServer = /** @class */ (function () {
                     case 3:
                         canvases = _a.sent();
                         if (!(canvases && canvases.length > 0)) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 4:
                         _a.sent();
                         return [2 /*return*/, canvases];
-                    case 5: return [4 /*yield*/, conn.end()];
+                    case 5: return [4 /*yield*/, conn.release()];
                     case 6:
                         _a.sent();
                         return [2 /*return*/, []];
@@ -201,7 +201,7 @@ var BModelCanvasServer = /** @class */ (function () {
                         error_2 = _a.sent();
                         console.error(error_2);
                         if (!conn) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.end()];
+                        return [4 /*yield*/, conn.release()];
                     case 11:
                         _a.sent();
                         _a.label = 12;
