@@ -25,12 +25,16 @@ export class TeamsServer {
 				let res:{insertId:string|number} = await conn.query(queryOptions,product);
 				queryOptions.sql = " SELECT productId,startupName,businessTrack,teamType,workshopDay,mentorId,descriptionEN,descriptionRO,pendingDescriptionEN,pendingDescriptionRO,productDetails,updatedAt,lastMentorUpdate FROM products WHERE productId=:productId";
 				const productResponse: Product[] = await conn.query(queryOptions, {productId:res.insertId});
+				console.log(res);
+				console.log(productResponse);
 				if (productResponse && productResponse.length > 0 && productResponse[0]) {
 					team.productId = productResponse[0].productId;
 					queryOptions.sql = "INSERT INTO teams (teamId,productId,teamName,teamDetails,location,year) VALUES(teamId,:productId,:teamName,:teamDetails,:location,:year)";
 					res = await conn.query(queryOptions,team);
 					queryOptions.sql = "SELECT teamId,productId,teamName,teamDetails,location,year FROM teams WHERE teamId=:teamId";
 					const teamResponse: Team[] = await conn.query(queryOptions, {teamId:res.insertId});
+					console.log(res);
+					console.log(teamResponse);
 					if (teamResponse && teamResponse.length > 0 && teamResponse[0]) {
 						team = teamResponse[0];
 						product = productResponse[0];

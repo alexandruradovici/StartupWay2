@@ -85,6 +85,8 @@ var TeamsServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, { productId: res.insertId })];
                     case 5:
                         productResponse = _a.sent();
+                        console.log(res);
+                        console.log(productResponse);
                         if (!(productResponse && productResponse.length > 0 && productResponse[0])) return [3 /*break*/, 18];
                         team.productId = productResponse[0].productId;
                         queryOptions.sql = "INSERT INTO teams (teamId,productId,teamName,teamDetails,location,year) VALUES(teamId,:productId,:teamName,:teamDetails,:location,:year)";
@@ -95,6 +97,8 @@ var TeamsServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, { teamId: res.insertId })];
                     case 7:
                         teamResponse = _a.sent();
+                        console.log(res);
+                        console.log(teamResponse);
                         if (!(teamResponse && teamResponse.length > 0 && teamResponse[0])) return [3 /*break*/, 14];
                         team = teamResponse[0];
                         product = productResponse[0];
