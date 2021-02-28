@@ -58,18 +58,18 @@ var TeamsServer = /** @class */ (function () {
     }
     TeamsServer.prototype.addTeam = function (team, product) {
         return __awaiter(this, void 0, void 0, function () {
-            var conn, o, queryOptions, res, productResponse, teamResponse, error_1;
+            var conn, o, queryOptions, res, productResponse, productResponse2, teamResponse, error_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 24, , 28]);
+                        _a.trys.push([1, 25, , 29]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 22];
+                        if (!conn) return [3 /*break*/, 23];
                         return [4 /*yield*/, conn.beginTransaction()];
                     case 3:
                         _a.sent();
@@ -78,28 +78,33 @@ var TeamsServer = /** @class */ (function () {
                             namedPlaceholders: true,
                             sql: "INSERT INTO products (productId,startupName,businessTrack,teamType,workshopDay,mentorId,descriptionEN,descriptionRO,pendingDescriptionEN,pendingDescriptionRO,productDetails,updatedAt,lastMentorUpdate) VALUES(:productId,:startupName,:businessTrack,:teamType,:workshopDay,:mentorId,:descriptionEN,:descriptionRO,:pendingDescriptionEN,:pendingDescriptionRO,:productDetails,:updatedAt,:lastMentorUpdate)"
                         };
+                        console.log(product);
                         return [4 /*yield*/, conn.query(queryOptions, product)];
                     case 4:
                         res = _a.sent();
-                        queryOptions.sql = " SELECT productId,startupName,businessTrack,teamType,workshopDay,mentorId,descriptionEN,descriptionRO,pendingDescriptionEN,pendingDescriptionRO,productDetails,updatedAt,lastMentorUpdate FROM products WHERE productId=:productId";
+                        queryOptions.sql = "SELECT productId,startupName,businessTrack,teamType,workshopDay,mentorId,descriptionEN,descriptionRO,pendingDescriptionEN,pendingDescriptionRO,productDetails,updatedAt,lastMentorUpdate FROM products WHERE productId=:productId";
                         return [4 /*yield*/, conn.query(queryOptions, { productId: res.insertId })];
                     case 5:
                         productResponse = _a.sent();
+                        return [4 /*yield*/, conn.query(queryOptions, { productId: product.productId })];
+                    case 6:
+                        productResponse2 = _a.sent();
                         console.log(res);
                         console.log(productResponse);
-                        if (!(productResponse && productResponse.length > 0 && productResponse[0])) return [3 /*break*/, 18];
+                        console.log(productResponse2);
+                        if (!(productResponse && productResponse.length > 0 && productResponse[0])) return [3 /*break*/, 19];
                         team.productId = productResponse[0].productId;
                         queryOptions.sql = "INSERT INTO teams (teamId,productId,teamName,teamDetails,location,year) VALUES(:teamId,:productId,:teamName,:teamDetails,:location,:year)";
                         return [4 /*yield*/, conn.query(queryOptions, team)];
-                    case 6:
+                    case 7:
                         res = _a.sent();
                         queryOptions.sql = "SELECT teamId,productId,teamName,teamDetails,location,year FROM teams WHERE teamId=:teamId";
                         return [4 /*yield*/, conn.query(queryOptions, { teamId: res.insertId })];
-                    case 7:
+                    case 8:
                         teamResponse = _a.sent();
                         console.log(res);
                         console.log(teamResponse);
-                        if (!(teamResponse && teamResponse.length > 0 && teamResponse[0])) return [3 /*break*/, 14];
+                        if (!(teamResponse && teamResponse.length > 0 && teamResponse[0])) return [3 /*break*/, 15];
                         team = teamResponse[0];
                         product = productResponse[0];
                         o = {
@@ -122,52 +127,52 @@ var TeamsServer = /** @class */ (function () {
                             updatedAt: product.updatedAt,
                             lastMentorUpdate: product.lastMentorUpdate
                         };
-                        if (!o) return [3 /*break*/, 10];
+                        if (!o) return [3 /*break*/, 11];
                         return [4 /*yield*/, conn.commit()];
-                    case 8:
-                        _a.sent();
-                        return [4 /*yield*/, conn.end()];
                     case 9:
                         _a.sent();
-                        return [2 /*return*/, o];
-                    case 10: return [4 /*yield*/, conn.rollback()];
-                    case 11:
-                        _a.sent();
                         return [4 /*yield*/, conn.end()];
+                    case 10:
+                        _a.sent();
+                        return [2 /*return*/, o];
+                    case 11: return [4 /*yield*/, conn.rollback()];
                     case 12:
                         _a.sent();
-                        return [2 /*return*/, null];
-                    case 13: return [3 /*break*/, 17];
-                    case 14: return [4 /*yield*/, conn.rollback()];
-                    case 15:
-                        _a.sent();
                         return [4 /*yield*/, conn.end()];
+                    case 13:
+                        _a.sent();
+                        return [2 /*return*/, null];
+                    case 14: return [3 /*break*/, 18];
+                    case 15: return [4 /*yield*/, conn.rollback()];
                     case 16:
                         _a.sent();
-                        return [2 /*return*/, null];
-                    case 17: return [3 /*break*/, 21];
-                    case 18: return [4 /*yield*/, conn.rollback()];
-                    case 19:
-                        _a.sent();
                         return [4 /*yield*/, conn.end()];
+                    case 17:
+                        _a.sent();
+                        return [2 /*return*/, null];
+                    case 18: return [3 /*break*/, 22];
+                    case 19: return [4 /*yield*/, conn.rollback()];
                     case 20:
                         _a.sent();
-                        return [2 /*return*/, null];
-                    case 21: return [3 /*break*/, 23];
-                    case 22: return [2 /*return*/, null];
-                    case 23: return [3 /*break*/, 28];
-                    case 24:
-                        error_1 = _a.sent();
-                        if (!conn) return [3 /*break*/, 27];
-                        return [4 /*yield*/, conn.rollback()];
-                    case 25:
-                        _a.sent();
                         return [4 /*yield*/, conn.end()];
+                    case 21:
+                        _a.sent();
+                        return [2 /*return*/, null];
+                    case 22: return [3 /*break*/, 24];
+                    case 23: return [2 /*return*/, null];
+                    case 24: return [3 /*break*/, 29];
+                    case 25:
+                        error_1 = _a.sent();
+                        if (!conn) return [3 /*break*/, 28];
+                        return [4 /*yield*/, conn.rollback()];
                     case 26:
                         _a.sent();
-                        _a.label = 27;
-                    case 27: return [2 /*return*/, null];
-                    case 28: return [2 /*return*/];
+                        return [4 /*yield*/, conn.end()];
+                    case 27:
+                        _a.sent();
+                        _a.label = 28;
+                    case 28: return [2 /*return*/, null];
+                    case 29: return [2 /*return*/];
                 }
             });
         });
