@@ -58,24 +58,17 @@ export class MariaDBServer {
 			const auxConn = await auxPool.getConnection();
 
 			let queryOptions:QueryOptions = {
-				namedPlaceholders:true,
-				sql: "SELECT schema_name FROM information_schema.schemata WHERE schema_name = :db"
+				sql: "SELECT schema_name FROM information_schema.schemata WHERE schema_name = ?"
 			};
-			let values:{db?:string,charset?:string,collate?:string} = {
-				db:process.env.DB_NAME
-			};
+			let values:(string|undefined)[] = [process.env.DB_NAME];
 			// Get DB schemba name 
 			const r:any[] = await auxConn.query(queryOptions, values);
 			if(r[0] === undefined || r[0].length < 1) {
 				queryOptions = {
 					namedPlaceholders:true,
-					sql:"CREATE DATABASE :db CHARACTER SET :charset COLLATE :collate"
+					sql:"CREATE DATABASE ? CHARACTER SET ? COLLATE ?"
 				};
-				values = {
-					db:process.env.DB_NAME,
-					charset:process.env.DB_CHARSET,
-					collate:process.env.DB_COLLATE
-				};
+				values = [process.env.DB_NAME,process.env.DB_CHARSET,process.env.DB_COLLATE];
 				await auxConn.query(queryOptions,values);
 				const tablePool = createPool({
 					host:process.env.DB_HOST,

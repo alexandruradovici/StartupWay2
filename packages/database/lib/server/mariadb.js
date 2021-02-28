@@ -108,25 +108,18 @@ var MariaDBServer = /** @class */ (function () {
                     case 1:
                         auxConn = _a.sent();
                         queryOptions = {
-                            namedPlaceholders: true,
-                            sql: "SELECT schema_name FROM information_schema.schemata WHERE schema_name = :db"
+                            sql: "SELECT schema_name FROM information_schema.schemata WHERE schema_name = ?"
                         };
-                        values = {
-                            db: process.env.DB_NAME
-                        };
+                        values = [process.env.DB_NAME];
                         return [4 /*yield*/, auxConn.query(queryOptions, values)];
                     case 2:
                         r = _a.sent();
                         if (!(r[0] === undefined || r[0].length < 1)) return [3 /*break*/, 20];
                         queryOptions = {
                             namedPlaceholders: true,
-                            sql: "CREATE DATABASE :db CHARACTER SET :charset COLLATE :collate"
+                            sql: "CREATE DATABASE ? CHARACTER SET ? COLLATE ?"
                         };
-                        values = {
-                            db: process.env.DB_NAME,
-                            charset: process.env.DB_CHARSET,
-                            collate: process.env.DB_COLLATE
-                        };
+                        values = [process.env.DB_NAME, process.env.DB_CHARSET, process.env.DB_COLLATE];
                         return [4 /*yield*/, auxConn.query(queryOptions, values)];
                     case 3:
                         _a.sent();
