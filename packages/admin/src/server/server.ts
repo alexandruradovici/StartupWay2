@@ -655,11 +655,11 @@ if(authFunct)
 /**
  * Route on which information found in a .csv file is being uploaded into the database 
  */	// TODO SEE RETURN TYPE
-router.post("/uploadCSV", async(req:ApiRequest<{encoded:string,buffer:Buffer,string:string,parsed:unknown}>,res:ApiResponse<any>) => {
+router.post("/uploadCSV", async(req:ApiRequest<{encode:string}>,res:ApiResponse<any>) => {
 	try {
 
 		/** @type {string} base64 string of the data found in the .csv */
-		const encoded = req.body.encoded;
+		const encoded = req.body.encode;
 		
 		/** @type {Buffer} Buffer with the data retrieved from the base64 string */
 		const buffer = Buffer.from(encoded,"base64");

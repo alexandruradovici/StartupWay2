@@ -904,7 +904,7 @@ router.post("/uploadCSV", function (req, res) { return __awaiter(void 0, void 0,
         switch (_g.label) {
             case 0:
                 _g.trys.push([0, 28, , 29]);
-                encoded = req.body.encoded;
+                encoded = req.body.encode;
                 buffer = Buffer.from(encoded, "base64");
                 string = buffer.toString("utf-8");
                 parsed = Papa.parse(string).data;
