@@ -157,9 +157,10 @@ var AdminServer = /** @class */ (function () {
                 days[days["SUNDAY"] = 7] = "SUNDAY";
             })(days || (days = {}));
             var productId = uuid_1.v4();
+            var insertTeamId = uuid_1.v4();
             if (teamName !== undefined && loc !== undefined && teamMentor !== undefined && pitcher !== undefined) {
                 parsedCSV.team = {
-                    teamId: uuid_1.v4(),
+                    teamId: insertTeamId,
                     productId: productId,
                     teamName: teamName,
                     location: loc,

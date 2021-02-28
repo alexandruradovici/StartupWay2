@@ -76,9 +76,10 @@ export class AdminServer {
 				SUNDAY
 			}
 			const productId = uiidv4();
+			const insertTeamId = uiidv4();
 			if(teamName !== undefined && loc !== undefined && teamMentor !== undefined && pitcher !== undefined) {
 				parsedCSV.team = {
-					teamId:uiidv4(),
+					teamId:insertTeamId,
 					productId:productId,
 					teamName:teamName,
 					location:loc,
