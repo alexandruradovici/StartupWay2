@@ -377,18 +377,18 @@ export class AdminServer {
 				queryOptions.sql = "SELECT recoveryId,userId,email,recoveryLink FROM recoveries WHERE recoveryId=:recoveryId"
 				const newRecovery:Recovery[] = await conn.query(queryOptions,recovery);
 				if(newRecovery && newRecovery.length > 0 && newRecovery[0]) {
-					// const options = admin.createMailOptions(
-					// 	(process.env.MAIL_USER as string),
-					// 	user.email,
-					// 	"Innovation Labs Platform Password Reset",
-					// 	"Hello " + user.firstName + " " + user.lastName +" ,\n\n" 
-					// 	+ "Here is your activation link, please click here to reset your password.\n" 
-					// 	+ "		https://teams.innovationlabs.ro/#/recovery/"+newRecovery[0].recoveryLink + "\n"
-					// 	+ "Regards, Innovation Labs Team\n" 
-					// );
-					// const transporter = admin.createMailTransporter();
-					// if(transporter)
-					// 	admin.sendMail(transporter,options);
+					const options = admin.createMailOptions(
+						(process.env.MAIL_USER as string),
+						user.email,
+						"Innovation Labs Platform Password Reset",
+						"Hello " + user.firstName + " " + user.lastName +" ,\n\n" 
+						+ "Here is your activation link, please click here to reset your password.\n" 
+						+ "		https://teams.innovationlabs.ro/#/recovery/"+newRecovery[0].recoveryLink + "\n"
+						+ "Regards, Innovation Labs Team\n" 
+					);
+					const transporter = admin.createMailTransporter();
+					if(transporter)
+						admin.sendMail(transporter,options);
 					await conn.commit();
 					await conn.end();
 					return newRecovery[0];
@@ -718,20 +718,20 @@ router.post("/uploadCSV", async(req:ApiRequest<{encoded:string,buffer:Buffer,str
 							lastLogin:new Date()
 						});
 						if(user) {
-							// const options = admin.createMailOptions(
-							// 	(process.env.MAIL_USER as string),
-							// 	user.email,
-							// 	"Innovation Labs Platform Password",
-							// 	"Hello " + user.firstName + " " + user.lastName +" ,\n\n" 
-							// 	+ "Here is your new account, please do not disclose these informations to anyone.\n" 
-							// 	+ "		Username: " +user.username + "\n"
-							// 	+ "		Password: " +password + "\n" 
-							// 	+ "Use these credidentials to login on "+ process.env.HOSTNAME +"\n\n"
-							// 	+ "Regards, Innovation Labs Team\n" 
-							// );
-							// const transporter = admin.createMailTransporter();
-							// if(transporter)
-							// 	admin.sendMail(transporter,options);
+							const options = admin.createMailOptions(
+								(process.env.MAIL_USER as string),
+								user.email,
+								"Innovation Labs Platform Password",
+								"Hello " + user.firstName + " " + user.lastName +" ,\n\n" 
+								+ "Here is your new account, please do not disclose these informations to anyone.\n" 
+								+ "		Username: " +user.username + "\n"
+								+ "		Password: " +password + "\n" 
+								+ "Use these credidentials to login on "+ process.env.HOSTNAME +"\n\n"
+								+ "Regards, Innovation Labs Team\n" 
+							);
+							const transporter = admin.createMailTransporter();
+							if(transporter)
+								admin.sendMail(transporter,options);
 							entry.product.mentorId = user.userId;
 						}
 					}
@@ -746,21 +746,22 @@ router.post("/uploadCSV", async(req:ApiRequest<{encoded:string,buffer:Buffer,str
 					if(!user) {
 						const password = admin.randomPassword();
 						entry.user.password = password;
-						// const options = admin.createMailOptions(
-						// 	(process.env.MAIL_USER as string),
-						// 	entry.user.email,
-						// 	"Innovation Labs Platform Password",
-						// 	"Hello " + entry.user.firstName + " " + entry.user.lastName +" ,\n\n" 
-						// 	+ "Here is your new account, please do not disclose these informations to anyone.\n" 
-						// 	+ "		Username: " +entry.user.username + "\n"
-						// 	+ "		Password: " +password + "\n" 
-						// 	+ "Use these credidentials to login on "+ process.env.HOSTNAME +"\n\n"
-						// 	+ "Regards, Innovation Labs Team\n" 
-						// );
-						// const transporter = admin.createMailTransporter()
-						// if(transporter)
-						// 	admin.sendMail(transporter,options);
-						// entry.product.mentorId = user.userId;
+						const options = admin.createMailOptions(
+							(process.env.MAIL_USER as string),
+							entry.user.email,
+							"Innovation Labs Platform Password",
+							"Hello " + entry.user.firstName + " " + entry.user.lastName +" ,\n\n" 
+							+ "Here is your new account, please do not disclose these informations to anyone.\n" 
+							+ "		Username: " +entry.user.username + "\n"
+							+ "		Password: " +password + "\n" 
+							+ "Use these credidentials to login on "+ process.env.HOSTNAME +"\n\n"
+							+ "Regards, Innovation Labs Team\n" 
+						);
+						const transporter = admin.createMailTransporter()
+						if(transporter)
+							admin.sendMail(transporter,options);
+						if(entry.product)
+							entry.product.mentorId = entry.user.userId;
 						user = await users.addUser(entry.user);
 					}
 				}
@@ -1209,10 +1210,10 @@ router.post("/add/workshop/Instances", async (req,res) => {
  * Route on which we request to add new workshop instances in the database
  */
 router.post("/request/user", async (req:ApiRequest<{from:string,email:string,firstName:string,lastName:string,teamId:string}>,res:ApiResponse<boolean>) => {
-	// const from = req.body.from;
-	// const email = req.body.email;
-	// const firstName = req.body.firstName;
-	// const lastName = req.body.lastName;
+	const from = req.body.from;
+	const email = req.body.email;
+	const firstName = req.body.firstName;
+	const lastName = req.body.lastName;
 	const teamId = req.body.teamId;
 	const team = await teams.getTeamById(teamId);
 	const product = await teams.getProductByTeamId(teamId);
@@ -1220,22 +1221,22 @@ router.post("/request/user", async (req:ApiRequest<{from:string,email:string,fir
 	if(product)
 		mentor = await users.getUserById(product.mentorId);
 	if(mentor && team) {
-		// const options = admin.createMailOptions(
-		// 	(process.env.MAIL_USER as string),
-		// 	"marius.andrei.aluculesei@gmail.com",
-		// 	"Innovation Labs User Request",
-		// 		"		From:" + from + "\n" 
-		// 	+ "		First Name: " +firstName + "\n"
-		// 	+ "		Last Name: " +lastName + "\n" 
-		// 	+ "		Email: " + email + "\n"
-		// 	+ "		Team: " + team.teamName + "\n" 
-		// 	+ "		Location: " + team.location + "\n"
-		// 	+ "		Mentor: " + mentor.email + "\n"
+		const options = admin.createMailOptions(
+			(process.env.MAIL_USER as string),
+			"marius.andrei.aluculesei@gmail.com",
+			"Innovation Labs User Request",
+				"		From:" + from + "\n" 
+			+ "		First Name: " +firstName + "\n"
+			+ "		Last Name: " +lastName + "\n" 
+			+ "		Email: " + email + "\n"
+			+ "		Team: " + team.teamName + "\n" 
+			+ "		Location: " + team.location + "\n"
+			+ "		Mentor: " + mentor.email + "\n"
 			
-		// );
-		// const transporter = admin.createMailTransporter();
-		// if(transporter)
-		// 	admin.sendMail(transporter,options);
+		);
+		const transporter = admin.createMailTransporter();
+		if(transporter)
+			admin.sendMail(transporter,options);
 		res.status(200).send(true);
 	} else {
 		res.status(400).send(false);
@@ -1245,20 +1246,20 @@ router.post("/add/user", async (req:ApiRequest<{user:User,option:string,teamId:s
 	const user = req.body.user;
 	const option = req.body.option;
 	user.password = admin.randomPassword();
-	// const options = admin.createMailOptions(
-	// 	(process.env.MAIL_USER as string),
-	// 	user.email,
-	// 	"Innovation Labs Platform Password",
-	// 	"Hello " + user.firstName + " " + user.lastName +" ,\n\n" 
-	// 	+ "Here is your new account, please do not disclose these informations to anyone.\n" 
-	// 	+ "		Username: " +user.username + "\n"
-	// 	+ "		Password: " +user.password + "\n" 
-	// 	+ "Use these credidentials to login on "+ process.env.HOSTNAME +"\n\n"
-	// 	+ "Regards, Innovation Labs Team\n" 
-	// );
-	// const transporter = admin.createMailTransporter();
-	// if(transporter)
-	// 	admin.sendMail(transporter,options);
+	const options = admin.createMailOptions(
+		(process.env.MAIL_USER as string),
+		user.email,
+		"Innovation Labs Platform Password",
+		"Hello " + user.firstName + " " + user.lastName +" ,\n\n" 
+		+ "Here is your new account, please do not disclose these informations to anyone.\n" 
+		+ "		Username: " +user.username + "\n"
+		+ "		Password: " +user.password + "\n" 
+		+ "Use these credidentials to login on "+ process.env.HOSTNAME +"\n\n"
+		+ "Regards, Innovation Labs Team\n" 
+	);
+	const transporter = admin.createMailTransporter();
+	if(transporter)
+		admin.sendMail(transporter,options);
 	if(user) {
 		let newUser = await users.addUser((user as User));
 		if(newUser) {
@@ -1312,20 +1313,20 @@ router.post("/update/user", async (req:ApiRequest<{user:User,changedPass:boolean
 	const changedPass = req.body.changedPass;
 	if(changedPass) {
 		user.password = UsersServer.passwordGenerator(user.password);
-		// const options = admin.createMailOptions(
-		// 	(process.env.MAIL_USER as string),
-		// 	user.email,
-		// 	"Innovation Labs Platform Password",
-		// 	"Hello " + user.firstName + " " + user.lastName +" ,\n\n" 
-		// 	+ "Here is your new password, please do not disclose these informations to anyone.\n" 
-		// 	+ "		Username: " +user.username + "\n"
-		// 	+ "		Password: " +user.password + "\n" 
-		// 	+ "Use these credidentials to login on "+ process.env.HOSTNAME +"\n\n"
-		// 	+ "Regards, Innovation Labs Team\n" 
-		// );
-		// const transporter = admin.createMailTransporter();
-		// if(transporter)
-		// 	admin.sendMail(transporter,options);
+		const options = admin.createMailOptions(
+			(process.env.MAIL_USER as string),
+			user.email,
+			"Innovation Labs Platform Password",
+			"Hello " + user.firstName + " " + user.lastName +" ,\n\n" 
+			+ "Here is your new password, please do not disclose these informations to anyone.\n" 
+			+ "		Username: " +user.username + "\n"
+			+ "		Password: " +user.password + "\n" 
+			+ "Use these credidentials to login on "+ process.env.HOSTNAME +"\n\n"
+			+ "Regards, Innovation Labs Team\n" 
+		);
+		const transporter = admin.createMailTransporter();
+		if(transporter)
+			admin.sendMail(transporter,options);
 	}
 	
 	if(user) {

@@ -474,7 +474,7 @@ var AdminServer = /** @class */ (function () {
      */
     AdminServer.prototype.addRecovery = function (recovery) {
         return __awaiter(this, void 0, void 0, function () {
-            var conn, user, queryOptions, newRecovery, error_1;
+            var conn, user, queryOptions, newRecovery, options, transporter, error_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -509,32 +509,15 @@ var AdminServer = /** @class */ (function () {
                     case 6:
                         newRecovery = _a.sent();
                         if (!(newRecovery && newRecovery.length > 0 && newRecovery[0])) return [3 /*break*/, 9];
-                        // const options = admin.createMailOptions(
-                        // 	(process.env.MAIL_USER as string),
-                        // 	user.email,
-                        // 	"Innovation Labs Platform Password Reset",
-                        // 	"Hello " + user.firstName + " " + user.lastName +" ,\n\n" 
-                        // 	+ "Here is your activation link, please click here to reset your password.\n" 
-                        // 	+ "		https://teams.innovationlabs.ro/#/recovery/"+newRecovery[0].recoveryLink + "\n"
-                        // 	+ "Regards, Innovation Labs Team\n" 
-                        // );
-                        // const transporter = admin.createMailTransporter();
-                        // if(transporter)
-                        // 	admin.sendMail(transporter,options);
+                        options = admin.createMailOptions(process.env.MAIL_USER, user.email, "Innovation Labs Platform Password Reset", "Hello " + user.firstName + " " + user.lastName + " ,\n\n"
+                            + "Here is your activation link, please click here to reset your password.\n"
+                            + "		https://teams.innovationlabs.ro/#/recovery/" + newRecovery[0].recoveryLink + "\n"
+                            + "Regards, Innovation Labs Team\n");
+                        transporter = admin.createMailTransporter();
+                        if (transporter)
+                            admin.sendMail(transporter, options);
                         return [4 /*yield*/, conn.commit()];
                     case 7:
-                        // const options = admin.createMailOptions(
-                        // 	(process.env.MAIL_USER as string),
-                        // 	user.email,
-                        // 	"Innovation Labs Platform Password Reset",
-                        // 	"Hello " + user.firstName + " " + user.lastName +" ,\n\n" 
-                        // 	+ "Here is your activation link, please click here to reset your password.\n" 
-                        // 	+ "		https://teams.innovationlabs.ro/#/recovery/"+newRecovery[0].recoveryLink + "\n"
-                        // 	+ "Regards, Innovation Labs Team\n" 
-                        // );
-                        // const transporter = admin.createMailTransporter();
-                        // if(transporter)
-                        // 	admin.sendMail(transporter,options);
                         _a.sent();
                         return [4 /*yield*/, conn.end()];
                     case 8:
@@ -915,7 +898,7 @@ if (authFunct)
  * Route on which information found in a .csv file is being uploaded into the database
  */ // TODO SEE RETURN TYPE
 router.post("/uploadCSV", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var encoded, buffer, string, parsed, obj, parsed_1, parsed_1_1, arr, object, newObj, _a, _b, _i, key, _c, _d, entry, team, mentorEmail, mentor, mentorUsername, password, user_1, user, password, userTeam, role, teamUser, initDate, i, aux, date, userActivity, response, e_3_1, error_9;
+    var encoded, buffer, string, parsed, obj, parsed_1, parsed_1_1, arr, object, newObj, _a, _b, _i, key, _c, _d, entry, team, mentorEmail, mentor, mentorUsername, password, user_1, options, transporter, user, password, options, transporter, userTeam, role, teamUser, initDate, i, aux, date, userActivity, response, e_3_1, error_9;
     var e_4, _e, e_3, _f;
     return __generator(this, function (_g) {
         switch (_g.label) {
@@ -999,20 +982,15 @@ router.post("/uploadCSV", function (req, res) { return __awaiter(void 0, void 0,
             case 6:
                 user_1 = _g.sent();
                 if (user_1) {
-                    // const options = admin.createMailOptions(
-                    // 	(process.env.MAIL_USER as string),
-                    // 	user.email,
-                    // 	"Innovation Labs Platform Password",
-                    // 	"Hello " + user.firstName + " " + user.lastName +" ,\n\n" 
-                    // 	+ "Here is your new account, please do not disclose these informations to anyone.\n" 
-                    // 	+ "		Username: " +user.username + "\n"
-                    // 	+ "		Password: " +password + "\n" 
-                    // 	+ "Use these credidentials to login on "+ process.env.HOSTNAME +"\n\n"
-                    // 	+ "Regards, Innovation Labs Team\n" 
-                    // );
-                    // const transporter = admin.createMailTransporter();
-                    // if(transporter)
-                    // 	admin.sendMail(transporter,options);
+                    options = admin.createMailOptions(process.env.MAIL_USER, user_1.email, "Innovation Labs Platform Password", "Hello " + user_1.firstName + " " + user_1.lastName + " ,\n\n"
+                        + "Here is your new account, please do not disclose these informations to anyone.\n"
+                        + "		Username: " + user_1.username + "\n"
+                        + "		Password: " + password + "\n"
+                        + "Use these credidentials to login on " + process.env.HOSTNAME + "\n\n"
+                        + "Regards, Innovation Labs Team\n");
+                    transporter = admin.createMailTransporter();
+                    if (transporter)
+                        admin.sendMail(transporter, options);
                     entry.product.mentorId = user_1.userId;
                 }
                 _g.label = 7;
@@ -1033,23 +1011,19 @@ router.post("/uploadCSV", function (req, res) { return __awaiter(void 0, void 0,
                 if (!!user) return [3 /*break*/, 13];
                 password = admin.randomPassword();
                 entry.user.password = password;
+                options = admin.createMailOptions(process.env.MAIL_USER, entry.user.email, "Innovation Labs Platform Password", "Hello " + entry.user.firstName + " " + entry.user.lastName + " ,\n\n"
+                    + "Here is your new account, please do not disclose these informations to anyone.\n"
+                    + "		Username: " + entry.user.username + "\n"
+                    + "		Password: " + password + "\n"
+                    + "Use these credidentials to login on " + process.env.HOSTNAME + "\n\n"
+                    + "Regards, Innovation Labs Team\n");
+                transporter = admin.createMailTransporter();
+                if (transporter)
+                    admin.sendMail(transporter, options);
+                if (entry.product)
+                    entry.product.mentorId = entry.user.userId;
                 return [4 /*yield*/, users.addUser(entry.user)];
             case 12:
-                // const options = admin.createMailOptions(
-                // 	(process.env.MAIL_USER as string),
-                // 	entry.user.email,
-                // 	"Innovation Labs Platform Password",
-                // 	"Hello " + entry.user.firstName + " " + entry.user.lastName +" ,\n\n" 
-                // 	+ "Here is your new account, please do not disclose these informations to anyone.\n" 
-                // 	+ "		Username: " +entry.user.username + "\n"
-                // 	+ "		Password: " +password + "\n" 
-                // 	+ "Use these credidentials to login on "+ process.env.HOSTNAME +"\n\n"
-                // 	+ "Regards, Innovation Labs Team\n" 
-                // );
-                // const transporter = admin.createMailTransporter()
-                // if(transporter)
-                // 	admin.sendMail(transporter,options);
-                // entry.product.mentorId = user.userId;
                 user = _g.sent();
                 _g.label = 13;
             case 13:
@@ -1822,10 +1796,14 @@ router.post("/add/workshop/Instances", function (req, res) { return __awaiter(vo
  * Route on which we request to add new workshop instances in the database
  */
 router.post("/request/user", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var teamId, team, product, mentor;
+    var from, email, firstName, lastName, teamId, team, product, mentor, options, transporter;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
+                from = req.body.from;
+                email = req.body.email;
+                firstName = req.body.firstName;
+                lastName = req.body.lastName;
                 teamId = req.body.teamId;
                 return [4 /*yield*/, teams.getTeamById(teamId)];
             case 1:
@@ -1840,21 +1818,16 @@ router.post("/request/user", function (req, res) { return __awaiter(void 0, void
                 _a.label = 4;
             case 4:
                 if (mentor && team) {
-                    // const options = admin.createMailOptions(
-                    // 	(process.env.MAIL_USER as string),
-                    // 	"marius.andrei.aluculesei@gmail.com",
-                    // 	"Innovation Labs User Request",
-                    // 		"		From:" + from + "\n" 
-                    // 	+ "		First Name: " +firstName + "\n"
-                    // 	+ "		Last Name: " +lastName + "\n" 
-                    // 	+ "		Email: " + email + "\n"
-                    // 	+ "		Team: " + team.teamName + "\n" 
-                    // 	+ "		Location: " + team.location + "\n"
-                    // 	+ "		Mentor: " + mentor.email + "\n"
-                    // );
-                    // const transporter = admin.createMailTransporter();
-                    // if(transporter)
-                    // 	admin.sendMail(transporter,options);
+                    options = admin.createMailOptions(process.env.MAIL_USER, "marius.andrei.aluculesei@gmail.com", "Innovation Labs User Request", "		From:" + from + "\n"
+                        + "		First Name: " + firstName + "\n"
+                        + "		Last Name: " + lastName + "\n"
+                        + "		Email: " + email + "\n"
+                        + "		Team: " + team.teamName + "\n"
+                        + "		Location: " + team.location + "\n"
+                        + "		Mentor: " + mentor.email + "\n");
+                    transporter = admin.createMailTransporter();
+                    if (transporter)
+                        admin.sendMail(transporter, options);
                     res.status(200).send(true);
                 }
                 else {
@@ -1865,13 +1838,22 @@ router.post("/request/user", function (req, res) { return __awaiter(void 0, void
     });
 }); });
 router.post("/add/user", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var user, option, newUser, teamId, team, userTeam, role, initDate, teamUser, i, aux, date, userActivity;
+    var user, option, options, transporter, newUser, teamId, team, userTeam, role, initDate, teamUser, i, aux, date, userActivity;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 user = req.body.user;
                 option = req.body.option;
                 user.password = admin.randomPassword();
+                options = admin.createMailOptions(process.env.MAIL_USER, user.email, "Innovation Labs Platform Password", "Hello " + user.firstName + " " + user.lastName + " ,\n\n"
+                    + "Here is your new account, please do not disclose these informations to anyone.\n"
+                    + "		Username: " + user.username + "\n"
+                    + "		Password: " + user.password + "\n"
+                    + "Use these credidentials to login on " + process.env.HOSTNAME + "\n\n"
+                    + "Regards, Innovation Labs Team\n");
+                transporter = admin.createMailTransporter();
+                if (transporter)
+                    admin.sendMail(transporter, options);
                 if (!user) return [3 /*break*/, 12];
                 return [4 /*yield*/, users.addUser(user)];
             case 1:
@@ -1940,7 +1922,7 @@ router.post("/add/user", function (req, res) { return __awaiter(void 0, void 0, 
     });
 }); });
 router.post("/update/user", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var user, changedPass, resp;
+    var user, changedPass, options, transporter, resp;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -1948,20 +1930,15 @@ router.post("/update/user", function (req, res) { return __awaiter(void 0, void 
                 changedPass = req.body.changedPass;
                 if (changedPass) {
                     user.password = server_3.UsersServer.passwordGenerator(user.password);
-                    // const options = admin.createMailOptions(
-                    // 	(process.env.MAIL_USER as string),
-                    // 	user.email,
-                    // 	"Innovation Labs Platform Password",
-                    // 	"Hello " + user.firstName + " " + user.lastName +" ,\n\n" 
-                    // 	+ "Here is your new password, please do not disclose these informations to anyone.\n" 
-                    // 	+ "		Username: " +user.username + "\n"
-                    // 	+ "		Password: " +user.password + "\n" 
-                    // 	+ "Use these credidentials to login on "+ process.env.HOSTNAME +"\n\n"
-                    // 	+ "Regards, Innovation Labs Team\n" 
-                    // );
-                    // const transporter = admin.createMailTransporter();
-                    // if(transporter)
-                    // 	admin.sendMail(transporter,options);
+                    options = admin.createMailOptions(process.env.MAIL_USER, user.email, "Innovation Labs Platform Password", "Hello " + user.firstName + " " + user.lastName + " ,\n\n"
+                        + "Here is your new password, please do not disclose these informations to anyone.\n"
+                        + "		Username: " + user.username + "\n"
+                        + "		Password: " + user.password + "\n"
+                        + "Use these credidentials to login on " + process.env.HOSTNAME + "\n\n"
+                        + "Regards, Innovation Labs Team\n");
+                    transporter = admin.createMailTransporter();
+                    if (transporter)
+                        admin.sendMail(transporter, options);
                 }
                 if (!user) return [3 /*break*/, 2];
                 return [4 /*yield*/, users.modifyUser(user)];
