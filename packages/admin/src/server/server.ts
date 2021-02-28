@@ -1124,7 +1124,7 @@ router.post("/teams/review/update", async (req:ApiRequest<{reviews:Review[],type
 				team.teamDetails = JSON.parse((team.teamDetails as any) as string);
 				team.teamDetails["mentor"] = review.mentor;
 	
-				const newTeam = await teams.modifyTeam(team);
+				const newTeam = await teams.updateTeam(team);
 				if(!newTeam) {
 					console.error("Error on route \"/teams/review/update\" in \"admin\" router");
 					console.error("Error, team not updated");
