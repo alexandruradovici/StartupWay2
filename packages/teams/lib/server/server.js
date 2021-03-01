@@ -95,7 +95,6 @@ var TeamsServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, { teamId: team.teamId })];
                     case 7:
                         teamResponse = _a.sent();
-                        console.log(teamResponse);
                         if (!(teamResponse && teamResponse.length > 0 && teamResponse[0])) return [3 /*break*/, 14];
                         team = teamResponse[0];
                         product = productResponse[0];

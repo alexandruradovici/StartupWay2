@@ -809,7 +809,6 @@ router.post("/uploadCSV", async(req:ApiRequest<{encode:string}>,res:ApiResponse<
 								description:""
 							}
 							const response = await teams.addActivityForUser((userActivity as UserActivity));
-							console.log(response);
 							if(!response){
 								console.error("Error on route \"/uploadCSV\" in \"admin\" router");
 								console.error("No activity added");

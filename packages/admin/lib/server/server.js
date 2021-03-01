@@ -1082,7 +1082,6 @@ router.post("/uploadCSV", function (req, res) { return __awaiter(void 0, void 0,
                 return [4 /*yield*/, teams.addActivityForUser(userActivity)];
             case 19:
                 response = _g.sent();
-                console.log(response);
                 if (!response) {
                     console.error("Error on route \"/uploadCSV\" in \"admin\" router");
                     console.error("No activity added");

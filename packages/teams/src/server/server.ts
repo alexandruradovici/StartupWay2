@@ -31,7 +31,6 @@ export class TeamsServer {
 					await conn.query(queryOptions,team);
 					queryOptions.sql = "SELECT teamId,productId,teamName,teamDetails,location,year FROM teams WHERE teamId=:teamId";
 					const teamResponse: Team[] = await conn.query(queryOptions, {teamId:team.teamId});
-					console.log(teamResponse);
 					if (teamResponse && teamResponse.length > 0 && teamResponse[0]) {
 						team = teamResponse[0];
 						product = productResponse[0];

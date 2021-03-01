@@ -1,7 +1,7 @@
 import {createPool, Pool, PoolConnection, QueryOptions} from "mariadb";
 import dotenv from 'dotenv';
-import { DB_NAME, DB_COLLATE, DB_CHARSET } from './tables';
 dotenv.config();
+import { DB_NAME, DB_COLLATE, DB_CHARSET } from './tables';
 export class MariaDBServer {
 	private static INSTANCE?: MariaDBServer;
 	public pool:Pool;

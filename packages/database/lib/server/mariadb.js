@@ -42,8 +42,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getPool = exports.MariaDBServer = void 0;
 var mariadb_1 = require("mariadb");
 var dotenv_1 = __importDefault(require("dotenv"));
-var tables_1 = require("./tables");
 dotenv_1.default.config();
+var tables_1 = require("./tables");
 var MariaDBServer = /** @class */ (function () {
     function MariaDBServer() {
         var _this = this;
