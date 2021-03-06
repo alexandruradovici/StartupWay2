@@ -142,9 +142,16 @@ export class TeamsServer {
 					sql: "INSERT INTO userTeams (userProductId,userId,teamId,role) VALUES(:userProductId,:userId,:teamId,:role)"
 				};
 				const userProductId = uiidv4();
-				await conn.query(queryOptions,{ userProductId: userProductId, userId:user.userId, teamId: team.teamId, role:role });
+				const res = await conn.query(queryOptions,{ userProductId: userProductId, userId:user.userId, teamId: team.teamId, role:role });
+				
+				console.log("res");
+				console.log(res);
+				console.log("res");
 				queryOptions.sql = "SELECT userProductId,userId,teamId,role FROM userTeams WHERE userProductId=:userProductId"
 				const userInTeam: UserTeams[] = await conn.query(queryOptions, {  userProductId: userProductId });
+				console.log("USERINTEAM");
+				console.log(userInTeam);
+				console.log("USERINTEAM");
 				if (userInTeam && userInTeam.length > 0 && userInTeam[0]) {
 					await conn.commit();
 					await conn.release();

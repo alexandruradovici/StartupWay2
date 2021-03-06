@@ -283,6 +283,7 @@ export default Vue.extend({
 		$route:{
 			immediate:true,
 			async handler(newRoute):Promise<void> {
+				this.loadingPage = true;
 				this.teamId = this.$route.params.teamId;
 				try {
 					if(await this.getUsers(this.teamId))
@@ -320,6 +321,7 @@ export default Vue.extend({
 				} catch (e) {
 					console.error(e);
 				}
+				this.loadingPage = false;
 			}
 		},
 		user: {
@@ -461,8 +463,8 @@ export default Vue.extend({
 			return users;
 		},
 		async updateProduct(product:Product):Promise<void> {
+			this.loadingPage = true;
 			if(product.startupName !== "") {
-				this.loadingPage = true;
 				try {
 					await this.ui.api.post<Product | null>("/api/v1/teams/product/update", {
 						product: product,
@@ -473,8 +475,8 @@ export default Vue.extend({
 				} catch (e) {
 					console.error(e);
 				}
-				this.loadingPage = false;
 			}
+				this.loadingPage = false;
 		},
 		async approveDescription():Promise<void> {
 			this.loadingPage = true;
@@ -507,6 +509,7 @@ export default Vue.extend({
 			this.loadingPage = false;
 		},
 		async download(uuid:string):Promise<void> {
+			this.loadingPage = true;
 			try {
 				const response = await this.ui.api.get<string | null>("/api/v1/uploadDownload/download/file/"+uuid);
 				if(response.data) {
@@ -518,6 +521,7 @@ export default Vue.extend({
 			} catch (e) {
 				console.error(e);
 			}
+			this.loadingPage = false;
 		},
 	}
 });

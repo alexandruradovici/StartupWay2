@@ -172,6 +172,7 @@ export default Vue.extend({
 		$route:{
 			immediate:true,
 			async handler(newRoute):Promise<void> {
+				this.loadingPage = true;
 				this.teamId = this.$route.params.teamId;
 				try {
 					if(await this.getUsers(this.teamId))
@@ -183,11 +184,13 @@ export default Vue.extend({
 				} catch (e) {
 					console.error(e);
 				}
+				this.loadingPage = false;
 			}
 		},
 		user: {
 			immediate: true,
 			async handler(newUser: User):Promise<void>  {
+				this.loadingPage = true;
 				if(newUser) {
 					if(newUser.role === "Admin" || newUser.role === "SuperAdmin") {
 						try {
@@ -211,25 +214,27 @@ export default Vue.extend({
 						}
 					}
 				}
+				this.loadingPage = false;
 			}
 		},
 		activities: {
 			immediate: true,
 			handler (newActivities: UserActivity[]):void {
-				
+				this.loadingPage = true;
 				if(newActivities.length !== 0) {
 					newActivities.forEach( (activity:UserActivity) => {
 						(activity as UserActivity & {stringDate:Date | string}).stringDate = activity.date;
 					});
 					this.weeks = newActivities;
 				}
-				
+				this.loadingPage = false;
 				//TODO PARSE DATA
 			}
 		},
 		mentoredUser: {
 			immediate:true,
 			async handler(newUser:(User & UserTeams)):Promise<void>  {
+				this.loadingPage = true;
 				if(newUser) {
 					const newUserId=newUser.userId;
 					if(newUserId) {
@@ -245,6 +250,7 @@ export default Vue.extend({
 						}
 					}
 				}
+				this.loadingPage = false;
 			}
 		},
 	},

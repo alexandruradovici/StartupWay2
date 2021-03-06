@@ -16,6 +16,7 @@ declare const _default: import("vue/types/vue").ExtendedVue<Vue, {
     newFeedUpdate: string;
     FeedTypes: typeof FeedTypes;
     editDialog: boolean;
+    loadingPage: boolean;
     edited: Feed | null;
     removeDialog: boolean;
 }, {

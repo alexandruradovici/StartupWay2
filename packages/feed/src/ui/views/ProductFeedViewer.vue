@@ -1,37 +1,48 @@
 <template>
 	<v-app id="app">
-		<v-container class="content" width="1000">
-				<v-divider></v-divider>
-				<template v-if="productUpdates"> 
-					<v-card flat outlined v-for="(item, index) in productUpdates" :key="index" width="800" class="justify-center" style="margin: auto; margin-bottom: 20px; margin-top: 30px;">
-						<v-card-title style="font-family: Georgia, serif; font-size: 18px; font-weight: 600;">
-							<v-icon large left color="#22542b" v-if="item.feedType===FeedTypes.INVESTMENT">mdi-account-cash</v-icon>
-							<v-icon large left color="#e0ac1b" v-if="item.feedType===FeedTypes.AWARD">mdi-trophy</v-icon>
-							<v-icon large left color="#9e2219" v-if="item.feedType===FeedTypes.UPDATE">mdi-update</v-icon>
-							<v-icon large left color="#202b4f" v-if="item.feedType===FeedTypes.COLLABORATORS">mdi-account-tie</v-icon>
-						
-							Feed Type: {{ item.feedType }}
-						</v-card-title>
-						<v-card-subtitle v-if="item && item.date" style="font-family: Georgia, serif; font-size: 18px;">
-								{{formatDate(item.date)}}
-						</v-card-subtitle>
-						<v-divider></v-divider>
-						<v-card-text style="font-family: Georgia, serif;">
-							<span>Feed Description: {{ item.text["text"] }}</span>
-							<v-spacer></v-spacer>
-							<span v-if="item.feedType === FeedTypes.INVESTMENT"> Amount:{{ item.text["amount"] }} </span>
-						</v-card-text>
-					</v-card>
-				</template>
-				<span v-else>
-					<v-row justify="center" no-gutters>
-						<v-col md="auto">
-							<h1 class="landing-message">
-								No feed to show for this team.
-							</h1>
-						</v-col>
-					</v-row>
-				</span>
+		<v-container v-if="!loadingPage" class="content" width="1000">
+			<v-divider></v-divider>
+			<template v-if="productUpdates"> 
+				<v-card flat outlined v-for="(item, index) in productUpdates" :key="index" width="800" class="justify-center" style="margin: auto; margin-bottom: 20px; margin-top: 30px;">
+					<v-card-title style="font-family: Georgia, serif; font-size: 18px; font-weight: 600;">
+						<v-icon large left color="#22542b" v-if="item.feedType===FeedTypes.INVESTMENT">mdi-account-cash</v-icon>
+						<v-icon large left color="#e0ac1b" v-if="item.feedType===FeedTypes.AWARD">mdi-trophy</v-icon>
+						<v-icon large left color="#9e2219" v-if="item.feedType===FeedTypes.UPDATE">mdi-update</v-icon>
+						<v-icon large left color="#202b4f" v-if="item.feedType===FeedTypes.COLLABORATORS">mdi-account-tie</v-icon>
+					
+						Feed Type: {{ item.feedType }}
+					</v-card-title>
+					<v-card-subtitle v-if="item && item.date" style="font-family: Georgia, serif; font-size: 18px;">
+							{{formatDate(item.date)}}
+					</v-card-subtitle>
+					<v-divider></v-divider>
+					<v-card-text style="font-family: Georgia, serif;">
+						<span>Feed Description: {{ item.text["text"] }}</span>
+						<v-spacer></v-spacer>
+						<span v-if="item.feedType === FeedTypes.INVESTMENT"> Amount:{{ item.text["amount"] }} </span>
+					</v-card-text>
+				</v-card>
+			</template>
+			<span v-else>
+				<v-row justify="center" no-gutters>
+					<v-col md="auto">
+						<h1 class="landing-message">
+							No feed to show for this team.
+						</h1>
+					</v-col>
+				</v-row>
+			</span>
+		</v-container>
+		<v-container v-else>
+			<v-row justify="center">
+				<v-col md="auto">
+					<v-progress-circular
+					:size="500"
+					color="primary"
+					indeterminate
+					></v-progress-circular>
+				</v-col>
+			</v-row>
 		</v-container>
 	</v-app>
 </template>
@@ -50,6 +61,7 @@ export default Vue.extend({
 		$route:{
 			immediate:true,
 			async handler(newRoute):Promise<void>  {
+				this.loadingPage = true;
 				this.teamId = (this.$route.params.teamId);
 				try {
 					if(await this.getUsers(this.teamId))
@@ -69,11 +81,13 @@ export default Vue.extend({
 				} catch (e) {
 					console.error(e);
 				}
+				this.loadingPage = false;
 			}
 		},
 		user: {
 			immediate: true,
 			async handler(newUser: User):Promise<void>  {
+				this.loadingPage = true;
 				if(newUser) {
 					if(newUser.role === "Admin" || newUser.role === "SuperAdmin") {
 						try {
@@ -97,6 +111,7 @@ export default Vue.extend({
 						}
 					}
 				}
+				this.loadingPage = false;
 			}
 		},
 	},
@@ -108,6 +123,7 @@ export default Vue.extend({
 	data() {
 		return {
 			ui: UI.getInstance(),
+			loadingPage: false,
 			teams: [] as (Team[] | (Team & Product)[]),
 			location: "" as string,
 			users:[] as (User & UserTeams)[],

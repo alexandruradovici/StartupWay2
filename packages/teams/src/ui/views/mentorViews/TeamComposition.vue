@@ -140,7 +140,8 @@
 							:headers="headers2"
 							:items="allUsers"
 							:search="search2"
-							:loading="loading"
+							:loading="allUsers.length <= 0" 
+							loading-text="Loading users"
 							show-select>
 							<template v-slot:top>
 								<v-text-field
@@ -218,6 +219,7 @@ export default Vue.extend({
 		$route:{
 			immediate:true,
 			async handler(newRoute):Promise<void>  {
+				this.loadingPage = true;
 				this.teamId = this.$route.params.teamId;
 				try {
 					const r = await this.getUsers(this.teamId)
@@ -231,11 +233,13 @@ export default Vue.extend({
 				} catch (e) {
 					console.error(e);
 				}
+				this.loadingPage = false;
 			}
 		},
 		user: {
 			immediate: true,
 			async handler(newUser: User):Promise<void>  {
+				this.loadingPage = true;
 				if(newUser) {
 					if(newUser.role === "Admin" || newUser.role === "SuperAdmin") {
 						try {
@@ -259,6 +263,7 @@ export default Vue.extend({
 						}
 					}
 				}
+				this.loadingPage = false;
 			}
 		},
 	},
@@ -792,19 +797,19 @@ export default Vue.extend({
 			this.snackbar = prop;
 		},
 		async refreshLists():Promise<boolean> {
-				this.teamId = this.$route.params.teamId;
-				try {
-					if(await this.getUsers(this.teamId))
-						if(await this.getAllUsers())
-							return true;
-						else
-							return false;
+			this.teamId = this.$route.params.teamId;
+			try {
+				if(await this.getUsers(this.teamId))
+					if(await this.getAllUsers())
+						return true;
 					else
 						return false;
-				} catch (e) {
-					console.error(e);
+				else
 					return false;
-				}
+			} catch (e) {
+				console.error(e);
+				return false;
+			}
 		}
 		
 	}

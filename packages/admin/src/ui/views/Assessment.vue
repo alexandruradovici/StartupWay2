@@ -23,6 +23,7 @@
 							:itemsPerPage="-1"
 							:sort-by.sync="sortByAssessment"
 							:sort-desc.sync="sortDescAssessment"
+							:loading="filteredTeams.length <= 0"
 							loading-text="Loading teams"
 						>
 							<template v-slot:top>

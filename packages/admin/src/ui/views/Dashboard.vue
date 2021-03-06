@@ -35,6 +35,7 @@
 							:sort-by.sync="sortBy"
 							:sort-desc.sync="sortDesc"
 							:expanded.sync="expanded"
+							:loading="filteredReviews.length <= 0"
 							loading-text="Loading teams"
 						>
 							<template v-slot:top>

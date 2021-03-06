@@ -845,6 +845,7 @@ var script$1 = Vue.extend({
                     return __generator(this, function (_a) {
                         switch (_a.label) {
                             case 0:
+                                this.loadingPage = true;
                                 this.teamId = this.$route.params.teamId;
                                 _a.label = 1;
                             case 1:
@@ -868,7 +869,9 @@ var script$1 = Vue.extend({
                                 e_1 = _a.sent();
                                 console.error(e_1);
                                 return [3 /*break*/, 7];
-                            case 7: return [2 /*return*/];
+                            case 7:
+                                this.loadingPage = false;
+                                return [2 /*return*/];
                         }
                     });
                 });
@@ -882,6 +885,7 @@ var script$1 = Vue.extend({
                     return __generator(this, function (_a) {
                         switch (_a.label) {
                             case 0:
+                                this.loadingPage = true;
                                 if (!newUser) return [3 /*break*/, 9];
                                 if (!(newUser.role === "Admin" || newUser.role === "SuperAdmin")) return [3 /*break*/, 5];
                                 _a.label = 1;
@@ -917,7 +921,9 @@ var script$1 = Vue.extend({
                                 e_3 = _a.sent();
                                 console.error(e_3);
                                 return [3 /*break*/, 9];
-                            case 9: return [2 /*return*/];
+                            case 9:
+                                this.loadingPage = false;
+                                return [2 /*return*/];
                         }
                     });
                 });
@@ -2560,7 +2566,8 @@ var __vue_render__$1 = function() {
                               headers: _vm.headers2,
                               items: _vm.allUsers,
                               search: _vm.search2,
-                              loading: _vm.loading,
+                              loading: _vm.allUsers.length <= 0,
+                              "loading-text": "Loading users",
                               "show-select": ""
                             },
                             scopedSlots: _vm._u(
@@ -2893,6 +2900,7 @@ var script$2 = Vue.extend({
                     return __generator(this, function (_a) {
                         switch (_a.label) {
                             case 0:
+                                this.loadingPage = true;
                                 this.teamId = this.$route.params.teamId;
                                 _a.label = 1;
                             case 1:
@@ -2953,7 +2961,9 @@ var script$2 = Vue.extend({
                                 e_1 = _a.sent();
                                 console.error(e_1);
                                 return [3 /*break*/, 14];
-                            case 14: return [2 /*return*/];
+                            case 14:
+                                this.loadingPage = false;
+                                return [2 /*return*/];
                         }
                     });
                 });
@@ -3171,8 +3181,8 @@ var script$2 = Vue.extend({
                 return __generator(this, function (_a) {
                     switch (_a.label) {
                         case 0:
-                            if (!(product.startupName !== "")) return [3 /*break*/, 5];
                             this.loadingPage = true;
+                            if (!(product.startupName !== "")) return [3 /*break*/, 4];
                             _a.label = 1;
                         case 1:
                             _a.trys.push([1, 3, , 4]);
@@ -3191,8 +3201,7 @@ var script$2 = Vue.extend({
                             return [3 /*break*/, 4];
                         case 4:
                             this.loadingPage = false;
-                            _a.label = 5;
-                        case 5: return [2 /*return*/];
+                            return [2 /*return*/];
                     }
                 });
             });
@@ -3267,20 +3276,25 @@ var script$2 = Vue.extend({
                 return __generator(this, function (_a) {
                     switch (_a.label) {
                         case 0:
-                            _a.trys.push([0, 2, , 3]);
-                            return [4 /*yield*/, this.ui.api.get("/api/v1/uploadDownload/download/file/" + uuid)];
+                            this.loadingPage = true;
+                            _a.label = 1;
                         case 1:
+                            _a.trys.push([1, 3, , 4]);
+                            return [4 /*yield*/, this.ui.api.get("/api/v1/uploadDownload/download/file/" + uuid)];
+                        case 2:
                             response = _a.sent();
                             if (response.data) {
                                 url = response.data;
                                 window.open(url, '_blank');
                             }
-                            return [3 /*break*/, 3];
-                        case 2:
+                            return [3 /*break*/, 4];
+                        case 3:
                             e_11 = _a.sent();
                             console.error(e_11);
-                            return [3 /*break*/, 3];
-                        case 3: return [2 /*return*/];
+                            return [3 /*break*/, 4];
+                        case 4:
+                            this.loadingPage = false;
+                            return [2 /*return*/];
                     }
                 });
             });
@@ -4500,6 +4514,7 @@ var script$3 = Vue.extend({
                     return __generator(this, function (_a) {
                         switch (_a.label) {
                             case 0:
+                                this.loadingPage = true;
                                 this.teamId = this.$route.params.teamId;
                                 _a.label = 1;
                             case 1:
@@ -4522,7 +4537,9 @@ var script$3 = Vue.extend({
                                 e_1 = _a.sent();
                                 console.error(e_1);
                                 return [3 /*break*/, 7];
-                            case 7: return [2 /*return*/];
+                            case 7:
+                                this.loadingPage = false;
+                                return [2 /*return*/];
                         }
                     });
                 });
@@ -4536,6 +4553,7 @@ var script$3 = Vue.extend({
                     return __generator(this, function (_a) {
                         switch (_a.label) {
                             case 0:
+                                this.loadingPage = true;
                                 if (!newUser) return [3 /*break*/, 9];
                                 if (!(newUser.role === "Admin" || newUser.role === "SuperAdmin")) return [3 /*break*/, 5];
                                 _a.label = 1;
@@ -4571,7 +4589,9 @@ var script$3 = Vue.extend({
                                 e_3 = _a.sent();
                                 console.error(e_3);
                                 return [3 /*break*/, 9];
-                            case 9: return [2 /*return*/];
+                            case 9:
+                                this.loadingPage = false;
+                                return [2 /*return*/];
                         }
                     });
                 });
@@ -4580,12 +4600,14 @@ var script$3 = Vue.extend({
         activities: {
             immediate: true,
             handler: function (newActivities) {
+                this.loadingPage = true;
                 if (newActivities.length !== 0) {
                     newActivities.forEach(function (activity) {
                         activity.stringDate = activity.date;
                     });
                     this.weeks = newActivities;
                 }
+                this.loadingPage = false;
                 //TODO PARSE DATA
             }
         },
@@ -4597,6 +4619,7 @@ var script$3 = Vue.extend({
                     return __generator(this, function (_a) {
                         switch (_a.label) {
                             case 0:
+                                this.loadingPage = true;
                                 if (!newUser) return [3 /*break*/, 2];
                                 newUserId = newUser.userId;
                                 if (!newUserId) return [3 /*break*/, 2];
@@ -4613,7 +4636,9 @@ var script$3 = Vue.extend({
                                     });
                                 }
                                 _a.label = 2;
-                            case 2: return [2 /*return*/];
+                            case 2:
+                                this.loadingPage = false;
+                                return [2 /*return*/];
                         }
                     });
                 });
@@ -7496,7 +7521,8 @@ var __vue_render__$5 = function() {
                               headers: _vm.headers2,
                               items: _vm.allUsers,
                               search: _vm.search2,
-                              loading: _vm.loading,
+                              loading: _vm.allUsers.length <= 0,
+                              "loading-text": "Loading users",
                               "single-select": _vm.singleSelect2,
                               "show-select": ""
                             },
@@ -11053,6 +11079,7 @@ var script$7 = Vue.extend({
                     return __generator(this, function (_a) {
                         switch (_a.label) {
                             case 0:
+                                this.loadingPage = true;
                                 if (!this.currentTeam) return [3 /*break*/, 4];
                                 this.teamId = newTeam.teamId;
                                 if (!(this.teamId === "")) return [3 /*break*/, 1];
@@ -11078,7 +11105,9 @@ var script$7 = Vue.extend({
                                 e_1 = _a.sent();
                                 console.error(e_1);
                                 return [3 /*break*/, 4];
-                            case 4: return [2 /*return*/];
+                            case 4:
+                                this.loadingPage = false;
+                                return [2 /*return*/];
                         }
                     });
                 });
@@ -11092,6 +11121,7 @@ var script$7 = Vue.extend({
                     return __generator(this, function (_a) {
                         switch (_a.label) {
                             case 0:
+                                this.loadingPage = true;
                                 if (!this.user) return [3 /*break*/, 4];
                                 this.userId = newUser.userId;
                                 if (!(this.userId === "")) return [3 /*break*/, 1];
@@ -11114,7 +11144,9 @@ var script$7 = Vue.extend({
                                 e_2 = _a.sent();
                                 console.error(e_2);
                                 return [3 /*break*/, 4];
-                            case 4: return [2 /*return*/, newUser];
+                            case 4:
+                                this.loadingPage = false;
+                                return [2 /*return*/, newUser];
                         }
                     });
                 });
@@ -11123,12 +11155,14 @@ var script$7 = Vue.extend({
         activities: {
             immediate: true,
             handler: function (newActivities) {
+                this.loadingPage = true;
                 if (newActivities.length !== 0) {
                     newActivities.forEach(function (activity) {
                         activity.stringDate = (moment(activity.date).format('[Week:] Do [of] MMMM'));
                     });
                     this.weeks = newActivities;
                 }
+                this.loadingPage = false;
                 //TODO PARSE DATA
             }
         }
@@ -11284,123 +11318,153 @@ var __vue_render__$7 = function() {
     "v-app",
     { attrs: { id: "app" } },
     [
-      _c(
-        "v-card",
-        {
-          staticStyle: { margin: "auto", "margin-top": "50px" },
-          attrs: { flat: "", "max-width": "1000", color: "#fcfcfc" }
-        },
-        [
-          _c("v-divider"),
-          _vm._v(" "),
-          _c("v-card-text", { staticStyle: { "margin-top": "20px" } }, [
-            _c(
-              "div",
-              [
-                _vm.weeks.length > 0
-                  ? _c(
-                      "v-row",
-                      _vm._l(_vm.weeks, function(week) {
-                        return _c(
-                          "v-col",
-                          {
-                            key: week.activityId,
-                            attrs: {
-                              cols: "12",
-                              sm: "6",
-                              md: "4",
-                              lg: "4",
-                              xl: "4"
-                            }
-                          },
-                          [
-                            _c(
-                              "v-card",
-                              { attrs: { flat: "", outlined: "" } },
-                              [
-                                _c(
-                                  "v-card-title",
+      !_vm.loadingPage
+        ? _c(
+            "v-container",
+            [
+              _c(
+                "v-card",
+                {
+                  staticStyle: { margin: "auto", "margin-top": "50px" },
+                  attrs: { flat: "", "max-width": "1000", color: "#fcfcfc" }
+                },
+                [
+                  _c("v-divider"),
+                  _vm._v(" "),
+                  _c("v-card-text", { staticStyle: { "margin-top": "20px" } }, [
+                    _c(
+                      "div",
+                      [
+                        _vm.weeks.length > 0
+                          ? _c(
+                              "v-row",
+                              _vm._l(_vm.weeks, function(week) {
+                                return _c(
+                                  "v-col",
                                   {
-                                    staticClass: "justify-center",
-                                    staticStyle: {
-                                      "font-size": "15px",
-                                      "font-weight": "bold"
+                                    key: week.activityId,
+                                    attrs: {
+                                      cols: "12",
+                                      sm: "6",
+                                      md: "4",
+                                      lg: "4",
+                                      xl: "4"
                                     }
                                   },
                                   [
-                                    _vm._v(
-                                      "\n\t\t\t\t\t\t\t\t" +
-                                        _vm._s(_vm.formatDate(week.date)) +
-                                        "\n\t\t\t\t\t\t\t"
-                                    )
-                                  ]
-                                ),
-                                _vm._v(" "),
-                                _c("v-divider"),
-                                _vm._v(" "),
-                                _c("v-card-text", [
-                                  _c(
-                                    "div",
-                                    { staticStyle: { "text-align": "center" } },
-                                    [
-                                      _vm._v(
-                                        "Number of hours worked: " +
-                                          _vm._s(week.noOfHours)
-                                      )
-                                    ]
-                                  ),
-                                  _vm._v(" "),
-                                  _c(
-                                    "div",
-                                    { staticStyle: { "text-align": "center" } },
-                                    [
-                                      _vm._v(
-                                        "Work Description: " +
-                                          _vm._s(week.description)
-                                      )
-                                    ]
-                                  )
-                                ]),
-                                _vm._v(" "),
-                                _c(
-                                  "v-card-actions",
-                                  { staticClass: "justify-center" },
-                                  [
                                     _c(
-                                      "v-btn",
-                                      {
-                                        attrs: { icon: "", fab: "" },
-                                        on: {
-                                          click: function($event) {
-                                            return _vm.enableEdit(week)
-                                          }
-                                        }
-                                      },
+                                      "v-card",
+                                      { attrs: { flat: "", outlined: "" } },
                                       [
                                         _c(
-                                          "v-icon",
-                                          { attrs: { color: "primary" } },
-                                          [_vm._v("mdi-pencil-circle-outline")]
-                                        )
-                                      ],
-                                      1
-                                    ),
-                                    _vm._v(" "),
-                                    _c(
-                                      "v-btn",
-                                      {
-                                        attrs: { icon: "", fab: "" },
-                                        on: {
-                                          click: function($event) {
-                                            return _vm.viewActivity(week)
-                                          }
-                                        }
-                                      },
-                                      [
+                                          "v-card-title",
+                                          {
+                                            staticClass: "justify-center",
+                                            staticStyle: {
+                                              "font-size": "15px",
+                                              "font-weight": "bold"
+                                            }
+                                          },
+                                          [
+                                            _vm._v(
+                                              "\n\t\t\t\t\t\t\t\t\t" +
+                                                _vm._s(
+                                                  _vm.formatDate(week.date)
+                                                ) +
+                                                "\n\t\t\t\t\t\t\t\t"
+                                            )
+                                          ]
+                                        ),
+                                        _vm._v(" "),
+                                        _c("v-divider"),
+                                        _vm._v(" "),
+                                        _c("v-card-text", [
+                                          _c(
+                                            "div",
+                                            {
+                                              staticStyle: {
+                                                "text-align": "center"
+                                              }
+                                            },
+                                            [
+                                              _vm._v(
+                                                "Number of hours worked: " +
+                                                  _vm._s(week.noOfHours)
+                                              )
+                                            ]
+                                          ),
+                                          _vm._v(" "),
+                                          _c(
+                                            "div",
+                                            {
+                                              staticStyle: {
+                                                "text-align": "center"
+                                              }
+                                            },
+                                            [
+                                              _vm._v(
+                                                "Work Description: " +
+                                                  _vm._s(week.description)
+                                              )
+                                            ]
+                                          )
+                                        ]),
+                                        _vm._v(" "),
                                         _c(
-                                          "v-icon",
-                                          { attrs: { color: "primary" } },
-                                          [_vm._v("mdi-calendar-month")]
+                                          "v-card-actions",
+                                          { staticClass: "justify-center" },
+                                          [
+                                            _c(
+                                              "v-btn",
+                                              {
+                                                attrs: { icon: "", fab: "" },
+                                                on: {
+                                                  click: function($event) {
+                                                    return _vm.enableEdit(week)
+                                                  }
+                                                }
+                                              },
+                                              [
+                                                _c(
+                                                  "v-icon",
+                                                  {
+                                                    attrs: { color: "primary" }
+                                                  },
+                                                  [
+                                                    _vm._v(
+                                                      "mdi-pencil-circle-outline"
+                                                    )
+                                                  ]
+                                                )
+                                              ],
+                                              1
+                                            ),
+                                            _vm._v(" "),
+                                            _c(
+                                              "v-btn",
+                                              {
+                                                attrs: { icon: "", fab: "" },
+                                                on: {
+                                                  click: function($event) {
+                                                    return _vm.viewActivity(
+                                                      week
+                                                    )
+                                                  }
+                                                }
+                                              },
+                                              [
+                                                _c(
+                                                  "v-icon",
+                                                  {
+                                                    attrs: { color: "primary" }
+                                                  },
+                                                  [_vm._v("mdi-calendar-month")]
+                                                )
+                                              ],
+                                              1
+                                            )
+                                          ],
+                                          1
                                         )
                                       ],
                                       1
@@ -11408,231 +11472,265 @@ var __vue_render__$7 = function() {
                                   ],
                                   1
                                 )
+                              }),
+                              1
+                            )
+                          : _c(
+                              "v-row",
+                              {
+                                attrs: { justify: "center", "no-gutters": "" }
+                              },
+                              [
+                                _c("v-col", { attrs: { md: "auto" } }, [
+                                  _c("h1", { staticClass: "landing-message" }, [
+                                    _vm._v(
+                                      "\n\t\t\t\t\t\t\t\tYou have no activities in this team so far.\n\t\t\t\t\t\t\t"
+                                    )
+                                  ])
+                                ])
                               ],
                               1
                             )
-                          ],
-                          1
-                        )
-                      }),
-                      1
-                    )
-                  : _c(
-                      "v-row",
-                      { attrs: { justify: "center", "no-gutters": "" } },
-                      [
-                        _c("v-col", { attrs: { md: "auto" } }, [
-                          _c("h1", { staticClass: "landing-message" }, [
-                            _vm._v(
-                              "\n\t\t\t\t\t\t\tYou have no activities in this team so far.\n\t\t\t\t\t\t"
-                            )
-                          ])
-                        ])
                       ],
                       1
                     )
-              ],
-              1
-            )
-          ])
-        ],
-        1
-      ),
-      _vm._v(" "),
-      _c(
-        "v-dialog",
-        {
-          attrs: { "max-width": "450" },
-          model: {
-            value: _vm.editDialog,
-            callback: function($$v) {
-              _vm.editDialog = $$v;
-            },
-            expression: "editDialog"
-          }
-        },
-        [
-          _vm.edited
-            ? _c(
-                "v-card",
-                { attrs: { flat: "", width: "450" } },
+                  ])
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c(
+                "v-dialog",
+                {
+                  attrs: { "max-width": "450" },
+                  model: {
+                    value: _vm.editDialog,
+                    callback: function($$v) {
+                      _vm.editDialog = $$v;
+                    },
+                    expression: "editDialog"
+                  }
+                },
+                [
+                  _vm.edited
+                    ? _c(
+                        "v-card",
+                        { attrs: { flat: "", width: "450" } },
+                        [
+                          _c(
+                            "v-card-title",
+                            {
+                              staticClass: "justify-center",
+                              staticStyle: { "font-family": "Georgia, serif" }
+                            },
+                            [
+                              _vm._v(
+                                "\n\t\t\t\t\t" +
+                                  _vm._s(_vm.formatDate(_vm.edited.date)) +
+                                  "\n\t\t\t\t"
+                              )
+                            ]
+                          ),
+                          _vm._v(" "),
+                          _c("v-divider"),
+                          _vm._v(" "),
+                          _c(
+                            "v-card-text",
+                            [
+                              _c("div", { staticClass: "details" }, [
+                                _vm._v(
+                                  "\n\t\t\t\t\t\tPlease submit the number of worked hours during this week.\n\t\t\t\t\t"
+                                )
+                              ]),
+                              _vm._v(" "),
+                              _c("v-text-field", {
+                                attrs: {
+                                  "append-icon": "mdi-calendar-clock",
+                                  "single-line": "",
+                                  color: "primary"
+                                },
+                                model: {
+                                  value: _vm.edited.noOfHours,
+                                  callback: function($$v) {
+                                    _vm.$set(_vm.edited, "noOfHours", $$v);
+                                  },
+                                  expression: "edited.noOfHours"
+                                }
+                              }),
+                              _vm._v(" "),
+                              _c("div", { staticClass: "details" }, [
+                                _vm._v(
+                                  "\n\t\t\t\t\t\tPlease submit a short description for your weekly activity.\n\t\t\t\t\t"
+                                )
+                              ]),
+                              _vm._v(" "),
+                              _c("v-text-field", {
+                                attrs: {
+                                  "append-icon": "mdi-calendar-clock",
+                                  "single-line": "",
+                                  color: "primary"
+                                },
+                                model: {
+                                  value: _vm.edited.description,
+                                  callback: function($$v) {
+                                    _vm.$set(_vm.edited, "description", $$v);
+                                  },
+                                  expression: "edited.description"
+                                }
+                              })
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-card-actions",
+                            { staticClass: "justify-center" },
+                            [
+                              _c(
+                                "v-btn",
+                                {
+                                  attrs: { color: "primary", rounded: "" },
+                                  on: {
+                                    click: function($event) {
+                                      return _vm.updateWeek(_vm.edited)
+                                    }
+                                  }
+                                },
+                                [_vm._v("Update progress")]
+                              ),
+                              _vm._v(" "),
+                              _c(
+                                "v-btn",
+                                {
+                                  attrs: { color: "primary", text: "" },
+                                  on: { click: _vm.denyActivity }
+                                },
+                                [_vm._v("Exit")]
+                              )
+                            ],
+                            1
+                          )
+                        ],
+                        1
+                      )
+                    : _vm._e()
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c(
+                "v-dialog",
+                {
+                  attrs: { "max-width": "450" },
+                  model: {
+                    value: _vm.viewDialog,
+                    callback: function($$v) {
+                      _vm.viewDialog = $$v;
+                    },
+                    expression: "viewDialog"
+                  }
+                },
+                [
+                  _vm.edited
+                    ? _c(
+                        "v-card",
+                        { attrs: { flat: "", width: "450" } },
+                        [
+                          _c(
+                            "v-card-title",
+                            {
+                              staticClass: "justify-center",
+                              staticStyle: { "font-family": "Georgia, serif" }
+                            },
+                            [_vm._v("\n\t\t\t\t\tView activity\n\t\t\t\t")]
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-card-subtitle",
+                            { staticClass: "justify-center" },
+                            [
+                              _c("div", { attrs: { align: "center" } }, [
+                                _vm._v(_vm._s(_vm.formatDate(_vm.edited.date)))
+                              ])
+                            ]
+                          ),
+                          _vm._v(" "),
+                          _c("v-divider"),
+                          _vm._v(" "),
+                          _c(
+                            "v-card-text",
+                            { staticStyle: { "margin-top": "30px" } },
+                            [
+                              _c("div", { staticClass: "details" }, [
+                                _vm._v(
+                                  "\n\t\t\t\t\t\tNumber of worked hours for during this week: " +
+                                    _vm._s(_vm.edited.noOfHours) +
+                                    "\n\t\t\t\t\t"
+                                )
+                              ]),
+                              _vm._v(" "),
+                              _c("div", { staticClass: "details" }, [
+                                _vm._v(
+                                  "\n\t\t\t\t\t\tWork description: " +
+                                    _vm._s(_vm.edited.description) +
+                                    "\n\t\t\t\t\t"
+                                )
+                              ])
+                            ]
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-card-actions",
+                            { staticClass: "justify-center" },
+                            [
+                              _c(
+                                "v-btn",
+                                {
+                                  attrs: { color: "primary", text: "" },
+                                  on: { click: _vm.closeView }
+                                },
+                                [_vm._v("Exit")]
+                              )
+                            ],
+                            1
+                          )
+                        ],
+                        1
+                      )
+                    : _vm._e()
+                ],
+                1
+              )
+            ],
+            1
+          )
+        : _c(
+            "v-container",
+            [
+              _c(
+                "v-row",
+                { attrs: { justify: "center" } },
                 [
                   _c(
-                    "v-card-title",
-                    {
-                      staticClass: "justify-center",
-                      staticStyle: { "font-family": "Georgia, serif" }
-                    },
+                    "v-col",
+                    { attrs: { md: "auto" } },
                     [
-                      _vm._v(
-                        "\n\t\t\t\t" +
-                          _vm._s(_vm.formatDate(_vm.edited.date)) +
-                          "\n\t\t\t"
-                      )
-                    ]
-                  ),
-                  _vm._v(" "),
-                  _c("v-divider"),
-                  _vm._v(" "),
-                  _c(
-                    "v-card-text",
-                    [
-                      _c("div", { staticClass: "details" }, [
-                        _vm._v(
-                          "\n\t\t\t\t\tPlease submit the number of worked hours during this week.\n\t\t\t\t"
-                        )
-                      ]),
-                      _vm._v(" "),
-                      _c("v-text-field", {
+                      _c("v-progress-circular", {
                         attrs: {
-                          "append-icon": "mdi-calendar-clock",
-                          "single-line": "",
-                          color: "primary"
-                        },
-                        model: {
-                          value: _vm.edited.noOfHours,
-                          callback: function($$v) {
-                            _vm.$set(_vm.edited, "noOfHours", $$v);
-                          },
-                          expression: "edited.noOfHours"
-                        }
-                      }),
-                      _vm._v(" "),
-                      _c("div", { staticClass: "details" }, [
-                        _vm._v(
-                          "\n\t\t\t\t\tPlease submit a short description for your weekly activity.\n\t\t\t\t"
-                        )
-                      ]),
-                      _vm._v(" "),
-                      _c("v-text-field", {
-                        attrs: {
-                          "append-icon": "mdi-calendar-clock",
-                          "single-line": "",
-                          color: "primary"
-                        },
-                        model: {
-                          value: _vm.edited.description,
-                          callback: function($$v) {
-                            _vm.$set(_vm.edited, "description", $$v);
-                          },
-                          expression: "edited.description"
+                          size: 500,
+                          color: "primary",
+                          indeterminate: ""
                         }
                       })
                     ],
                     1
-                  ),
-                  _vm._v(" "),
-                  _c(
-                    "v-card-actions",
-                    { staticClass: "justify-center" },
-                    [
-                      _c(
-                        "v-btn",
-                        {
-                          attrs: { color: "primary", rounded: "" },
-                          on: {
-                            click: function($event) {
-                              return _vm.updateWeek(_vm.edited)
-                            }
-                          }
-                        },
-                        [_vm._v("Update progress")]
-                      ),
-                      _vm._v(" "),
-                      _c(
-                        "v-btn",
-                        {
-                          attrs: { color: "primary", text: "" },
-                          on: { click: _vm.denyActivity }
-                        },
-                        [_vm._v("Exit")]
-                      )
-                    ],
-                    1
                   )
                 ],
                 1
               )
-            : _vm._e()
-        ],
-        1
-      ),
-      _vm._v(" "),
-      _c(
-        "v-dialog",
-        {
-          attrs: { "max-width": "450" },
-          model: {
-            value: _vm.viewDialog,
-            callback: function($$v) {
-              _vm.viewDialog = $$v;
-            },
-            expression: "viewDialog"
-          }
-        },
-        [
-          _vm.edited
-            ? _c(
-                "v-card",
-                { attrs: { flat: "", width: "450" } },
-                [
-                  _c(
-                    "v-card-title",
-                    {
-                      staticClass: "justify-center",
-                      staticStyle: { "font-family": "Georgia, serif" }
-                    },
-                    [_vm._v("\n\t\t\t\tView activity\n\t\t\t")]
-                  ),
-                  _vm._v(" "),
-                  _c("v-card-subtitle", { staticClass: "justify-center" }, [
-                    _c("div", { attrs: { align: "center" } }, [
-                      _vm._v(_vm._s(_vm.formatDate(_vm.edited.date)))
-                    ])
-                  ]),
-                  _vm._v(" "),
-                  _c("v-divider"),
-                  _vm._v(" "),
-                  _c("v-card-text", { staticStyle: { "margin-top": "30px" } }, [
-                    _c("div", { staticClass: "details" }, [
-                      _vm._v(
-                        "\n\t\t\t\t\tNumber of worked hours for during this week: " +
-                          _vm._s(_vm.edited.noOfHours) +
-                          "\n\t\t\t\t"
-                      )
-                    ]),
-                    _vm._v(" "),
-                    _c("div", { staticClass: "details" }, [
-                      _vm._v(
-                        "\n\t\t\t\t\tWork description: " +
-                          _vm._s(_vm.edited.description) +
-                          "\n\t\t\t\t"
-                      )
-                    ])
-                  ]),
-                  _vm._v(" "),
-                  _c(
-                    "v-card-actions",
-                    { staticClass: "justify-center" },
-                    [
-                      _c(
-                        "v-btn",
-                        {
-                          attrs: { color: "primary", text: "" },
-                          on: { click: _vm.closeView }
-                        },
-                        [_vm._v("Exit")]
-                      )
-                    ],
-                    1
-                  )
-                ],
-                1
-              )
-            : _vm._e()
-        ],
-        1
-      )
+            ],
+            1
+          )
     ],
     1
   )
@@ -11676,6 +11774,7 @@ var script$8 = Vue.extend({
             ui: UI$1.getInstance(),
             teamId: "",
             role: false,
+            loadingPage: false,
             userMenu: {
                 title: "",
                 subtitle: ""
@@ -11691,6 +11790,7 @@ var script$8 = Vue.extend({
                     return __generator(this, function (_a) {
                         switch (_a.label) {
                             case 0:
+                                this.loadingPage = true;
                                 if (!newTeam) return [3 /*break*/, 5];
                                 return [4 /*yield*/, this.ui.api.get("/api/v1/teams/product/" + newTeam.teamId)];
                             case 1:
@@ -11711,7 +11811,9 @@ var script$8 = Vue.extend({
                                 e_1 = _a.sent();
                                 console.error(e_1);
                                 return [3 /*break*/, 5];
-                            case 5: return [2 /*return*/];
+                            case 5:
+                                this.loadingPage = false;
+                                return [2 /*return*/];
                         }
                     });
                 });
@@ -11720,10 +11822,12 @@ var script$8 = Vue.extend({
         _token: {
             immediate: true,
             handler: function (newToken) {
+                this.loadingPage = true;
                 if (newToken === null) {
                     if (this.$route.path !== "/login")
                         this.$router.push("/login");
                 }
+                this.loadingPage = false;
             }
         },
         user: {
@@ -11733,12 +11837,15 @@ var script$8 = Vue.extend({
                     return __generator(this, function (_a) {
                         switch (_a.label) {
                             case 0:
+                                this.loadingPage = true;
                                 if (!newUser) return [3 /*break*/, 2];
                                 return [4 /*yield*/, this.ui.storeDispatch("teams/loadTeams", newUser.userId)];
                             case 1:
                                 _a.sent();
                                 _a.label = 2;
-                            case 2: return [2 /*return*/];
+                            case 2:
+                                this.loadingPage = false;
+                                return [2 /*return*/];
                         }
                     });
                 });
@@ -11772,99 +11879,129 @@ var __vue_render__$8 = function() {
   return _c(
     "v-app",
     [
-      _c("v-container", [
-        _c(
-          "div",
-          { staticClass: "justify-center" },
-          [
-            _c("v-row", { attrs: { justify: "center" } }, [
-              _vm.user
-                ? _c(
-                    "h1",
-                    {
-                      staticStyle: {
-                        "font-family": "Georgia, serif",
-                        "text-align": "center",
-                        "text-weight": "bold, font-size: 20px",
-                        "margin-top": "70px"
-                      }
-                    },
-                    [
-                      _vm._v(
-                        " \n\t\t\t\t\tHello " +
-                          _vm._s(_vm.user.firstName) +
-                          " " +
-                          _vm._s(_vm.user.lastName) +
-                          " and welcome to StartupWay!\n\t\t\t\t"
+      !_vm.loadingPage
+        ? _c("v-container", [
+            _c(
+              "div",
+              { staticClass: "justify-center" },
+              [
+                _c("v-row", { attrs: { justify: "center" } }, [
+                  _vm.user
+                    ? _c(
+                        "h1",
+                        {
+                          staticStyle: {
+                            "font-family": "Georgia, serif",
+                            "text-align": "center",
+                            "text-weight": "bold, font-size: 20px",
+                            "margin-top": "70px"
+                          }
+                        },
+                        [
+                          _vm._v(
+                            " \n\t\t\t\t\tHello " +
+                              _vm._s(_vm.user.firstName) +
+                              " " +
+                              _vm._s(_vm.user.lastName) +
+                              " and welcome to StartupWay!\n\t\t\t\t"
+                          )
+                        ]
                       )
-                    ]
-                  )
-                : _vm._e(),
-              _vm._v(" "),
-              _vm.teams.length === 0
-                ? _c(
-                    "h1",
-                    {
-                      staticStyle: {
-                        "font-family": "Georgia, serif",
-                        "text-align": "center",
-                        "text-weight": "bold, font-size: 20px",
-                        "margin-top": "20px"
-                      }
-                    },
-                    [
-                      _vm._v(
-                        "\n\t\t\t\t\tOops, it seems like you are not enroled in any team, please contact your mentor for more details.\n\t\t\t\t"
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _vm.teams.length === 0
+                    ? _c(
+                        "h1",
+                        {
+                          staticStyle: {
+                            "font-family": "Georgia, serif",
+                            "text-align": "center",
+                            "text-weight": "bold, font-size: 20px",
+                            "margin-top": "20px"
+                          }
+                        },
+                        [
+                          _vm._v(
+                            "\n\t\t\t\t\tOops, it seems like you are not enroled in any team, please contact your mentor for more details.\n\t\t\t\t"
+                          )
+                        ]
                       )
-                    ]
-                  )
-                : _c(
-                    "h1",
-                    {
-                      staticStyle: {
-                        "font-family": "Georgia, serif",
-                        "text-align": "center",
-                        "text-weight": "bold, font-size: 20px",
-                        "margin-top": "20px"
-                      }
-                    },
-                    [
-                      _vm._v(
-                        "\n\t\t\t\t\tYou are currently enroled in " +
-                          _vm._s(_vm.teams.length) +
-                          " \n\t\t\t\t\t"
+                    : _c(
+                        "h1",
+                        {
+                          staticStyle: {
+                            "font-family": "Georgia, serif",
+                            "text-align": "center",
+                            "text-weight": "bold, font-size: 20px",
+                            "margin-top": "20px"
+                          }
+                        },
+                        [
+                          _vm._v(
+                            "\n\t\t\t\t\tYou are currently enroled in " +
+                              _vm._s(_vm.teams.length) +
+                              " \n\t\t\t\t\t"
+                          ),
+                          _vm.teams.length === 1
+                            ? _c("div", [
+                                _vm._v("\n\t\t\t\t\t\tteam.\n\t\t\t\t\t")
+                              ])
+                            : _c("div", [
+                                _vm._v("\n\t\t\t\t\t\tteams.\n\t\t\t\t\t")
+                              ])
+                        ]
                       ),
-                      _vm.teams.length === 1
-                        ? _c("div", [_vm._v("\n\t\t\t\t\t\tteam.\n\t\t\t\t\t")])
-                        : _c("div", [
-                            _vm._v("\n\t\t\t\t\t\tteams.\n\t\t\t\t\t")
-                          ])
-                    ]
-                  ),
-              _vm._v(" "),
-              !_vm.currentTeam
-                ? _c(
-                    "h1",
-                    {
-                      staticStyle: {
-                        "font-family": "Georgia, serif",
-                        "text-align": "center",
-                        "text-weight": "bold, font-size: 20px",
-                        "margin-top": "20px"
-                      }
-                    },
-                    [
-                      _vm._v(
-                        "\n\t\t\t\t\tPlease select your team from the top right corner.\n\t\t\t\t"
+                  _vm._v(" "),
+                  !_vm.currentTeam
+                    ? _c(
+                        "h1",
+                        {
+                          staticStyle: {
+                            "font-family": "Georgia, serif",
+                            "text-align": "center",
+                            "text-weight": "bold, font-size: 20px",
+                            "margin-top": "20px"
+                          }
+                        },
+                        [
+                          _vm._v(
+                            "\n\t\t\t\t\tPlease select your team from the top right corner.\n\t\t\t\t"
+                          )
+                        ]
                       )
-                    ]
+                    : _vm._e()
+                ])
+              ],
+              1
+            )
+          ])
+        : _c(
+            "v-container",
+            [
+              _c(
+                "v-row",
+                { attrs: { justify: "center" } },
+                [
+                  _c(
+                    "v-col",
+                    { attrs: { md: "auto" } },
+                    [
+                      _c("v-progress-circular", {
+                        attrs: {
+                          size: 500,
+                          color: "primary",
+                          indeterminate: ""
+                        }
+                      })
+                    ],
+                    1
                   )
-                : _vm._e()
-            ])
-          ],
-          1
-        )
-      ])
+                ],
+                1
+              )
+            ],
+            1
+          )
     ],
     1
   )

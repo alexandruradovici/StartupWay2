@@ -38,6 +38,7 @@ export class UsersServer {
 					await conn.release();
 					return response[0];
 				} else {
+					await conn.rollback();
 					await conn.release();
 					return null;
 				}

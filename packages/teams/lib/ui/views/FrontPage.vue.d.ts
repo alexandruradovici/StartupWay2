@@ -6,6 +6,7 @@ declare const _default: import("vue/types/vue").ExtendedVue<Vue, {
     ui: UI;
     teamId: string;
     role: boolean;
+    loadingPage: boolean;
     userMenu: {
         title: string;
         subtitle: string;

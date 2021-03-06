@@ -758,7 +758,7 @@ router.post("/uploadCSV", async(req:ApiRequest<{encode:string}>,res:ApiResponse<
 				let user:User | null = null;
 				if(entry.user) {
 					user = await users.getUserByEmail(entry.user.email);
-					if(!user) {
+					if(user == null) {
 						const password = admin.randomPassword();
 						entry.user.password = password;
 						const options = admin.createMailOptions(
@@ -780,26 +780,29 @@ router.post("/uploadCSV", async(req:ApiRequest<{encode:string}>,res:ApiResponse<
 						user = await users.addUser(entry.user);
 					}
 				}
-				let userTeam;
+				let userTeam:UserTeams | null = null;
 				if(user && team)
 					userTeam = await teams.getUserInTeam(user.userId,team.teamId);
-				if(!userTeam && user && team)
+				if(userTeam === null && user !== null && team !== null)
 				{
 					let role = user.role;
-					let teamUser;
+					let teamUser:UserTeams | null = null;
 					if(user && team && role)
 						teamUser = await teams.addUserToTeam(user, team, role);
+					console.log("TEAMUSER");
+					console.log(teamUser);
+					console.log("TEAMUSER");
 					let initDate;
 					if(team.teamDetails["location"] === "Bucharest"){
-						initDate = moment("2020-03-02");
+						initDate = moment("2021-03-02");
 					} else {
-						initDate = moment("2020-03-09");
+						initDate = moment("2021-03-09");
 					}
 					for(let i = 0; i < 10; i++) {
 						const aux = moment(initDate.toDate());
 						const date = aux.add(7*i,"days").toDate();
 						let userActivity:UserActivity;
-						if(user && teamUser) {
+						if(user !== null && teamUser !== null) {
 							userActivity = {
 								activityId:uiidv4(),
 								userId:user.userId,
@@ -811,12 +814,12 @@ router.post("/uploadCSV", async(req:ApiRequest<{encode:string}>,res:ApiResponse<
 							const response = await teams.addActivityForUser((userActivity as UserActivity));
 							if(!response){
 								console.error("Error on route \"/uploadCSV\" in \"admin\" router");
-								console.error("No activity added");
+								console.error("No activity added NO RESPONSE");
 								break;
 							}
 						} else {
 							console.error("Error on route \"/uploadCSV\" in \"admin\" router");
-							console.error("No activity added")
+							console.error("No activity added NO TEAM");
 							break;
 						}
 					}
@@ -981,7 +984,7 @@ router.get("/users", async (req:ApiRequest<undefined>,res:ApiResponse<(User & Us
 router.get("/teams/:location", async (req:ApiRequest<undefined>,res:ApiResponse<(Team & Product)[]>) => {
 	try {
 		let teamsArray:(Team & Product)[] = [];
-		if(req.params.location === "all") {
+		if(req.params.location === "all" || req.params.location === "undefined") {
 			teamsArray = await teams.getTeams();
 		} else {
 			teamsArray = await teams.getTeamsByLocation(req.params.location);

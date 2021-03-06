@@ -250,7 +250,7 @@ var TeamsServer = /** @class */ (function () {
     };
     TeamsServer.prototype.addUserToTeam = function (user, team, role) {
         return __awaiter(this, void 0, void 0, function () {
-            var conn, queryOptions, userProductId, userInTeam, e_1;
+            var conn, queryOptions, userProductId, res, userInTeam, e_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -272,11 +272,17 @@ var TeamsServer = /** @class */ (function () {
                         userProductId = uuid_1.v4();
                         return [4 /*yield*/, conn.query(queryOptions, { userProductId: userProductId, userId: user.userId, teamId: team.teamId, role: role })];
                     case 4:
-                        _a.sent();
+                        res = _a.sent();
+                        console.log("res");
+                        console.log(res);
+                        console.log("res");
                         queryOptions.sql = "SELECT userProductId,userId,teamId,role FROM userTeams WHERE userProductId=:userProductId";
                         return [4 /*yield*/, conn.query(queryOptions, { userProductId: userProductId })];
                     case 5:
                         userInTeam = _a.sent();
+                        console.log("USERINTEAM");
+                        console.log(userInTeam);
+                        console.log("USERINTEAM");
                         if (!(userInTeam && userInTeam.length > 0 && userInTeam[0])) return [3 /*break*/, 8];
                         return [4 /*yield*/, conn.commit()];
                     case 6:

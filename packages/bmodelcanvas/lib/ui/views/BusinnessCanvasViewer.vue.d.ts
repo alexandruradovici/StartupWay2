@@ -6,6 +6,7 @@ import { BModelCanvas } from "../../common";
 import { UI } from '@startupway/main/lib/ui';
 declare const _default: import("vue/types/vue").ExtendedVue<Vue, {
     ui: UI;
+    loadingPage: boolean;
     teams: Team[] | (Team & Product)[];
     location: string;
     users: User[];

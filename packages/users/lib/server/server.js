@@ -72,11 +72,11 @@ var UsersServer = /** @class */ (function () {
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 13, , 17]);
+                        _a.trys.push([1, 14, , 18]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 11];
+                        if (!conn) return [3 /*break*/, 12];
                         return [4 /*yield*/, conn.beginTransaction()];
                     case 3:
                         _a.sent();
@@ -100,26 +100,29 @@ var UsersServer = /** @class */ (function () {
                     case 7:
                         _a.sent();
                         return [2 /*return*/, response[0]];
-                    case 8: return [4 /*yield*/, conn.release()];
+                    case 8: return [4 /*yield*/, conn.rollback()];
                     case 9:
                         _a.sent();
+                        return [4 /*yield*/, conn.release()];
+                    case 10:
+                        _a.sent();
                         return [2 /*return*/, null];
-                    case 10: return [3 /*break*/, 12];
-                    case 11: return [2 /*return*/, null];
-                    case 12: return [3 /*break*/, 17];
-                    case 13:
+                    case 11: return [3 /*break*/, 13];
+                    case 12: return [2 /*return*/, null];
+                    case 13: return [3 /*break*/, 18];
+                    case 14:
                         error_1 = _a.sent();
                         console.error(error_1);
-                        if (!conn) return [3 /*break*/, 16];
+                        if (!conn) return [3 /*break*/, 17];
                         return [4 /*yield*/, conn.rollback()];
-                    case 14:
-                        _a.sent();
-                        return [4 /*yield*/, conn.release()];
                     case 15:
                         _a.sent();
-                        _a.label = 16;
-                    case 16: return [2 /*return*/, null];
-                    case 17: return [2 /*return*/];
+                        return [4 /*yield*/, conn.release()];
+                    case 16:
+                        _a.sent();
+                        _a.label = 17;
+                    case 17: return [2 /*return*/, null];
+                    case 18: return [2 /*return*/];
                 }
             });
         });

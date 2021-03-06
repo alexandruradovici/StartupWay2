@@ -1,230 +1,243 @@
 <template>
 	<v-app>
-		<v-card flat style="margin: auto; margin-top: 50px;"  max-width="1000" color="#fcfcfc">
-			<v-divider></v-divider>
-			<v-card-text>
-				<v-row no-gutters>
-					<v-col cols="12" sm="10" md="8" lg="4" xl="4">
-						<div style="text-align:center; font-weight: bold; margin-top: 15px;">PROBLEM</div>
-						<v-textarea
-							required
-							:rules="lengthRules"
-							v-model="problem"
-							:placeholder="canvas.fields['Problem']"
-							rows="4"
-							no-resize
-							counter="250"
-							outlined
-							rounded
-							color="primary"
-							prepend-icon="mdi-lightbulb-on-outline"
-							v-on:keyup="countdown('Problem', problem)"
-						></v-textarea>
-					</v-col>
-					<v-col cols="12" sm="10" md="8" lg="4" xl="4">
-						<div style="text-align:center; font-weight: bold; margin-top: 15px;">CUSTOMER SEGMENTS</div>
-						<v-textarea
-							required
-							:rules="lengthRules"
-							v-model="segment"
-							outlined
-							rounded
-							color="primary"
-							prepend-icon="mdi-account-switch"
-							:placeholder="canvas.fields['Customer Segments']"
-							rows="4"
-							no-resize
-							counter="250"
-							v-on:keyup="countdown('Customer Segments', segment)"
-						></v-textarea>
-					</v-col>
-					<v-col  cols="12" sm="10" md="8" lg="4" xl="4">
-						<div style="text-align:center; font-weight: bold; margin-top: 15px;">EXISTING ALTERNATIVES</div>
-						<v-textarea
-							required
-							:rules="lengthRules"
-							v-model="alternatives"
-							outlined
-							rounded
-							color="primary"
-							prepend-icon="mdi-compare"
-							:placeholder="canvas.fields['Existing Alternatives']"
-							rows="4"
-							no-resize
-							counter="250"
-							v-on:keyup="countdown('Existing Alternatives', alternatives)"
-						></v-textarea>
-					</v-col>
-				</v-row>
+		<v-container v-if="!loadingPage">
+			<v-card flat style="margin: auto; margin-top: 50px;"  max-width="1000" color="#fcfcfc">
+				<v-divider></v-divider>
+				<v-card-text>
+					<v-row no-gutters>
+						<v-col cols="12" sm="10" md="8" lg="4" xl="4">
+							<div style="text-align:center; font-weight: bold; margin-top: 15px;">PROBLEM</div>
+							<v-textarea
+								required
+								:rules="lengthRules"
+								v-model="problem"
+								:placeholder="canvas.fields['Problem']"
+								rows="4"
+								no-resize
+								counter="250"
+								outlined
+								rounded
+								color="primary"
+								prepend-icon="mdi-lightbulb-on-outline"
+								v-on:keyup="countdown('Problem', problem)"
+							></v-textarea>
+						</v-col>
+						<v-col cols="12" sm="10" md="8" lg="4" xl="4">
+							<div style="text-align:center; font-weight: bold; margin-top: 15px;">CUSTOMER SEGMENTS</div>
+							<v-textarea
+								required
+								:rules="lengthRules"
+								v-model="segment"
+								outlined
+								rounded
+								color="primary"
+								prepend-icon="mdi-account-switch"
+								:placeholder="canvas.fields['Customer Segments']"
+								rows="4"
+								no-resize
+								counter="250"
+								v-on:keyup="countdown('Customer Segments', segment)"
+							></v-textarea>
+						</v-col>
+						<v-col  cols="12" sm="10" md="8" lg="4" xl="4">
+							<div style="text-align:center; font-weight: bold; margin-top: 15px;">EXISTING ALTERNATIVES</div>
+							<v-textarea
+								required
+								:rules="lengthRules"
+								v-model="alternatives"
+								outlined
+								rounded
+								color="primary"
+								prepend-icon="mdi-compare"
+								:placeholder="canvas.fields['Existing Alternatives']"
+								rows="4"
+								no-resize
+								counter="250"
+								v-on:keyup="countdown('Existing Alternatives', alternatives)"
+							></v-textarea>
+						</v-col>
+					</v-row>
 
-				<v-row>
-					<v-col cols="12" sm="10" md="8" lg="4" xl="4">
-						<div style="text-align:center; font-weight: bold; margin-top: 15px;">EARLY ADAPTORS</div>
-						<v-textarea
-							required
-							:rules="lengthRules"
-							v-model="adaptors"
-							outlined
-							rounded
-							color="primary"
-							prepend-icon="mdi-account-child-outline"
-							:placeholder="canvas.fields['Early Adaptors']"
-							rows="4"
-							no-resize
-							counter="250"
-							v-on:keyup="countdown('Early Adaptors', adaptors)"
-						></v-textarea>
-					</v-col>
-					<v-col cols="12" sm="10" md="8" lg="4" xl="4">
-						<div style="text-align:center; font-weight: bold; margin-top: 15px;">UNIQUE VALUE PROPOSITION</div>
-						<v-textarea
-							required
-							:rules="lengthRules"
-							v-model="proposition"
-							outlined
-							rounded
-							color="primary"
-							prepend-icon="mdi-briefcase"
-							:placeholder="canvas.fields['Unique Value Proposition']"
-							rows="4"
-							no-resize
-							counter="250"
-							v-on:keyup="countdown('Unique Value Proposition', proposition)"
-						></v-textarea>
-					</v-col>
-					<v-col cols="12" sm="10" md="8" lg="4" xl="4">
-						<div style="text-align:center; font-weight: bold; margin-top: 15px;">HIGH-LEVEL CONCEPT</div>
-						<v-textarea
-							required
-							:rules="lengthRules"
-							v-model="concept"
-							outlined
-							rounded
-							color="primary"
-							prepend-icon="mdi-presentation-play"
-							:placeholder="canvas.fields['High-Level Concept']"
-							rows="4"
-							no-resize
-							counter="250"
-							v-on:keyup="countdown('High-Level Concept', concept)"
-						></v-textarea>
-					</v-col>
-				</v-row>
+					<v-row>
+						<v-col cols="12" sm="10" md="8" lg="4" xl="4">
+							<div style="text-align:center; font-weight: bold; margin-top: 15px;">EARLY ADAPTORS</div>
+							<v-textarea
+								required
+								:rules="lengthRules"
+								v-model="adaptors"
+								outlined
+								rounded
+								color="primary"
+								prepend-icon="mdi-account-child-outline"
+								:placeholder="canvas.fields['Early Adaptors']"
+								rows="4"
+								no-resize
+								counter="250"
+								v-on:keyup="countdown('Early Adaptors', adaptors)"
+							></v-textarea>
+						</v-col>
+						<v-col cols="12" sm="10" md="8" lg="4" xl="4">
+							<div style="text-align:center; font-weight: bold; margin-top: 15px;">UNIQUE VALUE PROPOSITION</div>
+							<v-textarea
+								required
+								:rules="lengthRules"
+								v-model="proposition"
+								outlined
+								rounded
+								color="primary"
+								prepend-icon="mdi-briefcase"
+								:placeholder="canvas.fields['Unique Value Proposition']"
+								rows="4"
+								no-resize
+								counter="250"
+								v-on:keyup="countdown('Unique Value Proposition', proposition)"
+							></v-textarea>
+						</v-col>
+						<v-col cols="12" sm="10" md="8" lg="4" xl="4">
+							<div style="text-align:center; font-weight: bold; margin-top: 15px;">HIGH-LEVEL CONCEPT</div>
+							<v-textarea
+								required
+								:rules="lengthRules"
+								v-model="concept"
+								outlined
+								rounded
+								color="primary"
+								prepend-icon="mdi-presentation-play"
+								:placeholder="canvas.fields['High-Level Concept']"
+								rows="4"
+								no-resize
+								counter="250"
+								v-on:keyup="countdown('High-Level Concept', concept)"
+							></v-textarea>
+						</v-col>
+					</v-row>
 
-				<v-row>
-					<v-col cols="12" sm="10" md="8" lg="4" xl="4">
-						<div style="text-align:center; font-weight: bold; margin-top: 15px;">SOLUTION</div>
-						<v-textarea
-							required
-							:rules="lengthRules"
-							v-model="solution"
-							outlined
-							rounded
-							color="primary"
-							prepend-icon="mdi-flag"
-							:placeholder="canvas.fields['Solution']"
-							rows="4"
-							no-resize
-							counter="250"
-							v-on:keyup="countdown('Solution', solution)"
-						></v-textarea>
-					</v-col>
-					<v-col cols="12" sm="10" md="8" lg="4" xl="4">
-						<div style="text-align:center; font-weight: bold; margin-top: 15px;">UNFAIR ADVANTAGE</div>
-						<v-textarea
-							required
-							:rules="lengthRules"
-							v-model="advantage"
-							outlined
-							rounded
-							color="primary"
-							prepend-icon="mdi-bell-plus-outline"
-							:placeholder="canvas.fields['Unfair Advantage']"
-							rows="4"
-							no-resize
-							counter="250"
-							v-on:keyup="countdown('Unfair Advantage', advantage)"
-						></v-textarea>
-					</v-col>
-					<v-col cols="12" sm="10" md="8" lg="4" xl="4">
-						<div style="text-align:center; font-weight: bold; margin-top: 15px;">COST STRUCTURE</div>
-						<v-textarea
-							required
-							:rules="lengthRules"
-							v-model="cost"
-							outlined
-							rounded
-							color="primary"
-							prepend-icon="mdi-sack-percent"
-							rows="4"
-							:placeholder="canvas.fields['Cost Structure']"
-							no-resize
-							counter="250"
-							v-on:keyup="countdown('Cost Structure', cost)"
-						></v-textarea>
-					</v-col>
-				</v-row>
-				<v-row>
-					<v-col cols="12" sm="10" md="8" lg="4" xl="4">
-						<div style="text-align:center; font-weight: bold; margin-top: 15px;">CHANNELS</div>
-						<v-textarea
-							required
-							:rules="lengthRules"
-							v-model="channels"
-							outlined
-							rounded
-							color="primary"
-							prepend-icon="mdi-google-circles-extended"
-							:placeholder="canvas.fields['Channels']"
-							rows="4"
-							no-resize
-							counter="250"
-							v-on:keyup="countdown('Channels', channels)"
-						></v-textarea>
-					</v-col>
-					<v-col cols="12" sm="10" md="8" lg="4" xl="4">
-						<div style="text-align:center; font-weight: bold; margin-top: 15px;">KEY METRICS</div>
-						<v-textarea
-							required
-							:rules="lengthRules"
-							v-model="metrics"
-							outlined
-							rounded
-							color="primary"
-							prepend-icon="mdi-key-link"
-							:placeholder="canvas.fields['Key Metrics']"
-							rows="4"
-							no-resize
-							counter="250"
-							v-on:keyup="countdown('Key Metrics', metrics)"
-						></v-textarea>
-					</v-col>
-					<v-col cols="12" sm="10" md="8" lg="4" xl="4">
-						<div style="text-align:center; font-weight: bold; margin-top: 15px;">REVENUE STREAMS</div>
-						<v-textarea
-							required
-							:rules="lengthRules"
-							v-model="revenue"
-							outlined
-							rounded
-							color="primary"
-							prepend-icon="mdi-account-cash-outline"
-							:placeholder="canvas.fields['Revenue Streams']"
-							rows="4"
-							no-resize
-							counter="250"
-							v-on:keyup="countdown('Revenue Streams', revenue)"
-						></v-textarea>
-					</v-col>
-				</v-row>
-					<div class="error-message" v-if="checkLength">
-						Please review the following fields: {{types.join(", ")}}. The character limit is set to 250.
-					</div>
-			</v-card-text>
-			<v-card-actions class="justify-center">
-				<v-btn :disabled="checkLength" color="primary" rounded type="submit" @click="updateCanvas()">Submit Canvas</v-btn>
-			</v-card-actions>
-		</v-card>
+					<v-row>
+						<v-col cols="12" sm="10" md="8" lg="4" xl="4">
+							<div style="text-align:center; font-weight: bold; margin-top: 15px;">SOLUTION</div>
+							<v-textarea
+								required
+								:rules="lengthRules"
+								v-model="solution"
+								outlined
+								rounded
+								color="primary"
+								prepend-icon="mdi-flag"
+								:placeholder="canvas.fields['Solution']"
+								rows="4"
+								no-resize
+								counter="250"
+								v-on:keyup="countdown('Solution', solution)"
+							></v-textarea>
+						</v-col>
+						<v-col cols="12" sm="10" md="8" lg="4" xl="4">
+							<div style="text-align:center; font-weight: bold; margin-top: 15px;">UNFAIR ADVANTAGE</div>
+							<v-textarea
+								required
+								:rules="lengthRules"
+								v-model="advantage"
+								outlined
+								rounded
+								color="primary"
+								prepend-icon="mdi-bell-plus-outline"
+								:placeholder="canvas.fields['Unfair Advantage']"
+								rows="4"
+								no-resize
+								counter="250"
+								v-on:keyup="countdown('Unfair Advantage', advantage)"
+							></v-textarea>
+						</v-col>
+						<v-col cols="12" sm="10" md="8" lg="4" xl="4">
+							<div style="text-align:center; font-weight: bold; margin-top: 15px;">COST STRUCTURE</div>
+							<v-textarea
+								required
+								:rules="lengthRules"
+								v-model="cost"
+								outlined
+								rounded
+								color="primary"
+								prepend-icon="mdi-sack-percent"
+								rows="4"
+								:placeholder="canvas.fields['Cost Structure']"
+								no-resize
+								counter="250"
+								v-on:keyup="countdown('Cost Structure', cost)"
+							></v-textarea>
+						</v-col>
+					</v-row>
+					<v-row>
+						<v-col cols="12" sm="10" md="8" lg="4" xl="4">
+							<div style="text-align:center; font-weight: bold; margin-top: 15px;">CHANNELS</div>
+							<v-textarea
+								required
+								:rules="lengthRules"
+								v-model="channels"
+								outlined
+								rounded
+								color="primary"
+								prepend-icon="mdi-google-circles-extended"
+								:placeholder="canvas.fields['Channels']"
+								rows="4"
+								no-resize
+								counter="250"
+								v-on:keyup="countdown('Channels', channels)"
+							></v-textarea>
+						</v-col>
+						<v-col cols="12" sm="10" md="8" lg="4" xl="4">
+							<div style="text-align:center; font-weight: bold; margin-top: 15px;">KEY METRICS</div>
+							<v-textarea
+								required
+								:rules="lengthRules"
+								v-model="metrics"
+								outlined
+								rounded
+								color="primary"
+								prepend-icon="mdi-key-link"
+								:placeholder="canvas.fields['Key Metrics']"
+								rows="4"
+								no-resize
+								counter="250"
+								v-on:keyup="countdown('Key Metrics', metrics)"
+							></v-textarea>
+						</v-col>
+						<v-col cols="12" sm="10" md="8" lg="4" xl="4">
+							<div style="text-align:center; font-weight: bold; margin-top: 15px;">REVENUE STREAMS</div>
+							<v-textarea
+								required
+								:rules="lengthRules"
+								v-model="revenue"
+								outlined
+								rounded
+								color="primary"
+								prepend-icon="mdi-account-cash-outline"
+								:placeholder="canvas.fields['Revenue Streams']"
+								rows="4"
+								no-resize
+								counter="250"
+								v-on:keyup="countdown('Revenue Streams', revenue)"
+							></v-textarea>
+						</v-col>
+					</v-row>
+						<div class="error-message" v-if="checkLength">
+							Please review the following fields: {{types.join(", ")}}. The character limit is set to 250.
+						</div>
+				</v-card-text>
+				<v-card-actions class="justify-center">
+					<v-btn :disabled="checkLength" color="primary" rounded type="submit" @click="updateCanvas()">Submit Canvas</v-btn>
+				</v-card-actions>
+			</v-card>
+		</v-container>
+		<v-container v-else>
+			<v-row justify="center">
+				<v-col md="auto">
+					<v-progress-circular
+					:size="500"
+					color="primary"
+					indeterminate
+					></v-progress-circular>
+				</v-col>
+			</v-row>
+		</v-container>
 	</v-app>
 </template>
 
@@ -239,11 +252,13 @@ export default Vue.extend({
 	name: "BusinnessCanvasUser",
 	async mounted() {
 		try {
+			this.loadingPage = true;
 			await this.ui.storeDispatch("teams/loadProduct", this.teamId);
 			let response = await this.ui.api.get<BModelCanvas[]>("/api/v1/canvas/" + this.teamId);
 			if (response.data) {
 				this.canvases = response.data;
 			}
+			this.loadingPage = false;
 		} catch (e) {
 			console.error(e);
 		}
@@ -252,6 +267,7 @@ export default Vue.extend({
 		currentTeam: {
 			immediate: true,
 			async handler(newTeam: Team | null):Promise<void> {
+				this.loadingPage = true;
 				if(newTeam) {
 				this.teamId = newTeam.teamId;
 					if (this.teamId === "") {
@@ -269,6 +285,7 @@ export default Vue.extend({
 						}
 					}
 				}
+				this.loadingPage = false;
 			}
 		},
 		product: {
@@ -281,6 +298,7 @@ export default Vue.extend({
 		canvases: {
 			immediate: true,
 			handler(newCanvases: BModelCanvas[]):void {
+				this.loadingPage = true;
 				if (newCanvases.length !== 0) {
 					this.canvas = newCanvases[newCanvases.length - 1];
 					this.problem = this.canvas.fields["Problem"];
@@ -316,6 +334,7 @@ export default Vue.extend({
 						}
 					} as BModelCanvas;
 				}
+				this.loadingPage = false;
 			}
 		}
 	},

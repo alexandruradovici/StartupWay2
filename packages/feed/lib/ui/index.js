@@ -107,16 +107,21 @@ var script = Vue.extend({
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, this.ui.storeDispatch("feed/loadFeed", this.teamId)];
+                        this.loadingPage = true;
+                        _a.label = 1;
                     case 1:
-                        _a.sent();
-                        return [3 /*break*/, 3];
+                        _a.trys.push([1, 3, , 4]);
+                        return [4 /*yield*/, this.ui.storeDispatch("feed/loadFeed", this.teamId)];
                     case 2:
+                        _a.sent();
+                        return [3 /*break*/, 4];
+                    case 3:
                         e_1 = _a.sent();
                         console.error(e_1);
-                        return [3 /*break*/, 3];
-                    case 3: return [2 /*return*/];
+                        return [3 /*break*/, 4];
+                    case 4:
+                        this.loadingPage = false;
+                        return [2 /*return*/];
                 }
             });
         });
@@ -135,6 +140,7 @@ var script = Vue.extend({
                     return __generator(this, function (_a) {
                         switch (_a.label) {
                             case 0:
+                                this.loadingPage = true;
                                 if (!newTeam) return [3 /*break*/, 4];
                                 this.teamId = newTeam.teamId;
                                 if (!(this.teamId === "" || this.teamId === undefined)) return [3 /*break*/, 1];
@@ -152,7 +158,9 @@ var script = Vue.extend({
                                 e_2 = _a.sent();
                                 console.error(e_2);
                                 return [3 /*break*/, 4];
-                            case 4: return [2 /*return*/];
+                            case 4:
+                                this.loadingPage = false;
+                                return [2 /*return*/];
                         }
                     });
                 });
@@ -198,6 +206,7 @@ var script = Vue.extend({
             newFeedUpdate: "",
             FeedTypes: FeedTypes,
             editDialog: false,
+            loadingPage: false,
             edited: null,
             removeDialog: false
         };
@@ -453,425 +462,514 @@ var __vue_render__ = function() {
   return _c(
     "v-app",
     [
-      _c(
-        "v-container",
-        { staticClass: "content", attrs: { width: "1000" } },
-        [
-          _c(
-            "v-card",
-            {
-              staticStyle: { margin: "auto", "margin-top": "20px" },
-              attrs: { flat: "", "max-width": "1000", color: "#fcfcfc" }
-            },
+      !_vm.loadingPage
+        ? _c(
+            "v-container",
+            { staticClass: "content", attrs: { width: "1000" } },
             [
-              _c("v-divider"),
-              _vm._v(" "),
               _c(
-                "div",
+                "v-card",
                 {
-                  staticStyle: {
-                    "margin-top": "20px",
-                    "margin-bottom": "20px"
-                  },
-                  attrs: { align: "center" }
+                  staticStyle: { margin: "auto", "margin-top": "20px" },
+                  attrs: { flat: "", "max-width": "1000", color: "#fcfcfc" }
                 },
                 [
-                  _vm._v(
-                    "Please select the type of update you would like to publish."
-                  )
-                ]
-              ),
-              _vm._v(" "),
-              _c(
-                "v-container",
-                { attrs: { "pr-7": "", "pl-7": "", fluid: "" } },
-                [
-                  _c("v-select", {
-                    attrs: {
-                      items: _vm.items,
-                      "item-text": "name",
-                      "item-value": "value",
-                      label: "Update"
-                    },
-                    model: {
-                      value: _vm.value,
-                      callback: function($$v) {
-                        _vm.value = $$v;
-                      },
-                      expression: "value"
-                    }
-                  }),
-                  _vm._v(" "),
-                  _vm.value === _vm.FeedTypes.INVESTMENT
-                    ? _c(
-                        "div",
-                        [
-                          _c("v-textarea", {
-                            attrs: {
-                              name: "Investments",
-                              label: "Investments",
-                              counter: "400"
-                            },
-                            model: {
-                              value: _vm.text,
-                              callback: function($$v) {
-                                _vm.text = $$v;
-                              },
-                              expression: "text"
-                            }
-                          }),
-                          _vm._v(" "),
-                          _c("v-text-field", {
-                            attrs: {
-                              name: "Details",
-                              label: "Amount",
-                              counter: "10"
-                            },
-                            model: {
-                              value: _vm.amount,
-                              callback: function($$v) {
-                                _vm.amount = $$v;
-                              },
-                              expression: "amount"
-                            }
-                          })
-                        ],
-                        1
-                      )
-                    : _vm.value === _vm.FeedTypes.AWARD ||
-                      _vm.value === _vm.FeedTypes.UPDATE
-                    ? _c(
-                        "div",
-                        [
-                          _c("v-textarea", {
-                            attrs: {
-                              name: _vm.value,
-                              label: _vm.value,
-                              counter: "600"
-                            },
-                            model: {
-                              value: _vm.text,
-                              callback: function($$v) {
-                                _vm.text = $$v;
-                              },
-                              expression: "text"
-                            }
-                          })
-                        ],
-                        1
-                      )
-                    : _vm.value === _vm.FeedTypes.COLLABORATORS
-                    ? _c(
-                        "div",
-                        [
-                          _c("v-textarea", {
-                            attrs: {
-                              name: _vm.value,
-                              label: _vm.value,
-                              counter: "400"
-                            },
-                            model: {
-                              value: _vm.text,
-                              callback: function($$v) {
-                                _vm.text = $$v;
-                              },
-                              expression: "text"
-                            }
-                          })
-                        ],
-                        1
-                      )
-                    : _vm._e(),
+                  _c("v-divider"),
                   _vm._v(" "),
                   _c(
-                    "v-card-actions",
+                    "div",
                     {
-                      staticClass: "justify-center",
-                      model: {
-                        value: _vm.value,
-                        callback: function($$v) {
-                          _vm.value = $$v;
-                        },
-                        expression: "value"
-                      }
+                      staticStyle: {
+                        "margin-top": "20px",
+                        "margin-bottom": "20px"
+                      },
+                      attrs: { align: "center" }
                     },
                     [
+                      _vm._v(
+                        "Please select the type of update you would like to publish."
+                      )
+                    ]
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-container",
+                    { attrs: { "pr-7": "", "pl-7": "", fluid: "" } },
+                    [
+                      _c("v-select", {
+                        attrs: {
+                          items: _vm.items,
+                          "item-text": "name",
+                          "item-value": "value",
+                          label: "Update"
+                        },
+                        model: {
+                          value: _vm.value,
+                          callback: function($$v) {
+                            _vm.value = $$v;
+                          },
+                          expression: "value"
+                        }
+                      }),
+                      _vm._v(" "),
+                      _vm.value === _vm.FeedTypes.INVESTMENT
+                        ? _c(
+                            "div",
+                            [
+                              _c("v-textarea", {
+                                attrs: {
+                                  name: "Investments",
+                                  label: "Investments",
+                                  counter: "400"
+                                },
+                                model: {
+                                  value: _vm.text,
+                                  callback: function($$v) {
+                                    _vm.text = $$v;
+                                  },
+                                  expression: "text"
+                                }
+                              }),
+                              _vm._v(" "),
+                              _c("v-text-field", {
+                                attrs: {
+                                  name: "Details",
+                                  label: "Amount",
+                                  counter: "10"
+                                },
+                                model: {
+                                  value: _vm.amount,
+                                  callback: function($$v) {
+                                    _vm.amount = $$v;
+                                  },
+                                  expression: "amount"
+                                }
+                              })
+                            ],
+                            1
+                          )
+                        : _vm.value === _vm.FeedTypes.AWARD ||
+                          _vm.value === _vm.FeedTypes.UPDATE
+                        ? _c(
+                            "div",
+                            [
+                              _c("v-textarea", {
+                                attrs: {
+                                  name: _vm.value,
+                                  label: _vm.value,
+                                  counter: "600"
+                                },
+                                model: {
+                                  value: _vm.text,
+                                  callback: function($$v) {
+                                    _vm.text = $$v;
+                                  },
+                                  expression: "text"
+                                }
+                              })
+                            ],
+                            1
+                          )
+                        : _vm.value === _vm.FeedTypes.COLLABORATORS
+                        ? _c(
+                            "div",
+                            [
+                              _c("v-textarea", {
+                                attrs: {
+                                  name: _vm.value,
+                                  label: _vm.value,
+                                  counter: "400"
+                                },
+                                model: {
+                                  value: _vm.text,
+                                  callback: function($$v) {
+                                    _vm.text = $$v;
+                                  },
+                                  expression: "text"
+                                }
+                              })
+                            ],
+                            1
+                          )
+                        : _vm._e(),
+                      _vm._v(" "),
                       _c(
-                        "v-btn",
+                        "v-card-actions",
                         {
-                          attrs: { color: "primary" },
-                          on: {
-                            click: function($event) {
-                              return _vm.addFeed()
-                            }
+                          staticClass: "justify-center",
+                          model: {
+                            value: _vm.value,
+                            callback: function($$v) {
+                              _vm.value = $$v;
+                            },
+                            expression: "value"
                           }
                         },
-                        [_vm._v("Submit")]
+                        [
+                          _c(
+                            "v-btn",
+                            {
+                              attrs: { color: "primary" },
+                              on: {
+                                click: function($event) {
+                                  return _vm.addFeed()
+                                }
+                              }
+                            },
+                            [_vm._v("Submit")]
+                          )
+                        ],
+                        1
                       )
                     ],
                     1
-                  )
-                ],
-                1
-              ),
-              _vm._v(" "),
-              _c(
-                "v-container",
-                { attrs: { "pr-7": "", "pl-7": "", fluid: "" } },
-                [
-                  _vm._l(_vm.productUpdates, function(item, index) {
-                    return _c(
-                      "v-card",
-                      { key: index, staticClass: "mb-4" },
-                      [
-                        _c(
-                          "v-card-title",
-                          { staticStyle: { "font-weight": "bold" } },
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-container",
+                    { attrs: { "pr-7": "", "pl-7": "", fluid: "" } },
+                    [
+                      _vm._l(_vm.productUpdates, function(item, index) {
+                        return _c(
+                          "v-card",
+                          { key: index, staticClass: "mb-4" },
                           [
-                            item.feedType === _vm.FeedTypes.INVESTMENT
-                              ? _c(
-                                  "v-icon",
-                                  {
-                                    attrs: {
-                                      large: "",
-                                      left: "",
-                                      color: "#22542b"
-                                    }
-                                  },
-                                  [_vm._v("mdi-account-cash")]
-                                )
-                              : _vm._e(),
-                            _vm._v(" "),
-                            item.feedType === _vm.FeedTypes.AWARD
-                              ? _c(
-                                  "v-icon",
-                                  {
-                                    attrs: {
-                                      large: "",
-                                      left: "",
-                                      color: "#e0ac1b"
-                                    }
-                                  },
-                                  [_vm._v("mdi-trophy")]
-                                )
-                              : _vm._e(),
-                            _vm._v(" "),
-                            item.feedType === _vm.FeedTypes.UPDATE
-                              ? _c(
-                                  "v-icon",
-                                  {
-                                    attrs: {
-                                      large: "",
-                                      left: "",
-                                      color: "#9e2219"
-                                    }
-                                  },
-                                  [_vm._v("mdi-update")]
-                                )
-                              : _vm._e(),
-                            _vm._v(" "),
-                            item.feedType === _vm.FeedTypes.COLLABORATORS
-                              ? _c(
-                                  "v-icon",
-                                  {
-                                    attrs: {
-                                      large: "",
-                                      left: "",
-                                      color: "#202b4f"
-                                    }
-                                  },
-                                  [_vm._v("mdi-account-tie")]
-                                )
-                              : _vm._e(),
-                            _vm._v(
-                              "\n\t\t\t\t\t\n\t\t\t\t\t" +
-                                _vm._s(item.feedType) +
-                                "\n\t\t\t\t\t"
-                            ),
-                            _c("br")
-                          ],
-                          1
-                        ),
-                        _vm._v(" "),
-                        item && item.date
-                          ? _c(
-                              "v-card-subtitle",
-                              {
-                                staticStyle: {
-                                  "font-size": "15px",
-                                  "font-weight": "bold"
-                                }
-                              },
+                            _c(
+                              "v-card-title",
+                              { staticStyle: { "font-weight": "bold" } },
                               [
+                                item.feedType === _vm.FeedTypes.INVESTMENT
+                                  ? _c(
+                                      "v-icon",
+                                      {
+                                        attrs: {
+                                          large: "",
+                                          left: "",
+                                          color: "#22542b"
+                                        }
+                                      },
+                                      [_vm._v("mdi-account-cash")]
+                                    )
+                                  : _vm._e(),
+                                _vm._v(" "),
+                                item.feedType === _vm.FeedTypes.AWARD
+                                  ? _c(
+                                      "v-icon",
+                                      {
+                                        attrs: {
+                                          large: "",
+                                          left: "",
+                                          color: "#e0ac1b"
+                                        }
+                                      },
+                                      [_vm._v("mdi-trophy")]
+                                    )
+                                  : _vm._e(),
+                                _vm._v(" "),
+                                item.feedType === _vm.FeedTypes.UPDATE
+                                  ? _c(
+                                      "v-icon",
+                                      {
+                                        attrs: {
+                                          large: "",
+                                          left: "",
+                                          color: "#9e2219"
+                                        }
+                                      },
+                                      [_vm._v("mdi-update")]
+                                    )
+                                  : _vm._e(),
+                                _vm._v(" "),
+                                item.feedType === _vm.FeedTypes.COLLABORATORS
+                                  ? _c(
+                                      "v-icon",
+                                      {
+                                        attrs: {
+                                          large: "",
+                                          left: "",
+                                          color: "#202b4f"
+                                        }
+                                      },
+                                      [_vm._v("mdi-account-tie")]
+                                    )
+                                  : _vm._e(),
                                 _vm._v(
-                                  "\n\t\t\t\t\t" +
-                                    _vm._s(_vm.formatDate(item.date)) +
-                                    "\n\t\t\t\t"
+                                  "\n\t\t\t\t\t\t\n\t\t\t\t\t\t" +
+                                    _vm._s(item.feedType) +
+                                    "\n\t\t\t\t\t\t"
+                                ),
+                                _c("br")
+                              ],
+                              1
+                            ),
+                            _vm._v(" "),
+                            item && item.date
+                              ? _c(
+                                  "v-card-subtitle",
+                                  {
+                                    staticStyle: {
+                                      "font-size": "15px",
+                                      "font-weight": "bold"
+                                    }
+                                  },
+                                  [
+                                    _vm._v(
+                                      "\n\t\t\t\t\t\t" +
+                                        _vm._s(_vm.formatDate(item.date)) +
+                                        "\n\t\t\t\t\t"
+                                    )
+                                  ]
                                 )
-                              ]
+                              : _vm._e(),
+                            _vm._v(" "),
+                            _c(
+                              "v-card-text",
+                              [
+                                _c("span", [_vm._v(_vm._s(item.text["text"]))]),
+                                _vm._v(" "),
+                                _c("v-spacer"),
+                                _vm._v(" "),
+                                item.feedType === _vm.FeedTypes.INVESTMENT
+                                  ? _c("span", [
+                                      _vm._v(
+                                        " Amount:" +
+                                          _vm._s(item.text["amount"]) +
+                                          " "
+                                      )
+                                    ])
+                                  : _vm._e()
+                              ],
+                              1
                             )
-                          : _vm._e(),
-                        _vm._v(" "),
-                        _c(
-                          "v-card-text",
-                          [
-                            _c("span", [_vm._v(_vm._s(item.text["text"]))]),
-                            _vm._v(" "),
-                            _c("v-spacer"),
-                            _vm._v(" "),
-                            item.feedType === _vm.FeedTypes.INVESTMENT
-                              ? _c("span", [
-                                  _vm._v(
-                                    " Amount:" +
-                                      _vm._s(item.text["amount"]) +
-                                      " "
-                                  )
-                                ])
-                              : _vm._e()
                           ],
                           1
                         )
-                      ],
-                      1
-                    )
-                  }),
-                  _vm._v(" "),
-                  _c(
-                    "v-dialog",
-                    {
-                      attrs: { "max-width": "450" },
-                      model: {
-                        value: _vm.editDialog,
-                        callback: function($$v) {
-                          _vm.editDialog = $$v;
+                      }),
+                      _vm._v(" "),
+                      _c(
+                        "v-dialog",
+                        {
+                          attrs: { "max-width": "450" },
+                          model: {
+                            value: _vm.editDialog,
+                            callback: function($$v) {
+                              _vm.editDialog = $$v;
+                            },
+                            expression: "editDialog"
+                          }
                         },
-                        expression: "editDialog"
-                      }
-                    },
-                    [
-                      _vm.edited
-                        ? _c(
+                        [
+                          _vm.edited
+                            ? _c(
+                                "v-card",
+                                { attrs: { flat: "", width: "450" } },
+                                [
+                                  _c(
+                                    "v-card-title",
+                                    {
+                                      staticClass: "justify-center",
+                                      staticStyle: {
+                                        "font-family": "Georgia, serif",
+                                        "font-weight": "bold"
+                                      }
+                                    },
+                                    [
+                                      _vm._v(
+                                        "\n\t\t\t\t\t\t\tEdit " +
+                                          _vm._s(_vm.edited.feedType) +
+                                          " \n\t\t\t\t\t\t"
+                                      )
+                                    ]
+                                  ),
+                                  _vm._v(" "),
+                                  _c(
+                                    "v-card-subtitle",
+                                    {
+                                      staticClass: "justify-center",
+                                      staticStyle: { "font-weight": "bold" }
+                                    },
+                                    [
+                                      _vm._v(
+                                        "\n\t\t\t\t\t\t\t" +
+                                          _vm._s(
+                                            _vm.formatDate(_vm.edited.date)
+                                          ) +
+                                          "\n\t\t\t\t\t\t"
+                                      )
+                                    ]
+                                  ),
+                                  _vm._v(" "),
+                                  _c("v-divider"),
+                                  _vm._v(" "),
+                                  _c("v-card-text", [
+                                    _vm.edited.feedType ===
+                                    _vm.FeedTypes.INVESTMENT
+                                      ? _c(
+                                          "div",
+                                          [
+                                            _c("v-textarea", {
+                                              attrs: {
+                                                name: "Investments",
+                                                label: "Investments",
+                                                counter: "400"
+                                              },
+                                              model: {
+                                                value: _vm.text,
+                                                callback: function($$v) {
+                                                  _vm.text = $$v;
+                                                },
+                                                expression: "text"
+                                              }
+                                            }),
+                                            _vm._v(" "),
+                                            _c("v-text-field", {
+                                              attrs: {
+                                                name: "Details",
+                                                label: "Amount",
+                                                counter: "10"
+                                              },
+                                              model: {
+                                                value: _vm.amount,
+                                                callback: function($$v) {
+                                                  _vm.amount = $$v;
+                                                },
+                                                expression: "amount"
+                                              }
+                                            })
+                                          ],
+                                          1
+                                        )
+                                      : _vm.edited.feedType ===
+                                          _vm.FeedTypes.AWARD ||
+                                        _vm.edited.feedType ===
+                                          _vm.FeedTypes.UPDATE
+                                      ? _c(
+                                          "div",
+                                          [
+                                            _c("v-textarea", {
+                                              attrs: {
+                                                name: _vm.edited.feedType,
+                                                label: _vm.edited.feedType,
+                                                counter: "600"
+                                              },
+                                              model: {
+                                                value: _vm.text,
+                                                callback: function($$v) {
+                                                  _vm.text = $$v;
+                                                },
+                                                expression: "text"
+                                              }
+                                            })
+                                          ],
+                                          1
+                                        )
+                                      : _vm.edited.feedType ===
+                                        _vm.FeedTypes.COLLABORATORS
+                                      ? _c(
+                                          "div",
+                                          [
+                                            _c("v-textarea", {
+                                              attrs: {
+                                                name: _vm.edited.feedType,
+                                                label: _vm.edited.feedType,
+                                                counter: "400"
+                                              },
+                                              model: {
+                                                value: _vm.text,
+                                                callback: function($$v) {
+                                                  _vm.text = $$v;
+                                                },
+                                                expression: "text"
+                                              }
+                                            })
+                                          ],
+                                          1
+                                        )
+                                      : _vm._e()
+                                  ]),
+                                  _vm._v(" "),
+                                  _c(
+                                    "v-card-actions",
+                                    { staticClass: "justify-center" },
+                                    [
+                                      _c(
+                                        "v-btn",
+                                        {
+                                          attrs: { icon: "", fab: "" },
+                                          on: {
+                                            click: function($event) {
+                                              return _vm.enableEdit(_vm.item)
+                                            }
+                                          }
+                                        },
+                                        [
+                                          _c("v-icon", [
+                                            _vm._v("mdi-pencil-circle-outline")
+                                          ])
+                                        ],
+                                        1
+                                      ),
+                                      _vm._v(" "),
+                                      _c(
+                                        "v-btn",
+                                        {
+                                          attrs: { icon: "", fab: "" },
+                                          on: {
+                                            click: function($event) {
+(_vm.edited = _vm.item),
+                                                (_vm.removeDialog = true);
+                                            }
+                                          }
+                                        },
+                                        [
+                                          _c("v-icon", [
+                                            _vm._v("mdi-close-circle")
+                                          ])
+                                        ],
+                                        1
+                                      )
+                                    ],
+                                    1
+                                  )
+                                ],
+                                1
+                              )
+                            : _vm._e()
+                        ],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-dialog",
+                        {
+                          attrs: { persistent: "", "max-width": "290" },
+                          model: {
+                            value: _vm.removeDialog,
+                            callback: function($$v) {
+                              _vm.removeDialog = $$v;
+                            },
+                            expression: "removeDialog"
+                          }
+                        },
+                        [
+                          _c(
                             "v-card",
-                            { attrs: { flat: "", width: "450" } },
                             [
                               _c(
                                 "v-card-title",
                                 {
                                   staticClass: "justify-center",
                                   staticStyle: {
-                                    "font-family": "Georgia, serif",
-                                    "font-weight": "bold"
+                                    "font-family": "Georgia, serif"
                                   }
                                 },
-                                [
-                                  _vm._v(
-                                    "\n\t\t\t\tEdit " +
-                                      _vm._s(_vm.edited.feedType) +
-                                      " \n\t\t\t"
-                                  )
-                                ]
+                                [_vm._v("Remove Feed")]
                               ),
-                              _vm._v(" "),
-                              _c(
-                                "v-card-subtitle",
-                                {
-                                  staticClass: "justify-center",
-                                  staticStyle: { "font-weight": "bold" }
-                                },
-                                [
-                                  _vm._v(
-                                    "\n\t\t\t\t" +
-                                      _vm._s(_vm.formatDate(_vm.edited.date)) +
-                                      "\n\t\t\t"
-                                  )
-                                ]
-                              ),
-                              _vm._v(" "),
-                              _c("v-divider"),
                               _vm._v(" "),
                               _c("v-card-text", [
-                                _vm.edited.feedType === _vm.FeedTypes.INVESTMENT
-                                  ? _c(
-                                      "div",
-                                      [
-                                        _c("v-textarea", {
-                                          attrs: {
-                                            name: "Investments",
-                                            label: "Investments",
-                                            counter: "400"
-                                          },
-                                          model: {
-                                            value: _vm.text,
-                                            callback: function($$v) {
-                                              _vm.text = $$v;
-                                            },
-                                            expression: "text"
-                                          }
-                                        }),
-                                        _vm._v(" "),
-                                        _c("v-text-field", {
-                                          attrs: {
-                                            name: "Details",
-                                            label: "Amount",
-                                            counter: "10"
-                                          },
-                                          model: {
-                                            value: _vm.amount,
-                                            callback: function($$v) {
-                                              _vm.amount = $$v;
-                                            },
-                                            expression: "amount"
-                                          }
-                                        })
-                                      ],
-                                      1
-                                    )
-                                  : _vm.edited.feedType ===
-                                      _vm.FeedTypes.AWARD ||
-                                    _vm.edited.feedType === _vm.FeedTypes.UPDATE
-                                  ? _c(
-                                      "div",
-                                      [
-                                        _c("v-textarea", {
-                                          attrs: {
-                                            name: _vm.edited.feedType,
-                                            label: _vm.edited.feedType,
-                                            counter: "600"
-                                          },
-                                          model: {
-                                            value: _vm.text,
-                                            callback: function($$v) {
-                                              _vm.text = $$v;
-                                            },
-                                            expression: "text"
-                                          }
-                                        })
-                                      ],
-                                      1
-                                    )
-                                  : _vm.edited.feedType ===
-                                    _vm.FeedTypes.COLLABORATORS
-                                  ? _c(
-                                      "div",
-                                      [
-                                        _c("v-textarea", {
-                                          attrs: {
-                                            name: _vm.edited.feedType,
-                                            label: _vm.edited.feedType,
-                                            counter: "400"
-                                          },
-                                          model: {
-                                            value: _vm.text,
-                                            callback: function($$v) {
-                                              _vm.text = $$v;
-                                            },
-                                            expression: "text"
-                                          }
-                                        })
-                                      ],
-                                      1
-                                    )
-                                  : _vm._e()
+                                _vm._v(
+                                  "Are you sure you want to remove this update form your team's feed list?"
+                                )
                               ]),
                               _vm._v(" "),
                               _c(
@@ -881,107 +979,30 @@ var __vue_render__ = function() {
                                   _c(
                                     "v-btn",
                                     {
-                                      attrs: { icon: "", fab: "" },
+                                      attrs: { color: "#32a852", text: "" },
                                       on: {
                                         click: function($event) {
-                                          return _vm.enableEdit(_vm.item)
+                                          return _vm.accept(_vm.edited)
                                         }
                                       }
                                     },
-                                    [
-                                      _c("v-icon", [
-                                        _vm._v("mdi-pencil-circle-outline")
-                                      ])
-                                    ],
-                                    1
+                                    [_vm._v("Yes")]
                                   ),
                                   _vm._v(" "),
                                   _c(
                                     "v-btn",
                                     {
-                                      attrs: { icon: "", fab: "" },
+                                      attrs: { color: "#a83232", text: "" },
                                       on: {
                                         click: function($event) {
-(_vm.edited = _vm.item),
-                                            (_vm.removeDialog = true);
+                                          return _vm.deny()
                                         }
                                       }
                                     },
-                                    [
-                                      _c("v-icon", [_vm._v("mdi-close-circle")])
-                                    ],
-                                    1
+                                    [_vm._v("No")]
                                   )
                                 ],
                                 1
-                              )
-                            ],
-                            1
-                          )
-                        : _vm._e()
-                    ],
-                    1
-                  ),
-                  _vm._v(" "),
-                  _c(
-                    "v-dialog",
-                    {
-                      attrs: { persistent: "", "max-width": "290" },
-                      model: {
-                        value: _vm.removeDialog,
-                        callback: function($$v) {
-                          _vm.removeDialog = $$v;
-                        },
-                        expression: "removeDialog"
-                      }
-                    },
-                    [
-                      _c(
-                        "v-card",
-                        [
-                          _c(
-                            "v-card-title",
-                            {
-                              staticClass: "justify-center",
-                              staticStyle: { "font-family": "Georgia, serif" }
-                            },
-                            [_vm._v("Remove Feed")]
-                          ),
-                          _vm._v(" "),
-                          _c("v-card-text", [
-                            _vm._v(
-                              "Are you sure you want to remove this update form your team's feed list?"
-                            )
-                          ]),
-                          _vm._v(" "),
-                          _c(
-                            "v-card-actions",
-                            { staticClass: "justify-center" },
-                            [
-                              _c(
-                                "v-btn",
-                                {
-                                  attrs: { color: "#32a852", text: "" },
-                                  on: {
-                                    click: function($event) {
-                                      return _vm.accept(_vm.edited)
-                                    }
-                                  }
-                                },
-                                [_vm._v("Yes")]
-                              ),
-                              _vm._v(" "),
-                              _c(
-                                "v-btn",
-                                {
-                                  attrs: { color: "#a83232", text: "" },
-                                  on: {
-                                    click: function($event) {
-                                      return _vm.deny()
-                                    }
-                                  }
-                                },
-                                [_vm._v("No")]
                               )
                             ],
                             1
@@ -990,17 +1011,41 @@ var __vue_render__ = function() {
                         1
                       )
                     ],
-                    1
+                    2
                   )
                 ],
-                2
+                1
               )
             ],
             1
           )
-        ],
-        1
-      )
+        : _c(
+            "v-container",
+            [
+              _c(
+                "v-row",
+                { attrs: { justify: "center" } },
+                [
+                  _c(
+                    "v-col",
+                    { attrs: { md: "auto" } },
+                    [
+                      _c("v-progress-circular", {
+                        attrs: {
+                          size: 500,
+                          color: "primary",
+                          indeterminate: ""
+                        }
+                      })
+                    ],
+                    1
+                  )
+                ],
+                1
+              )
+            ],
+            1
+          )
     ],
     1
   )
@@ -1048,6 +1093,7 @@ var script$1 = Vue.extend({
                     return __generator(this, function (_a) {
                         switch (_a.label) {
                             case 0:
+                                this.loadingPage = true;
                                 this.teamId = (this.$route.params.teamId);
                                 _a.label = 1;
                             case 1:
@@ -1079,7 +1125,9 @@ var script$1 = Vue.extend({
                                 e_1 = _a.sent();
                                 console.error(e_1);
                                 return [3 /*break*/, 8];
-                            case 8: return [2 /*return*/];
+                            case 8:
+                                this.loadingPage = false;
+                                return [2 /*return*/];
                         }
                     });
                 });
@@ -1093,6 +1141,7 @@ var script$1 = Vue.extend({
                     return __generator(this, function (_a) {
                         switch (_a.label) {
                             case 0:
+                                this.loadingPage = true;
                                 if (!newUser) return [3 /*break*/, 9];
                                 if (!(newUser.role === "Admin" || newUser.role === "SuperAdmin")) return [3 /*break*/, 5];
                                 _a.label = 1;
@@ -1128,7 +1177,9 @@ var script$1 = Vue.extend({
                                 e_3 = _a.sent();
                                 console.error(e_3);
                                 return [3 /*break*/, 9];
-                            case 9: return [2 /*return*/];
+                            case 9:
+                                this.loadingPage = false;
+                                return [2 /*return*/];
                         }
                     });
                 });
@@ -1141,6 +1192,7 @@ var script$1 = Vue.extend({
     data: function () {
         return {
             ui: UI$1.getInstance(),
+            loadingPage: false,
             teams: [],
             location: "",
             users: [],
@@ -1271,155 +1323,201 @@ var __vue_render__$1 = function() {
     "v-app",
     { attrs: { id: "app" } },
     [
-      _c(
-        "v-container",
-        { staticClass: "content", attrs: { width: "1000" } },
-        [
-          _c("v-divider"),
-          _vm._v(" "),
-          _vm.productUpdates
-            ? _vm._l(_vm.productUpdates, function(item, index) {
-                return _c(
-                  "v-card",
-                  {
-                    key: index,
-                    staticClass: "justify-center",
-                    staticStyle: {
-                      margin: "auto",
-                      "margin-bottom": "20px",
-                      "margin-top": "30px"
-                    },
-                    attrs: { flat: "", outlined: "", width: "800" }
-                  },
-                  [
-                    _c(
-                      "v-card-title",
+      !_vm.loadingPage
+        ? _c(
+            "v-container",
+            { staticClass: "content", attrs: { width: "1000" } },
+            [
+              _c("v-divider"),
+              _vm._v(" "),
+              _vm.productUpdates
+                ? _vm._l(_vm.productUpdates, function(item, index) {
+                    return _c(
+                      "v-card",
                       {
+                        key: index,
+                        staticClass: "justify-center",
                         staticStyle: {
-                          "font-family": "Georgia, serif",
-                          "font-size": "18px",
-                          "font-weight": "600"
-                        }
+                          margin: "auto",
+                          "margin-bottom": "20px",
+                          "margin-top": "30px"
+                        },
+                        attrs: { flat: "", outlined: "", width: "800" }
                       },
                       [
-                        item.feedType === _vm.FeedTypes.INVESTMENT
-                          ? _c(
-                              "v-icon",
-                              {
-                                attrs: { large: "", left: "", color: "#22542b" }
-                              },
-                              [_vm._v("mdi-account-cash")]
-                            )
-                          : _vm._e(),
-                        _vm._v(" "),
-                        item.feedType === _vm.FeedTypes.AWARD
-                          ? _c(
-                              "v-icon",
-                              {
-                                attrs: { large: "", left: "", color: "#e0ac1b" }
-                              },
-                              [_vm._v("mdi-trophy")]
-                            )
-                          : _vm._e(),
-                        _vm._v(" "),
-                        item.feedType === _vm.FeedTypes.UPDATE
-                          ? _c(
-                              "v-icon",
-                              {
-                                attrs: { large: "", left: "", color: "#9e2219" }
-                              },
-                              [_vm._v("mdi-update")]
-                            )
-                          : _vm._e(),
-                        _vm._v(" "),
-                        item.feedType === _vm.FeedTypes.COLLABORATORS
-                          ? _c(
-                              "v-icon",
-                              {
-                                attrs: { large: "", left: "", color: "#202b4f" }
-                              },
-                              [_vm._v("mdi-account-tie")]
-                            )
-                          : _vm._e(),
-                        _vm._v(
-                          "\n\t\t\t\t\t\n\t\t\t\t\t\tFeed Type: " +
-                            _vm._s(item.feedType) +
-                            "\n\t\t\t\t\t"
-                        )
-                      ],
-                      1
-                    ),
-                    _vm._v(" "),
-                    item && item.date
-                      ? _c(
-                          "v-card-subtitle",
+                        _c(
+                          "v-card-title",
                           {
                             staticStyle: {
                               "font-family": "Georgia, serif",
-                              "font-size": "18px"
+                              "font-size": "18px",
+                              "font-weight": "600"
                             }
                           },
                           [
+                            item.feedType === _vm.FeedTypes.INVESTMENT
+                              ? _c(
+                                  "v-icon",
+                                  {
+                                    attrs: {
+                                      large: "",
+                                      left: "",
+                                      color: "#22542b"
+                                    }
+                                  },
+                                  [_vm._v("mdi-account-cash")]
+                                )
+                              : _vm._e(),
+                            _vm._v(" "),
+                            item.feedType === _vm.FeedTypes.AWARD
+                              ? _c(
+                                  "v-icon",
+                                  {
+                                    attrs: {
+                                      large: "",
+                                      left: "",
+                                      color: "#e0ac1b"
+                                    }
+                                  },
+                                  [_vm._v("mdi-trophy")]
+                                )
+                              : _vm._e(),
+                            _vm._v(" "),
+                            item.feedType === _vm.FeedTypes.UPDATE
+                              ? _c(
+                                  "v-icon",
+                                  {
+                                    attrs: {
+                                      large: "",
+                                      left: "",
+                                      color: "#9e2219"
+                                    }
+                                  },
+                                  [_vm._v("mdi-update")]
+                                )
+                              : _vm._e(),
+                            _vm._v(" "),
+                            item.feedType === _vm.FeedTypes.COLLABORATORS
+                              ? _c(
+                                  "v-icon",
+                                  {
+                                    attrs: {
+                                      large: "",
+                                      left: "",
+                                      color: "#202b4f"
+                                    }
+                                  },
+                                  [_vm._v("mdi-account-tie")]
+                                )
+                              : _vm._e(),
                             _vm._v(
-                              "\n\t\t\t\t\t\t\t" +
-                                _vm._s(_vm.formatDate(item.date)) +
-                                "\n\t\t\t\t\t"
+                              "\n\t\t\t\t\n\t\t\t\t\tFeed Type: " +
+                                _vm._s(item.feedType) +
+                                "\n\t\t\t\t"
                             )
-                          ]
-                        )
-                      : _vm._e(),
-                    _vm._v(" "),
-                    _c("v-divider"),
-                    _vm._v(" "),
-                    _c(
-                      "v-card-text",
-                      { staticStyle: { "font-family": "Georgia, serif" } },
-                      [
-                        _c("span", [
-                          _vm._v(
-                            "Feed Description: " + _vm._s(item.text["text"])
-                          )
-                        ]),
+                          ],
+                          1
+                        ),
                         _vm._v(" "),
-                        _c("v-spacer"),
+                        item && item.date
+                          ? _c(
+                              "v-card-subtitle",
+                              {
+                                staticStyle: {
+                                  "font-family": "Georgia, serif",
+                                  "font-size": "18px"
+                                }
+                              },
+                              [
+                                _vm._v(
+                                  "\n\t\t\t\t\t\t" +
+                                    _vm._s(_vm.formatDate(item.date)) +
+                                    "\n\t\t\t\t"
+                                )
+                              ]
+                            )
+                          : _vm._e(),
                         _vm._v(" "),
-                        item.feedType === _vm.FeedTypes.INVESTMENT
-                          ? _c("span", [
+                        _c("v-divider"),
+                        _vm._v(" "),
+                        _c(
+                          "v-card-text",
+                          { staticStyle: { "font-family": "Georgia, serif" } },
+                          [
+                            _c("span", [
                               _vm._v(
-                                " Amount:" + _vm._s(item.text["amount"]) + " "
+                                "Feed Description: " + _vm._s(item.text["text"])
                               )
-                            ])
-                          : _vm._e()
+                            ]),
+                            _vm._v(" "),
+                            _c("v-spacer"),
+                            _vm._v(" "),
+                            item.feedType === _vm.FeedTypes.INVESTMENT
+                              ? _c("span", [
+                                  _vm._v(
+                                    " Amount:" +
+                                      _vm._s(item.text["amount"]) +
+                                      " "
+                                  )
+                                ])
+                              : _vm._e()
+                          ],
+                          1
+                        )
                       ],
                       1
                     )
-                  ],
-                  1
-                )
-              })
-            : _c(
-                "span",
+                  })
+                : _c(
+                    "span",
+                    [
+                      _c(
+                        "v-row",
+                        { attrs: { justify: "center", "no-gutters": "" } },
+                        [
+                          _c("v-col", { attrs: { md: "auto" } }, [
+                            _c("h1", { staticClass: "landing-message" }, [
+                              _vm._v(
+                                "\n\t\t\t\t\t\tNo feed to show for this team.\n\t\t\t\t\t"
+                              )
+                            ])
+                          ])
+                        ],
+                        1
+                      )
+                    ],
+                    1
+                  )
+            ],
+            2
+          )
+        : _c(
+            "v-container",
+            [
+              _c(
+                "v-row",
+                { attrs: { justify: "center" } },
                 [
                   _c(
-                    "v-row",
-                    { attrs: { justify: "center", "no-gutters": "" } },
+                    "v-col",
+                    { attrs: { md: "auto" } },
                     [
-                      _c("v-col", { attrs: { md: "auto" } }, [
-                        _c("h1", { staticClass: "landing-message" }, [
-                          _vm._v(
-                            "\n\t\t\t\t\t\t\tNo feed to show for this team.\n\t\t\t\t\t\t"
-                          )
-                        ])
-                      ])
+                      _c("v-progress-circular", {
+                        attrs: {
+                          size: 500,
+                          color: "primary",
+                          indeterminate: ""
+                        }
+                      })
                     ],
                     1
                   )
                 ],
                 1
               )
-        ],
-        2
-      )
+            ],
+            1
+          )
     ],
     1
   )

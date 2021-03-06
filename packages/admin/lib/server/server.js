@@ -1021,7 +1021,7 @@ router.post("/uploadCSV", function (req, res) { return __awaiter(void 0, void 0,
                 return [4 /*yield*/, users.getUserByEmail(entry.user.email)];
             case 11:
                 user = _g.sent();
-                if (!!user) return [3 /*break*/, 13];
+                if (!(user == null)) return [3 /*break*/, 13];
                 password = admin.randomPassword();
                 entry.user.password = password;
                 options = admin.createMailOptions(process.env.MAIL_USER, entry.user.email, "Innovation Labs Platform Password", "Hello " + entry.user.firstName + " " + entry.user.lastName + " ,\n\n"
@@ -1040,28 +1040,31 @@ router.post("/uploadCSV", function (req, res) { return __awaiter(void 0, void 0,
                 user = _g.sent();
                 _g.label = 13;
             case 13:
-                userTeam = void 0;
+                userTeam = null;
                 if (!(user && team)) return [3 /*break*/, 15];
                 return [4 /*yield*/, teams.getUserInTeam(user.userId, team.teamId)];
             case 14:
                 userTeam = _g.sent();
                 _g.label = 15;
             case 15:
-                if (!(!userTeam && user && team)) return [3 /*break*/, 22];
+                if (!(userTeam === null && user !== null && team !== null)) return [3 /*break*/, 22];
                 role = user.role;
-                teamUser = void 0;
+                teamUser = null;
                 if (!(user && team && role)) return [3 /*break*/, 17];
                 return [4 /*yield*/, teams.addUserToTeam(user, team, role)];
             case 16:
                 teamUser = _g.sent();
                 _g.label = 17;
             case 17:
+                console.log("TEAMUSER");
+                console.log(teamUser);
+                console.log("TEAMUSER");
                 initDate = void 0;
                 if (team.teamDetails["location"] === "Bucharest") {
-                    initDate = moment_1.default("2020-03-02");
+                    initDate = moment_1.default("2021-03-02");
                 }
                 else {
-                    initDate = moment_1.default("2020-03-09");
+                    initDate = moment_1.default("2021-03-09");
                 }
                 i = 0;
                 _g.label = 18;
@@ -1070,7 +1073,7 @@ router.post("/uploadCSV", function (req, res) { return __awaiter(void 0, void 0,
                 aux = moment_1.default(initDate.toDate());
                 date = aux.add(7 * i, "days").toDate();
                 userActivity = void 0;
-                if (!(user && teamUser)) return [3 /*break*/, 20];
+                if (!(user !== null && teamUser !== null)) return [3 /*break*/, 20];
                 userActivity = {
                     activityId: uuid_1.v4(),
                     userId: user.userId,
@@ -1084,13 +1087,13 @@ router.post("/uploadCSV", function (req, res) { return __awaiter(void 0, void 0,
                 response = _g.sent();
                 if (!response) {
                     console.error("Error on route \"/uploadCSV\" in \"admin\" router");
-                    console.error("No activity added");
+                    console.error("No activity added NO RESPONSE");
                     return [3 /*break*/, 22];
                 }
                 return [3 /*break*/, 21];
             case 20:
                 console.error("Error on route \"/uploadCSV\" in \"admin\" router");
-                console.error("No activity added");
+                console.error("No activity added NO TEAM");
                 return [3 /*break*/, 22];
             case 21:
                 i++;
@@ -1438,7 +1441,7 @@ router.get("/teams/:location", function (req, res) { return __awaiter(void 0, vo
             case 0:
                 _b.trys.push([0, 5, , 6]);
                 teamsArray = [];
-                if (!(req.params.location === "all")) return [3 /*break*/, 2];
+                if (!(req.params.location === "all" || req.params.location === "undefined")) return [3 /*break*/, 2];
                 return [4 /*yield*/, teams.getTeams()];
             case 1:
                 teamsArray = _b.sent();

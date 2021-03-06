@@ -1,98 +1,111 @@
 <template>
 	<v-app id="app">
-		<v-card flat style="margin: auto; margin-top: 50px;" max-width="1000" color="#fcfcfc">
-			<v-divider></v-divider>
-			<v-card-text style="margin-top: 20px;">
-				<div>
-					<v-row v-if="weeks.length > 0">
-						<v-col cols="12" sm="6" md="4" lg="4" xl="4" v-for="week in weeks" :key="week.activityId">
-							<v-card flat outlined>
-								<v-card-title class="justify-center" style="font-size: 15px; font-weight: bold;">
-									{{formatDate(week.date)}}
-								</v-card-title>
-								<v-divider></v-divider>
-								<v-card-text>
-									<div style="text-align: center;">Number of hours worked: {{week.noOfHours}}</div>
-									<div style="text-align: center;">Work Description: {{week.description}}</div>
-								</v-card-text>
-								<v-card-actions class="justify-center">
-									<v-btn icon fab @click="enableEdit(week)">
-										<v-icon color="primary">mdi-pencil-circle-outline</v-icon>
-									</v-btn>
-									<v-btn icon fab @click="viewActivity(week)">
-										<v-icon color="primary">mdi-calendar-month</v-icon>
-									</v-btn>
-								</v-card-actions>
-							</v-card>
-						</v-col>
-					</v-row>
-					<v-row v-else justify="center" no-gutters>
-						<v-col md="auto">
-							<h1 class="landing-message">
-								You have no activities in this team so far.
-							</h1>
-						</v-col>
-					</v-row>
-				</div>
-			</v-card-text>
-		</v-card>
-		<v-dialog v-model="editDialog" max-width="450">
-			<v-card flat width="450" v-if="edited">
-				<v-card-title class="justify-center" style="font-family: Georgia, serif;">
-					{{formatDate(edited.date)}}
-				</v-card-title>
+		<v-container v-if="!loadingPage">
+			<v-card flat style="margin: auto; margin-top: 50px;" max-width="1000" color="#fcfcfc">
 				<v-divider></v-divider>
-				<v-card-text>
-					<div class="details">
-						Please submit the number of worked hours during this week.
-					</div>
-					<v-text-field
-						v-model="edited.noOfHours"
-						append-icon="mdi-calendar-clock"
-						single-line
-						color="primary"
-					></v-text-field>
-					<div class="details">
-						Please submit a short description for your weekly activity.
-					</div>
-					<v-text-field
-						v-model="edited.description"
-						append-icon="mdi-calendar-clock"
-						single-line
-						color="primary"
-					></v-text-field>
-				</v-card-text>
-
-				<v-card-actions class="justify-center">
-					<v-btn color="primary" rounded @click="updateWeek(edited)">Update progress</v-btn>
-					<v-btn color="primary" text @click="denyActivity">Exit</v-btn>
-				</v-card-actions>
-			</v-card>
-		</v-dialog>
-
-		<v-dialog v-model="viewDialog" max-width="450">
-			<v-card flat width="450" v-if="edited">
-				<v-card-title class="justify-center" style="font-family: Georgia, serif;">
-					View activity
-				</v-card-title>
-				<v-card-subtitle class="justify-center">
-					<div align="center">{{formatDate(edited.date)}}</div>
-				</v-card-subtitle>
-				<v-divider></v-divider>
-				<v-card-text style="margin-top: 30px;">
-					<div class="details">
-						Number of worked hours for during this week: {{edited.noOfHours}}
-					</div>
-					<div class="details">
-						Work description: {{edited.description}}
+				<v-card-text style="margin-top: 20px;">
+					<div>
+						<v-row v-if="weeks.length > 0">
+							<v-col cols="12" sm="6" md="4" lg="4" xl="4" v-for="week in weeks" :key="week.activityId">
+								<v-card flat outlined>
+									<v-card-title class="justify-center" style="font-size: 15px; font-weight: bold;">
+										{{formatDate(week.date)}}
+									</v-card-title>
+									<v-divider></v-divider>
+									<v-card-text>
+										<div style="text-align: center;">Number of hours worked: {{week.noOfHours}}</div>
+										<div style="text-align: center;">Work Description: {{week.description}}</div>
+									</v-card-text>
+									<v-card-actions class="justify-center">
+										<v-btn icon fab @click="enableEdit(week)">
+											<v-icon color="primary">mdi-pencil-circle-outline</v-icon>
+										</v-btn>
+										<v-btn icon fab @click="viewActivity(week)">
+											<v-icon color="primary">mdi-calendar-month</v-icon>
+										</v-btn>
+									</v-card-actions>
+								</v-card>
+							</v-col>
+						</v-row>
+						<v-row v-else justify="center" no-gutters>
+							<v-col md="auto">
+								<h1 class="landing-message">
+									You have no activities in this team so far.
+								</h1>
+							</v-col>
+						</v-row>
 					</div>
 				</v-card-text>
-
-				<v-card-actions class="justify-center">
-					<v-btn color="primary" text @click="closeView">Exit</v-btn>
-				</v-card-actions>
 			</v-card>
-		</v-dialog>
+			<v-dialog v-model="editDialog" max-width="450">
+				<v-card flat width="450" v-if="edited">
+					<v-card-title class="justify-center" style="font-family: Georgia, serif;">
+						{{formatDate(edited.date)}}
+					</v-card-title>
+					<v-divider></v-divider>
+					<v-card-text>
+						<div class="details">
+							Please submit the number of worked hours during this week.
+						</div>
+						<v-text-field
+							v-model="edited.noOfHours"
+							append-icon="mdi-calendar-clock"
+							single-line
+							color="primary"
+						></v-text-field>
+						<div class="details">
+							Please submit a short description for your weekly activity.
+						</div>
+						<v-text-field
+							v-model="edited.description"
+							append-icon="mdi-calendar-clock"
+							single-line
+							color="primary"
+						></v-text-field>
+					</v-card-text>
+
+					<v-card-actions class="justify-center">
+						<v-btn color="primary" rounded @click="updateWeek(edited)">Update progress</v-btn>
+						<v-btn color="primary" text @click="denyActivity">Exit</v-btn>
+					</v-card-actions>
+				</v-card>
+			</v-dialog>
+
+			<v-dialog v-model="viewDialog" max-width="450">
+				<v-card flat width="450" v-if="edited">
+					<v-card-title class="justify-center" style="font-family: Georgia, serif;">
+						View activity
+					</v-card-title>
+					<v-card-subtitle class="justify-center">
+						<div align="center">{{formatDate(edited.date)}}</div>
+					</v-card-subtitle>
+					<v-divider></v-divider>
+					<v-card-text style="margin-top: 30px;">
+						<div class="details">
+							Number of worked hours for during this week: {{edited.noOfHours}}
+						</div>
+						<div class="details">
+							Work description: {{edited.description}}
+						</div>
+					</v-card-text>
+
+					<v-card-actions class="justify-center">
+						<v-btn color="primary" text @click="closeView">Exit</v-btn>
+					</v-card-actions>
+				</v-card>
+			</v-dialog>
+		</v-container>
+		<v-container v-else>
+			<v-row justify="center">
+				<v-col md="auto">
+					<v-progress-circular
+					:size="500"
+					color="primary"
+					indeterminate
+					></v-progress-circular>
+				</v-col>
+			</v-row>
+		</v-container>
 	</v-app>
 </template>
 
@@ -111,6 +124,7 @@ export default Vue.extend({
 		currentTeam: {
 			immediate: true,
 			async handler (newTeam: Team):Promise<void> {
+				this.loadingPage = true;
 				if(this.currentTeam) {
 					this.teamId = newTeam.teamId;
 					if(this.teamId === "") {
@@ -133,11 +147,13 @@ export default Vue.extend({
 						}
 					}
 				}
+				this.loadingPage = false;
 			}
 		},
 		user: {
 			immediate: true,
 			async handler (newUser: User):Promise<User> {
+				this.loadingPage = true;
 				if(this.user) {
 					this.userId = newUser.userId;
 					if(this.userId === "") {
@@ -157,20 +173,21 @@ export default Vue.extend({
 						}
 					}
 				}
+				this.loadingPage = false;
 				return newUser;
 			}
 		},
 		activities: {
 			immediate: true,
 			handler (newActivities: UserActivity[]):void {
-				
+				this.loadingPage = true;
 				if(newActivities.length !== 0) {
 					newActivities.forEach( (activity:UserActivity) => {
 						(activity as UserActivity & {stringDate:string}).stringDate = (moment(activity.date).format('[Week:] Do [of] MMMM'));
 					});
 					this.weeks = newActivities;
 				}
-				
+				this.loadingPage = false;
 				//TODO PARSE DATA
 			}
 		}

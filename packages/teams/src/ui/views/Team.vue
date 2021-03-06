@@ -146,7 +146,8 @@
 							:headers="headers2"
 							:items="allUsers"
 							:search="search2"
-							:loading="loading"
+							:loading="allUsers.length <= 0" 
+							loading-text="Loading users"
 							:single-select="singleSelect2"
 							show-select
 						>

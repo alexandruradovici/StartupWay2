@@ -976,7 +976,9 @@ var __vue_render__$1 = function() {
                       "item-key": "email",
                       headers: _vm.headers,
                       items: _vm.allUsers,
-                      search: _vm.search
+                      search: _vm.search,
+                      loading: _vm.allUsers.length <= 0,
+                      "loading-text": "Loading users"
                     },
                     scopedSlots: _vm._u([
                       {
@@ -1803,7 +1805,9 @@ var __vue_render__$2 = function() {
                               "item-key": "email",
                               headers: _vm.headers,
                               items: _vm.users,
-                              search: _vm.search
+                              search: _vm.search,
+                              loading: _vm.users.length <= 0,
+                              "loading-text": "Loading users"
                             }
                           })
                         ],
@@ -5487,6 +5491,7 @@ var __vue_render__$7 = function() {
                         "sort-by": _vm.sortBy,
                         "sort-desc": _vm.sortDesc,
                         expanded: _vm.expanded,
+                        loading: _vm.filteredReviews.length <= 0,
                         "loading-text": "Loading teams"
                       },
                       on: {
@@ -7614,6 +7619,7 @@ var __vue_render__$8 = function() {
                         itemsPerPage: -1,
                         "sort-by": _vm.sortByAssessment,
                         "sort-desc": _vm.sortDescAssessment,
+                        loading: _vm.filteredTeams.length <= 0,
                         "loading-text": "Loading teams"
                       },
                       on: {

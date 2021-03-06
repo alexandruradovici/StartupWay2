@@ -100,6 +100,7 @@ var script = Vue.extend({
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 3, , 4]);
+                        this.loadingPage = true;
                         return [4 /*yield*/, this.ui.storeDispatch("teams/loadProduct", this.teamId)];
                     case 1:
                         _a.sent();
@@ -109,6 +110,7 @@ var script = Vue.extend({
                         if (response.data) {
                             this.canvases = response.data;
                         }
+                        this.loadingPage = false;
                         return [3 /*break*/, 4];
                     case 3:
                         e_1 = _a.sent();
@@ -128,6 +130,7 @@ var script = Vue.extend({
                     return __generator(this, function (_a) {
                         switch (_a.label) {
                             case 0:
+                                this.loadingPage = true;
                                 if (!newTeam) return [3 /*break*/, 5];
                                 this.teamId = newTeam.teamId;
                                 if (!(this.teamId === "")) return [3 /*break*/, 1];
@@ -150,7 +153,9 @@ var script = Vue.extend({
                                 e_2 = _a.sent();
                                 console.error(e_2);
                                 return [3 /*break*/, 5];
-                            case 5: return [2 /*return*/];
+                            case 5:
+                                this.loadingPage = false;
+                                return [2 /*return*/];
                         }
                     });
                 });
@@ -167,6 +172,7 @@ var script = Vue.extend({
             immediate: true,
             handler: function (newCanvases) {
                 var _a;
+                this.loadingPage = true;
                 if (newCanvases.length !== 0) {
                     this.canvas = newCanvases[newCanvases.length - 1];
                     this.problem = this.canvas.fields["Problem"];
@@ -203,6 +209,7 @@ var script = Vue.extend({
                             _a)
                     };
                 }
+                this.loadingPage = false;
             }
         }
     },
@@ -439,676 +446,808 @@ var __vue_render__ = function() {
   return _c(
     "v-app",
     [
-      _c(
-        "v-card",
-        {
-          staticStyle: { margin: "auto", "margin-top": "50px" },
-          attrs: { flat: "", "max-width": "1000", color: "#fcfcfc" }
-        },
-        [
-          _c("v-divider"),
-          _vm._v(" "),
-          _c(
-            "v-card-text",
+      !_vm.loadingPage
+        ? _c(
+            "v-container",
             [
               _c(
-                "v-row",
-                { attrs: { "no-gutters": "" } },
-                [
-                  _c(
-                    "v-col",
-                    {
-                      attrs: { cols: "12", sm: "10", md: "8", lg: "4", xl: "4" }
-                    },
-                    [
-                      _c(
-                        "div",
-                        {
-                          staticStyle: {
-                            "text-align": "center",
-                            "font-weight": "bold",
-                            "margin-top": "15px"
-                          }
-                        },
-                        [_vm._v("PROBLEM")]
-                      ),
-                      _vm._v(" "),
-                      _c("v-textarea", {
-                        attrs: {
-                          required: "",
-                          rules: _vm.lengthRules,
-                          placeholder: _vm.canvas.fields["Problem"],
-                          rows: "4",
-                          "no-resize": "",
-                          counter: "250",
-                          outlined: "",
-                          rounded: "",
-                          color: "primary",
-                          "prepend-icon": "mdi-lightbulb-on-outline"
-                        },
-                        on: {
-                          keyup: function($event) {
-                            return _vm.countdown("Problem", _vm.problem)
-                          }
-                        },
-                        model: {
-                          value: _vm.problem,
-                          callback: function($$v) {
-                            _vm.problem = $$v;
-                          },
-                          expression: "problem"
-                        }
-                      })
-                    ],
-                    1
-                  ),
-                  _vm._v(" "),
-                  _c(
-                    "v-col",
-                    {
-                      attrs: { cols: "12", sm: "10", md: "8", lg: "4", xl: "4" }
-                    },
-                    [
-                      _c(
-                        "div",
-                        {
-                          staticStyle: {
-                            "text-align": "center",
-                            "font-weight": "bold",
-                            "margin-top": "15px"
-                          }
-                        },
-                        [_vm._v("CUSTOMER SEGMENTS")]
-                      ),
-                      _vm._v(" "),
-                      _c("v-textarea", {
-                        attrs: {
-                          required: "",
-                          rules: _vm.lengthRules,
-                          outlined: "",
-                          rounded: "",
-                          color: "primary",
-                          "prepend-icon": "mdi-account-switch",
-                          placeholder: _vm.canvas.fields["Customer Segments"],
-                          rows: "4",
-                          "no-resize": "",
-                          counter: "250"
-                        },
-                        on: {
-                          keyup: function($event) {
-                            return _vm.countdown(
-                              "Customer Segments",
-                              _vm.segment
-                            )
-                          }
-                        },
-                        model: {
-                          value: _vm.segment,
-                          callback: function($$v) {
-                            _vm.segment = $$v;
-                          },
-                          expression: "segment"
-                        }
-                      })
-                    ],
-                    1
-                  ),
-                  _vm._v(" "),
-                  _c(
-                    "v-col",
-                    {
-                      attrs: { cols: "12", sm: "10", md: "8", lg: "4", xl: "4" }
-                    },
-                    [
-                      _c(
-                        "div",
-                        {
-                          staticStyle: {
-                            "text-align": "center",
-                            "font-weight": "bold",
-                            "margin-top": "15px"
-                          }
-                        },
-                        [_vm._v("EXISTING ALTERNATIVES")]
-                      ),
-                      _vm._v(" "),
-                      _c("v-textarea", {
-                        attrs: {
-                          required: "",
-                          rules: _vm.lengthRules,
-                          outlined: "",
-                          rounded: "",
-                          color: "primary",
-                          "prepend-icon": "mdi-compare",
-                          placeholder:
-                            _vm.canvas.fields["Existing Alternatives"],
-                          rows: "4",
-                          "no-resize": "",
-                          counter: "250"
-                        },
-                        on: {
-                          keyup: function($event) {
-                            return _vm.countdown(
-                              "Existing Alternatives",
-                              _vm.alternatives
-                            )
-                          }
-                        },
-                        model: {
-                          value: _vm.alternatives,
-                          callback: function($$v) {
-                            _vm.alternatives = $$v;
-                          },
-                          expression: "alternatives"
-                        }
-                      })
-                    ],
-                    1
-                  )
-                ],
-                1
-              ),
-              _vm._v(" "),
-              _c(
-                "v-row",
-                [
-                  _c(
-                    "v-col",
-                    {
-                      attrs: { cols: "12", sm: "10", md: "8", lg: "4", xl: "4" }
-                    },
-                    [
-                      _c(
-                        "div",
-                        {
-                          staticStyle: {
-                            "text-align": "center",
-                            "font-weight": "bold",
-                            "margin-top": "15px"
-                          }
-                        },
-                        [_vm._v("EARLY ADAPTORS")]
-                      ),
-                      _vm._v(" "),
-                      _c("v-textarea", {
-                        attrs: {
-                          required: "",
-                          rules: _vm.lengthRules,
-                          outlined: "",
-                          rounded: "",
-                          color: "primary",
-                          "prepend-icon": "mdi-account-child-outline",
-                          placeholder: _vm.canvas.fields["Early Adaptors"],
-                          rows: "4",
-                          "no-resize": "",
-                          counter: "250"
-                        },
-                        on: {
-                          keyup: function($event) {
-                            return _vm.countdown("Early Adaptors", _vm.adaptors)
-                          }
-                        },
-                        model: {
-                          value: _vm.adaptors,
-                          callback: function($$v) {
-                            _vm.adaptors = $$v;
-                          },
-                          expression: "adaptors"
-                        }
-                      })
-                    ],
-                    1
-                  ),
-                  _vm._v(" "),
-                  _c(
-                    "v-col",
-                    {
-                      attrs: { cols: "12", sm: "10", md: "8", lg: "4", xl: "4" }
-                    },
-                    [
-                      _c(
-                        "div",
-                        {
-                          staticStyle: {
-                            "text-align": "center",
-                            "font-weight": "bold",
-                            "margin-top": "15px"
-                          }
-                        },
-                        [_vm._v("UNIQUE VALUE PROPOSITION")]
-                      ),
-                      _vm._v(" "),
-                      _c("v-textarea", {
-                        attrs: {
-                          required: "",
-                          rules: _vm.lengthRules,
-                          outlined: "",
-                          rounded: "",
-                          color: "primary",
-                          "prepend-icon": "mdi-briefcase",
-                          placeholder:
-                            _vm.canvas.fields["Unique Value Proposition"],
-                          rows: "4",
-                          "no-resize": "",
-                          counter: "250"
-                        },
-                        on: {
-                          keyup: function($event) {
-                            return _vm.countdown(
-                              "Unique Value Proposition",
-                              _vm.proposition
-                            )
-                          }
-                        },
-                        model: {
-                          value: _vm.proposition,
-                          callback: function($$v) {
-                            _vm.proposition = $$v;
-                          },
-                          expression: "proposition"
-                        }
-                      })
-                    ],
-                    1
-                  ),
-                  _vm._v(" "),
-                  _c(
-                    "v-col",
-                    {
-                      attrs: { cols: "12", sm: "10", md: "8", lg: "4", xl: "4" }
-                    },
-                    [
-                      _c(
-                        "div",
-                        {
-                          staticStyle: {
-                            "text-align": "center",
-                            "font-weight": "bold",
-                            "margin-top": "15px"
-                          }
-                        },
-                        [_vm._v("HIGH-LEVEL CONCEPT")]
-                      ),
-                      _vm._v(" "),
-                      _c("v-textarea", {
-                        attrs: {
-                          required: "",
-                          rules: _vm.lengthRules,
-                          outlined: "",
-                          rounded: "",
-                          color: "primary",
-                          "prepend-icon": "mdi-presentation-play",
-                          placeholder: _vm.canvas.fields["High-Level Concept"],
-                          rows: "4",
-                          "no-resize": "",
-                          counter: "250"
-                        },
-                        on: {
-                          keyup: function($event) {
-                            return _vm.countdown(
-                              "High-Level Concept",
-                              _vm.concept
-                            )
-                          }
-                        },
-                        model: {
-                          value: _vm.concept,
-                          callback: function($$v) {
-                            _vm.concept = $$v;
-                          },
-                          expression: "concept"
-                        }
-                      })
-                    ],
-                    1
-                  )
-                ],
-                1
-              ),
-              _vm._v(" "),
-              _c(
-                "v-row",
-                [
-                  _c(
-                    "v-col",
-                    {
-                      attrs: { cols: "12", sm: "10", md: "8", lg: "4", xl: "4" }
-                    },
-                    [
-                      _c(
-                        "div",
-                        {
-                          staticStyle: {
-                            "text-align": "center",
-                            "font-weight": "bold",
-                            "margin-top": "15px"
-                          }
-                        },
-                        [_vm._v("SOLUTION")]
-                      ),
-                      _vm._v(" "),
-                      _c("v-textarea", {
-                        attrs: {
-                          required: "",
-                          rules: _vm.lengthRules,
-                          outlined: "",
-                          rounded: "",
-                          color: "primary",
-                          "prepend-icon": "mdi-flag",
-                          placeholder: _vm.canvas.fields["Solution"],
-                          rows: "4",
-                          "no-resize": "",
-                          counter: "250"
-                        },
-                        on: {
-                          keyup: function($event) {
-                            return _vm.countdown("Solution", _vm.solution)
-                          }
-                        },
-                        model: {
-                          value: _vm.solution,
-                          callback: function($$v) {
-                            _vm.solution = $$v;
-                          },
-                          expression: "solution"
-                        }
-                      })
-                    ],
-                    1
-                  ),
-                  _vm._v(" "),
-                  _c(
-                    "v-col",
-                    {
-                      attrs: { cols: "12", sm: "10", md: "8", lg: "4", xl: "4" }
-                    },
-                    [
-                      _c(
-                        "div",
-                        {
-                          staticStyle: {
-                            "text-align": "center",
-                            "font-weight": "bold",
-                            "margin-top": "15px"
-                          }
-                        },
-                        [_vm._v("UNFAIR ADVANTAGE")]
-                      ),
-                      _vm._v(" "),
-                      _c("v-textarea", {
-                        attrs: {
-                          required: "",
-                          rules: _vm.lengthRules,
-                          outlined: "",
-                          rounded: "",
-                          color: "primary",
-                          "prepend-icon": "mdi-bell-plus-outline",
-                          placeholder: _vm.canvas.fields["Unfair Advantage"],
-                          rows: "4",
-                          "no-resize": "",
-                          counter: "250"
-                        },
-                        on: {
-                          keyup: function($event) {
-                            return _vm.countdown(
-                              "Unfair Advantage",
-                              _vm.advantage
-                            )
-                          }
-                        },
-                        model: {
-                          value: _vm.advantage,
-                          callback: function($$v) {
-                            _vm.advantage = $$v;
-                          },
-                          expression: "advantage"
-                        }
-                      })
-                    ],
-                    1
-                  ),
-                  _vm._v(" "),
-                  _c(
-                    "v-col",
-                    {
-                      attrs: { cols: "12", sm: "10", md: "8", lg: "4", xl: "4" }
-                    },
-                    [
-                      _c(
-                        "div",
-                        {
-                          staticStyle: {
-                            "text-align": "center",
-                            "font-weight": "bold",
-                            "margin-top": "15px"
-                          }
-                        },
-                        [_vm._v("COST STRUCTURE")]
-                      ),
-                      _vm._v(" "),
-                      _c("v-textarea", {
-                        attrs: {
-                          required: "",
-                          rules: _vm.lengthRules,
-                          outlined: "",
-                          rounded: "",
-                          color: "primary",
-                          "prepend-icon": "mdi-sack-percent",
-                          rows: "4",
-                          placeholder: _vm.canvas.fields["Cost Structure"],
-                          "no-resize": "",
-                          counter: "250"
-                        },
-                        on: {
-                          keyup: function($event) {
-                            return _vm.countdown("Cost Structure", _vm.cost)
-                          }
-                        },
-                        model: {
-                          value: _vm.cost,
-                          callback: function($$v) {
-                            _vm.cost = $$v;
-                          },
-                          expression: "cost"
-                        }
-                      })
-                    ],
-                    1
-                  )
-                ],
-                1
-              ),
-              _vm._v(" "),
-              _c(
-                "v-row",
-                [
-                  _c(
-                    "v-col",
-                    {
-                      attrs: { cols: "12", sm: "10", md: "8", lg: "4", xl: "4" }
-                    },
-                    [
-                      _c(
-                        "div",
-                        {
-                          staticStyle: {
-                            "text-align": "center",
-                            "font-weight": "bold",
-                            "margin-top": "15px"
-                          }
-                        },
-                        [_vm._v("CHANNELS")]
-                      ),
-                      _vm._v(" "),
-                      _c("v-textarea", {
-                        attrs: {
-                          required: "",
-                          rules: _vm.lengthRules,
-                          outlined: "",
-                          rounded: "",
-                          color: "primary",
-                          "prepend-icon": "mdi-google-circles-extended",
-                          placeholder: _vm.canvas.fields["Channels"],
-                          rows: "4",
-                          "no-resize": "",
-                          counter: "250"
-                        },
-                        on: {
-                          keyup: function($event) {
-                            return _vm.countdown("Channels", _vm.channels)
-                          }
-                        },
-                        model: {
-                          value: _vm.channels,
-                          callback: function($$v) {
-                            _vm.channels = $$v;
-                          },
-                          expression: "channels"
-                        }
-                      })
-                    ],
-                    1
-                  ),
-                  _vm._v(" "),
-                  _c(
-                    "v-col",
-                    {
-                      attrs: { cols: "12", sm: "10", md: "8", lg: "4", xl: "4" }
-                    },
-                    [
-                      _c(
-                        "div",
-                        {
-                          staticStyle: {
-                            "text-align": "center",
-                            "font-weight": "bold",
-                            "margin-top": "15px"
-                          }
-                        },
-                        [_vm._v("KEY METRICS")]
-                      ),
-                      _vm._v(" "),
-                      _c("v-textarea", {
-                        attrs: {
-                          required: "",
-                          rules: _vm.lengthRules,
-                          outlined: "",
-                          rounded: "",
-                          color: "primary",
-                          "prepend-icon": "mdi-key-link",
-                          placeholder: _vm.canvas.fields["Key Metrics"],
-                          rows: "4",
-                          "no-resize": "",
-                          counter: "250"
-                        },
-                        on: {
-                          keyup: function($event) {
-                            return _vm.countdown("Key Metrics", _vm.metrics)
-                          }
-                        },
-                        model: {
-                          value: _vm.metrics,
-                          callback: function($$v) {
-                            _vm.metrics = $$v;
-                          },
-                          expression: "metrics"
-                        }
-                      })
-                    ],
-                    1
-                  ),
-                  _vm._v(" "),
-                  _c(
-                    "v-col",
-                    {
-                      attrs: { cols: "12", sm: "10", md: "8", lg: "4", xl: "4" }
-                    },
-                    [
-                      _c(
-                        "div",
-                        {
-                          staticStyle: {
-                            "text-align": "center",
-                            "font-weight": "bold",
-                            "margin-top": "15px"
-                          }
-                        },
-                        [_vm._v("REVENUE STREAMS")]
-                      ),
-                      _vm._v(" "),
-                      _c("v-textarea", {
-                        attrs: {
-                          required: "",
-                          rules: _vm.lengthRules,
-                          outlined: "",
-                          rounded: "",
-                          color: "primary",
-                          "prepend-icon": "mdi-account-cash-outline",
-                          placeholder: _vm.canvas.fields["Revenue Streams"],
-                          rows: "4",
-                          "no-resize": "",
-                          counter: "250"
-                        },
-                        on: {
-                          keyup: function($event) {
-                            return _vm.countdown("Revenue Streams", _vm.revenue)
-                          }
-                        },
-                        model: {
-                          value: _vm.revenue,
-                          callback: function($$v) {
-                            _vm.revenue = $$v;
-                          },
-                          expression: "revenue"
-                        }
-                      })
-                    ],
-                    1
-                  )
-                ],
-                1
-              ),
-              _vm._v(" "),
-              _vm.checkLength
-                ? _c("div", { staticClass: "error-message" }, [
-                    _vm._v(
-                      "\n\t\t\t\t\tPlease review the following fields: " +
-                        _vm._s(_vm.types.join(", ")) +
-                        ". The character limit is set to 250.\n\t\t\t\t"
-                    )
-                  ])
-                : _vm._e()
-            ],
-            1
-          ),
-          _vm._v(" "),
-          _c(
-            "v-card-actions",
-            { staticClass: "justify-center" },
-            [
-              _c(
-                "v-btn",
+                "v-card",
                 {
-                  attrs: {
-                    disabled: _vm.checkLength,
-                    color: "primary",
-                    rounded: "",
-                    type: "submit"
-                  },
-                  on: {
-                    click: function($event) {
-                      return _vm.updateCanvas()
-                    }
-                  }
+                  staticStyle: { margin: "auto", "margin-top": "50px" },
+                  attrs: { flat: "", "max-width": "1000", color: "#fcfcfc" }
                 },
-                [_vm._v("Submit Canvas")]
+                [
+                  _c("v-divider"),
+                  _vm._v(" "),
+                  _c(
+                    "v-card-text",
+                    [
+                      _c(
+                        "v-row",
+                        { attrs: { "no-gutters": "" } },
+                        [
+                          _c(
+                            "v-col",
+                            {
+                              attrs: {
+                                cols: "12",
+                                sm: "10",
+                                md: "8",
+                                lg: "4",
+                                xl: "4"
+                              }
+                            },
+                            [
+                              _c(
+                                "div",
+                                {
+                                  staticStyle: {
+                                    "text-align": "center",
+                                    "font-weight": "bold",
+                                    "margin-top": "15px"
+                                  }
+                                },
+                                [_vm._v("PROBLEM")]
+                              ),
+                              _vm._v(" "),
+                              _c("v-textarea", {
+                                attrs: {
+                                  required: "",
+                                  rules: _vm.lengthRules,
+                                  placeholder: _vm.canvas.fields["Problem"],
+                                  rows: "4",
+                                  "no-resize": "",
+                                  counter: "250",
+                                  outlined: "",
+                                  rounded: "",
+                                  color: "primary",
+                                  "prepend-icon": "mdi-lightbulb-on-outline"
+                                },
+                                on: {
+                                  keyup: function($event) {
+                                    return _vm.countdown("Problem", _vm.problem)
+                                  }
+                                },
+                                model: {
+                                  value: _vm.problem,
+                                  callback: function($$v) {
+                                    _vm.problem = $$v;
+                                  },
+                                  expression: "problem"
+                                }
+                              })
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-col",
+                            {
+                              attrs: {
+                                cols: "12",
+                                sm: "10",
+                                md: "8",
+                                lg: "4",
+                                xl: "4"
+                              }
+                            },
+                            [
+                              _c(
+                                "div",
+                                {
+                                  staticStyle: {
+                                    "text-align": "center",
+                                    "font-weight": "bold",
+                                    "margin-top": "15px"
+                                  }
+                                },
+                                [_vm._v("CUSTOMER SEGMENTS")]
+                              ),
+                              _vm._v(" "),
+                              _c("v-textarea", {
+                                attrs: {
+                                  required: "",
+                                  rules: _vm.lengthRules,
+                                  outlined: "",
+                                  rounded: "",
+                                  color: "primary",
+                                  "prepend-icon": "mdi-account-switch",
+                                  placeholder:
+                                    _vm.canvas.fields["Customer Segments"],
+                                  rows: "4",
+                                  "no-resize": "",
+                                  counter: "250"
+                                },
+                                on: {
+                                  keyup: function($event) {
+                                    return _vm.countdown(
+                                      "Customer Segments",
+                                      _vm.segment
+                                    )
+                                  }
+                                },
+                                model: {
+                                  value: _vm.segment,
+                                  callback: function($$v) {
+                                    _vm.segment = $$v;
+                                  },
+                                  expression: "segment"
+                                }
+                              })
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-col",
+                            {
+                              attrs: {
+                                cols: "12",
+                                sm: "10",
+                                md: "8",
+                                lg: "4",
+                                xl: "4"
+                              }
+                            },
+                            [
+                              _c(
+                                "div",
+                                {
+                                  staticStyle: {
+                                    "text-align": "center",
+                                    "font-weight": "bold",
+                                    "margin-top": "15px"
+                                  }
+                                },
+                                [_vm._v("EXISTING ALTERNATIVES")]
+                              ),
+                              _vm._v(" "),
+                              _c("v-textarea", {
+                                attrs: {
+                                  required: "",
+                                  rules: _vm.lengthRules,
+                                  outlined: "",
+                                  rounded: "",
+                                  color: "primary",
+                                  "prepend-icon": "mdi-compare",
+                                  placeholder:
+                                    _vm.canvas.fields["Existing Alternatives"],
+                                  rows: "4",
+                                  "no-resize": "",
+                                  counter: "250"
+                                },
+                                on: {
+                                  keyup: function($event) {
+                                    return _vm.countdown(
+                                      "Existing Alternatives",
+                                      _vm.alternatives
+                                    )
+                                  }
+                                },
+                                model: {
+                                  value: _vm.alternatives,
+                                  callback: function($$v) {
+                                    _vm.alternatives = $$v;
+                                  },
+                                  expression: "alternatives"
+                                }
+                              })
+                            ],
+                            1
+                          )
+                        ],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-row",
+                        [
+                          _c(
+                            "v-col",
+                            {
+                              attrs: {
+                                cols: "12",
+                                sm: "10",
+                                md: "8",
+                                lg: "4",
+                                xl: "4"
+                              }
+                            },
+                            [
+                              _c(
+                                "div",
+                                {
+                                  staticStyle: {
+                                    "text-align": "center",
+                                    "font-weight": "bold",
+                                    "margin-top": "15px"
+                                  }
+                                },
+                                [_vm._v("EARLY ADAPTORS")]
+                              ),
+                              _vm._v(" "),
+                              _c("v-textarea", {
+                                attrs: {
+                                  required: "",
+                                  rules: _vm.lengthRules,
+                                  outlined: "",
+                                  rounded: "",
+                                  color: "primary",
+                                  "prepend-icon": "mdi-account-child-outline",
+                                  placeholder:
+                                    _vm.canvas.fields["Early Adaptors"],
+                                  rows: "4",
+                                  "no-resize": "",
+                                  counter: "250"
+                                },
+                                on: {
+                                  keyup: function($event) {
+                                    return _vm.countdown(
+                                      "Early Adaptors",
+                                      _vm.adaptors
+                                    )
+                                  }
+                                },
+                                model: {
+                                  value: _vm.adaptors,
+                                  callback: function($$v) {
+                                    _vm.adaptors = $$v;
+                                  },
+                                  expression: "adaptors"
+                                }
+                              })
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-col",
+                            {
+                              attrs: {
+                                cols: "12",
+                                sm: "10",
+                                md: "8",
+                                lg: "4",
+                                xl: "4"
+                              }
+                            },
+                            [
+                              _c(
+                                "div",
+                                {
+                                  staticStyle: {
+                                    "text-align": "center",
+                                    "font-weight": "bold",
+                                    "margin-top": "15px"
+                                  }
+                                },
+                                [_vm._v("UNIQUE VALUE PROPOSITION")]
+                              ),
+                              _vm._v(" "),
+                              _c("v-textarea", {
+                                attrs: {
+                                  required: "",
+                                  rules: _vm.lengthRules,
+                                  outlined: "",
+                                  rounded: "",
+                                  color: "primary",
+                                  "prepend-icon": "mdi-briefcase",
+                                  placeholder:
+                                    _vm.canvas.fields[
+                                      "Unique Value Proposition"
+                                    ],
+                                  rows: "4",
+                                  "no-resize": "",
+                                  counter: "250"
+                                },
+                                on: {
+                                  keyup: function($event) {
+                                    return _vm.countdown(
+                                      "Unique Value Proposition",
+                                      _vm.proposition
+                                    )
+                                  }
+                                },
+                                model: {
+                                  value: _vm.proposition,
+                                  callback: function($$v) {
+                                    _vm.proposition = $$v;
+                                  },
+                                  expression: "proposition"
+                                }
+                              })
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-col",
+                            {
+                              attrs: {
+                                cols: "12",
+                                sm: "10",
+                                md: "8",
+                                lg: "4",
+                                xl: "4"
+                              }
+                            },
+                            [
+                              _c(
+                                "div",
+                                {
+                                  staticStyle: {
+                                    "text-align": "center",
+                                    "font-weight": "bold",
+                                    "margin-top": "15px"
+                                  }
+                                },
+                                [_vm._v("HIGH-LEVEL CONCEPT")]
+                              ),
+                              _vm._v(" "),
+                              _c("v-textarea", {
+                                attrs: {
+                                  required: "",
+                                  rules: _vm.lengthRules,
+                                  outlined: "",
+                                  rounded: "",
+                                  color: "primary",
+                                  "prepend-icon": "mdi-presentation-play",
+                                  placeholder:
+                                    _vm.canvas.fields["High-Level Concept"],
+                                  rows: "4",
+                                  "no-resize": "",
+                                  counter: "250"
+                                },
+                                on: {
+                                  keyup: function($event) {
+                                    return _vm.countdown(
+                                      "High-Level Concept",
+                                      _vm.concept
+                                    )
+                                  }
+                                },
+                                model: {
+                                  value: _vm.concept,
+                                  callback: function($$v) {
+                                    _vm.concept = $$v;
+                                  },
+                                  expression: "concept"
+                                }
+                              })
+                            ],
+                            1
+                          )
+                        ],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-row",
+                        [
+                          _c(
+                            "v-col",
+                            {
+                              attrs: {
+                                cols: "12",
+                                sm: "10",
+                                md: "8",
+                                lg: "4",
+                                xl: "4"
+                              }
+                            },
+                            [
+                              _c(
+                                "div",
+                                {
+                                  staticStyle: {
+                                    "text-align": "center",
+                                    "font-weight": "bold",
+                                    "margin-top": "15px"
+                                  }
+                                },
+                                [_vm._v("SOLUTION")]
+                              ),
+                              _vm._v(" "),
+                              _c("v-textarea", {
+                                attrs: {
+                                  required: "",
+                                  rules: _vm.lengthRules,
+                                  outlined: "",
+                                  rounded: "",
+                                  color: "primary",
+                                  "prepend-icon": "mdi-flag",
+                                  placeholder: _vm.canvas.fields["Solution"],
+                                  rows: "4",
+                                  "no-resize": "",
+                                  counter: "250"
+                                },
+                                on: {
+                                  keyup: function($event) {
+                                    return _vm.countdown(
+                                      "Solution",
+                                      _vm.solution
+                                    )
+                                  }
+                                },
+                                model: {
+                                  value: _vm.solution,
+                                  callback: function($$v) {
+                                    _vm.solution = $$v;
+                                  },
+                                  expression: "solution"
+                                }
+                              })
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-col",
+                            {
+                              attrs: {
+                                cols: "12",
+                                sm: "10",
+                                md: "8",
+                                lg: "4",
+                                xl: "4"
+                              }
+                            },
+                            [
+                              _c(
+                                "div",
+                                {
+                                  staticStyle: {
+                                    "text-align": "center",
+                                    "font-weight": "bold",
+                                    "margin-top": "15px"
+                                  }
+                                },
+                                [_vm._v("UNFAIR ADVANTAGE")]
+                              ),
+                              _vm._v(" "),
+                              _c("v-textarea", {
+                                attrs: {
+                                  required: "",
+                                  rules: _vm.lengthRules,
+                                  outlined: "",
+                                  rounded: "",
+                                  color: "primary",
+                                  "prepend-icon": "mdi-bell-plus-outline",
+                                  placeholder:
+                                    _vm.canvas.fields["Unfair Advantage"],
+                                  rows: "4",
+                                  "no-resize": "",
+                                  counter: "250"
+                                },
+                                on: {
+                                  keyup: function($event) {
+                                    return _vm.countdown(
+                                      "Unfair Advantage",
+                                      _vm.advantage
+                                    )
+                                  }
+                                },
+                                model: {
+                                  value: _vm.advantage,
+                                  callback: function($$v) {
+                                    _vm.advantage = $$v;
+                                  },
+                                  expression: "advantage"
+                                }
+                              })
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-col",
+                            {
+                              attrs: {
+                                cols: "12",
+                                sm: "10",
+                                md: "8",
+                                lg: "4",
+                                xl: "4"
+                              }
+                            },
+                            [
+                              _c(
+                                "div",
+                                {
+                                  staticStyle: {
+                                    "text-align": "center",
+                                    "font-weight": "bold",
+                                    "margin-top": "15px"
+                                  }
+                                },
+                                [_vm._v("COST STRUCTURE")]
+                              ),
+                              _vm._v(" "),
+                              _c("v-textarea", {
+                                attrs: {
+                                  required: "",
+                                  rules: _vm.lengthRules,
+                                  outlined: "",
+                                  rounded: "",
+                                  color: "primary",
+                                  "prepend-icon": "mdi-sack-percent",
+                                  rows: "4",
+                                  placeholder:
+                                    _vm.canvas.fields["Cost Structure"],
+                                  "no-resize": "",
+                                  counter: "250"
+                                },
+                                on: {
+                                  keyup: function($event) {
+                                    return _vm.countdown(
+                                      "Cost Structure",
+                                      _vm.cost
+                                    )
+                                  }
+                                },
+                                model: {
+                                  value: _vm.cost,
+                                  callback: function($$v) {
+                                    _vm.cost = $$v;
+                                  },
+                                  expression: "cost"
+                                }
+                              })
+                            ],
+                            1
+                          )
+                        ],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-row",
+                        [
+                          _c(
+                            "v-col",
+                            {
+                              attrs: {
+                                cols: "12",
+                                sm: "10",
+                                md: "8",
+                                lg: "4",
+                                xl: "4"
+                              }
+                            },
+                            [
+                              _c(
+                                "div",
+                                {
+                                  staticStyle: {
+                                    "text-align": "center",
+                                    "font-weight": "bold",
+                                    "margin-top": "15px"
+                                  }
+                                },
+                                [_vm._v("CHANNELS")]
+                              ),
+                              _vm._v(" "),
+                              _c("v-textarea", {
+                                attrs: {
+                                  required: "",
+                                  rules: _vm.lengthRules,
+                                  outlined: "",
+                                  rounded: "",
+                                  color: "primary",
+                                  "prepend-icon": "mdi-google-circles-extended",
+                                  placeholder: _vm.canvas.fields["Channels"],
+                                  rows: "4",
+                                  "no-resize": "",
+                                  counter: "250"
+                                },
+                                on: {
+                                  keyup: function($event) {
+                                    return _vm.countdown(
+                                      "Channels",
+                                      _vm.channels
+                                    )
+                                  }
+                                },
+                                model: {
+                                  value: _vm.channels,
+                                  callback: function($$v) {
+                                    _vm.channels = $$v;
+                                  },
+                                  expression: "channels"
+                                }
+                              })
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-col",
+                            {
+                              attrs: {
+                                cols: "12",
+                                sm: "10",
+                                md: "8",
+                                lg: "4",
+                                xl: "4"
+                              }
+                            },
+                            [
+                              _c(
+                                "div",
+                                {
+                                  staticStyle: {
+                                    "text-align": "center",
+                                    "font-weight": "bold",
+                                    "margin-top": "15px"
+                                  }
+                                },
+                                [_vm._v("KEY METRICS")]
+                              ),
+                              _vm._v(" "),
+                              _c("v-textarea", {
+                                attrs: {
+                                  required: "",
+                                  rules: _vm.lengthRules,
+                                  outlined: "",
+                                  rounded: "",
+                                  color: "primary",
+                                  "prepend-icon": "mdi-key-link",
+                                  placeholder: _vm.canvas.fields["Key Metrics"],
+                                  rows: "4",
+                                  "no-resize": "",
+                                  counter: "250"
+                                },
+                                on: {
+                                  keyup: function($event) {
+                                    return _vm.countdown(
+                                      "Key Metrics",
+                                      _vm.metrics
+                                    )
+                                  }
+                                },
+                                model: {
+                                  value: _vm.metrics,
+                                  callback: function($$v) {
+                                    _vm.metrics = $$v;
+                                  },
+                                  expression: "metrics"
+                                }
+                              })
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-col",
+                            {
+                              attrs: {
+                                cols: "12",
+                                sm: "10",
+                                md: "8",
+                                lg: "4",
+                                xl: "4"
+                              }
+                            },
+                            [
+                              _c(
+                                "div",
+                                {
+                                  staticStyle: {
+                                    "text-align": "center",
+                                    "font-weight": "bold",
+                                    "margin-top": "15px"
+                                  }
+                                },
+                                [_vm._v("REVENUE STREAMS")]
+                              ),
+                              _vm._v(" "),
+                              _c("v-textarea", {
+                                attrs: {
+                                  required: "",
+                                  rules: _vm.lengthRules,
+                                  outlined: "",
+                                  rounded: "",
+                                  color: "primary",
+                                  "prepend-icon": "mdi-account-cash-outline",
+                                  placeholder:
+                                    _vm.canvas.fields["Revenue Streams"],
+                                  rows: "4",
+                                  "no-resize": "",
+                                  counter: "250"
+                                },
+                                on: {
+                                  keyup: function($event) {
+                                    return _vm.countdown(
+                                      "Revenue Streams",
+                                      _vm.revenue
+                                    )
+                                  }
+                                },
+                                model: {
+                                  value: _vm.revenue,
+                                  callback: function($$v) {
+                                    _vm.revenue = $$v;
+                                  },
+                                  expression: "revenue"
+                                }
+                              })
+                            ],
+                            1
+                          )
+                        ],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _vm.checkLength
+                        ? _c("div", { staticClass: "error-message" }, [
+                            _vm._v(
+                              "\n\t\t\t\t\t\tPlease review the following fields: " +
+                                _vm._s(_vm.types.join(", ")) +
+                                ". The character limit is set to 250.\n\t\t\t\t\t"
+                            )
+                          ])
+                        : _vm._e()
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-card-actions",
+                    { staticClass: "justify-center" },
+                    [
+                      _c(
+                        "v-btn",
+                        {
+                          attrs: {
+                            disabled: _vm.checkLength,
+                            color: "primary",
+                            rounded: "",
+                            type: "submit"
+                          },
+                          on: {
+                            click: function($event) {
+                              return _vm.updateCanvas()
+                            }
+                          }
+                        },
+                        [_vm._v("Submit Canvas")]
+                      )
+                    ],
+                    1
+                  )
+                ],
+                1
               )
             ],
             1
           )
-        ],
-        1
-      )
+        : _c(
+            "v-container",
+            [
+              _c(
+                "v-row",
+                { attrs: { justify: "center" } },
+                [
+                  _c(
+                    "v-col",
+                    { attrs: { md: "auto" } },
+                    [
+                      _c("v-progress-circular", {
+                        attrs: {
+                          size: 500,
+                          color: "primary",
+                          indeterminate: ""
+                        }
+                      })
+                    ],
+                    1
+                  )
+                ],
+                1
+              )
+            ],
+            1
+          )
     ],
     1
   )
@@ -1156,6 +1295,7 @@ var script$1 = Vue.extend({
                     return __generator(this, function (_a) {
                         switch (_a.label) {
                             case 0:
+                                this.loadingPage = true;
                                 this.teamId = this.$route.params.teamId;
                                 _a.label = 1;
                             case 1:
@@ -1187,7 +1327,9 @@ var script$1 = Vue.extend({
                                 e_1 = _a.sent();
                                 console.error(e_1);
                                 return [3 /*break*/, 8];
-                            case 8: return [2 /*return*/];
+                            case 8:
+                                this.loadingPage = false;
+                                return [2 /*return*/];
                         }
                     });
                 });
@@ -1201,6 +1343,7 @@ var script$1 = Vue.extend({
                     return __generator(this, function (_a) {
                         switch (_a.label) {
                             case 0:
+                                this.loadingPage = true;
                                 if (!newUser) return [3 /*break*/, 9];
                                 if (!(newUser.role === "Admin" || newUser.role === "SuperAdmin")) return [3 /*break*/, 5];
                                 _a.label = 1;
@@ -1236,7 +1379,9 @@ var script$1 = Vue.extend({
                                 e_3 = _a.sent();
                                 console.error(e_3);
                                 return [3 /*break*/, 9];
-                            case 9: return [2 /*return*/];
+                            case 9:
+                                this.loadingPage = false;
+                                return [2 /*return*/];
                         }
                     });
                 });
@@ -1249,6 +1394,7 @@ var script$1 = Vue.extend({
     data: function () {
         return {
             ui: UI$1.getInstance(),
+            loadingPage: false,
             teams: [],
             location: "",
             users: [],
@@ -1380,127 +1526,156 @@ var __vue_render__$1 = function() {
     "v-app",
     { attrs: { id: "app" } },
     [
-      _c(
-        "v-container",
-        { staticClass: "content", attrs: { width: "1000" } },
-        [
-          _c("v-divider", { staticStyle: { "margin-bottom": "30px" } }),
-          _vm._v(" "),
-          _vm.canvases
-            ? _c(
-                "v-expansion-panels",
-                { attrs: { popout: "" } },
-                _vm._l(_vm.canvases, function(canvas, index) {
-                  return _c(
-                    "v-expansion-panel",
-                    { key: index },
-                    [
-                      _c("v-expansion-panel-header", [
-                        _vm._v(
-                          " Canvas Update: " +
-                            _vm._s(_vm.formatDate(canvas.date)) +
-                            " "
-                        )
-                      ]),
-                      _vm._v(" "),
-                      canvas.fields
-                        ? _c(
-                            "v-expansion-panel-content",
-                            [
-                              _c(
-                                "v-row",
-                                _vm._l(canvas.fields, function(
-                                  propValue,
-                                  propName
-                                ) {
-                                  return _c(
-                                    "v-col",
-                                    {
-                                      key: propName,
-                                      attrs: { cols: "6", md: "4" }
-                                    },
-                                    [
-                                      _c(
-                                        "v-card",
+      !_vm.loadingPage
+        ? _c(
+            "v-container",
+            { staticClass: "content", attrs: { width: "1000" } },
+            [
+              _c("v-divider", { staticStyle: { "margin-bottom": "30px" } }),
+              _vm._v(" "),
+              _vm.canvases
+                ? _c(
+                    "v-expansion-panels",
+                    { attrs: { popout: "" } },
+                    _vm._l(_vm.canvases, function(canvas, index) {
+                      return _c(
+                        "v-expansion-panel",
+                        { key: index },
+                        [
+                          _c("v-expansion-panel-header", [
+                            _vm._v(
+                              " Canvas Update: " +
+                                _vm._s(_vm.formatDate(canvas.date)) +
+                                " "
+                            )
+                          ]),
+                          _vm._v(" "),
+                          canvas.fields
+                            ? _c(
+                                "v-expansion-panel-content",
+                                [
+                                  _c(
+                                    "v-row",
+                                    _vm._l(canvas.fields, function(
+                                      propValue,
+                                      propName
+                                    ) {
+                                      return _c(
+                                        "v-col",
                                         {
-                                          staticClass: "pa-2",
-                                          attrs: {
-                                            outlined: "",
-                                            tile: "",
-                                            rounded: ""
-                                          }
+                                          key: propName,
+                                          attrs: { cols: "6", md: "4" }
                                         },
                                         [
                                           _c(
-                                            "v-card-title",
+                                            "v-card",
                                             {
-                                              staticClass: "justify-center",
-                                              staticStyle: {
-                                                "font-family": "Georgia, serif",
-                                                "font-size": "16px",
-                                                "font-weight": "600"
+                                              staticClass: "pa-2",
+                                              attrs: {
+                                                outlined: "",
+                                                tile: "",
+                                                rounded: ""
                                               }
                                             },
                                             [
-                                              _vm._v(
-                                                "\n\t\t\t\t\t\t\t\t\t\t" +
-                                                  _vm._s(propName) +
-                                                  "\n\t\t\t\t\t\t\t\t\t"
-                                              )
-                                            ]
-                                          ),
-                                          _vm._v(" "),
-                                          _c("v-divider"),
-                                          _vm._v(" "),
-                                          _c("v-card-text", [
-                                            _vm._v(
-                                              "\n\t\t\t\t\t\t\t\t\t\t" +
-                                                _vm._s(propValue) +
-                                                "\n\t\t\t\t\t\t\t\t\t"
-                                            )
-                                          ])
+                                              _c(
+                                                "v-card-title",
+                                                {
+                                                  staticClass: "justify-center",
+                                                  staticStyle: {
+                                                    "font-family":
+                                                      "Georgia, serif",
+                                                    "font-size": "16px",
+                                                    "font-weight": "600"
+                                                  }
+                                                },
+                                                [
+                                                  _vm._v(
+                                                    "\n\t\t\t\t\t\t\t\t\t\t" +
+                                                      _vm._s(propName) +
+                                                      "\n\t\t\t\t\t\t\t\t\t"
+                                                  )
+                                                ]
+                                              ),
+                                              _vm._v(" "),
+                                              _c("v-divider"),
+                                              _vm._v(" "),
+                                              _c("v-card-text", [
+                                                _vm._v(
+                                                  "\n\t\t\t\t\t\t\t\t\t\t" +
+                                                    _vm._s(propValue) +
+                                                    "\n\t\t\t\t\t\t\t\t\t"
+                                                )
+                                              ])
+                                            ],
+                                            1
+                                          )
                                         ],
                                         1
                                       )
-                                    ],
+                                    }),
                                     1
                                   )
-                                }),
+                                ],
                                 1
                               )
-                            ],
-                            1
-                          )
-                        : _vm._e()
+                            : _vm._e()
+                        ],
+                        1
+                      )
+                    }),
+                    1
+                  )
+                : _c(
+                    "span",
+                    [
+                      _c(
+                        "v-row",
+                        { attrs: { justify: "center", "no-gutters": "" } },
+                        [
+                          _c("v-col", { attrs: { md: "auto" } }, [
+                            _c("h1", { staticClass: "landing-message" }, [
+                              _vm._v(
+                                "\n\t\t\t\t\t\t\tNo canvas to show for this team.\n\t\t\t\t\t\t"
+                              )
+                            ])
+                          ])
+                        ],
+                        1
+                      )
                     ],
                     1
                   )
-                }),
-                1
-              )
-            : _c(
-                "span",
+            ],
+            1
+          )
+        : _c(
+            "v-container",
+            [
+              _c(
+                "v-row",
+                { attrs: { justify: "center" } },
                 [
                   _c(
-                    "v-row",
-                    { attrs: { justify: "center", "no-gutters": "" } },
+                    "v-col",
+                    { attrs: { md: "auto" } },
                     [
-                      _c("v-col", { attrs: { md: "auto" } }, [
-                        _c("h1", { staticClass: "landing-message" }, [
-                          _vm._v(
-                            "\n\t\t\t\t\t\t\tNo canvas to show for this team.\n\t\t\t\t\t\t"
-                          )
-                        ])
-                      ])
+                      _c("v-progress-circular", {
+                        attrs: {
+                          size: 500,
+                          color: "primary",
+                          indeterminate: ""
+                        }
+                      })
                     ],
                     1
                   )
                 ],
                 1
               )
-        ],
-        1
-      )
+            ],
+            1
+          )
     ],
     1
   )

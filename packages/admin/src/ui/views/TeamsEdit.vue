@@ -30,7 +30,7 @@
 								hide-details
 								class="justify-center"
 							></v-text-field>
-							<v-data-table item-key="email" :headers="headers" :items="users" :search="search" > </v-data-table>
+							<v-data-table item-key="email" :headers="headers" :items="users" :search="search" :loading="users.length <= 0" loading-text="Loading users"> </v-data-table>
 						</v-card-text>
 					</v-card>
 				</v-container>

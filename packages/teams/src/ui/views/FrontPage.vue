@@ -1,6 +1,6 @@
 <template>
 	<v-app>
-		<v-container>
+		<v-container v-if="!loadingPage">
 			<div class="justify-center">
 				<v-row justify="center">
 					<h1 v-if="user" style="font-family: Georgia, serif; text-align: center; text-weight: bold, font-size: 20px; margin-top: 70px;"> 
@@ -24,6 +24,17 @@
 				</v-row>
 			</div>
 		</v-container>
+		<v-container v-else>
+			<v-row justify="center">
+				<v-col md="auto">
+					<v-progress-circular
+					:size="500"
+					color="primary"
+					indeterminate
+					></v-progress-circular>
+				</v-col>
+			</v-row>
+		</v-container>
 	</v-app>
 </template>
 
@@ -41,6 +52,7 @@ export default Vue.extend({
 			ui:UI.getInstance(),
 			teamId: "",
 			role:false,
+			loadingPage:false,
 			userMenu:{
 				title:"",
 				subtitle:""
@@ -50,7 +62,8 @@ export default Vue.extend({
 	watch: {
 		currentTeam: {
 			immediate: true,
-			async handler (newTeam: Team | null):Promise<void> { 
+			async handler (newTeam: Team | null):Promise<void> {
+				this.loadingPage = true;
 				if(newTeam) {
 					let response = await this.ui.api.get<Product | null>("/api/v1/teams/product/" + newTeam.teamId);
 					let product:Product | null = response.data;
@@ -67,24 +80,28 @@ export default Vue.extend({
 						}
 					}
 				}
-				
+				this.loadingPage = false;
 			}
 		},
 		_token: {
 			immediate:true,
 			handler (newToken:string):void {
+				this.loadingPage = true;
 				if(newToken === null){
 					if(this.$route.path !== "/login")
 						this.$router.push("/login");
 				}
+				this.loadingPage = false;
 			}
 		},
 		user: {
 			immediate: true,
 			async handler (newUser: User):Promise<void> {
+				this.loadingPage = true;
 				if(newUser){
 					await this.ui.storeDispatch("teams/loadTeams",newUser.userId);
 				}
+				this.loadingPage = false;
 			}
 		},
 	},

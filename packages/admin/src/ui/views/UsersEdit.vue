@@ -30,7 +30,7 @@
 						</v-col>
 					</v-row>
 					
-					<v-data-table item-key="email" :headers="headers" :items="allUsers" :search="search">
+					<v-data-table item-key="email" :headers="headers" :items="allUsers" :search="search" :loading="allUsers.length <= 0" loading-text="Loading users">
 						<template v-slot:top>
 							<div>
 								
