@@ -2531,7 +2531,9 @@ router.post("/upload/file/chunk", function (req, res) { return __awaiter(void 0,
                             var link, links, file, name_19, tmpFile, newLink, upload;
                             return __generator(this, function (_a) {
                                 switch (_a.label) {
-                                    case 0: return [4 /*yield*/, metadata.streams[0].width];
+                                    case 0:
+                                        console.log(metadata);
+                                        return [4 /*yield*/, metadata.streams[0].width];
                                     case 1:
                                         width_1 = _a.sent();
                                         return [4 /*yield*/, metadata.streams[0].height];
@@ -2553,6 +2555,8 @@ router.post("/upload/file/chunk", function (req, res) { return __awaiter(void 0,
                                         height_1 = _a.sent();
                                         _a.label = 7;
                                     case 7:
+                                        console.log(width_1);
+                                        console.log(height_1);
                                         if (!(width_1 >= 1920 && height_1 >= 1080)) return [3 /*break*/, 34];
                                         link = {
                                             uuid: "",

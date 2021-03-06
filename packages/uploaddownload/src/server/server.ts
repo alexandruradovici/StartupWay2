@@ -1412,6 +1412,7 @@ router.post("/upload/file/chunk", async(req:ApiRequest<{finish:string,fileName:s
 				try { 
 					// as any because no ffmpeg types
 					await ffmpeg(filePath).ffprobe(async function(err: any, metadata: any){
+						console.log(metadata);
 						width = await metadata.streams[0].width;
 						height = await metadata.streams[0].height;
 						if(width === undefined || height === undefined) {
@@ -1422,6 +1423,8 @@ router.post("/upload/file/chunk", async(req:ApiRequest<{finish:string,fileName:s
 								height = await metadata.streams[2].height;
 							}
 						}
+						console.log(width);
+						console.log(height);
 						if(width >= 1920 && height >= 1080) {
 							const link:UploadDownloadLink = {
 								uuid:"",
