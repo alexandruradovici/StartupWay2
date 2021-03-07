@@ -6910,7 +6910,7 @@ var __vue_render__$5 = function() {
                                                 label: "Is Pitcher?"
                                               },
                                               on: {
-                                                input: function($event) {
+                                                change: function($event) {
                                                   return _vm.updateUserInfo(
                                                     user
                                                   )
@@ -6943,7 +6943,7 @@ var __vue_render__$5 = function() {
                                                 label: "Comes to DemoDay?"
                                               },
                                               on: {
-                                                input: function($event) {
+                                                change: function($event) {
                                                   return _vm.updateUserInfo(
                                                     user
                                                   )
@@ -6986,7 +6986,7 @@ var __vue_render__$5 = function() {
                                                     label: "Means of Transport"
                                                   },
                                                   on: {
-                                                    input: function($event) {
+                                                    change: function($event) {
                                                       return _vm.updateUserInfo(
                                                         user
                                                       )

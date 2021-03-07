@@ -38,7 +38,7 @@
 											color="#197E81"
 											v-model="user.pitcher"
 											label="Is Pitcher?"
-											@input="updateUserInfo(user)"
+											@change="updateUserInfo(user)"
 										></v-checkbox>
 									</v-col>
 									<v-col md4 class="justify-center">
@@ -47,7 +47,7 @@
 											color="#197E81"
 											v-model="user.participant"
 											label="Comes to DemoDay?"
-											@input="updateUserInfo(user)"
+											@change="updateUserInfo(user)"
 										></v-checkbox>
 									</v-col>
 									<v-col v-if="user.participant" md4 class="justify-center">
@@ -56,7 +56,7 @@
 											v-model="user.transport" 
 											:items="['Train','Car','Plane','Other']" 
 											label="Means of Transport"
-											@input="updateUserInfo(user)"
+											@change="updateUserInfo(user)"
 										></v-select>
 									</v-col>
 								</v-row>
