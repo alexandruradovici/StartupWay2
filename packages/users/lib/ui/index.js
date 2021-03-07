@@ -1604,7 +1604,7 @@ var __vue_render__$2 = function() {
                                                   _vm._g(
                                                     {
                                                       attrs: {
-                                                        label: "BirthDate",
+                                                        label: "Birthdate",
                                                         "persistent-hint": "",
                                                         "prepend-icon": "event"
                                                       },
@@ -1627,7 +1627,7 @@ var __vue_render__$2 = function() {
                                         ],
                                         null,
                                         false,
-                                        3112821565
+                                        3973987613
                                       ),
                                       model: {
                                         value: _vm.dateMenu,

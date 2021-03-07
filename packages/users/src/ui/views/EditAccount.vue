@@ -86,7 +86,7 @@
 									<template v-slot:activator = "{ on }">
 										<v-text-field
 											v-model="date"
-											label="BirthDate"
+											label="Birthdate"
 											persistent-hint
 											prepend-icon="event"
 											v-on="on"

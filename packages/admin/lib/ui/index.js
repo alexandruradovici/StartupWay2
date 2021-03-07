@@ -1171,7 +1171,7 @@ var __vue_render__$1 = function() {
                                                                   {
                                                                     attrs: {
                                                                       label:
-                                                                        "BirthDate",
+                                                                        "Birthdate",
                                                                       "persistent-hint":
                                                                         "",
                                                                       "prepend-icon":
@@ -1203,7 +1203,7 @@ var __vue_render__$1 = function() {
                                                       ],
                                                       null,
                                                       false,
-                                                      3374293562
+                                                      185940250
                                                     ),
                                                     model: {
                                                       value: _vm.dateMenu,

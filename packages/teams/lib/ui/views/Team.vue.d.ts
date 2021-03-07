@@ -77,7 +77,7 @@ declare const _default: import("vue/types/vue").ExtendedVue<Vue, {
     getAllUsers(): Promise<boolean>;
     removeUsers(): Promise<void>;
     getUsers(teamId: string): Promise<boolean>;
-    updateUserInfo(): Promise<void>;
+    updateUserInfo(userParam?: (User & UserTeams & VisualUser) | undefined): Promise<void>;
     openDialog(user: any): void;
     openRequestDialog(): void;
     exitDialog(): void;

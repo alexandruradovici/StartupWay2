@@ -559,7 +559,7 @@ export default Vue.extend({
 		presFile: {
 			immediate:false,
 			handler(newFile):void {
-				if(newFile!== undefined){
+				if(newFile!== undefined && newFile !== null){
 					if(newFile.size < 314572800) {
 						this.validPres = true;
 					} else this.validPres = false;
@@ -571,7 +571,7 @@ export default Vue.extend({
 		presVidFile: {
 			immediate:false,
 			handler(newFile):void {
-				if(newFile!== undefined){
+				if(newFile!== undefined && newFile !== null){
 					if(newFile.size < 314572800) {
 						this.validPresVid = true;
 					} else 
@@ -584,7 +584,7 @@ export default Vue.extend({
 		demoVidFile: {
 			immediate:false,
 			handler(newFile):void {
-				if(newFile!== undefined){
+				if(newFile!== undefined && newFile !== null){
 					if(newFile.size < 314572800) {
 						this.validDemoVid = true;
 					} else 
@@ -597,7 +597,7 @@ export default Vue.extend({
 		logoFile: {
 			immediate:false,
 			handler(newFile):void {
-				if(newFile!== undefined){
+				if(newFile!== undefined && newFile !== null){
 					if(newFile.size < 314572800) {
 						this.validLogo = true;
 					} else 
@@ -610,7 +610,7 @@ export default Vue.extend({
 		imgFiles: {
 			immediate:false,
 			handler(newFiles):void {
-				if(newFiles !== undefined) {
+				if(newFiles !== undefined && newFiles !== null) {
 				//if(newFiles.length > 0 && newFiles.length < 10){
 					//for(const file of newFiles) {
 						if(newFiles.size < 314572800) {

@@ -33,13 +33,31 @@
 								</v-row>
 								<v-row>
 									<v-col md4 class="justify-center">
-										<v-checkbox disabled v-model="user.pitcher" label="Is Pitcher?"></v-checkbox>
+										<v-simple-checkbox
+											:disabled="userRole !== 'CEO'"
+											color="#197E81"
+											v-model="user.pitcher"
+											label="Is Pitcher?"
+											@input="updateUserInfo(user)"
+										></v-simple-checkbox>
 									</v-col>
 									<v-col md4 class="justify-center">
-										<v-checkbox disabled v-model="user.participant" label="Comes to DemoDay?"></v-checkbox>
+										<v-simple-checkbox
+											:disabled="userRole !== 'CEO'"
+											color="#197E81"
+											v-model="user.participant"
+											label="Comes to DemoDay?"
+											@input="updateUserInfo(user)"
+										></v-simple-checkbox>
 									</v-col>
 									<v-col v-if="user.participant" md4 class="justify-center">
-										<v-text-field disabled v-model="user.transport" label="Means of transport"></v-text-field>
+										<v-select 
+											:disabled="userRole !== 'CEO'"
+											v-model="user.transport" 
+											:items="['Train','Car','Plane','Other']" 
+											label="Means of Transport"
+											@input="updateUserInfo(user)"
+										></v-select>
 									</v-col>
 								</v-row>
 							</v-list-item-content>
@@ -110,7 +128,7 @@
 									</v-select>
 									
 									<div class="details">
-										Is Pitcher?<v-checkbox v-model="item.pitcher"></v-checkbox>
+										Is Pitcher? <v-checkbox v-model="item.pitcher"></v-checkbox>
 									</div>
 									<div class="details">
 										Comes to DemoDay?<v-checkbox v-model="item.participant"></v-checkbox>
@@ -531,39 +549,45 @@ export default Vue.extend({
 			}
 			return false;
 		},
-		async updateUserInfo() {
+		async updateUserInfo(userParam?:(User & UserTeams & VisualUser)) {
+			let item:(User & UserTeams & VisualUser) | null = null;
+			if(userParam !== undefined) {
+				item = userParam;
+			} else {
+				item = this.item;
+			}
 			this.loadingPage = true;
 			let user: any = {};
 			
 			const userDetails = {
-				details: this.item.userDetails["details"],
-				faculty: this.item.faculty,
-				group: this.item.group,
-				locations:this.item.userDetails["location"],
-				pitcher:this.item.pitcher,
-				participant:this.item.participant,
-				transport:this.item.transport
+				details: item.userDetails["details"],
+				faculty: item.faculty,
+				group: item.group,
+				locations:item.userDetails["location"],
+				pitcher:item.pitcher,
+				participant:item.participant,
+				transport:item.transport
 
 			};
 			user = {
-				userId: this.item.userId,
-				firstName: this.item.firstName,
-				lastName: this.item.lastName,
-				username: this.item.username,
-				email: this.item.email,
-				phone: this.item.phone,
-				socialMedia: this.item.socialMedia,
-				birthDate: this.item.birthDate,
+				userId: item.userId,
+				firstName: item.firstName,
+				lastName: item.lastName,
+				username: item.username,
+				email: item.email,
+				phone: item.phone,
+				socialMedia: item.socialMedia,
+				birthDate: item.birthDate,
 				userDetails: userDetails,
-				role: this.item.role,
-				avatarUu: this.item.avatarUu,
-				lastLogin: this.item.lastLogin
+				role: item.role,
+				avatarUu: item.avatarUu,
+				lastLogin: item.lastLogin
 			};
 			const userTeam: UserTeams = {
-				userProductId: this.item.userProductId,
-				userId: this.item.userId,
-				role: this.item.role,
-				teamId: this.item.teamId
+				userProductId: item.userProductId,
+				userId: item.userId,
+				role: item.role,
+				teamId: item.teamId
 			};
 			try {
 				const response = await this.ui.api.post<UserTeams | null>(
@@ -574,31 +598,33 @@ export default Vue.extend({
 					}
 				);
 				if (response.data) {
-					this.item = {
-						userId: "",
-						userProductId: "",
-						teamId: "",
-						firstName: "",
-						lastName: "",
-						password: "",
-						username: "",
-						email: "",
-						phone: "",
-						socialMedia: {},
-						birthDate: new Date(),
-						userDetails: {
-							details: ""
-						},
-						role: "",
-						avatarUu: "",
-						lastLogin: new Date(),
-						faculty:"",
-						group:"",
-						participant:"",
-						pitcher:"",
-						transport:"",
-						image:""
-					};
+					if(userParam === undefined) {
+						this.item = {
+							userId: "",
+							userProductId: "",
+							teamId: "",
+							firstName: "",
+							lastName: "",
+							password: "",
+							username: "",
+							email: "",
+							phone: "",
+							socialMedia: {},
+							birthDate: new Date(),
+							userDetails: {
+								details: ""
+							},
+							role: "",
+							avatarUu: "",
+							lastLogin: new Date(),
+							faculty:"",
+							group:"",
+							participant:"",
+							pitcher:"",
+							transport:"",
+							image:""
+						};
+					}
 					this.snackOptions.text = "Update Successful";
 					this.snackOptions.type = SnackBarTypes.SUCCESS;
 					this.snackOptions.timeout = 2000;

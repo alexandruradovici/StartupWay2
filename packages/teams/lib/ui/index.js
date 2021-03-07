@@ -6350,42 +6350,49 @@ var script$5 = Vue.extend({
                 });
             });
         },
-        updateUserInfo: function () {
+        updateUserInfo: function (userParam) {
             return __awaiter(this, void 0, void 0, function () {
-                var user, userDetails, userTeam, response, e_7;
+                var item, user, userDetails, userTeam, response, e_7;
                 return __generator(this, function (_a) {
                     switch (_a.label) {
                         case 0:
+                            item = null;
+                            if (userParam !== undefined) {
+                                item = userParam;
+                            }
+                            else {
+                                item = this.item;
+                            }
                             this.loadingPage = true;
                             user = {};
                             userDetails = {
-                                details: this.item.userDetails["details"],
-                                faculty: this.item.faculty,
-                                group: this.item.group,
-                                locations: this.item.userDetails["location"],
-                                pitcher: this.item.pitcher,
-                                participant: this.item.participant,
-                                transport: this.item.transport
+                                details: item.userDetails["details"],
+                                faculty: item.faculty,
+                                group: item.group,
+                                locations: item.userDetails["location"],
+                                pitcher: item.pitcher,
+                                participant: item.participant,
+                                transport: item.transport
                             };
                             user = {
-                                userId: this.item.userId,
-                                firstName: this.item.firstName,
-                                lastName: this.item.lastName,
-                                username: this.item.username,
-                                email: this.item.email,
-                                phone: this.item.phone,
-                                socialMedia: this.item.socialMedia,
-                                birthDate: this.item.birthDate,
+                                userId: item.userId,
+                                firstName: item.firstName,
+                                lastName: item.lastName,
+                                username: item.username,
+                                email: item.email,
+                                phone: item.phone,
+                                socialMedia: item.socialMedia,
+                                birthDate: item.birthDate,
                                 userDetails: userDetails,
-                                role: this.item.role,
-                                avatarUu: this.item.avatarUu,
-                                lastLogin: this.item.lastLogin
+                                role: item.role,
+                                avatarUu: item.avatarUu,
+                                lastLogin: item.lastLogin
                             };
                             userTeam = {
-                                userProductId: this.item.userProductId,
-                                userId: this.item.userId,
-                                role: this.item.role,
-                                teamId: this.item.teamId
+                                userProductId: item.userProductId,
+                                userId: item.userId,
+                                role: item.role,
+                                teamId: item.teamId
                             };
                             _a.label = 1;
                         case 1:
@@ -6397,31 +6404,33 @@ var script$5 = Vue.extend({
                         case 2:
                             response = _a.sent();
                             if (response.data) {
-                                this.item = {
-                                    userId: "",
-                                    userProductId: "",
-                                    teamId: "",
-                                    firstName: "",
-                                    lastName: "",
-                                    password: "",
-                                    username: "",
-                                    email: "",
-                                    phone: "",
-                                    socialMedia: {},
-                                    birthDate: new Date(),
-                                    userDetails: {
-                                        details: ""
-                                    },
-                                    role: "",
-                                    avatarUu: "",
-                                    lastLogin: new Date(),
-                                    faculty: "",
-                                    group: "",
-                                    participant: "",
-                                    pitcher: "",
-                                    transport: "",
-                                    image: ""
-                                };
+                                if (userParam === undefined) {
+                                    this.item = {
+                                        userId: "",
+                                        userProductId: "",
+                                        teamId: "",
+                                        firstName: "",
+                                        lastName: "",
+                                        password: "",
+                                        username: "",
+                                        email: "",
+                                        phone: "",
+                                        socialMedia: {},
+                                        birthDate: new Date(),
+                                        userDetails: {
+                                            details: ""
+                                        },
+                                        role: "",
+                                        avatarUu: "",
+                                        lastLogin: new Date(),
+                                        faculty: "",
+                                        group: "",
+                                        participant: "",
+                                        pitcher: "",
+                                        transport: "",
+                                        image: ""
+                                    };
+                                }
                                 this.snackOptions.text = "Update Successful";
                                 this.snackOptions.type = SnackBarTypes.SUCCESS;
                                 this.snackOptions.timeout = 2000;
@@ -6893,10 +6902,19 @@ var __vue_render__$5 = function() {
                                             attrs: { md4: "" }
                                           },
                                           [
-                                            _c("v-checkbox", {
+                                            _c("v-simple-checkbox", {
                                               attrs: {
-                                                disabled: "",
+                                                disabled:
+                                                  _vm.userRole !== "CEO",
+                                                color: "#197E81",
                                                 label: "Is Pitcher?"
+                                              },
+                                              on: {
+                                                input: function($event) {
+                                                  return _vm.updateUserInfo(
+                                                    user
+                                                  )
+                                                }
                                               },
                                               model: {
                                                 value: user.pitcher,
@@ -6917,10 +6935,19 @@ var __vue_render__$5 = function() {
                                             attrs: { md4: "" }
                                           },
                                           [
-                                            _c("v-checkbox", {
+                                            _c("v-simple-checkbox", {
                                               attrs: {
-                                                disabled: "",
+                                                disabled:
+                                                  _vm.userRole !== "CEO",
+                                                color: "#197E81",
                                                 label: "Comes to DemoDay?"
+                                              },
+                                              on: {
+                                                input: function($event) {
+                                                  return _vm.updateUserInfo(
+                                                    user
+                                                  )
+                                                }
                                               },
                                               model: {
                                                 value: user.participant,
@@ -6946,10 +6973,24 @@ var __vue_render__$5 = function() {
                                                 attrs: { md4: "" }
                                               },
                                               [
-                                                _c("v-text-field", {
+                                                _c("v-select", {
                                                   attrs: {
-                                                    disabled: "",
-                                                    label: "Means of transport"
+                                                    disabled:
+                                                      _vm.userRole !== "CEO",
+                                                    items: [
+                                                      "Train",
+                                                      "Car",
+                                                      "Plane",
+                                                      "Other"
+                                                    ],
+                                                    label: "Means of Transport"
+                                                  },
+                                                  on: {
+                                                    input: function($event) {
+                                                      return _vm.updateUserInfo(
+                                                        user
+                                                      )
+                                                    }
                                                   },
                                                   model: {
                                                     value: user.transport,
@@ -7307,7 +7348,7 @@ var __vue_render__$5 = function() {
                                             { staticClass: "details" },
                                             [
                                               _vm._v(
-                                                "\n\t\t\t\t\t\t\t\t\tIs Pitcher?"
+                                                "\n\t\t\t\t\t\t\t\t\tIs Pitcher? "
                                               ),
                                               _c("v-checkbox", {
                                                 model: {
@@ -8076,7 +8117,7 @@ var script$6 = Vue.extend({
         presFile: {
             immediate: false,
             handler: function (newFile) {
-                if (newFile !== undefined) {
+                if (newFile !== undefined && newFile !== null) {
                     if (newFile.size < 314572800) {
                         this.validPres = true;
                     }
@@ -8091,7 +8132,7 @@ var script$6 = Vue.extend({
         presVidFile: {
             immediate: false,
             handler: function (newFile) {
-                if (newFile !== undefined) {
+                if (newFile !== undefined && newFile !== null) {
                     if (newFile.size < 314572800) {
                         this.validPresVid = true;
                     }
@@ -8106,7 +8147,7 @@ var script$6 = Vue.extend({
         demoVidFile: {
             immediate: false,
             handler: function (newFile) {
-                if (newFile !== undefined) {
+                if (newFile !== undefined && newFile !== null) {
                     if (newFile.size < 314572800) {
                         this.validDemoVid = true;
                     }
@@ -8121,7 +8162,7 @@ var script$6 = Vue.extend({
         logoFile: {
             immediate: false,
             handler: function (newFile) {
-                if (newFile !== undefined) {
+                if (newFile !== undefined && newFile !== null) {
                     if (newFile.size < 314572800) {
                         this.validLogo = true;
                     }
@@ -8136,7 +8177,7 @@ var script$6 = Vue.extend({
         imgFiles: {
             immediate: false,
             handler: function (newFiles) {
-                if (newFiles !== undefined) {
+                if (newFiles !== undefined && newFiles !== null) {
                     //if(newFiles.length > 0 && newFiles.length < 10){
                     //for(const file of newFiles) {
                     if (newFiles.size < 314572800) {

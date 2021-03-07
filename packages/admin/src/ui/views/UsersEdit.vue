@@ -63,7 +63,7 @@
 												<template v-slot:activator="{ on }">
 													<v-text-field
 														v-model="item.birthDate"
-														label="BirthDate"
+														label="Birthdate"
 														persistent-hint
 														prepend-icon="mdi-event"
 														v-on="on"
