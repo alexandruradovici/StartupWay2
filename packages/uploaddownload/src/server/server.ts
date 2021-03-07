@@ -354,6 +354,7 @@ export class UploadDownloadServer {
 				};
 				let utf8Data;
 				const response:AWS.S3.GetObjectOutput = await s3.getObject(BucketParams).promise();
+				console.log(response.Body);
 				if(response.Body !== undefined) {
 					utf8Data = response.Body.toString("base64");
 				}
@@ -466,7 +467,7 @@ export class UploadDownloadServer {
 				const products = await teams.getTeams();
 				for(const product of products) {
 					const prId = product.productId;
-					const links = await uploadDownload.getLinksByProductId(prId.toString(), date);
+					const links = await uploadDownload.getLinksByProductId(prId, date);
 					const usersArr = await teams.getUsersByTeamId(product.teamId);
 					const folder = product.location+'/'+product.teamName;
 					const d = await teams.isTeamInDate(date,prId);
@@ -523,7 +524,7 @@ export class UploadDownloadServer {
 					const products = await teams.getTeamsByLocation(city);
 					for(const product of products) {
 						const prId = product.productId;
-						const links = await uploadDownload.getLinksByProductId(prId.toString(), date);
+						const links = await uploadDownload.getLinksByProductId(prId, date);
 						const users = await teams.getUsersByTeamId(product.teamId);
 						const d = await teams.isTeamInDate(date,prId);
 						if(users.length !== 0 && d) {
@@ -657,9 +658,9 @@ export class UploadDownloadServer {
 						}
 						let links = [] as UploadDownloadLink[];
 						if(option !== undefined)
-							links = await uploadDownload.getLinksByProductIdAndFileType(prId.toString(),option);
+							links = await uploadDownload.getLinksByProductIdAndFileType(prId,option);
 						else
-							links = await uploadDownload.getLinksByProductId(prId.toString(), 'none');
+							links = await uploadDownload.getLinksByProductId(prId, 'none');
 						if(links.length !== 0) {
 							if(option === "everything" && zip) {
 								zip.folder(teamP.teamName);
@@ -891,9 +892,9 @@ if(authFunct)
 router.get("/get/file/product/:fileType/:productId", async(req:ApiRequest<undefined>, res:ApiResponse<{data:string,type:string,ext:string,uuid:string}[] | null>) => {
 	try {
 		const type = req.params.fileType;
-		const productId = parseInt(req.params.productId);
-		if(productId !== 0 && productId !== undefined && type !== "" && type !== undefined) {
-			let links = await uploadDownload.getLinksByProductIdAndFileType(productId.toString(),type);
+		const productId = req.params.productId;
+		if(productId !== "" && productId !== undefined && type !== "" && type !== undefined) {
+			let links = await uploadDownload.getLinksByProductIdAndFileType(productId,type);
 			const results = [];
 			for(const link of (links as UploadDownloadLink[])) {
 				
@@ -1105,7 +1106,7 @@ router.post("/download/team/zip/:type/:date", async(req:ApiRequest<{type:string,
 			if(link && newDate - oldDate <= 86400000) {
 				exists = true;
 			} else {
-				let links = await uploadDownload.getLinksByProductId(productId.toString(), date);
+				let links = await uploadDownload.getLinksByProductId(productId, date);
 				const team = await teams.getTeamByProductId(productId);
 				let users;
 				if(team)
@@ -1177,7 +1178,7 @@ router.post("/download/team/zip/:type/:date", async(req:ApiRequest<{type:string,
 				const products = await teams.getTeamsByLocation(city);
 				for(const product of products) {
 					const prId = product.productId;
-					let links = await uploadDownload.getLinksByProductId(prId.toString(), date);
+					let links = await uploadDownload.getLinksByProductId(prId, date);
 					const users = await teams.getUsersByTeamId(product.teamId);
 					if(users.length !== 0) {
 						for(const user of users) {
@@ -1238,7 +1239,7 @@ router.post("/download/team/zip/:type/:date", async(req:ApiRequest<{type:string,
 				const products = await teams.getTeams();
 				for(const product of products) {
 					const prId = product.productId;
-					let links = await uploadDownload.getLinksByProductId(prId.toString(), date);
+					let links = await uploadDownload.getLinksByProductId(prId, date);
 					const users = await teams.getUsersByTeamId(product.teamId);
 					const folder = product.location+'/'+product.teamName;
 					if(users.length !== 0) {
@@ -1395,12 +1396,12 @@ router.post("/upload/file/chunk", async(req:ApiRequest<{finish:string,fileName:s
 			if (!checkDir){
 				await fs.mkdir('./tmp');
 			}
-			await fs.appendFile(path.join("./tmp",fileName + "." + req.body.ext), data);
+			await fs.appendFile(path.join("./tmp",fileName), data);
 			res.status(202).send(true);
 		} else { 
 			const fileType = req.body.fileType;
 			const productId = req.body.productId;
-			const filePath = path.join('./tmp', fileName + "." + req.body.ext);
+			const filePath = path.join('./tmp', fileName);
 			if(fileType !== 'pres') {
 				let width:number;
 				let height:number;
@@ -1423,9 +1424,7 @@ router.post("/upload/file/chunk", async(req:ApiRequest<{finish:string,fileName:s
 								height = await metadata.streams[2].height;
 							}
 						}
-						console.log(width);
-						console.log(height);
-						if(width >= 1920 && height >= 1080) {
+						if((width !== 0 && width >= 1920) && ( height !== 0 && height >= 1080)) {
 							const link:UploadDownloadLink = {
 								uuid:"",
 								productId:productId,
@@ -1433,8 +1432,11 @@ router.post("/upload/file/chunk", async(req:ApiRequest<{finish:string,fileName:s
 								extension:req.body.ext,
 								uploadTime: new Date()
 							}
-							if(fileType === "demoVid" || fileType === "presVid" || fileType === "image" || fileType === "logo") {
-								let links:UploadDownloadLink[] = await uploadDownload.getLinksByProductIdAndFileType(productId.toString(),fileType);
+							// replace existing demo video, presentation video, logo
+							if(fileType === "demoVid" || fileType === "presVid" || fileType === "logo") {
+								console.log(fileType);
+
+								let links:UploadDownloadLink[] = await uploadDownload.getLinksByProductIdAndFileType(productId,fileType);
 								if(links.length > 0) {
 									const file = await uploadDownload.getS3Object(links[0].uuid);
 									if(file !== "") {
@@ -1476,6 +1478,9 @@ router.post("/upload/file/chunk", async(req:ApiRequest<{finish:string,fileName:s
 								await fs.remove(filePath);
 								res.status(404).send({err:404,data:false});
 							}
+						} else if(height === 0 || width === 0) {
+							await fs.remove(filePath);
+							res.status(405).send({err:405,data:false});
 						} else {
 							await fs.remove(filePath);
 							res.status(406).send({err:406,data:false});
@@ -1493,7 +1498,7 @@ router.post("/upload/file/chunk", async(req:ApiRequest<{finish:string,fileName:s
 					extension:req.body.ext,
 					uploadTime: new Date()
 				}
-				let links:UploadDownloadLink[] = await uploadDownload.getLinksByProductIdAndFileType(productId.toString(),fileType);
+				let links:UploadDownloadLink[] = await uploadDownload.getLinksByProductIdAndFileType(productId,fileType);
 				if(links.length > 0) {
 					const file = await uploadDownload.getS3Object(links[0].uuid);
 					if(file !== "") {

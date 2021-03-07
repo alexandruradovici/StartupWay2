@@ -66,6 +66,15 @@
 					
 					<v-divider></v-divider>
 					
+					<v-container>
+						<v-card flat outlined color="#fcfcfc" class="justify-center">
+							<v-card-text class="justify-center">
+								<v-row align="center" justify="center">
+									<strong color="accent">Note: Maximum image/video resolution is 8K UHD</strong>
+								</v-row>
+							</v-card-text>
+						</v-card>
+					</v-container>
 					<v-container v-if="!loadingUpload">
 						<v-row no-gutters style="margin-top: 20px; margin-bottom: 20px;">
 							<v-col cols="12" sm="12" md="6" lg="4" xl="4">
@@ -963,7 +972,7 @@ export default Vue.extend({
 			} catch (e) {
 				console.error(e);
 				if( e.response.status === 406) {
-					this.snackOptions.text = "Could not upload the file. Please upload only files in full HD format. If the error persists, please contact technical support: teams@tech-lounge.ro.";
+					this.snackOptions.text = "Could not upload the file. Please upload only files in full HD format (min 1920 width and min. 1080 height). If the error persists, please contact technical support: teams@tech-lounge.ro.";
 					this.snackOptions.type = SnackBarTypes.ERROR;
 					this.snackOptions.timeout = 2000;
 					this.snackbar = true;
@@ -972,8 +981,17 @@ export default Vue.extend({
 					this.partTotal = "";
 					this.parts = 0;
 					this.increment = 0;
-				} 
-				else {
+				} else if(e.response.status === 405) {
+					this.snackOptions.text = "Could not upload the file. There was something wrong with the file format. If the error persists, please contact technical support: teams@tech-lounge.ro.";
+					this.snackOptions.type = SnackBarTypes.ERROR;
+					this.snackOptions.timeout = 2000;
+					this.snackbar = true;
+					this.loadingUpload = false;
+					this.uuidTemp = "";
+					this.partTotal = "";
+					this.parts = 0;
+					this.increment = 0;
+				} else {
 					this.snackOptions.text = "Server Error. If the error persists, please contact technical support: teams@tech-lounge.ro.";
 					this.snackOptions.type = SnackBarTypes.ERROR;
 					this.snackOptions.timeout = 2000;

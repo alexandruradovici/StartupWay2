@@ -8602,7 +8602,18 @@ var script$6 = Vue.extend({
                             e_6 = _a.sent();
                             console.error(e_6);
                             if (e_6.response.status === 406) {
-                                this.snackOptions.text = "Could not upload the file. Please upload only files in full HD format. If the error persists, please contact technical support: teams@tech-lounge.ro.";
+                                this.snackOptions.text = "Could not upload the file. Please upload only files in full HD format (min 1920 width and min. 1080 height). If the error persists, please contact technical support: teams@tech-lounge.ro.";
+                                this.snackOptions.type = SnackBarTypes.ERROR;
+                                this.snackOptions.timeout = 2000;
+                                this.snackbar = true;
+                                this.loadingUpload = false;
+                                this.uuidTemp = "";
+                                this.partTotal = "";
+                                this.parts = 0;
+                                this.increment = 0;
+                            }
+                            else if (e_6.response.status === 405) {
+                                this.snackOptions.text = "Could not upload the file. There was something wrong with the file format. If the error persists, please contact technical support: teams@tech-lounge.ro.";
                                 this.snackOptions.type = SnackBarTypes.ERROR;
                                 this.snackOptions.timeout = 2000;
                                 this.snackbar = true;
@@ -8810,6 +8821,54 @@ var __vue_render__$6 = function() {
                           }),
                           _vm._v(" "),
                           _c("v-divider"),
+                          _vm._v(" "),
+                          _c(
+                            "v-container",
+                            [
+                              _c(
+                                "v-card",
+                                {
+                                  staticClass: "justify-center",
+                                  attrs: {
+                                    flat: "",
+                                    outlined: "",
+                                    color: "#fcfcfc"
+                                  }
+                                },
+                                [
+                                  _c(
+                                    "v-card-text",
+                                    { staticClass: "justify-center" },
+                                    [
+                                      _c(
+                                        "v-row",
+                                        {
+                                          attrs: {
+                                            align: "center",
+                                            justify: "center"
+                                          }
+                                        },
+                                        [
+                                          _c(
+                                            "strong",
+                                            { attrs: { color: "accent" } },
+                                            [
+                                              _vm._v(
+                                                "Note: Maximum image/video resolution is 8K UHD"
+                                              )
+                                            ]
+                                          )
+                                        ]
+                                      )
+                                    ],
+                                    1
+                                  )
+                                ],
+                                1
+                              )
+                            ],
+                            1
+                          ),
                           _vm._v(" "),
                           !_vm.loadingUpload
                             ? _c(

@@ -579,6 +579,7 @@ var UploadDownloadServer = /** @class */ (function () {
                         return [4 /*yield*/, s3.getObject(BucketParams).promise()];
                     case 1:
                         response = _a.sent();
+                        console.log(response.Body);
                         if (response.Body !== undefined) {
                             utf8Data = response.Body.toString("base64");
                         }
@@ -737,7 +738,7 @@ var UploadDownloadServer = /** @class */ (function () {
                         if (!!products_1_1.done) return [3 /*break*/, 24];
                         product = products_1_1.value;
                         prId = product.productId;
-                        return [4 /*yield*/, uploadDownload.getLinksByProductId(prId.toString(), date)];
+                        return [4 /*yield*/, uploadDownload.getLinksByProductId(prId, date)];
                     case 4:
                         links = _m.sent();
                         return [4 /*yield*/, teams.getUsersByTeamId(product.teamId)];
@@ -874,7 +875,7 @@ var UploadDownloadServer = /** @class */ (function () {
                         if (!!products_2_1.done) return [3 /*break*/, 52];
                         product = products_2_1.value;
                         prId = product.productId;
-                        return [4 /*yield*/, uploadDownload.getLinksByProductId(prId.toString(), date)];
+                        return [4 /*yield*/, uploadDownload.getLinksByProductId(prId, date)];
                     case 32:
                         links = _m.sent();
                         return [4 /*yield*/, teams.getUsersByTeamId(product.teamId)];
@@ -1177,11 +1178,11 @@ var UploadDownloadServer = /** @class */ (function () {
                     case 95:
                         links = [];
                         if (!(option !== undefined)) return [3 /*break*/, 97];
-                        return [4 /*yield*/, uploadDownload.getLinksByProductIdAndFileType(prId.toString(), option)];
+                        return [4 /*yield*/, uploadDownload.getLinksByProductIdAndFileType(prId, option)];
                     case 96:
                         links = _m.sent();
                         return [3 /*break*/, 99];
-                    case 97: return [4 /*yield*/, uploadDownload.getLinksByProductId(prId.toString(), 'none')];
+                    case 97: return [4 /*yield*/, uploadDownload.getLinksByProductId(prId, 'none')];
                     case 98:
                         links = _m.sent();
                         _m.label = 99;
@@ -1567,9 +1568,9 @@ router.get("/get/file/product/:fileType/:productId", function (req, res) { retur
             case 0:
                 _d.trys.push([0, 12, , 13]);
                 type = req.params.fileType;
-                productId = parseInt(req.params.productId);
-                if (!(productId !== 0 && productId !== undefined && type !== "" && type !== undefined)) return [3 /*break*/, 10];
-                return [4 /*yield*/, uploadDownload.getLinksByProductIdAndFileType(productId.toString(), type)];
+                productId = req.params.productId;
+                if (!(productId !== "" && productId !== undefined && type !== "" && type !== undefined)) return [3 /*break*/, 10];
+                return [4 /*yield*/, uploadDownload.getLinksByProductIdAndFileType(productId, type)];
             case 1:
                 links = _d.sent();
                 results = [];
@@ -1940,7 +1941,7 @@ router.post("/download/team/zip/:type/:date", function (req, res) { return __awa
                 if (!(link && newDate - oldDate <= 86400000)) return [3 /*break*/, 4];
                 exists = true;
                 return [3 /*break*/, 28];
-            case 4: return [4 /*yield*/, uploadDownload.getLinksByProductId(productId.toString(), date_6)];
+            case 4: return [4 /*yield*/, uploadDownload.getLinksByProductId(productId, date_6)];
             case 5:
                 links = _j.sent();
                 return [4 /*yield*/, teams.getTeamByProductId(productId)];
@@ -2083,7 +2084,7 @@ router.post("/download/team/zip/:type/:date", function (req, res) { return __awa
                 if (!!products_3_1.done) return [3 /*break*/, 54];
                 product = products_3_1.value;
                 prId = product.productId;
-                return [4 /*yield*/, uploadDownload.getLinksByProductId(prId.toString(), date_6)];
+                return [4 /*yield*/, uploadDownload.getLinksByProductId(prId, date_6)];
             case 35:
                 links = _j.sent();
                 return [4 /*yield*/, teams.getUsersByTeamId(product.teamId)];
@@ -2222,7 +2223,7 @@ router.post("/download/team/zip/:type/:date", function (req, res) { return __awa
                 if (!!products_4_1.done) return [3 /*break*/, 83];
                 product = products_4_1.value;
                 prId = product.productId;
-                return [4 /*yield*/, uploadDownload.getLinksByProductId(prId.toString(), date_6)];
+                return [4 /*yield*/, uploadDownload.getLinksByProductId(prId, date_6)];
             case 64:
                 links = _j.sent();
                 return [4 /*yield*/, teams.getUsersByTeamId(product.teamId)];
@@ -2505,7 +2506,7 @@ router.post("/upload/file/chunk", function (req, res) { return __awaiter(void 0,
             case 2:
                 _a.sent();
                 _a.label = 3;
-            case 3: return [4 /*yield*/, fs_extra_1.default.appendFile(path_1.default.join("./tmp", fileName + "." + req.body.ext), data)];
+            case 3: return [4 /*yield*/, fs_extra_1.default.appendFile(path_1.default.join("./tmp", fileName), data)];
             case 4:
                 _a.sent();
                 res.status(202).send(true);
@@ -2513,7 +2514,7 @@ router.post("/upload/file/chunk", function (req, res) { return __awaiter(void 0,
             case 5:
                 fileType_1 = req.body.fileType;
                 productId_1 = req.body.productId;
-                filePath_1 = path_1.default.join('./tmp', fileName + "." + req.body.ext);
+                filePath_1 = path_1.default.join('./tmp', fileName);
                 if (!(fileType_1 !== 'pres')) return [3 /*break*/, 11];
                 return [4 /*yield*/, fs_extra_1.default.pathExists(filePath_1)];
             case 6:
@@ -2555,9 +2556,7 @@ router.post("/upload/file/chunk", function (req, res) { return __awaiter(void 0,
                                         height_1 = _a.sent();
                                         _a.label = 7;
                                     case 7:
-                                        console.log(width_1);
-                                        console.log(height_1);
-                                        if (!(width_1 >= 1920 && height_1 >= 1080)) return [3 /*break*/, 34];
+                                        if (!((width_1 !== 0 && width_1 >= 1920) && (height_1 !== 0 && height_1 >= 1080))) return [3 /*break*/, 34];
                                         link = {
                                             uuid: "",
                                             productId: productId_1,
@@ -2565,8 +2564,9 @@ router.post("/upload/file/chunk", function (req, res) { return __awaiter(void 0,
                                             extension: req.body.ext,
                                             uploadTime: new Date()
                                         };
-                                        if (!(fileType_1 === "demoVid" || fileType_1 === "presVid" || fileType_1 === "image" || fileType_1 === "logo")) return [3 /*break*/, 23];
-                                        return [4 /*yield*/, uploadDownload.getLinksByProductIdAndFileType(productId_1.toString(), fileType_1)];
+                                        if (!(fileType_1 === "demoVid" || fileType_1 === "presVid" || fileType_1 === "logo")) return [3 /*break*/, 23];
+                                        console.log(fileType_1);
+                                        return [4 /*yield*/, uploadDownload.getLinksByProductIdAndFileType(productId_1, fileType_1)];
                                     case 8:
                                         links = _a.sent();
                                         if (!(links.length > 0)) return [3 /*break*/, 23];
@@ -2638,13 +2638,20 @@ router.post("/upload/file/chunk", function (req, res) { return __awaiter(void 0,
                                         _a.sent();
                                         res.status(404).send({ err: 404, data: false });
                                         _a.label = 33;
-                                    case 33: return [3 /*break*/, 36];
-                                    case 34: return [4 /*yield*/, fs_extra_1.default.remove(filePath_1)];
+                                    case 33: return [3 /*break*/, 38];
+                                    case 34:
+                                        if (!(height_1 === 0 || width_1 === 0)) return [3 /*break*/, 36];
+                                        return [4 /*yield*/, fs_extra_1.default.remove(filePath_1)];
                                     case 35:
                                         _a.sent();
+                                        res.status(405).send({ err: 405, data: false });
+                                        return [3 /*break*/, 38];
+                                    case 36: return [4 /*yield*/, fs_extra_1.default.remove(filePath_1)];
+                                    case 37:
+                                        _a.sent();
                                         res.status(406).send({ err: 406, data: false });
-                                        _a.label = 36;
-                                    case 36: return [2 /*return*/];
+                                        _a.label = 38;
+                                    case 38: return [2 /*return*/];
                                 }
                             });
                         });
@@ -2667,7 +2674,7 @@ router.post("/upload/file/chunk", function (req, res) { return __awaiter(void 0,
                     extension: req.body.ext,
                     uploadTime: new Date()
                 };
-                return [4 /*yield*/, uploadDownload.getLinksByProductIdAndFileType(productId_1.toString(), fileType_1)];
+                return [4 /*yield*/, uploadDownload.getLinksByProductIdAndFileType(productId_1, fileType_1)];
             case 12:
                 links = _a.sent();
                 if (!(links.length > 0)) return [3 /*break*/, 27];
