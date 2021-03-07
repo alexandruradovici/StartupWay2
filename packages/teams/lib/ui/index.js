@@ -6902,7 +6902,7 @@ var __vue_render__$5 = function() {
                                             attrs: { md4: "" }
                                           },
                                           [
-                                            _c("v-simple-checkbox", {
+                                            _c("v-checkbox", {
                                               attrs: {
                                                 disabled:
                                                   _vm.userRole !== "CEO",
@@ -6935,7 +6935,7 @@ var __vue_render__$5 = function() {
                                             attrs: { md4: "" }
                                           },
                                           [
-                                            _c("v-simple-checkbox", {
+                                            _c("v-checkbox", {
                                               attrs: {
                                                 disabled:
                                                   _vm.userRole !== "CEO",

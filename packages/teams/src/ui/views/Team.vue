@@ -33,22 +33,22 @@
 								</v-row>
 								<v-row>
 									<v-col md4 class="justify-center">
-										<v-simple-checkbox
+										<v-checkbox
 											:disabled="userRole !== 'CEO'"
 											color="#197E81"
 											v-model="user.pitcher"
 											label="Is Pitcher?"
 											@input="updateUserInfo(user)"
-										></v-simple-checkbox>
+										></v-checkbox>
 									</v-col>
 									<v-col md4 class="justify-center">
-										<v-simple-checkbox
+										<v-checkbox
 											:disabled="userRole !== 'CEO'"
 											color="#197E81"
 											v-model="user.participant"
 											label="Comes to DemoDay?"
 											@input="updateUserInfo(user)"
-										></v-simple-checkbox>
+										></v-checkbox>
 									</v-col>
 									<v-col v-if="user.participant" md4 class="justify-center">
 										<v-select 
