@@ -265,6 +265,9 @@ var script = Vue.extend({
         },
         isToday: function (someDate) {
             var today = new Date();
+            if (typeof someDate === "string") {
+                someDate = new Date(someDate);
+            }
             return someDate.getDate() == today.getDate() &&
                 someDate.getMonth() == today.getMonth() &&
                 someDate.getFullYear() == today.getFullYear();

@@ -401,6 +401,9 @@ export default Vue.extend({
 		},
 		isToday(someDate: Date):boolean {
 			const today = new Date();
+			if(typeof someDate === "string") {
+				someDate = new Date(someDate);
+			}
 			return someDate.getDate() == today.getDate() &&
 				someDate.getMonth() == today.getMonth() &&
 				someDate.getFullYear() == today.getFullYear();
