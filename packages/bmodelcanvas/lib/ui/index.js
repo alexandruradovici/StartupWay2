@@ -1243,11 +1243,7 @@ var __vue_render__ = function() {
                         "v-btn",
                         {
                           attrs: {
-                            disabled:
-                              _vm.checkLength ||
-                              _vm.isToday(
-                                _vm.canvases[_vm.canvases.length - 1].date
-                              ),
+                            disabled: _vm.checkLength,
                             color: "primary",
                             rounded: "",
                             type: "submit"

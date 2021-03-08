@@ -232,7 +232,7 @@
 						</div>
 				</v-card-text>
 				<v-card-actions class="justify-center">
-					<v-btn :disabled="checkLength || isToday(canvases[canvases.length -1].date)" color="primary" rounded type="submit" @click="updateCanvas()">Submit Canvas</v-btn>
+					<v-btn :disabled="checkLength" color="primary" rounded type="submit" @click="updateCanvas()">Submit Canvas</v-btn>
 				</v-card-actions>
 			</v-card>
 		</v-container>
