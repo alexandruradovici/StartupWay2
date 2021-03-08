@@ -5130,13 +5130,21 @@ var script$7 = Vue.extend({
         },
         approveDescription: function () {
             return __awaiter(this, void 0, void 0, function () {
-                var response, res, product, found2, productIndex, e_7;
+                var pendingUpdateRO, pendingUpdateEN, response, res, product, found2, productIndex, e_7;
                 var _this = this;
                 return __generator(this, function (_a) {
                     switch (_a.label) {
                         case 0:
                             _a.trys.push([0, 4, , 5]);
                             if (!this.updated) return [3 /*break*/, 3];
+                            pendingUpdateRO = this.updated.descriptionRO;
+                            pendingUpdateEN = this.updated.descriptionEN;
+                            if (this.updated.pendingDescriptionRO !== '') {
+                                pendingUpdateRO = this.updated.pendingDescriptionRO;
+                            }
+                            if (this.updated.pendingDescriptionEN !== '') {
+                                pendingUpdateEN = this.updated.pendingDescriptionEN;
+                            }
                             return [4 /*yield*/, this.ui.api.post("/api/v1/teams/product/approve/description", {
                                     productId: this.updated.productId,
                                     startupName: this.updated.startupName,
@@ -5144,8 +5152,8 @@ var script$7 = Vue.extend({
                                     teamType: this.updated.teamType,
                                     workshopDay: this.updated.workshopDay,
                                     mentorId: this.updated.mentorId,
-                                    descriptionRO: this.updated.pendingDescriptionRO,
-                                    descriptionEN: this.updated.pendingDescriptionEN,
+                                    descriptionRO: pendingUpdateRO,
+                                    descriptionEN: pendingUpdateEN,
                                     pendingDescriptionRO: "",
                                     pendingDescriptionEN: "",
                                     productDetails: this.updated.productDetails,

@@ -934,6 +934,15 @@ export default Vue.extend({
 		async approveDescription() {
 			try {
 				if(this.updated) {
+					let pendingUpdateRO = this.updated.descriptionRO;
+					let pendingUpdateEN = this.updated.descriptionEN;
+					if(this.updated.pendingDescriptionRO !== '') {
+						pendingUpdateRO = this.updated.pendingDescriptionRO;
+					}
+					if(this.updated.pendingDescriptionEN !== '') {
+						pendingUpdateEN = this.updated.pendingDescriptionEN;
+					}
+
 					let response = await this.ui.api.post<Product | null>("/api/v1/teams/product/approve/description",{
 							productId: this.updated.productId,
 							startupName: this.updated.startupName,
@@ -941,8 +950,8 @@ export default Vue.extend({
 							teamType: this.updated.teamType,
 							workshopDay: this.updated.workshopDay,
 							mentorId: this.updated.mentorId,
-							descriptionRO: this.updated.pendingDescriptionRO,
-							descriptionEN: this.updated.pendingDescriptionEN,
+							descriptionRO: pendingUpdateRO,
+							descriptionEN: pendingUpdateEN,
 							pendingDescriptionRO: "",
 							pendingDescriptionEN: "",
 							productDetails: this.updated.productDetails,
