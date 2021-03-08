@@ -27,6 +27,7 @@ declare const _default: import("vue/types/vue").ExtendedVue<Vue, {
 }, {
     countdown(type: string, model: string): void;
     formatDate(date: Date): string;
+    isToday(someDate: Date): boolean;
     updateCanvas(): Promise<void>;
 }, {
     currentTeam: any;

@@ -1,6 +1,15 @@
 <template>
 	<v-app>
 		<v-container v-if="!loadingPage">
+			<v-container>
+				<v-card flat outlined color="#fcfcfc" class="justify-center">
+					<v-card-text class="justify-center">
+						<v-row align="center" justify="center">
+							<strong color="accent">Note: You can update the business canvas once a day</strong>
+						</v-row>
+					</v-card-text>
+				</v-card>
+			</v-container>
 			<v-card flat style="margin: auto; margin-top: 50px;"  max-width="1000" color="#fcfcfc">
 				<v-divider></v-divider>
 				<v-card-text>
@@ -223,7 +232,7 @@
 						</div>
 				</v-card-text>
 				<v-card-actions class="justify-center">
-					<v-btn :disabled="checkLength" color="primary" rounded type="submit" @click="updateCanvas()">Submit Canvas</v-btn>
+					<v-btn :disabled="checkLength || isToday(canvases[canvases.length -1].date)" color="primary" rounded type="submit" @click="updateCanvas()">Submit Canvas</v-btn>
 				</v-card-actions>
 			</v-card>
 		</v-container>
@@ -389,6 +398,12 @@ export default Vue.extend({
 		formatDate(date: Date):string {
 			let time  = (new Date(date)).toTimeString().split(" ");
 			return (new Date(date)).toDateString() + " " + time[0];
+		},
+		isToday(someDate: Date):boolean {
+			const today = new Date();
+			return someDate.getDate() == today.getDate() &&
+				someDate.getMonth() == today.getMonth() &&
+				someDate.getFullYear() == today.getFullYear();
 		},
 		async updateCanvas():Promise<void> {
 			this.loadingPage = true;

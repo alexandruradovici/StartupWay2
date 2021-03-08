@@ -284,6 +284,7 @@ var script = Vue.extend({
                         case 6:
                             this.editDialog = false;
                             this.edited = null;
+                            this.value = "";
                             this.text = "";
                             this.amount = "";
                             return [2 /*return*/];
@@ -467,6 +468,41 @@ var __vue_render__ = function() {
             "v-container",
             { staticClass: "content", attrs: { width: "1000" } },
             [
+              _c(
+                "v-container",
+                [
+                  _c(
+                    "v-card",
+                    {
+                      staticClass: "justify-center",
+                      attrs: { flat: "", outlined: "", color: "#fcfcfc" }
+                    },
+                    [
+                      _c(
+                        "v-card-text",
+                        { staticClass: "justify-center" },
+                        [
+                          _c(
+                            "v-row",
+                            { attrs: { align: "center", justify: "center" } },
+                            [
+                              _c("strong", { attrs: { color: "accent" } }, [
+                                _vm._v(
+                                  "Note: You can update the newsfeed 4 times a day"
+                                )
+                              ])
+                            ]
+                          )
+                        ],
+                        1
+                      )
+                    ],
+                    1
+                  )
+                ],
+                1
+              ),
+              _vm._v(" "),
               _c(
                 "v-card",
                 {

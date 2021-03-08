@@ -263,6 +263,12 @@ var script = Vue.extend({
             var time = (new Date(date)).toTimeString().split(" ");
             return (new Date(date)).toDateString() + " " + time[0];
         },
+        isToday: function (someDate) {
+            var today = new Date();
+            return someDate.getDate() == today.getDate() &&
+                someDate.getMonth() == today.getMonth() &&
+                someDate.getFullYear() == today.getFullYear();
+        },
         updateCanvas: function () {
             return __awaiter(this, void 0, void 0, function () {
                 var fields, canvas, response, res, e_3, product, e_4, e_5;
@@ -450,6 +456,41 @@ var __vue_render__ = function() {
         ? _c(
             "v-container",
             [
+              _c(
+                "v-container",
+                [
+                  _c(
+                    "v-card",
+                    {
+                      staticClass: "justify-center",
+                      attrs: { flat: "", outlined: "", color: "#fcfcfc" }
+                    },
+                    [
+                      _c(
+                        "v-card-text",
+                        { staticClass: "justify-center" },
+                        [
+                          _c(
+                            "v-row",
+                            { attrs: { align: "center", justify: "center" } },
+                            [
+                              _c("strong", { attrs: { color: "accent" } }, [
+                                _vm._v(
+                                  "Note: You can update the business canvas once a day"
+                                )
+                              ])
+                            ]
+                          )
+                        ],
+                        1
+                      )
+                    ],
+                    1
+                  )
+                ],
+                1
+              ),
+              _vm._v(" "),
               _c(
                 "v-card",
                 {
@@ -1199,7 +1240,11 @@ var __vue_render__ = function() {
                         "v-btn",
                         {
                           attrs: {
-                            disabled: _vm.checkLength,
+                            disabled:
+                              _vm.checkLength ||
+                              _vm.isToday(
+                                _vm.canvases[_vm.canvases.length - 1].date
+                              ),
                             color: "primary",
                             rounded: "",
                             type: "submit"
