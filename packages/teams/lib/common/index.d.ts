@@ -13,7 +13,7 @@ export declare enum TeamType {
     NONE = "NONE",
     SPIN = "Spin-off",
     START = "Start-up",
-    SCLAE = "Scale-up"
+    SCALE = "Scale-up"
 }
 export declare enum BucharestWorkshop {
     MONDAY = "Mon",

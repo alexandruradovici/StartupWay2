@@ -18,7 +18,7 @@ var TeamType;
     TeamType["NONE"] = "NONE";
     TeamType["SPIN"] = "Spin-off";
     TeamType["START"] = "Start-up";
-    TeamType["SCLAE"] = "Scale-up";
+    TeamType["SCALE"] = "Scale-up";
 })(TeamType = exports.TeamType || (exports.TeamType = {}));
 var BucharestWorkshop;
 (function (BucharestWorkshop) {
