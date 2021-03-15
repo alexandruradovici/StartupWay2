@@ -73,9 +73,9 @@ export interface UserTeams {
 export interface Product {
     productId: string;
     startupName: string;
-    businessTrack: BusinessTrack;
-    teamType: TeamType;
-    workshopDay: WorkshopDay;
+    businessTrack: BusinessTrack | string;
+    teamType: TeamType | string;
+    workshopDay: WorkshopDay | string;
     mentorId: string;
     descriptionEN: string;
     descriptionRO: string;

@@ -107,14 +107,26 @@ export class AdminServer {
 			const bTValue = parseEnum<BusinessTrack,typeof BusinessTrack>(BusinessTrack,bT);
 			const tTValue = parseEnum<TeamType,typeof TeamType>(TeamType,tT);
 			const wDValue = parseEnum<WorkshopDay,typeof WorkshopDay>(WorkshopDay,wD);
+			let btVal = "";
+			let ttVal = "";
+			let wdVal = "";
+			if(bTValue !== undefined) {
+				btVal = bTValue;
+			}
+			if(tTValue !== undefined) {
+				ttVal = tTValue;
+			}
+			if(wDValue !== undefined) {
+				wdVal = wDValue;
+			}
 			parsedCSV.product = {
 				productId:productId,
 				startupName:teamName,
 				mentorId:"",
 				// Need to index enum based on string
-				businessTrack:(BusinessTrack as any)[bT],
-				teamType:(TeamType as any)[tT],
-				workshopDay:(WorkshopDay as any)[days[parseInt(workshopNo as string)]],
+				businessTrack:btVal,
+				teamType:ttVal,
+				workshopDay:wdVal,
 				descriptionEN:"",
 				descriptionRO:"", 
 				pendingDescriptionEN: "",
@@ -133,15 +145,15 @@ export class AdminServer {
 			}
 
 			if(parsedCSV.product && wDValue) {
-				parsedCSV.product.workshopDay = wDValue;
+				parsedCSV.product.workshopDay = wdVal;
 			}
 
 			if(parsedCSV.product && bTValue) {
-				parsedCSV.product.businessTrack = bTValue;
+				parsedCSV.product.businessTrack = btVal;
 			}
 
 			if(parsedCSV.product && tTValue) {
-				parsedCSV.product.teamType = tTValue;
+				parsedCSV.product.teamType = ttVal;
 			}
 			if(parsedCSV.product && shortDesc) {
 				parsedCSV.product.descriptionEN = shortDesc;
@@ -787,11 +799,8 @@ router.post("/uploadCSV", async(req:ApiRequest<{encode:string}>,res:ApiResponse<
 				{
 					let role = user.role;
 					let teamUser:UserTeams | null = null;
-					if(user && team && role)
+					if(user && team && role !== undefined && role !== null)
 						teamUser = await teams.addUserToTeam(user, team, role);
-					console.log("TEAMUSER");
-					console.log(teamUser);
-					console.log("TEAMUSER");
 					let initDate;
 					if(team.teamDetails["location"] === "Bucharest"){
 						initDate = moment("2021-03-02");

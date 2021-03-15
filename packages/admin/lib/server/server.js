@@ -189,14 +189,26 @@ var AdminServer = /** @class */ (function () {
             var bTValue = parseEnum(server_4.BusinessTrack, bT);
             var tTValue = parseEnum(server_4.TeamType, tT);
             var wDValue = parseEnum(server_4.WorkshopDay, wD);
+            var btVal = "";
+            var ttVal = "";
+            var wdVal = "";
+            if (bTValue !== undefined) {
+                btVal = bTValue;
+            }
+            if (tTValue !== undefined) {
+                ttVal = tTValue;
+            }
+            if (wDValue !== undefined) {
+                wdVal = wDValue;
+            }
             parsedCSV.product = {
                 productId: productId,
                 startupName: teamName,
                 mentorId: "",
                 // Need to index enum based on string
-                businessTrack: server_4.BusinessTrack[bT],
-                teamType: server_4.TeamType[tT],
-                workshopDay: server_4.WorkshopDay[days[parseInt(workshopNo)]],
+                businessTrack: btVal,
+                teamType: ttVal,
+                workshopDay: wdVal,
                 descriptionEN: "",
                 descriptionRO: "",
                 pendingDescriptionEN: "",
@@ -214,13 +226,13 @@ var AdminServer = /** @class */ (function () {
                 lastMentorUpdate: new Date(),
             };
             if (parsedCSV.product && wDValue) {
-                parsedCSV.product.workshopDay = wDValue;
+                parsedCSV.product.workshopDay = wdVal;
             }
             if (parsedCSV.product && bTValue) {
-                parsedCSV.product.businessTrack = bTValue;
+                parsedCSV.product.businessTrack = btVal;
             }
             if (parsedCSV.product && tTValue) {
-                parsedCSV.product.teamType = tTValue;
+                parsedCSV.product.teamType = ttVal;
             }
             if (parsedCSV.product && shortDesc) {
                 parsedCSV.product.descriptionEN = shortDesc;
@@ -1050,15 +1062,12 @@ router.post("/uploadCSV", function (req, res) { return __awaiter(void 0, void 0,
                 if (!(userTeam === null && user !== null && team !== null)) return [3 /*break*/, 22];
                 role = user.role;
                 teamUser = null;
-                if (!(user && team && role)) return [3 /*break*/, 17];
+                if (!(user && team && role !== undefined && role !== null)) return [3 /*break*/, 17];
                 return [4 /*yield*/, teams.addUserToTeam(user, team, role)];
             case 16:
                 teamUser = _g.sent();
                 _g.label = 17;
             case 17:
-                console.log("TEAMUSER");
-                console.log(teamUser);
-                console.log("TEAMUSER");
                 initDate = void 0;
                 if (team.teamDetails["location"] === "Bucharest") {
                     initDate = moment_1.default("2021-03-02");

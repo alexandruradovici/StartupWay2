@@ -61,22 +61,27 @@ export class TeamsServer {
 						} else {
 							await conn.rollback();
 							await conn.release();
+							console.log("No obj addTeam");
 							return null;
 						}
 					} else {
 						await conn.rollback();
 						await conn.release();
+						console.log("No teams addTeam");
 						return null;
 					}
 				} else {
 					await conn.rollback();
 					await conn.release();
+					console.log("No procut addTeam");
 					return null;
 				}
 			} else {
+				console.log("No conn addTeam");
 				return null;
 			}
 		} catch (error) {
+			console.error(error);
 			if(conn) {
 				await conn.rollback();
 				await conn.release();
@@ -142,16 +147,9 @@ export class TeamsServer {
 					sql: "INSERT INTO userTeams (userProductId,userId,teamId,role) VALUES(:userProductId,:userId,:teamId,:role)"
 				};
 				const userProductId = uiidv4();
-				const res = await conn.query(queryOptions,{ userProductId: userProductId, userId:user.userId, teamId: team.teamId, role:role });
-				
-				console.log("res");
-				console.log(res);
-				console.log("res");
+				await conn.query(queryOptions,{ userProductId: userProductId, userId:user.userId, teamId: team.teamId, role:role });
 				queryOptions.sql = "SELECT userProductId,userId,teamId,role FROM userTeams WHERE userProductId=:userProductId"
 				const userInTeam: UserTeams[] = await conn.query(queryOptions, {  userProductId: userProductId });
-				console.log("USERINTEAM");
-				console.log(userInTeam);
-				console.log("USERINTEAM");
 				if (userInTeam && userInTeam.length > 0 && userInTeam[0]) {
 					await conn.commit();
 					await conn.release();
@@ -532,7 +530,7 @@ export class TeamsServer {
 					namedPlaceholders: true,
 					sql: "SELECT * FROM teams WHERE teams.year=:year AND teams.location=:location AND teams.teamName=:teamName"
 				};
-				const teamResponse: Team[] = await conn.query(queryOptions, { year, location, teamName });
+				const teamResponse: Team[] = await conn.query(queryOptions, { year:year, location:location, teamName:teamName });
 				if (teamResponse && teamResponse.length > 0 && teamResponse[0]) {
 					await conn.release();
 					return teamResponse[0];
