@@ -43,8 +43,8 @@ export interface ModifiedTeam {
     teamDetails: {
         [key: string]: string;
     };
-    businessTrack: BusinessTrack;
-    teamType: TeamType;
+    businessTrack: BusinessTrack | string;
+    teamType: TeamType | string;
     pendingDescriptionRO: string;
     pendingDescriptionEN: string;
     updatedAt: Date;
