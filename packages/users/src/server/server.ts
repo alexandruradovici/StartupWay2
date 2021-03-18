@@ -521,20 +521,20 @@ router.post("/user/update", async (req:ApiRequest<{newUser:User,changedPass:stri
 		const user:User = req.body.newUser;
 		const changedPass = req.body.changedPass;
 		console.log("Changed" + changedPass);
-		// const options = admin.createMailOptions(
-		// 	(process.env.MAIL_USER as string),
-		// 	user.email,
-		// 	"Innovation Labs Platform Password",
-		// 	"Hello " + user.firstName + " " + user.lastName +" ,\n\n"
-		// 	+ "Here is your new account, please do not disclose these informations to anyone.\n"
+		// const msg:string = "Hello " + user.firstName + " " + user.lastName +" ,\n\n" 
+		// 	+ "Here is your new password, please do not disclose these informations to anyone.\n" 
 		// 	+ "		Username: " +user.username + "\n"
-		// 	+ "		Password: " +password + "\n"
+		// 	+ "		Password: " +user.password + "\n" 
 		// 	+ "Use these credidentials to login on "+ process.env.HOSTNAME +"\n\n"
 		// 	+ "Regards, Innovation Labs Team\n"
-		// );
-		// const transporter = admin.createMailTransporter()
-		// admin.sendMail(transporter,options);
-	
+		// const notification:SWNotify = {
+		// 	email:user.email,
+		// 	notifyType:NotificationType.EMAIL,
+		// 	msgType:MessageType.WELCOME,
+		// 	text:msg,
+		// 	date:new Date()
+		// }
+		// await daemon.addNotification(notification);
 		if(user) {
 			const resp = await usersServer.modifyUser(user, changedPass);
 			if(resp) {

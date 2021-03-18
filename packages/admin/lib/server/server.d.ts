@@ -1,6 +1,5 @@
-import { Transporter, SendMailOptions } from "nodemailer";
 import { Recovery } from "../common";
-import { ParsedCSV } from '../common/index';
+import { ParsedCSV, UpdateCSV } from '../common/index';
 export declare class AdminServer {
     private static INSTANCE?;
     private users;
@@ -22,14 +21,16 @@ export declare class AdminServer {
      * @param phone - user phonenumber
      * @param facebook - user facebook link
      * @param linkedin - user linkedin link
-     * @param shortDesc - team short description
+     * @param shortDescRO - team short description RO
+     * @param shortDescEN - team short description EN
      * @param birthDate - user birthdate
      * @param faculty - user faculty
      * @param group - user group at faculty
      * @param findProgram - shot description on how the user found the program
      * @returns { teamId:string, workshop:WorkshopObj, team:{}, product:{}, user:{} } parsedCSV | null - contains all the info about the user and it's asociated team and product
      */
-    parseCSVData(loc?: string, workshopNo?: string, teamMentor?: string, teamId?: string, teamTrack?: string, businessTrack?: string, teamName?: string, pitcher?: string, role?: string, firstName?: string, lastName?: string, email?: string, phone?: string, facebook?: string, linkedin?: string, shortDesc?: string, birthDate?: string, faculty?: string, group?: string, findProgram?: string): ParsedCSV | null;
+    parseCSVData(loc?: string, workshopNo?: string, teamMentor?: string, teamId?: string, teamTrack?: string, businessTrack?: string, teamName?: string, pitcher?: string, role?: string, firstName?: string, lastName?: string, email?: string, phone?: string, facebook?: string, linkedin?: string, shortDescRO?: string, shortDescEN?: string, birthDate?: string, faculty?: string, group?: string, findProgram?: string): ParsedCSV | null;
+    parseUpdateCSV(loc?: string, teamName?: string, descRO?: string, descEN?: string): UpdateCSV | null;
     /**
      * Internal function that creates a random password
      * @returns { string } - the generated password
@@ -57,27 +58,6 @@ export declare class AdminServer {
      * @returns {Promise<any[]>} an array of informations about each team
      */
     getTeamData(): Promise<any[]>;
-    /**
-     * Function that creates an AWS.SES mail transport used to automatically send emails
-     * @returns {Transporter} an AWS.SES transporter
-     */
-    createMailTransporter(): Transporter | null;
-    /**
-     * Function that sends a mail via the AWS.SES transporter
-     * @param transporter the AWS.SES transporter object
-     * @param mailOptions an instance of type SendMailOptions in which information about where to send the email is found
-     * @returns {boolean} true if mail was sent, false otherwise
-     */
-    sendMail(transporter: Transporter, mailOptions: SendMailOptions): boolean;
-    /**
-     * Function that creates an object of type SendMailOptions for the AWS.SES transporter
-     * @param from - sending email address
-     * @param to - receiving email address
-     * @param subject - subject of email
-     * @param text - email text
-     * @returns {SendMailOptions} - the mail options
-     */
-    createMailOptions(from: string, to: string, subject: string, text: string): SendMailOptions;
     /**
      * Function that adds a recovery object containing the information about a users password recovery into the database
      * @param recovery - object that contains information about the incoming recovery of password request

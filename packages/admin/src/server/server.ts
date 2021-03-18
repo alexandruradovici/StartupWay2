@@ -1,6 +1,4 @@
-import { Transporter, createTransport, SendMailOptions} from "nodemailer";
-import AWS from "aws-sdk"
-import { Recovery, Review } from "../common";
+import { MessageType, NotificationType, Recovery, Review } from "../common";
 import * as _ from "lodash";
 import * as Papa from "papaparse";
 import moment from "moment";
@@ -11,12 +9,14 @@ import { QueryOptions, PoolConnection } from "mariadb";
 import { Server, ApiResponse, ApiRequest } from "@startupway/main/lib/server";
 import { getPool } from "@startupway/database/lib/server";
 import { getAuthorizationFunction, User, UsersServer } from "@startupway/users/lib/server";
+import { DaemonServer } from "@startupway/daemons/lib/server";
 import { UserActivity, UserTeams, BusinessTrack, Team, Product, TeamType, WorkshopDay, TeamsServer } from "@startupway/teams/lib/server";
 
-import { ParsedCSV } from '../common/index';
+import { ParsedCSV, UpdateCSV, SWNotify } from '../common/index';
 import { v4 as uiidv4 } from 'uuid';
 const users = UsersServer.getInstance();
 const teams = TeamsServer.getInstance();
+const daemon = DaemonServer.getInstance();
 
 function parseEnum<D,T extends Record<string,D>>(t:T,key:string):D | undefined {
 	return t[key as keyof T];
@@ -44,7 +44,8 @@ export class AdminServer {
 	 * @param phone - user phonenumber
 	 * @param facebook - user facebook link
 	 * @param linkedin - user linkedin link
-	 * @param shortDesc - team short description
+	 * @param shortDescRO - team short description RO
+	 * @param shortDescEN - team short description EN
 	 * @param birthDate - user birthdate
 	 * @param faculty - user faculty
 	 * @param group - user group at faculty
@@ -55,7 +56,7 @@ export class AdminServer {
 	// Toate id-urile devin string-uri cu uuidv4 dimensiune fixa 16 caractere
 	public parseCSVData(loc?:string ,workshopNo?:string ,teamMentor?:string ,teamId?:string ,teamTrack?:string ,businessTrack?:string ,teamName?:string ,pitcher?:string ,
 		role?:string ,firstName?:string ,lastName?:string , email?:string ,phone?:string ,facebook?:string ,linkedin?:string ,
-		shortDesc?:string ,birthDate?:string ,faculty?:string ,group?:string ,findProgram?:string ):
+		shortDescRO?:string, shortDescEN?:string, birthDate?:string ,faculty?:string ,group?:string ,findProgram?:string ):
 		ParsedCSV | null
 	{
 		try {
@@ -155,8 +156,11 @@ export class AdminServer {
 			if(parsedCSV.product && tTValue) {
 				parsedCSV.product.teamType = ttVal;
 			}
-			if(parsedCSV.product && shortDesc) {
-				parsedCSV.product.descriptionEN = shortDesc;
+			if(parsedCSV.product && shortDescRO) {
+				parsedCSV.product.descriptionRO = shortDescRO;
+			}
+			if(parsedCSV.product && shortDescEN) {
+				parsedCSV.product.descriptionEN = shortDescEN;
 			}
 			
 			let username = "";
@@ -201,7 +205,34 @@ export class AdminServer {
 			return null;
 		}
 	}
-
+	
+	public parseUpdateCSV(loc?:string, teamName?:string, descRO?:string, descEN?:string):UpdateCSV | null {
+		try {
+			let updateCSV:UpdateCSV | null = null;
+			if(loc !== undefined && loc !== "" && teamName !== undefined && teamName !== "") {
+				updateCSV = {
+					location:loc,
+					teamName:teamName,
+					descRO:"",
+					descEN:""
+				};
+				if(descRO !== undefined) {
+					updateCSV.descRO = descRO;
+				}
+				if(descEN !== undefined) {
+					updateCSV.descEN = descEN;
+				}
+				return updateCSV;
+			} else {
+				console.error("No Location or teamName");
+				return null;
+			}
+		} catch (error) {
+			console.error("Error in function \"parseUpdateCSV()|\"admin\"\"");
+			console.error(error);
+			return null;
+		}
+	}
 	/**
 	 * Internal function that creates a random password
 	 * @returns { string } - the generated password
@@ -305,79 +336,6 @@ export class AdminServer {
 			return [];
 		}
 	}
-	
-	/**
-	 * Function that creates an AWS.SES mail transport used to automatically send emails
-	 * @returns {Transporter} an AWS.SES transporter
-	 */
-	createMailTransporter():Transporter | null {
-		try {
-			AWS.config.update({
-				region: process.env.REGION, 
-				accessKeyId: process.env.AKEY, 
-				secretAccessKey: process.env.ASECRETKEY
-			});
-			const transporter = createTransport({
-				SES: new AWS.SES({
-					apiVersion: '2010-12-01'
-				}),
-				sendingRate: 10
-			});
-			return transporter
-		} catch (error) {
-			console.log("Error in function \"createMailTransporter()\"|\"admin\"");
-			console.error(error);
-			return null;
-		}
-	}
-	
-	/**
-	 * Function that sends a mail via the AWS.SES transporter 
-	 * @param transporter the AWS.SES transporter object
-	 * @param mailOptions an instance of type SendMailOptions in which information about where to send the email is found
-	 * @returns {boolean} true if mail was sent, false otherwise
-	 */
-	sendMail(transporter:Transporter,mailOptions:SendMailOptions):boolean {
-		try {
-			let response = {};
-			// Documented as any
-			transporter.sendMail(mailOptions, function(error:Error | null, info:any){
-				if (error) {
-					console.log("Error in function \"sendMail(transporter, mailOptions)\"|\"admin\"");
-					console.error(error);
-				} else {
-					console.log('Email sent: ' + info.response);
-					response = info.response;
-				}
-			});
-			if(response !== {})
-				return true;
-			else
-				return false;
-		} catch (error) {
-			console.log("Error in function \"sendMail(transporter, mailOptions)\"|\"admin\"");
-			console.error(error);
-			return false;
-		}
-	}
-	
-	/**
-	 * Function that creates an object of type SendMailOptions for the AWS.SES transporter
-	 * @param from - sending email address
-	 * @param to - receiving email address
-	 * @param subject - subject of email
-	 * @param text - email text
-	 * @returns {SendMailOptions} - the mail options
-	 */
-	createMailOptions(from:string,to:string,subject:string,text:string):SendMailOptions {
-		const mailOptions:SendMailOptions = {
-			from:from,
-			to:to,
-			subject:subject,
-			text:text
-		}
-		return mailOptions
-	}
 
 	/**
 	 * Function that adds a recovery object containing the information about a users password recovery into the database
@@ -404,20 +362,26 @@ export class AdminServer {
 				queryOptions.sql = "SELECT recoveryId,userId,email,recoveryLink FROM recoveries WHERE recoveryId=:recoveryId"
 				const newRecovery:Recovery[] = await conn.query(queryOptions,{recoveryId:recovery.recoveryId});
 				if(newRecovery && newRecovery.length > 0 && newRecovery[0]) {
-					const options = admin.createMailOptions(
-						(process.env.MAIL_USER as string),
-						user.email,
-						"Innovation Labs Platform Password Reset",
-						"Hello " + user.firstName + " " + user.lastName +" ,\n\n" 
-						+ "Here is your activation link, please click here to reset your password.\n" 
-						+ "		https://teams.innovationlabs.ro/#/recovery/"+newRecovery[0].recoveryLink + "\n"
-						+ "Regards, Innovation Labs Team\n" 
-					);
-					const transporter = admin.createMailTransporter();
-					if(transporter)
-						admin.sendMail(transporter,options);
-					await conn.commit();
-					await conn.release();
+					const msg:string = "Hello " + user.firstName + " " + user.lastName +" ,\n\n" 
+					+ "Here is your activation link, please click here to reset your password.\n" 
+					+ "		https://teams.innovationlabs.ro/#/recovery/"+newRecovery[0].recoveryLink + "\n"
+					+ "Regards, Innovation Labs Team\n" ;
+					const notification:SWNotify = {
+						email:user.email,
+						notifyType:NotificationType.EMAIL,
+						msgType:MessageType.RESETPASS,
+						text:msg,
+						date:new Date()
+					}
+					const newNotification:SWNotify | null = await daemon.addNotification(notification);
+					if(newNotification) {
+						await conn.commit();
+						await conn.release();
+					} else {
+						await conn.rollback();
+						await conn.release();
+						return null;
+					}
 					return newRecovery[0];
 				}
 				else throw new Error("Can't add recovery")
@@ -679,6 +643,52 @@ if(authFunct)
 
 
 
+router.post("/updateDescriptionCSV",async(req:ApiRequest<{encode:string}>,res:ApiResponse<boolean>) => {
+	try {
+		/** @type {string} base64 string of the data found in the .csv */
+		const encoded = req.body.encode;
+		/** @type {Buffer} Buffer with the data retrieved from the base64 string */
+		const buffer = Buffer.from(encoded,"base64");
+		/** @type {string} string in utf8 format of the data */
+		const string  = buffer.toString("utf-8");
+		/** @type {unknown} array with entries represented by each line of data in the .csv file */
+
+		const parsed = Papa.parse<Array<string | undefined>>(string).data;
+		parsed.splice(0,1);
+		for(const arr of parsed) {
+			if(arr) {
+				const object = admin.parseUpdateCSV(...(arr));
+				if(object !== null) {
+					const team = await teams.getTeamByYearAndLocation((new Date()).getFullYear(), object.location, object.teamName);
+					if(team) {
+						const product = await teams.getProductByTeamId(team.teamId);
+						if(product) {
+							if(object.descEN !== "")
+								product.descriptionEN = object.descEN;
+							if(object.descRO !== "")
+								product.descriptionRO = object.descRO;
+							await teams.updateProduct(product);
+						} else {
+							console.error("\"/updateDescriptionCSV\" : Fetch Product Failed");
+						}
+					} else {
+						console.error("\"/updateDescriptionCSV\" : Fetch Team Failed");
+					}
+				} else {
+					console.error("\"/updateDescriptionCSV\" : Parse Function Failed");
+				}
+			} else {
+				console.error("\"/updateDescriptionCSV\" : Papa Parse Failed");
+			}
+			// WORKAROUND for parsing the csv data. TODO -> Create interface for parsing
+		}
+		res.status(200).send({err:200, data:true});
+	} catch (error) {
+		console.error("Error on route \"/updateDescriptionCSV\" in \"admin\" router");
+		console.error(error);
+		res.status(401).send({err:401, data:false});
+	}
+});
 /**
  * Route on which information found in a .csv file is being uploaded into the database 
  */	// TODO SEE RETURN TYPE
@@ -745,20 +755,20 @@ router.post("/uploadCSV", async(req:ApiRequest<{encode:string}>,res:ApiResponse<
 							lastLogin:new Date()
 						});
 						if(user) {
-							const options = admin.createMailOptions(
-								(process.env.MAIL_USER as string),
-								user.email,
-								"Innovation Labs Platform Password",
-								"Hello " + user.firstName + " " + user.lastName +" ,\n\n" 
+							const msg:string = "Hello " + user.firstName + " " + user.lastName +" ,\n\n" 
 								+ "Here is your new account, please do not disclose these informations to anyone.\n" 
 								+ "		Username: " +user.username + "\n"
 								+ "		Password: " +password + "\n" 
 								+ "Use these credidentials to login on "+ process.env.HOSTNAME +"\n\n"
-								+ "Regards, Innovation Labs Team\n" 
-							);
-							const transporter = admin.createMailTransporter();
-							if(transporter)
-								admin.sendMail(transporter,options);
+								+ "Regards, Innovation Labs Team\n";
+							const notification:SWNotify = {
+								email:user.email,
+								notifyType:NotificationType.EMAIL,
+								msgType:MessageType.WELCOME,
+								text:msg,
+								date:new Date()
+							}
+							await daemon.addNotification(notification);
 							entry.product.mentorId = user.userId;
 						}
 					}
@@ -773,20 +783,20 @@ router.post("/uploadCSV", async(req:ApiRequest<{encode:string}>,res:ApiResponse<
 					if(user == null) {
 						const password = admin.randomPassword();
 						entry.user.password = password;
-						const options = admin.createMailOptions(
-							(process.env.MAIL_USER as string),
-							entry.user.email,
-							"Innovation Labs Platform Password",
-							"Hello " + entry.user.firstName + " " + entry.user.lastName +" ,\n\n" 
+						const msg:string = "Hello " + entry.user.firstName + " " + entry.user.lastName +" ,\n\n" 
 							+ "Here is your new account, please do not disclose these informations to anyone.\n" 
 							+ "		Username: " +entry.user.username + "\n"
 							+ "		Password: " +password + "\n" 
 							+ "Use these credidentials to login on "+ process.env.HOSTNAME +"\n\n"
-							+ "Regards, Innovation Labs Team\n" 
-						);
-						const transporter = admin.createMailTransporter()
-						if(transporter)
-							admin.sendMail(transporter,options);
+							+ "Regards, Innovation Labs Team\n";
+						const notification:SWNotify = {
+							email:entry.user.email,
+							notifyType:NotificationType.EMAIL,
+							msgType:MessageType.WELCOME,
+							text:msg,
+							date:new Date()
+						}
+						await daemon.addNotification(notification);
 						if(entry.product)
 							entry.product.mentorId = entry.user.userId;
 						user = await users.addUser(entry.user);
@@ -1248,112 +1258,116 @@ router.post("/request/user", async (req:ApiRequest<{from:string,email:string,fir
 	if(product)
 		mentor = await users.getUserById(product.mentorId);
 	if(mentor && team) {
-		const options = admin.createMailOptions(
-			(process.env.MAIL_USER as string),
-			"marius.andrei.aluculesei@gmail.com",
-			"Innovation Labs User Request",
-				"		From:" + from + "\n" 
+		const msg:string = "		From:" + from + "\n" 
 			+ "		First Name: " +firstName + "\n"
 			+ "		Last Name: " +lastName + "\n" 
 			+ "		Email: " + email + "\n"
 			+ "		Team: " + team.teamName + "\n" 
 			+ "		Location: " + team.location + "\n"
 			+ "		Mentor: " + mentor.email + "\n"
-			
-		);
-		const transporter = admin.createMailTransporter();
-		if(transporter)
-			admin.sendMail(transporter,options);
+		const notification:SWNotify = {
+			email:"marius.andrei.aluculesei@gmail.com",
+			notifyType:NotificationType.EMAIL,
+			msgType:MessageType.REQUESTUSER,
+			text:msg,
+			date:new Date()
+		}
+		await daemon.addNotification(notification);
 		res.status(200).send(true);
 	} else {
 		res.status(400).send(false);
 	}
 });
 router.post("/add/user", async (req:ApiRequest<{user:User,option:string,teamId:string}>,res:ApiResponse<boolean>) => {
-	const user = req.body.user;
-	const option = req.body.option;
-	user.password = admin.randomPassword();
-	const options = admin.createMailOptions(
-		(process.env.MAIL_USER as string),
-		user.email,
-		"Innovation Labs Platform Password",
-		"Hello " + user.firstName + " " + user.lastName +" ,\n\n" 
-		+ "Here is your new account, please do not disclose these informations to anyone.\n" 
-		+ "		Username: " +user.username + "\n"
-		+ "		Password: " +user.password + "\n" 
-		+ "Use these credidentials to login on "+ process.env.HOSTNAME +"\n\n"
-		+ "Regards, Innovation Labs Team\n" 
-	);
-	const transporter = admin.createMailTransporter();
-	if(transporter)
-		admin.sendMail(transporter,options);
-	if(user) {
-		let newUser = await users.addUser((user as User));
-		if(newUser) {
-			if(option === "team") {
-				const teamId = req.body.teamId;
-				const team = await teams.getTeamById(teamId);
-				let userTeam;
-				if(team) {
-					userTeam = await teams.getUserInTeam(newUser.userId,team.teamId);
-				}	
-				if(userTeam)
-				{
-					let role = newUser.role;
+	try {
+		const user = req.body.user;
+		const option = req.body.option;
+		user.password = admin.randomPassword();
+		const msg:string = "Hello " + user.firstName + " " + user.lastName +" ,\n\n" 
+			+ "Here is your new account, please do not disclose these informations to anyone.\n" 
+			+ "		Username: " +user.username + "\n"
+			+ "		Password: " +user.password + "\n" 
+			+ "Use these credidentials to login on "+ process.env.HOSTNAME +"\n\n"
+			+ "Regards, Innovation Labs Team\n" 
+		const notification:SWNotify = {
+			email:user.email,
+			notifyType:NotificationType.EMAIL,
+			msgType:MessageType.WELCOME,
+			text:msg,
+			date:new Date()
+		}
+		await daemon.addNotification(notification);
+		if(user) {
+			let newUser = await users.addUser((user as User));
+			if(newUser) {
+				if(option === "team") {
+					const teamId = req.body.teamId;
+					const team = await teams.getTeamById(teamId);
+					let userTeam;
 					if(team) {
-						let initDate;
-						const teamUser = await teams.addUserToTeam(newUser, team,role);
-						if(teamUser) {
-							if(team.teamDetails["location"] === "Bucharest"){
-								initDate = moment("2020-03-02");
-							} else {
-								initDate = moment("2020-03-09");
-							}
-							for(let i = 0; i < 10; i++) {
-								const aux = moment(initDate.toDate());
-								const date = aux.add(7*i,"days").toDate();
-								const userActivity = {
-									userId:newUser.userId,
-									teamId:teamUser.teamId,
-									noOfHours:0,
-									date:date,
-									description:""
+						userTeam = await teams.getUserInTeam(newUser.userId,team.teamId);
+					}	
+					if(userTeam)
+					{
+						let role = newUser.role;
+						if(team) {
+							let initDate;
+							const teamUser = await teams.addUserToTeam(newUser, team,role);
+							if(teamUser) {
+								if(team.teamDetails["location"] === "Bucharest"){
+									initDate = moment("2020-03-02");
+								} else {
+									initDate = moment("2020-03-09");
 								}
-								await teams.addActivityForUser((userActivity as UserActivity));
+								for(let i = 0; i < 10; i++) {
+									const aux = moment(initDate.toDate());
+									const date = aux.add(7*i,"days").toDate();
+									const userActivity = {
+										userId:newUser.userId,
+										teamId:teamUser.teamId,
+										noOfHours:0,
+										date:date,
+										description:""
+									}
+									await teams.addActivityForUser((userActivity as UserActivity));
+								}
 							}
 						}
+						
 					}
-					
 				}
+				res.status(200).send(true);
+			} else {
+				res.status(401).send({err:401,data:false});
 			}
-			res.status(200).send(true);
 		} else {
 			res.status(401).send({err:401,data:false});
 		}
-	} else {
-		res.status(401).send({err:401,data:false});
+		res.status(201).send(false);
+	} catch (error) {
+		console.error(error);
+		res.status(500).send({err:500,data:false});
 	}
-	res.status(201).send(false);
 });
 router.post("/update/user", async (req:ApiRequest<{user:User,changedPass:boolean}>,res:ApiResponse<boolean>) => {
 	const user = req.body.user;
 	const changedPass = req.body.changedPass;
 	if(changedPass) {
-		user.password = UsersServer.passwordGenerator(user.password);
-		const options = admin.createMailOptions(
-			(process.env.MAIL_USER as string),
-			user.email,
-			"Innovation Labs Platform Password",
-			"Hello " + user.firstName + " " + user.lastName +" ,\n\n" 
+		const msg:string = "Hello " + user.firstName + " " + user.lastName +" ,\n\n" 
 			+ "Here is your new password, please do not disclose these informations to anyone.\n" 
 			+ "		Username: " +user.username + "\n"
 			+ "		Password: " +user.password + "\n" 
 			+ "Use these credidentials to login on "+ process.env.HOSTNAME +"\n\n"
-			+ "Regards, Innovation Labs Team\n" 
-		);
-		const transporter = admin.createMailTransporter();
-		if(transporter)
-			admin.sendMail(transporter,options);
+			+ "Regards, Innovation Labs Team\n"
+		const notification:SWNotify = {
+			email:user.email,
+			notifyType:NotificationType.EMAIL,
+			msgType:MessageType.WELCOME,
+			text:msg,
+			date:new Date()
+		}
+		await daemon.addNotification(notification);
+		user.password = UsersServer.passwordGenerator(user.password);
 	}
 	
 	if(user) {

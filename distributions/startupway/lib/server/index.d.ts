@@ -5,4 +5,5 @@ import "@startupway/admin/lib/server";
 import "@startupway/teams/lib/server";
 import "@startupway/feed/lib/server";
 import "@startupway/bmodelcanvas/lib/server";
+import "@startupway/daemons/lib/server";
 //# sourceMappingURL=index.d.ts.map

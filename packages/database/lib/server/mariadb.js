@@ -97,7 +97,7 @@ var MariaDBServer = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        _a.trys.push([0, 24, , 25]);
+                        _a.trys.push([0, 25, , 26]);
                         auxPool = mariadb_1.createPool({
                             host: process.env.DB_HOST,
                             user: process.env.DB_USER,
@@ -115,7 +115,7 @@ var MariaDBServer = /** @class */ (function () {
                         return [4 /*yield*/, auxConn.query(queryOptions, { db: process.env.DB_NAME })];
                     case 2:
                         r = _a.sent();
-                        if (!(r[0] === undefined || r[0].length < 1)) return [3 /*break*/, 20];
+                        if (!(r[0] === undefined || r[0].length < 1)) return [3 /*break*/, 21];
                         queryOptions = {
                             namedPlaceholders: true,
                             sql: "CREATE DATABASE " + tables_1.DB_NAME + " CHARACTER SET " + tables_1.DB_CHARSET + " COLLATE " + tables_1.DB_COLLATE
@@ -197,37 +197,44 @@ var MariaDBServer = /** @class */ (function () {
                         // recoveries
                         _a.sent();
                         // feeds
-                        return [4 /*yield*/, tableConn.query("CREATE TABLE `feeds` (`feedId` varchar(100) NOT NULL,  `teamId` varchar(100) NOT NULL, `feedType` varchar(30) NOT NULL, `text` text NOT NULL, `date` datetime NOT NULL, PRIMARY KEY (`feedId`), KEY `FK_87caf98485e27800f1e171ccf6c` (`teamId`), CONSTRAINT `FK_87caf98485e27800f1e171ccf6c` FOREIGN KEY (`teamId`) REFERENCES `teams` (`teamId`) ON DELETE NO ACTION ON UPDATE NO ACTION) ENGINE=InnoDB")];
+                        return [4 /*yield*/, tableConn.query("CREATE TABLE `feeds` (`feedId` varchar(100) NOT NULL,  `teamId` varchar(100) NOT NULL, `feedType` varchar(30) NOT NULL, `text` text NOT NULL, `date` datetime NOT NULL, PRIMARY KEY (`feedId`), KEY `FK_87caf98485e27800f1e171ccf6c` (`teamId`), CONSTRAINT `FK_87caf98485e27800f1e171ccf6c` FOREIGN KEY (`teamId`) REFERENCES `teams` (`teamId`) ON DELETE NO ACTION ON UPDATE NO ACTION) ENGINE=InnoDB")
+                            // notifications
+                        ];
                     case 17:
                         // feeds
                         _a.sent();
-                        return [4 /*yield*/, tableConn.release()];
+                        // notifications
+                        return [4 /*yield*/, tableConn.query("CREATE TABLE `notifications` (`email` varchar(100) NOT NULL,  `notifyType` varchar(30) NOT NULL, `msgType` varchar(30) NOT NULL, `text` text NOT NULL, `date` datetime NOT NULL, PRIMARY KEY (`email`,`msgType`,`notifyType`) ON DELETE NO ACTION ON UPDATE NO ACTION) ENGINE=InnoDB")];
                     case 18:
+                        // notifications
                         _a.sent();
-                        return [4 /*yield*/, tablePool.end()];
+                        return [4 /*yield*/, tableConn.release()];
                     case 19:
                         _a.sent();
-                        console.log("Database created succsessfuly");
-                        _a.label = 20;
-                    case 20: return [4 /*yield*/, auxConn.release()];
-                    case 21:
+                        return [4 /*yield*/, tablePool.end()];
+                    case 20:
                         _a.sent();
-                        return [4 /*yield*/, auxPool.end()];
+                        console.log("Database created succsessfuly");
+                        _a.label = 21;
+                    case 21: return [4 /*yield*/, auxConn.release()];
                     case 22:
                         _a.sent();
-                        return [4 /*yield*/, this.createPoolConn()];
+                        return [4 /*yield*/, auxPool.end()];
                     case 23:
+                        _a.sent();
+                        return [4 /*yield*/, this.createPoolConn()];
+                    case 24:
                         respPool = _a.sent();
                         if (respPool)
                             return [2 /*return*/, true];
                         else
                             return [2 /*return*/, false];
-                        return [3 /*break*/, 25];
-                    case 24:
+                        return [3 /*break*/, 26];
+                    case 25:
                         error_1 = _a.sent();
                         console.error(error_1);
                         return [2 /*return*/, false];
-                    case 25: return [2 /*return*/];
+                    case 26: return [2 /*return*/];
                 }
             });
         });

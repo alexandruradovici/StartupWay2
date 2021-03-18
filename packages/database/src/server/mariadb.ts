@@ -106,6 +106,8 @@ export class MariaDBServer {
 				await tableConn.query("CREATE TABLE `recoveries` (`recoveryId` varchar(100) NOT NULL, `userId` varchar(100) NOT NULL,`email` varchar(100) NOT NULL,`recoveryLink` varchar(100) NOT NULL,PRIMARY KEY (`recoveryId`),UNIQUE KEY `token` (`recoveryLink`),KEY `FK_7902dfcee5a16cb1377e04d3d7a` (`userId`),CONSTRAINT `FK_7902dfcee5a16cb1377e04d3d7a` FOREIGN KEY (`userId`) REFERENCES `users` (`userId`) ON DELETE NO ACTION ON UPDATE NO ACTION) ENGINE=InnoDB");
 				// feeds
 				await tableConn.query("CREATE TABLE `feeds` (`feedId` varchar(100) NOT NULL,  `teamId` varchar(100) NOT NULL, `feedType` varchar(30) NOT NULL, `text` text NOT NULL, `date` datetime NOT NULL, PRIMARY KEY (`feedId`), KEY `FK_87caf98485e27800f1e171ccf6c` (`teamId`), CONSTRAINT `FK_87caf98485e27800f1e171ccf6c` FOREIGN KEY (`teamId`) REFERENCES `teams` (`teamId`) ON DELETE NO ACTION ON UPDATE NO ACTION) ENGINE=InnoDB")
+				// notifications
+				await tableConn.query("CREATE TABLE `notifications` (`email` varchar(100) NOT NULL,  `notifyType` varchar(30) NOT NULL, `msgType` varchar(30) NOT NULL, `text` text NOT NULL, `date` datetime NOT NULL, PRIMARY KEY (`email`,`msgType`,`notifyType`) ON DELETE NO ACTION ON UPDATE NO ACTION) ENGINE=InnoDB")
 
 				await tableConn.release();
 				await tablePool.end();

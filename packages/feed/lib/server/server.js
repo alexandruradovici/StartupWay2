@@ -159,7 +159,7 @@ var FeedServer = /** @class */ (function () {
                         conn.beginTransaction();
                         queryOptions = {
                             namedPlaceholders: true,
-                            sql: "UPDATE feeds set teamId=:teamId, feedType=:feedType, text=:text, date=:date WHERE feeds.feedId=:feedId",
+                            sql: "UPDATE feeds SET teamId=:teamId, feedType=:feedType, text=:text, date=:date WHERE feeds.feedId=:feedId",
                         };
                         return [4 /*yield*/, conn.query(queryOptions, feedParam)];
                     case 3:

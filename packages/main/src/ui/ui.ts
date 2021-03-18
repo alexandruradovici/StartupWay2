@@ -9,7 +9,6 @@ import Application from "./views/Application.vue";
 export interface RootState {
     version: string;
 }
-
 export class UI {
 	public readonly api: AxiosInstance = axios.create();
 

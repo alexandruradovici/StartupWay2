@@ -82,4 +82,5 @@ require("@startupway/admin/lib/server");
 require("@startupway/teams/lib/server");
 require("@startupway/feed/lib/server");
 require("@startupway/bmodelcanvas/lib/server");
+require("@startupway/daemons/lib/server");
 //# sourceMappingURL=index.js.map

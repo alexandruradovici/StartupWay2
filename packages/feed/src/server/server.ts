@@ -69,7 +69,7 @@ export class FeedServer {
 				conn.beginTransaction();
 				let queryOptions:QueryOptions = {
 					namedPlaceholders:true,
-					sql:"UPDATE feeds set teamId=:teamId, feedType=:feedType, text=:text, date=:date WHERE feeds.feedId=:feedId",
+					sql:"UPDATE feeds SET teamId=:teamId, feedType=:feedType, text=:text, date=:date WHERE feeds.feedId=:feedId",
 				}
 				await conn.query(queryOptions,feedParam);
 				queryOptions.sql = "SELECT feedId, teamId, feedType, text, date FROM feeds WHERE feedId=:feedId";

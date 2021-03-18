@@ -47,6 +47,9 @@
         ],
         "@startupway/admin/*": [
             "packages/admin/*"
+        ],
+        "@startupway/daemons/*": [
+            "packages/daemons/*"
         ]
       }
     }

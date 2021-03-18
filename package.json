@@ -23,6 +23,7 @@
     "build": "lerna run build",
     "build-ui": "lerna run build-ui",
     "build-server": "lerna run build-server",
+    "serve": "cd distributions/startupway && npm run start",
     "start": "npm install && npm run bootstrap && cd distributions/startupway && npm run start",
     "format": "npx tslint -c tslint.json --fix  'packages/**/src/**/*.ts' && npx tslint -c tslint.json --fix  'distributions/**/src/**/*.ts'",
     "clean": "lerna clean -y && lerna run clean"

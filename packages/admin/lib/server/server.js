@@ -90,8 +90,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdminServer = void 0;
-var nodemailer_1 = require("nodemailer");
-var aws_sdk_1 = __importDefault(require("aws-sdk"));
+var common_1 = require("../common");
 var _ = __importStar(require("lodash"));
 var Papa = __importStar(require("papaparse"));
 var moment_1 = __importDefault(require("moment"));
@@ -100,10 +99,12 @@ var express_1 = require("express");
 var server_1 = require("@startupway/main/lib/server");
 var server_2 = require("@startupway/database/lib/server");
 var server_3 = require("@startupway/users/lib/server");
-var server_4 = require("@startupway/teams/lib/server");
+var server_4 = require("@startupway/daemons/lib/server");
+var server_5 = require("@startupway/teams/lib/server");
 var uuid_1 = require("uuid");
 var users = server_3.UsersServer.getInstance();
-var teams = server_4.TeamsServer.getInstance();
+var teams = server_5.TeamsServer.getInstance();
+var daemon = server_4.DaemonServer.getInstance();
 function parseEnum(t, key) {
     return t[key];
 }
@@ -129,7 +130,8 @@ var AdminServer = /** @class */ (function () {
      * @param phone - user phonenumber
      * @param facebook - user facebook link
      * @param linkedin - user linkedin link
-     * @param shortDesc - team short description
+     * @param shortDescRO - team short description RO
+     * @param shortDescEN - team short description EN
      * @param birthDate - user birthdate
      * @param faculty - user faculty
      * @param group - user group at faculty
@@ -138,7 +140,7 @@ var AdminServer = /** @class */ (function () {
      */
     //TODO import parsedCSV type -> toate datele corecte altfel nu importa usersul.
     // Toate id-urile devin string-uri cu uuidv4 dimensiune fixa 16 caractere
-    AdminServer.prototype.parseCSVData = function (loc, workshopNo, teamMentor, teamId, teamTrack, businessTrack, teamName, pitcher, role, firstName, lastName, email, phone, facebook, linkedin, shortDesc, birthDate, faculty, group, findProgram) {
+    AdminServer.prototype.parseCSVData = function (loc, workshopNo, teamMentor, teamId, teamTrack, businessTrack, teamName, pitcher, role, firstName, lastName, email, phone, facebook, linkedin, shortDescRO, shortDescEN, birthDate, faculty, group, findProgram) {
         try {
             if (teamMentor === undefined || firstName === undefined || lastName === undefined || email === undefined || teamId === undefined)
                 return null;
@@ -186,9 +188,9 @@ var AdminServer = /** @class */ (function () {
             if (workshopNo !== undefined) {
                 wD = days[parseInt(workshopNo)];
             }
-            var bTValue = parseEnum(server_4.BusinessTrack, bT);
-            var tTValue = parseEnum(server_4.TeamType, tT);
-            var wDValue = parseEnum(server_4.WorkshopDay, wD);
+            var bTValue = parseEnum(server_5.BusinessTrack, bT);
+            var tTValue = parseEnum(server_5.TeamType, tT);
+            var wDValue = parseEnum(server_5.WorkshopDay, wD);
             var btVal = "";
             var ttVal = "";
             var wdVal = "";
@@ -234,8 +236,11 @@ var AdminServer = /** @class */ (function () {
             if (parsedCSV.product && tTValue) {
                 parsedCSV.product.teamType = ttVal;
             }
-            if (parsedCSV.product && shortDesc) {
-                parsedCSV.product.descriptionEN = shortDesc;
+            if (parsedCSV.product && shortDescRO) {
+                parsedCSV.product.descriptionRO = shortDescRO;
+            }
+            if (parsedCSV.product && shortDescEN) {
+                parsedCSV.product.descriptionEN = shortDescEN;
             }
             var username = "";
             if (email !== undefined)
@@ -275,6 +280,35 @@ var AdminServer = /** @class */ (function () {
         }
         catch (error) {
             console.error("Error in function \"_parseCSVData(...array of params)\"|\"admin\" ");
+            console.error(error);
+            return null;
+        }
+    };
+    AdminServer.prototype.parseUpdateCSV = function (loc, teamName, descRO, descEN) {
+        try {
+            var updateCSV = null;
+            if (loc !== undefined && loc !== "" && teamName !== undefined && teamName !== "") {
+                updateCSV = {
+                    location: loc,
+                    teamName: teamName,
+                    descRO: "",
+                    descEN: ""
+                };
+                if (descRO !== undefined) {
+                    updateCSV.descRO = descRO;
+                }
+                if (descEN !== undefined) {
+                    updateCSV.descEN = descEN;
+                }
+                return updateCSV;
+            }
+            else {
+                console.error("No Location or teamName");
+                return null;
+            }
+        }
+        catch (error) {
+            console.error("Error in function \"parseUpdateCSV()|\"admin\"\"");
             console.error(error);
             return null;
         }
@@ -420,97 +454,24 @@ var AdminServer = /** @class */ (function () {
         });
     };
     /**
-     * Function that creates an AWS.SES mail transport used to automatically send emails
-     * @returns {Transporter} an AWS.SES transporter
-     */
-    AdminServer.prototype.createMailTransporter = function () {
-        try {
-            aws_sdk_1.default.config.update({
-                region: process.env.REGION,
-                accessKeyId: process.env.AKEY,
-                secretAccessKey: process.env.ASECRETKEY
-            });
-            var transporter = nodemailer_1.createTransport({
-                SES: new aws_sdk_1.default.SES({
-                    apiVersion: '2010-12-01'
-                }),
-                sendingRate: 10
-            });
-            return transporter;
-        }
-        catch (error) {
-            console.log("Error in function \"createMailTransporter()\"|\"admin\"");
-            console.error(error);
-            return null;
-        }
-    };
-    /**
-     * Function that sends a mail via the AWS.SES transporter
-     * @param transporter the AWS.SES transporter object
-     * @param mailOptions an instance of type SendMailOptions in which information about where to send the email is found
-     * @returns {boolean} true if mail was sent, false otherwise
-     */
-    AdminServer.prototype.sendMail = function (transporter, mailOptions) {
-        try {
-            var response_1 = {};
-            // Documented as any
-            transporter.sendMail(mailOptions, function (error, info) {
-                if (error) {
-                    console.log("Error in function \"sendMail(transporter, mailOptions)\"|\"admin\"");
-                    console.error(error);
-                }
-                else {
-                    console.log('Email sent: ' + info.response);
-                    response_1 = info.response;
-                }
-            });
-            if (response_1 !== {})
-                return true;
-            else
-                return false;
-        }
-        catch (error) {
-            console.log("Error in function \"sendMail(transporter, mailOptions)\"|\"admin\"");
-            console.error(error);
-            return false;
-        }
-    };
-    /**
-     * Function that creates an object of type SendMailOptions for the AWS.SES transporter
-     * @param from - sending email address
-     * @param to - receiving email address
-     * @param subject - subject of email
-     * @param text - email text
-     * @returns {SendMailOptions} - the mail options
-     */
-    AdminServer.prototype.createMailOptions = function (from, to, subject, text) {
-        var mailOptions = {
-            from: from,
-            to: to,
-            subject: subject,
-            text: text
-        };
-        return mailOptions;
-    };
-    /**
      * Function that adds a recovery object containing the information about a users password recovery into the database
      * @param recovery - object that contains information about the incoming recovery of password request
      * @returns {Promise<Recovery>} - a recovery object
      */
     AdminServer.prototype.addRecovery = function (recovery) {
         return __awaiter(this, void 0, void 0, function () {
-            var conn, user, queryOptions, newRecovery, options, transporter, error_1;
+            var conn, user, queryOptions, newRecovery, msg, notification, newNotification, error_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 13, , 17]);
+                        _a.trys.push([1, 18, , 22]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 11];
+                        if (!conn) return [3 /*break*/, 16];
                         return [4 /*yield*/, conn.beginTransaction()];
                     case 3:
                         _a.sent();
@@ -533,39 +494,55 @@ var AdminServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, { recoveryId: recovery.recoveryId })];
                     case 6:
                         newRecovery = _a.sent();
-                        if (!(newRecovery && newRecovery.length > 0 && newRecovery[0])) return [3 /*break*/, 9];
-                        options = admin.createMailOptions(process.env.MAIL_USER, user.email, "Innovation Labs Platform Password Reset", "Hello " + user.firstName + " " + user.lastName + " ,\n\n"
+                        if (!(newRecovery && newRecovery.length > 0 && newRecovery[0])) return [3 /*break*/, 14];
+                        msg = "Hello " + user.firstName + " " + user.lastName + " ,\n\n"
                             + "Here is your activation link, please click here to reset your password.\n"
                             + "		https://teams.innovationlabs.ro/#/recovery/" + newRecovery[0].recoveryLink + "\n"
-                            + "Regards, Innovation Labs Team\n");
-                        transporter = admin.createMailTransporter();
-                        if (transporter)
-                            admin.sendMail(transporter, options);
-                        return [4 /*yield*/, conn.commit()];
+                            + "Regards, Innovation Labs Team\n";
+                        notification = {
+                            email: user.email,
+                            notifyType: common_1.NotificationType.EMAIL,
+                            msgType: common_1.MessageType.RESETPASS,
+                            text: msg,
+                            date: new Date()
+                        };
+                        return [4 /*yield*/, daemon.addNotification(notification)];
                     case 7:
-                        _a.sent();
-                        return [4 /*yield*/, conn.release()];
+                        newNotification = _a.sent();
+                        if (!newNotification) return [3 /*break*/, 10];
+                        return [4 /*yield*/, conn.commit()];
                     case 8:
                         _a.sent();
-                        return [2 /*return*/, newRecovery[0]];
-                    case 9: throw new Error("Can't add recovery");
-                    case 10: return [3 /*break*/, 12];
-                    case 11: return [2 /*return*/, null];
-                    case 12: return [3 /*break*/, 17];
-                    case 13:
+                        return [4 /*yield*/, conn.release()];
+                    case 9:
+                        _a.sent();
+                        return [3 /*break*/, 13];
+                    case 10: return [4 /*yield*/, conn.rollback()];
+                    case 11:
+                        _a.sent();
+                        return [4 /*yield*/, conn.release()];
+                    case 12:
+                        _a.sent();
+                        return [2 /*return*/, null];
+                    case 13: return [2 /*return*/, newRecovery[0]];
+                    case 14: throw new Error("Can't add recovery");
+                    case 15: return [3 /*break*/, 17];
+                    case 16: return [2 /*return*/, null];
+                    case 17: return [3 /*break*/, 22];
+                    case 18:
                         error_1 = _a.sent();
                         console.log("Error in function \"addRecovery(recovery)\"|\"admin\"");
                         console.error(error_1);
-                        if (!conn) return [3 /*break*/, 16];
+                        if (!conn) return [3 /*break*/, 21];
                         return [4 /*yield*/, conn.rollback()];
-                    case 14:
+                    case 19:
                         _a.sent();
                         return [4 /*yield*/, conn.release()];
-                    case 15:
+                    case 20:
                         _a.sent();
-                        _a.label = 16;
-                    case 16: return [2 /*return*/, null];
-                    case 17: return [2 /*return*/];
+                        _a.label = 21;
+                    case 21: return [2 /*return*/, null];
+                    case 22: return [2 /*return*/];
                 }
             });
         });
@@ -919,16 +896,97 @@ router.post("/deleteRecovery", function (req, res) { return __awaiter(void 0, vo
 var authFunct = server_3.getAuthorizationFunction();
 if (authFunct)
     router.use(authFunct);
+router.post("/updateDescriptionCSV", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var encoded, buffer, string, parsed, parsed_1, parsed_1_1, arr, object, team, product, e_3_1, error_9;
+    var e_3, _a;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0:
+                _b.trys.push([0, 18, , 19]);
+                encoded = req.body.encode;
+                buffer = Buffer.from(encoded, "base64");
+                string = buffer.toString("utf-8");
+                parsed = Papa.parse(string).data;
+                parsed.splice(0, 1);
+                _b.label = 1;
+            case 1:
+                _b.trys.push([1, 15, 16, 17]);
+                parsed_1 = __values(parsed), parsed_1_1 = parsed_1.next();
+                _b.label = 2;
+            case 2:
+                if (!!parsed_1_1.done) return [3 /*break*/, 14];
+                arr = parsed_1_1.value;
+                if (!arr) return [3 /*break*/, 12];
+                object = admin.parseUpdateCSV.apply(admin, __spread((arr)));
+                if (!(object !== null)) return [3 /*break*/, 10];
+                return [4 /*yield*/, teams.getTeamByYearAndLocation((new Date()).getFullYear(), object.location, object.teamName)];
+            case 3:
+                team = _b.sent();
+                if (!team) return [3 /*break*/, 8];
+                return [4 /*yield*/, teams.getProductByTeamId(team.teamId)];
+            case 4:
+                product = _b.sent();
+                if (!product) return [3 /*break*/, 6];
+                if (object.descEN !== "")
+                    product.descriptionEN = object.descEN;
+                if (object.descRO !== "")
+                    product.descriptionRO = object.descRO;
+                return [4 /*yield*/, teams.updateProduct(product)];
+            case 5:
+                _b.sent();
+                return [3 /*break*/, 7];
+            case 6:
+                console.error("\"/updateDescriptionCSV\" : Fetch Product Failed");
+                _b.label = 7;
+            case 7: return [3 /*break*/, 9];
+            case 8:
+                console.error("\"/updateDescriptionCSV\" : Fetch Team Failed");
+                _b.label = 9;
+            case 9: return [3 /*break*/, 11];
+            case 10:
+                console.error("\"/updateDescriptionCSV\" : Parse Function Failed");
+                _b.label = 11;
+            case 11: return [3 /*break*/, 13];
+            case 12:
+                console.error("\"/updateDescriptionCSV\" : Papa Parse Failed");
+                _b.label = 13;
+            case 13:
+                parsed_1_1 = parsed_1.next();
+                return [3 /*break*/, 2];
+            case 14: return [3 /*break*/, 17];
+            case 15:
+                e_3_1 = _b.sent();
+                e_3 = { error: e_3_1 };
+                return [3 /*break*/, 17];
+            case 16:
+                try {
+                    if (parsed_1_1 && !parsed_1_1.done && (_a = parsed_1.return)) _a.call(parsed_1);
+                }
+                finally { if (e_3) throw e_3.error; }
+                return [7 /*endfinally*/];
+            case 17:
+                res.status(200).send({ err: 200, data: true });
+                return [3 /*break*/, 19];
+            case 18:
+                error_9 = _b.sent();
+                console.error("Error on route \"/updateDescriptionCSV\" in \"admin\" router");
+                console.error(error_9);
+                res.status(401).send({ err: 401, data: false });
+                return [3 /*break*/, 19];
+            case 19: return [2 /*return*/];
+        }
+    });
+}); });
 /**
  * Route on which information found in a .csv file is being uploaded into the database
  */ // TODO SEE RETURN TYPE
 router.post("/uploadCSV", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var encoded, buffer, string, parsed, obj, parsed_1, parsed_1_1, arr, object, newObj, _a, _b, _i, key, _c, _d, entry, team, mentorEmail, mentor, mentorUsername, password, user_1, options, transporter, user, password, options, transporter, userTeam, role, teamUser, initDate, i, aux, date, userActivity, response, e_3_1, error_9;
-    var e_4, _e, e_3, _f;
+    var encoded, buffer, string, parsed, obj, parsed_2, parsed_2_1, arr, object, newObj, _a, _b, _i, key, _c, _d, entry, team, mentorEmail, mentor, mentorUsername, password, user_1, msg, notification, user, password, msg, notification, userTeam, role, teamUser, initDate, i, aux, date, userActivity, response, e_4_1, error_10;
+    var e_5, _e, e_4, _f;
     return __generator(this, function (_g) {
         switch (_g.label) {
             case 0:
-                _g.trys.push([0, 28, , 29]);
+                _g.trys.push([0, 30, , 31]);
                 encoded = req.body.encode;
                 buffer = Buffer.from(encoded, "base64");
                 string = buffer.toString("utf-8");
@@ -936,8 +994,8 @@ router.post("/uploadCSV", function (req, res) { return __awaiter(void 0, void 0,
                 parsed.splice(0, 1);
                 obj = [];
                 try {
-                    for (parsed_1 = __values(parsed), parsed_1_1 = parsed_1.next(); !parsed_1_1.done; parsed_1_1 = parsed_1.next()) {
-                        arr = parsed_1_1.value;
+                    for (parsed_2 = __values(parsed), parsed_2_1 = parsed_2.next(); !parsed_2_1.done; parsed_2_1 = parsed_2.next()) {
+                        arr = parsed_2_1.value;
                         if (arr) {
                             object = admin.parseCSVData.apply(admin, __spread((arr)));
                             if (object !== null)
@@ -946,12 +1004,12 @@ router.post("/uploadCSV", function (req, res) { return __awaiter(void 0, void 0,
                         // WORKAROUND for parsing the csv data. TODO -> Create interface for parsing
                     }
                 }
-                catch (e_4_1) { e_4 = { error: e_4_1 }; }
+                catch (e_5_1) { e_5 = { error: e_5_1 }; }
                 finally {
                     try {
-                        if (parsed_1_1 && !parsed_1_1.done && (_e = parsed_1.return)) _e.call(parsed_1);
+                        if (parsed_2_1 && !parsed_2_1.done && (_e = parsed_2.return)) _e.call(parsed_2);
                     }
-                    finally { if (e_4) throw e_4.error; }
+                    finally { if (e_5) throw e_5.error; }
                 }
                 newObj = _.groupBy(obj, "teamId");
                 _a = [];
@@ -960,18 +1018,18 @@ router.post("/uploadCSV", function (req, res) { return __awaiter(void 0, void 0,
                 _i = 0;
                 _g.label = 1;
             case 1:
-                if (!(_i < _a.length)) return [3 /*break*/, 27];
+                if (!(_i < _a.length)) return [3 /*break*/, 29];
                 key = _a[_i];
                 _g.label = 2;
             case 2:
-                _g.trys.push([2, 24, 25, 26]);
-                _c = (e_3 = void 0, __values(newObj[key])), _d = _c.next();
+                _g.trys.push([2, 26, 27, 28]);
+                _c = (e_4 = void 0, __values(newObj[key])), _d = _c.next();
                 _g.label = 3;
             case 3:
-                if (!!_d.done) return [3 /*break*/, 23];
+                if (!!_d.done) return [3 /*break*/, 25];
                 entry = _d.value;
                 team = null;
-                if (!(entry.team && entry.product)) return [3 /*break*/, 10];
+                if (!(entry.team && entry.product)) return [3 /*break*/, 11];
                 mentorEmail = entry.team.teamDetails["mentor"];
                 return [4 /*yield*/, users.getUserByEmail(mentorEmail)];
             case 4:
@@ -982,9 +1040,9 @@ router.post("/uploadCSV", function (req, res) { return __awaiter(void 0, void 0,
                 }
                 if (!mentor) return [3 /*break*/, 5];
                 entry.product.mentorId = mentor.userId;
-                return [3 /*break*/, 7];
+                return [3 /*break*/, 8];
             case 5:
-                if (!(mentorUsername !== "")) return [3 /*break*/, 7];
+                if (!(mentorUsername !== "")) return [3 /*break*/, 8];
                 password = admin.randomPassword();
                 return [4 /*yield*/, users.addUser({
                         // as any -> todo -> discuss if we change to userId: string|null 
@@ -1006,68 +1064,81 @@ router.post("/uploadCSV", function (req, res) { return __awaiter(void 0, void 0,
                     })];
             case 6:
                 user_1 = _g.sent();
-                if (user_1) {
-                    options = admin.createMailOptions(process.env.MAIL_USER, user_1.email, "Innovation Labs Platform Password", "Hello " + user_1.firstName + " " + user_1.lastName + " ,\n\n"
-                        + "Here is your new account, please do not disclose these informations to anyone.\n"
-                        + "		Username: " + user_1.username + "\n"
-                        + "		Password: " + password + "\n"
-                        + "Use these credidentials to login on " + process.env.HOSTNAME + "\n\n"
-                        + "Regards, Innovation Labs Team\n");
-                    transporter = admin.createMailTransporter();
-                    if (transporter)
-                        admin.sendMail(transporter, options);
-                    entry.product.mentorId = user_1.userId;
-                }
-                _g.label = 7;
-            case 7: return [4 /*yield*/, teams.getTeamByYearAndLocation(entry.team.year, entry.team.location, entry.team.teamName)];
-            case 8:
-                team = _g.sent();
-                if (!(team === null)) return [3 /*break*/, 10];
-                return [4 /*yield*/, teams.addTeam(entry.team, entry.product)];
+                if (!user_1) return [3 /*break*/, 8];
+                msg = "Hello " + user_1.firstName + " " + user_1.lastName + " ,\n\n"
+                    + "Here is your new account, please do not disclose these informations to anyone.\n"
+                    + "		Username: " + user_1.username + "\n"
+                    + "		Password: " + password + "\n"
+                    + "Use these credidentials to login on " + process.env.HOSTNAME + "\n\n"
+                    + "Regards, Innovation Labs Team\n";
+                notification = {
+                    email: user_1.email,
+                    notifyType: common_1.NotificationType.EMAIL,
+                    msgType: common_1.MessageType.WELCOME,
+                    text: msg,
+                    date: new Date()
+                };
+                return [4 /*yield*/, daemon.addNotification(notification)];
+            case 7:
+                _g.sent();
+                entry.product.mentorId = user_1.userId;
+                _g.label = 8;
+            case 8: return [4 /*yield*/, teams.getTeamByYearAndLocation(entry.team.year, entry.team.location, entry.team.teamName)];
             case 9:
                 team = _g.sent();
-                _g.label = 10;
+                if (!(team === null)) return [3 /*break*/, 11];
+                return [4 /*yield*/, teams.addTeam(entry.team, entry.product)];
             case 10:
-                user = null;
-                if (!entry.user) return [3 /*break*/, 13];
-                return [4 /*yield*/, users.getUserByEmail(entry.user.email)];
+                team = _g.sent();
+                _g.label = 11;
             case 11:
+                user = null;
+                if (!entry.user) return [3 /*break*/, 15];
+                return [4 /*yield*/, users.getUserByEmail(entry.user.email)];
+            case 12:
                 user = _g.sent();
-                if (!(user == null)) return [3 /*break*/, 13];
+                if (!(user == null)) return [3 /*break*/, 15];
                 password = admin.randomPassword();
                 entry.user.password = password;
-                options = admin.createMailOptions(process.env.MAIL_USER, entry.user.email, "Innovation Labs Platform Password", "Hello " + entry.user.firstName + " " + entry.user.lastName + " ,\n\n"
+                msg = "Hello " + entry.user.firstName + " " + entry.user.lastName + " ,\n\n"
                     + "Here is your new account, please do not disclose these informations to anyone.\n"
                     + "		Username: " + entry.user.username + "\n"
                     + "		Password: " + password + "\n"
                     + "Use these credidentials to login on " + process.env.HOSTNAME + "\n\n"
-                    + "Regards, Innovation Labs Team\n");
-                transporter = admin.createMailTransporter();
-                if (transporter)
-                    admin.sendMail(transporter, options);
+                    + "Regards, Innovation Labs Team\n";
+                notification = {
+                    email: entry.user.email,
+                    notifyType: common_1.NotificationType.EMAIL,
+                    msgType: common_1.MessageType.WELCOME,
+                    text: msg,
+                    date: new Date()
+                };
+                return [4 /*yield*/, daemon.addNotification(notification)];
+            case 13:
+                _g.sent();
                 if (entry.product)
                     entry.product.mentorId = entry.user.userId;
                 return [4 /*yield*/, users.addUser(entry.user)];
-            case 12:
-                user = _g.sent();
-                _g.label = 13;
-            case 13:
-                userTeam = null;
-                if (!(user && team)) return [3 /*break*/, 15];
-                return [4 /*yield*/, teams.getUserInTeam(user.userId, team.teamId)];
             case 14:
-                userTeam = _g.sent();
+                user = _g.sent();
                 _g.label = 15;
             case 15:
-                if (!(userTeam === null && user !== null && team !== null)) return [3 /*break*/, 22];
-                role = user.role;
-                teamUser = null;
-                if (!(user && team && role !== undefined && role !== null)) return [3 /*break*/, 17];
-                return [4 /*yield*/, teams.addUserToTeam(user, team, role)];
+                userTeam = null;
+                if (!(user && team)) return [3 /*break*/, 17];
+                return [4 /*yield*/, teams.getUserInTeam(user.userId, team.teamId)];
             case 16:
-                teamUser = _g.sent();
+                userTeam = _g.sent();
                 _g.label = 17;
             case 17:
+                if (!(userTeam === null && user !== null && team !== null)) return [3 /*break*/, 24];
+                role = user.role;
+                teamUser = null;
+                if (!(user && team && role !== undefined && role !== null)) return [3 /*break*/, 19];
+                return [4 /*yield*/, teams.addUserToTeam(user, team, role)];
+            case 18:
+                teamUser = _g.sent();
+                _g.label = 19;
+            case 19:
                 initDate = void 0;
                 if (team.teamDetails["location"] === "Bucharest") {
                     initDate = moment_1.default("2021-03-02");
@@ -1076,13 +1147,13 @@ router.post("/uploadCSV", function (req, res) { return __awaiter(void 0, void 0,
                     initDate = moment_1.default("2021-03-09");
                 }
                 i = 0;
-                _g.label = 18;
-            case 18:
-                if (!(i < 10)) return [3 /*break*/, 22];
+                _g.label = 20;
+            case 20:
+                if (!(i < 10)) return [3 /*break*/, 24];
                 aux = moment_1.default(initDate.toDate());
                 date = aux.add(7 * i, "days").toDate();
                 userActivity = void 0;
-                if (!(user !== null && teamUser !== null)) return [3 /*break*/, 20];
+                if (!(user !== null && teamUser !== null)) return [3 /*break*/, 22];
                 userActivity = {
                     activityId: uuid_1.v4(),
                     userId: user.userId,
@@ -1092,48 +1163,48 @@ router.post("/uploadCSV", function (req, res) { return __awaiter(void 0, void 0,
                     description: ""
                 };
                 return [4 /*yield*/, teams.addActivityForUser(userActivity)];
-            case 19:
+            case 21:
                 response = _g.sent();
                 if (!response) {
                     console.error("Error on route \"/uploadCSV\" in \"admin\" router");
                     console.error("No activity added NO RESPONSE");
-                    return [3 /*break*/, 22];
+                    return [3 /*break*/, 24];
                 }
-                return [3 /*break*/, 21];
-            case 20:
+                return [3 /*break*/, 23];
+            case 22:
                 console.error("Error on route \"/uploadCSV\" in \"admin\" router");
                 console.error("No activity added NO TEAM");
-                return [3 /*break*/, 22];
-            case 21:
+                return [3 /*break*/, 24];
+            case 23:
                 i++;
-                return [3 /*break*/, 18];
-            case 22:
+                return [3 /*break*/, 20];
+            case 24:
                 _d = _c.next();
                 return [3 /*break*/, 3];
-            case 23: return [3 /*break*/, 26];
-            case 24:
-                e_3_1 = _g.sent();
-                e_3 = { error: e_3_1 };
-                return [3 /*break*/, 26];
-            case 25:
+            case 25: return [3 /*break*/, 28];
+            case 26:
+                e_4_1 = _g.sent();
+                e_4 = { error: e_4_1 };
+                return [3 /*break*/, 28];
+            case 27:
                 try {
                     if (_d && !_d.done && (_f = _c.return)) _f.call(_c);
                 }
-                finally { if (e_3) throw e_3.error; }
+                finally { if (e_4) throw e_4.error; }
                 return [7 /*endfinally*/];
-            case 26:
+            case 28:
                 _i++;
                 return [3 /*break*/, 1];
-            case 27:
+            case 29:
                 res.send(newObj);
-                return [3 /*break*/, 29];
-            case 28:
-                error_9 = _g.sent();
+                return [3 /*break*/, 31];
+            case 30:
+                error_10 = _g.sent();
                 console.error("Error on route \"/uploadCSV\" in \"admin\" router");
-                console.error(error_9);
+                console.error(error_10);
                 res.status(401).send({ err: 401, data: null });
-                return [3 /*break*/, 29];
-            case 29: return [2 /*return*/];
+                return [3 /*break*/, 31];
+            case 31: return [2 /*return*/];
         }
     });
 }); });
@@ -1141,8 +1212,8 @@ router.post("/uploadCSV", function (req, res) { return __awaiter(void 0, void 0,
  * Route on which a new user activity is added into the database
  */
 router.post("/newUserActivity", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var userActivities, userActivities_1, userActivities_1_1, activity, response, e_5_1, error_10;
-    var e_5, _a;
+    var userActivities, userActivities_1, userActivities_1_1, activity, response, e_6_1, error_11;
+    var e_6, _a;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
@@ -1171,14 +1242,14 @@ router.post("/newUserActivity", function (req, res) { return __awaiter(void 0, v
                 return [3 /*break*/, 2];
             case 5: return [3 /*break*/, 8];
             case 6:
-                e_5_1 = _b.sent();
-                e_5 = { error: e_5_1 };
+                e_6_1 = _b.sent();
+                e_6 = { error: e_6_1 };
                 return [3 /*break*/, 8];
             case 7:
                 try {
                     if (userActivities_1_1 && !userActivities_1_1.done && (_a = userActivities_1.return)) _a.call(userActivities_1);
                 }
-                finally { if (e_5) throw e_5.error; }
+                finally { if (e_6) throw e_6.error; }
                 return [7 /*endfinally*/];
             case 8: return [3 /*break*/, 10];
             case 9:
@@ -1188,9 +1259,9 @@ router.post("/newUserActivity", function (req, res) { return __awaiter(void 0, v
                 _b.label = 10;
             case 10: return [3 /*break*/, 12];
             case 11:
-                error_10 = _b.sent();
+                error_11 = _b.sent();
                 console.error("Error on route \"/newUserActivity\" in \"admin\" router");
-                console.error(error_10);
+                console.error(error_11);
                 res.status(401).send({ err: 401, data: false });
                 return [3 /*break*/, 12];
             case 12:
@@ -1203,8 +1274,8 @@ router.post("/newUserActivity", function (req, res) { return __awaiter(void 0, v
  * 	Route on which information about users/uploads/teams is sent to be downloaded
  */
 router.post("/download/udc/data", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var usersString, array, usersString_1, usersString_1_1, row, csv, error_11;
-    var e_6, _a;
+    var usersString, array, usersString_1, usersString_1_1, row, csv, error_12;
+    var e_7, _a;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
@@ -1219,12 +1290,12 @@ router.post("/download/udc/data", function (req, res) { return __awaiter(void 0,
                         array.push(row);
                     }
                 }
-                catch (e_6_1) { e_6 = { error: e_6_1 }; }
+                catch (e_7_1) { e_7 = { error: e_7_1 }; }
                 finally {
                     try {
                         if (usersString_1_1 && !usersString_1_1.done && (_a = usersString_1.return)) _a.call(usersString_1);
                     }
-                    finally { if (e_6) throw e_6.error; }
+                    finally { if (e_7) throw e_7.error; }
                 }
                 csv = Papa.unparse(array);
                 if (csv) {
@@ -1237,9 +1308,9 @@ router.post("/download/udc/data", function (req, res) { return __awaiter(void 0,
                 }
                 return [3 /*break*/, 3];
             case 2:
-                error_11 = _b.sent();
+                error_12 = _b.sent();
                 console.error("Error on route \"/download/udc/data\" in \"admin\" router");
-                console.error(error_11);
+                console.error(error_12);
                 res.status(401).send({ err: 401, data: null });
                 return [3 /*break*/, 3];
             case 3: return [2 /*return*/];
@@ -1250,8 +1321,8 @@ router.post("/download/udc/data", function (req, res) { return __awaiter(void 0,
  * 	Route on which information about specific teams is sent to be downloaded
  */
 router.post("/download/team/data", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var usersString, array, usersString_2, usersString_2_1, row, csv, error_12;
-    var e_7, _a;
+    var usersString, array, usersString_2, usersString_2_1, row, csv, error_13;
+    var e_8, _a;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
@@ -1266,12 +1337,12 @@ router.post("/download/team/data", function (req, res) { return __awaiter(void 0
                         array.push(row);
                     }
                 }
-                catch (e_7_1) { e_7 = { error: e_7_1 }; }
+                catch (e_8_1) { e_8 = { error: e_8_1 }; }
                 finally {
                     try {
                         if (usersString_2_1 && !usersString_2_1.done && (_a = usersString_2.return)) _a.call(usersString_2);
                     }
-                    finally { if (e_7) throw e_7.error; }
+                    finally { if (e_8) throw e_8.error; }
                 }
                 csv = Papa.unparse(array);
                 if (csv) {
@@ -1284,9 +1355,9 @@ router.post("/download/team/data", function (req, res) { return __awaiter(void 0
                 }
                 return [3 /*break*/, 3];
             case 2:
-                error_12 = _b.sent();
+                error_13 = _b.sent();
                 console.error("Error on route \"/download/team/data\" in \"admin\" router");
-                console.error(error_12);
+                console.error(error_13);
                 res.status(401).send({ err: 401, data: null });
                 return [3 /*break*/, 3];
             case 3: return [2 /*return*/];
@@ -1297,8 +1368,8 @@ router.post("/download/team/data", function (req, res) { return __awaiter(void 0
  * 	Route on which we get all the users from the database based on a specified location
  */
 router.get("/users/:location", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var teamsArray, users_1, teamsArray_1, teamsArray_1_1, team, auxUsers, e_8_1, error_13;
-    var e_8, _a;
+    var teamsArray, users_1, teamsArray_1, teamsArray_1_1, team, auxUsers, e_9_1, error_14;
+    var e_9, _a;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
@@ -1335,14 +1406,14 @@ router.get("/users/:location", function (req, res) { return __awaiter(void 0, vo
                 return [3 /*break*/, 7];
             case 10: return [3 /*break*/, 13];
             case 11:
-                e_8_1 = _b.sent();
-                e_8 = { error: e_8_1 };
+                e_9_1 = _b.sent();
+                e_9 = { error: e_9_1 };
                 return [3 /*break*/, 13];
             case 12:
                 try {
                     if (teamsArray_1_1 && !teamsArray_1_1.done && (_a = teamsArray_1.return)) _a.call(teamsArray_1);
                 }
-                finally { if (e_8) throw e_8.error; }
+                finally { if (e_9) throw e_9.error; }
                 return [7 /*endfinally*/];
             case 13:
                 if (users_1) {
@@ -1355,9 +1426,9 @@ router.get("/users/:location", function (req, res) { return __awaiter(void 0, vo
                 }
                 return [3 /*break*/, 15];
             case 14:
-                error_13 = _b.sent();
+                error_14 = _b.sent();
                 console.error("Error on route \"/users/:" + req.params.location + "\" in \"admin\" router");
-                console.error(error_13);
+                console.error(error_14);
                 res.status(401).send({ err: 401, data: [] });
                 return [3 /*break*/, 15];
             case 15: return [2 /*return*/];
@@ -1368,8 +1439,8 @@ router.get("/users/:location", function (req, res) { return __awaiter(void 0, vo
  * 	Route on which we get all the users from the database
  */
 router.get("/users", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var teamsArray, users_3, teamsArray_2, teamsArray_2_1, team, auxUsers, e_9_1, users_2, users_2_1, user, error_14;
-    var e_9, _a, e_10, _b;
+    var teamsArray, users_3, teamsArray_2, teamsArray_2_1, team, auxUsers, e_10_1, users_2, users_2_1, user, error_15;
+    var e_10, _a, e_11, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
             case 0:
@@ -1396,14 +1467,14 @@ router.get("/users", function (req, res) { return __awaiter(void 0, void 0, void
                 return [3 /*break*/, 3];
             case 6: return [3 /*break*/, 9];
             case 7:
-                e_9_1 = _c.sent();
-                e_9 = { error: e_9_1 };
+                e_10_1 = _c.sent();
+                e_10 = { error: e_10_1 };
                 return [3 /*break*/, 9];
             case 8:
                 try {
                     if (teamsArray_2_1 && !teamsArray_2_1.done && (_a = teamsArray_2.return)) _a.call(teamsArray_2);
                 }
-                finally { if (e_9) throw e_9.error; }
+                finally { if (e_10) throw e_10.error; }
                 return [7 /*endfinally*/];
             case 9:
                 if (users_3) {
@@ -1414,12 +1485,12 @@ router.get("/users", function (req, res) { return __awaiter(void 0, void 0, void
                             user.userDetails = JSON.parse(user.userDetails);
                         }
                     }
-                    catch (e_10_1) { e_10 = { error: e_10_1 }; }
+                    catch (e_11_1) { e_11 = { error: e_11_1 }; }
                     finally {
                         try {
                             if (users_2_1 && !users_2_1.done && (_b = users_2.return)) _b.call(users_2);
                         }
-                        finally { if (e_10) throw e_10.error; }
+                        finally { if (e_11) throw e_11.error; }
                     }
                     res.send(users_3);
                 }
@@ -1430,9 +1501,9 @@ router.get("/users", function (req, res) { return __awaiter(void 0, void 0, void
                 }
                 return [3 /*break*/, 11];
             case 10:
-                error_14 = _c.sent();
+                error_15 = _c.sent();
                 console.error("Error on route \"/users/\" in \"admin\" router");
-                console.error(error_14);
+                console.error(error_15);
                 res.status(401).send({ err: 401, data: [] });
                 return [3 /*break*/, 11];
             case 11: return [2 /*return*/];
@@ -1443,8 +1514,8 @@ router.get("/users", function (req, res) { return __awaiter(void 0, void 0, void
  * 	Route on which we get all the teams from the database based on a specified location
  */
 router.get("/teams/:location", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var teamsArray, teamsArray_3, teamsArray_3_1, team, error_15;
-    var e_11, _a;
+    var teamsArray, teamsArray_3, teamsArray_3_1, team, error_16;
+    var e_12, _a;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
@@ -1467,12 +1538,12 @@ router.get("/teams/:location", function (req, res) { return __awaiter(void 0, vo
                         team.teamDetails = JSON.parse(team.teamDetails);
                     }
                 }
-                catch (e_11_1) { e_11 = { error: e_11_1 }; }
+                catch (e_12_1) { e_12 = { error: e_12_1 }; }
                 finally {
                     try {
                         if (teamsArray_3_1 && !teamsArray_3_1.done && (_a = teamsArray_3.return)) _a.call(teamsArray_3);
                     }
-                    finally { if (e_11) throw e_11.error; }
+                    finally { if (e_12) throw e_12.error; }
                 }
                 if (teamsArray) {
                     res.send(teamsArray);
@@ -1482,9 +1553,9 @@ router.get("/teams/:location", function (req, res) { return __awaiter(void 0, vo
                 }
                 return [3 /*break*/, 6];
             case 5:
-                error_15 = _b.sent();
+                error_16 = _b.sent();
                 console.error("Error on route \"/teams/:" + req.params.location + "\" in \"admin\" router");
-                console.error(error_15);
+                console.error(error_16);
                 res.status(401).send({ err: 401, data: [] });
                 return [3 /*break*/, 6];
             case 6: return [2 /*return*/];
@@ -1495,7 +1566,7 @@ router.get("/teams/:location", function (req, res) { return __awaiter(void 0, vo
  * 	Route on which we get all the teams from the database
  */
 router.get("/teams", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var teamsArray, error_16;
+    var teamsArray, error_17;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -1511,9 +1582,9 @@ router.get("/teams", function (req, res) { return __awaiter(void 0, void 0, void
                 }
                 return [3 /*break*/, 3];
             case 2:
-                error_16 = _a.sent();
+                error_17 = _a.sent();
                 console.error("Error on route \"/teams/\" in \"admin\" router");
-                console.error(error_16);
+                console.error(error_17);
                 res.status(401).send({ err: 401, data: [] });
                 return [3 /*break*/, 3];
             case 3: return [2 /*return*/];
@@ -1524,8 +1595,8 @@ router.get("/teams", function (req, res) { return __awaiter(void 0, void 0, void
  * 	Route on which we get all the team reviews based on the type of user requesting them
  */
 router.post("/teams/review", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var type, location, teamsArray, reviews, teamsArray_4, teamsArray_4_1, team, mentor, product, review, assesFinals, assesSemifinals, e_12_1, error_17;
-    var e_12, _a;
+    var type, location, teamsArray, reviews, teamsArray_4, teamsArray_4_1, team, mentor, product, review, assesFinals, assesSemifinals, e_13_1, error_18;
+    var e_13, _a;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
@@ -1602,14 +1673,14 @@ router.post("/teams/review", function (req, res) { return __awaiter(void 0, void
                 return [3 /*break*/, 9];
             case 12: return [3 /*break*/, 15];
             case 13:
-                e_12_1 = _b.sent();
-                e_12 = { error: e_12_1 };
+                e_13_1 = _b.sent();
+                e_13 = { error: e_13_1 };
                 return [3 /*break*/, 15];
             case 14:
                 try {
                     if (teamsArray_4_1 && !teamsArray_4_1.done && (_a = teamsArray_4.return)) _a.call(teamsArray_4);
                 }
-                finally { if (e_12) throw e_12.error; }
+                finally { if (e_13) throw e_13.error; }
                 return [7 /*endfinally*/];
             case 15:
                 if (reviews) {
@@ -1625,9 +1696,9 @@ router.post("/teams/review", function (req, res) { return __awaiter(void 0, void
                 }
                 return [3 /*break*/, 17];
             case 16:
-                error_17 = _b.sent();
+                error_18 = _b.sent();
                 console.error("Error on route \"/teams/review\" in \"admin\" router");
-                console.error(error_17);
+                console.error(error_18);
                 res.status(401).send({ err: 401, data: [] });
                 return [3 /*break*/, 17];
             case 17: return [2 /*return*/];
@@ -1638,8 +1709,8 @@ router.post("/teams/review", function (req, res) { return __awaiter(void 0, void
  * Route on which we request the update of selected reviews
  */
 router.post("/teams/review/update", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var revRes, reviews, type, reviews_1, reviews_1_1, review, product, team, newTeam, prodRes, e_13_1, error_18;
-    var e_13, _a;
+    var revRes, reviews, type, reviews_1, reviews_1_1, review, product, team, newTeam, prodRes, e_14_1, error_19;
+    var e_14, _a;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
@@ -1705,14 +1776,14 @@ router.post("/teams/review/update", function (req, res) { return __awaiter(void 
                 return [3 /*break*/, 3];
             case 9: return [3 /*break*/, 12];
             case 10:
-                e_13_1 = _b.sent();
-                e_13 = { error: e_13_1 };
+                e_14_1 = _b.sent();
+                e_14 = { error: e_14_1 };
                 return [3 /*break*/, 12];
             case 11:
                 try {
                     if (reviews_1_1 && !reviews_1_1.done && (_a = reviews_1.return)) _a.call(reviews_1);
                 }
-                finally { if (e_13) throw e_13.error; }
+                finally { if (e_14) throw e_14.error; }
                 return [7 /*endfinally*/];
             case 12:
                 if (revRes) {
@@ -1725,9 +1796,9 @@ router.post("/teams/review/update", function (req, res) { return __awaiter(void 
                 }
                 return [3 /*break*/, 14];
             case 13:
-                error_18 = _b.sent();
+                error_19 = _b.sent();
                 console.error("Error on route \"/teams/review/update\" in \"admin\" router");
-                console.error(error_18);
+                console.error(error_19);
                 res.status(401).send({ err: 401, data: [] });
                 return [3 /*break*/, 14];
             case 14: return [2 /*return*/];
@@ -1738,7 +1809,7 @@ router.post("/teams/review/update", function (req, res) { return __awaiter(void 
  * Route on which we request the change of role for a selected user
  */
 router.post("/changeRole", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var user, userTeam, error_19;
+    var user, userTeam, error_20;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -1771,9 +1842,9 @@ router.post("/changeRole", function (req, res) { return __awaiter(void 0, void 0
                 res.status(200).send(userTeam);
                 return [3 /*break*/, 9];
             case 8:
-                error_19 = _a.sent();
+                error_20 = _a.sent();
                 console.error("Error on route \"/changeRole\" in \"admin\" router");
-                console.error(error_19);
+                console.error(error_20);
                 res.status(500).send({ err: 500, data: null });
                 return [3 /*break*/, 9];
             case 9: return [2 /*return*/];
@@ -1820,7 +1891,7 @@ router.post("/add/workshop/Instances", function (req, res) { return __awaiter(vo
  * Route on which we request to add new workshop instances in the database
  */
 router.post("/request/user", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var from, email, firstName, lastName, teamId, team, product, mentor, options, transporter;
+    var from, email, firstName, lastName, teamId, team, product, mentor, msg, notification;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -1841,68 +1912,83 @@ router.post("/request/user", function (req, res) { return __awaiter(void 0, void
                 mentor = _a.sent();
                 _a.label = 4;
             case 4:
-                if (mentor && team) {
-                    options = admin.createMailOptions(process.env.MAIL_USER, "marius.andrei.aluculesei@gmail.com", "Innovation Labs User Request", "		From:" + from + "\n"
-                        + "		First Name: " + firstName + "\n"
-                        + "		Last Name: " + lastName + "\n"
-                        + "		Email: " + email + "\n"
-                        + "		Team: " + team.teamName + "\n"
-                        + "		Location: " + team.location + "\n"
-                        + "		Mentor: " + mentor.email + "\n");
-                    transporter = admin.createMailTransporter();
-                    if (transporter)
-                        admin.sendMail(transporter, options);
-                    res.status(200).send(true);
-                }
-                else {
-                    res.status(400).send(false);
-                }
-                return [2 /*return*/];
+                if (!(mentor && team)) return [3 /*break*/, 6];
+                msg = "		From:" + from + "\n"
+                    + "		First Name: " + firstName + "\n"
+                    + "		Last Name: " + lastName + "\n"
+                    + "		Email: " + email + "\n"
+                    + "		Team: " + team.teamName + "\n"
+                    + "		Location: " + team.location + "\n"
+                    + "		Mentor: " + mentor.email + "\n";
+                notification = {
+                    email: "marius.andrei.aluculesei@gmail.com",
+                    notifyType: common_1.NotificationType.EMAIL,
+                    msgType: common_1.MessageType.REQUESTUSER,
+                    text: msg,
+                    date: new Date()
+                };
+                return [4 /*yield*/, daemon.addNotification(notification)];
+            case 5:
+                _a.sent();
+                res.status(200).send(true);
+                return [3 /*break*/, 7];
+            case 6:
+                res.status(400).send(false);
+                _a.label = 7;
+            case 7: return [2 /*return*/];
         }
     });
 }); });
 router.post("/add/user", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var user, option, options, transporter, newUser, teamId, team, userTeam, role, initDate, teamUser, i, aux, date, userActivity;
+    var user, option, msg, notification, newUser, teamId, team, userTeam, role, initDate, teamUser, i, aux, date, userActivity, error_21;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
+                _a.trys.push([0, 15, , 16]);
                 user = req.body.user;
                 option = req.body.option;
                 user.password = admin.randomPassword();
-                options = admin.createMailOptions(process.env.MAIL_USER, user.email, "Innovation Labs Platform Password", "Hello " + user.firstName + " " + user.lastName + " ,\n\n"
+                msg = "Hello " + user.firstName + " " + user.lastName + " ,\n\n"
                     + "Here is your new account, please do not disclose these informations to anyone.\n"
                     + "		Username: " + user.username + "\n"
                     + "		Password: " + user.password + "\n"
                     + "Use these credidentials to login on " + process.env.HOSTNAME + "\n\n"
-                    + "Regards, Innovation Labs Team\n");
-                transporter = admin.createMailTransporter();
-                if (transporter)
-                    admin.sendMail(transporter, options);
-                if (!user) return [3 /*break*/, 12];
-                return [4 /*yield*/, users.addUser(user)];
+                    + "Regards, Innovation Labs Team\n";
+                notification = {
+                    email: user.email,
+                    notifyType: common_1.NotificationType.EMAIL,
+                    msgType: common_1.MessageType.WELCOME,
+                    text: msg,
+                    date: new Date()
+                };
+                return [4 /*yield*/, daemon.addNotification(notification)];
             case 1:
+                _a.sent();
+                if (!user) return [3 /*break*/, 13];
+                return [4 /*yield*/, users.addUser(user)];
+            case 2:
                 newUser = _a.sent();
-                if (!newUser) return [3 /*break*/, 10];
-                if (!(option === "team")) return [3 /*break*/, 9];
+                if (!newUser) return [3 /*break*/, 11];
+                if (!(option === "team")) return [3 /*break*/, 10];
                 teamId = req.body.teamId;
                 return [4 /*yield*/, teams.getTeamById(teamId)];
-            case 2:
+            case 3:
                 team = _a.sent();
                 userTeam = void 0;
-                if (!team) return [3 /*break*/, 4];
+                if (!team) return [3 /*break*/, 5];
                 return [4 /*yield*/, teams.getUserInTeam(newUser.userId, team.teamId)];
-            case 3:
-                userTeam = _a.sent();
-                _a.label = 4;
             case 4:
-                if (!userTeam) return [3 /*break*/, 9];
+                userTeam = _a.sent();
+                _a.label = 5;
+            case 5:
+                if (!userTeam) return [3 /*break*/, 10];
                 role = newUser.role;
-                if (!team) return [3 /*break*/, 9];
+                if (!team) return [3 /*break*/, 10];
                 initDate = void 0;
                 return [4 /*yield*/, teams.addUserToTeam(newUser, team, role)];
-            case 5:
+            case 6:
                 teamUser = _a.sent();
-                if (!teamUser) return [3 /*break*/, 9];
+                if (!teamUser) return [3 /*break*/, 10];
                 if (team.teamDetails["location"] === "Bucharest") {
                     initDate = moment_1.default("2020-03-02");
                 }
@@ -1910,9 +1996,9 @@ router.post("/add/user", function (req, res) { return __awaiter(void 0, void 0, 
                     initDate = moment_1.default("2020-03-09");
                 }
                 i = 0;
-                _a.label = 6;
-            case 6:
-                if (!(i < 10)) return [3 /*break*/, 9];
+                _a.label = 7;
+            case 7:
+                if (!(i < 10)) return [3 /*break*/, 10];
                 aux = moment_1.default(initDate.toDate());
                 date = aux.add(7 * i, "days").toDate();
                 userActivity = {
@@ -1923,50 +2009,64 @@ router.post("/add/user", function (req, res) { return __awaiter(void 0, void 0, 
                     description: ""
                 };
                 return [4 /*yield*/, teams.addActivityForUser(userActivity)];
-            case 7:
-                _a.sent();
-                _a.label = 8;
             case 8:
-                i++;
-                return [3 /*break*/, 6];
+                _a.sent();
+                _a.label = 9;
             case 9:
-                res.status(200).send(true);
-                return [3 /*break*/, 11];
+                i++;
+                return [3 /*break*/, 7];
             case 10:
+                res.status(200).send(true);
+                return [3 /*break*/, 12];
+            case 11:
                 res.status(401).send({ err: 401, data: false });
-                _a.label = 11;
-            case 11: return [3 /*break*/, 13];
-            case 12:
-                res.status(401).send({ err: 401, data: false });
-                _a.label = 13;
+                _a.label = 12;
+            case 12: return [3 /*break*/, 14];
             case 13:
+                res.status(401).send({ err: 401, data: false });
+                _a.label = 14;
+            case 14:
                 res.status(201).send(false);
-                return [2 /*return*/];
+                return [3 /*break*/, 16];
+            case 15:
+                error_21 = _a.sent();
+                console.error(error_21);
+                res.status(500).send({ err: 500, data: false });
+                return [3 /*break*/, 16];
+            case 16: return [2 /*return*/];
         }
     });
 }); });
 router.post("/update/user", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var user, changedPass, options, transporter, resp;
+    var user, changedPass, msg, notification, resp;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 user = req.body.user;
                 changedPass = req.body.changedPass;
-                if (changedPass) {
-                    user.password = server_3.UsersServer.passwordGenerator(user.password);
-                    options = admin.createMailOptions(process.env.MAIL_USER, user.email, "Innovation Labs Platform Password", "Hello " + user.firstName + " " + user.lastName + " ,\n\n"
-                        + "Here is your new password, please do not disclose these informations to anyone.\n"
-                        + "		Username: " + user.username + "\n"
-                        + "		Password: " + user.password + "\n"
-                        + "Use these credidentials to login on " + process.env.HOSTNAME + "\n\n"
-                        + "Regards, Innovation Labs Team\n");
-                    transporter = admin.createMailTransporter();
-                    if (transporter)
-                        admin.sendMail(transporter, options);
-                }
-                if (!user) return [3 /*break*/, 2];
-                return [4 /*yield*/, users.modifyUser(user)];
+                if (!changedPass) return [3 /*break*/, 2];
+                msg = "Hello " + user.firstName + " " + user.lastName + " ,\n\n"
+                    + "Here is your new password, please do not disclose these informations to anyone.\n"
+                    + "		Username: " + user.username + "\n"
+                    + "		Password: " + user.password + "\n"
+                    + "Use these credidentials to login on " + process.env.HOSTNAME + "\n\n"
+                    + "Regards, Innovation Labs Team\n";
+                notification = {
+                    email: user.email,
+                    notifyType: common_1.NotificationType.EMAIL,
+                    msgType: common_1.MessageType.WELCOME,
+                    text: msg,
+                    date: new Date()
+                };
+                return [4 /*yield*/, daemon.addNotification(notification)];
             case 1:
+                _a.sent();
+                user.password = server_3.UsersServer.passwordGenerator(user.password);
+                _a.label = 2;
+            case 2:
+                if (!user) return [3 /*break*/, 4];
+                return [4 /*yield*/, users.modifyUser(user)];
+            case 3:
                 resp = _a.sent();
                 if (resp) {
                     res.status(200).send(true);
@@ -1974,11 +2074,11 @@ router.post("/update/user", function (req, res) { return __awaiter(void 0, void 
                 else {
                     res.status(401).send({ err: 401, data: false });
                 }
-                return [3 /*break*/, 3];
-            case 2:
+                return [3 /*break*/, 5];
+            case 4:
                 res.status(401).send({ err: 401, data: false });
-                _a.label = 3;
-            case 3:
+                _a.label = 5;
+            case 5:
                 res.status(201).send(true);
                 return [2 /*return*/];
         }

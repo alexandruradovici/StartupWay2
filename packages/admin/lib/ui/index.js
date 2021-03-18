@@ -116,6 +116,19 @@ function getAdminUi() {
     return UI;
 }
 
+var NotificationType;
+(function (NotificationType) {
+    NotificationType["EMAIL"] = "EMAIL";
+    NotificationType["SMS"] = "SMS";
+    NotificationType["WHATSAPP"] = "WTS";
+})(NotificationType || (NotificationType = {}));
+var MessageType;
+(function (MessageType) {
+    MessageType["WELCOME"] = "WELCOME";
+    MessageType["RESETPASS"] = "RESETPASS";
+    MessageType["REQUESTUSER"] = "REQUESTUSER";
+})(MessageType || (MessageType = {}));
+
 var script = Vue.extend({
     name: "Admin",
     data: function () {
@@ -1873,9 +1886,12 @@ var script$3 = Vue.extend({
     data: function () {
         return {
             ui: UI$1.getInstance(),
-            file: undefined,
-            encoded: false,
-            base64Encode: "",
+            fileImport: undefined,
+            fileUpdate: undefined,
+            encodedImport: false,
+            encodedUpdate: false,
+            base64EncodeImport: "",
+            base64EncodeUpdate: "",
         };
     },
     watch: {
@@ -1895,25 +1911,50 @@ var script$3 = Vue.extend({
                 });
             }
         },
-        base64Encode: {
+        base64EncodeImport: {
             immediate: true,
-            handler: function (base64Encode) {
-                if (base64Encode !== '' && base64Encode !== undefined) {
-                    this.encoded = false;
+            handler: function (newBase64EncodeImport) {
+                console.log(newBase64EncodeImport);
+                if (newBase64EncodeImport !== '' && newBase64EncodeImport !== undefined) {
+                    this.encodedImport = false;
                 }
                 else {
-                    this.encoded = true;
+                    this.encodedImport = true;
                 }
             }
         },
-        file: {
+        base64EncodeUpdate: {
+            immediate: true,
+            handler: function (newBase64EncodeUpdate) {
+                if (newBase64EncodeUpdate !== '' && newBase64EncodeUpdate !== undefined) {
+                    this.encodedUpdate = false;
+                }
+                else {
+                    this.encodedUpdate = true;
+                }
+            }
+        },
+        fileImport: {
+            immediate: false,
+            handler: function (newFile) {
+                console.log(this.base64EncodeImport);
+                if (newFile !== undefined) {
+                    this.toBase64Import(newFile);
+                }
+                else {
+                    this.base64EncodeImport = '';
+                }
+                console.log(this.base64EncodeImport);
+            }
+        },
+        fileUpdate: {
             immediate: false,
             handler: function (newFile) {
                 if (newFile !== undefined) {
-                    this.toBase64(newFile);
+                    this.toBase64Update(newFile);
                 }
                 else {
-                    this.base64Encode = '';
+                    this.base64EncodeUpdate = '';
                 }
             }
         }
@@ -1922,14 +1963,14 @@ var script$3 = Vue.extend({
         user: "users/user"
     })),
     methods: {
-        submitFile: function () {
+        submitFileImport: function () {
             return __awaiter(this, void 0, void 0, function () {
                 var e_1;
                 return __generator(this, function (_a) {
                     switch (_a.label) {
                         case 0:
                             _a.trys.push([0, 2, , 3]);
-                            return [4 /*yield*/, this.ui.api.post("/api/v1/admin/uploadCSV", { encode: this.base64Encode })];
+                            return [4 /*yield*/, this.ui.api.post("/api/v1/admin/uploadCSV", { encode: this.base64EncodeImport })];
                         case 1:
                             _a.sent();
                             return [3 /*break*/, 3];
@@ -1942,20 +1983,60 @@ var script$3 = Vue.extend({
                 });
             });
         },
-        toBase64: function (file) {
+        submitFileUpdate: function () {
+            return __awaiter(this, void 0, void 0, function () {
+                var e_2;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            _a.trys.push([0, 2, , 3]);
+                            return [4 /*yield*/, this.ui.api.post("/api/v1/admin/updateDescriptionCSV", { encode: this.base64EncodeUpdate })];
+                        case 1:
+                            _a.sent();
+                            return [3 /*break*/, 3];
+                        case 2:
+                            e_2 = _a.sent();
+                            console.error(e_2);
+                            return [3 /*break*/, 3];
+                        case 3: return [2 /*return*/];
+                    }
+                });
+            });
+        },
+        toBase64Import: function (file) {
             var _this = this;
             var reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = function () {
-                var result = reader.result;
-                if (result) {
-                    var aux = result.toString().split(",");
-                    _this.base64Encode = aux[1];
-                }
-            };
-            reader.onerror = function (err) {
-                console.error(err);
-            };
+            if (file) {
+                reader.readAsDataURL(file);
+                reader.onload = function () {
+                    var result = reader.result;
+                    if (result) {
+                        var aux = result.toString().split(",");
+                        _this.base64EncodeImport = aux[1];
+                    }
+                };
+                reader.onerror = function (err) {
+                    console.error(err);
+                };
+            }
+            return true;
+        },
+        toBase64Update: function (file) {
+            var _this = this;
+            var reader = new FileReader();
+            if (file) {
+                reader.readAsDataURL(file);
+                reader.onload = function () {
+                    var result = reader.result;
+                    if (result) {
+                        var aux = result.toString().split(",");
+                        _this.base64EncodeUpdate = aux[1];
+                    }
+                };
+                reader.onerror = function (err) {
+                    console.error(err);
+                };
+            }
             return true;
         }
     }
@@ -1993,7 +2074,7 @@ var __vue_render__$3 = function() {
                 "font-weight": "bold"
               }
             },
-            [_vm._v("Import CSV")]
+            [_vm._v("Import Teams CSV")]
           ),
           _vm._v(" "),
           _c("v-divider"),
@@ -2003,13 +2084,18 @@ var __vue_render__$3 = function() {
             { staticClass: "justify-center" },
             [
               _c("v-file-input", {
-                attrs: { type: "file", accept: ".csv", label: "CSV input" },
+                attrs: {
+                  id: "fileImport",
+                  type: "file",
+                  accept: ".csv",
+                  label: "Import CSV input"
+                },
                 model: {
-                  value: _vm.file,
+                  value: _vm.fileImport,
                   callback: function($$v) {
-                    _vm.file = $$v;
+                    _vm.fileImport = $$v;
                   },
-                  expression: "file"
+                  expression: "fileImport"
                 }
               })
             ],
@@ -2026,11 +2112,87 @@ var __vue_render__$3 = function() {
                   attrs: {
                     rounded: "",
                     color: "primary",
-                    disabled: _vm.encoded
+                    disabled: _vm.encodedImport
                   },
                   on: {
                     click: function($event) {
-                      return _vm.submitFile()
+                      return _vm.submitFileImport()
+                    }
+                  }
+                },
+                [_vm._v("Submit")]
+              )
+            ],
+            1
+          )
+        ],
+        1
+      ),
+      _vm._v(" "),
+      _c(
+        "v-card",
+        {
+          staticStyle: {
+            "margin-left": "auto",
+            "margin-right": "auto",
+            "padding-top": "20px",
+            "background-color": "#fcfcfc"
+          },
+          attrs: { flat: "", "min-width": "500" }
+        },
+        [
+          _c(
+            "v-card-title",
+            {
+              staticClass: "justify-center",
+              staticStyle: {
+                "font-family": "Georgia, serif",
+                "font-weight": "bold"
+              }
+            },
+            [_vm._v("Update Teams Description CSV")]
+          ),
+          _vm._v(" "),
+          _c("v-divider"),
+          _vm._v(" "),
+          _c(
+            "v-card-text",
+            { staticClass: "justify-center" },
+            [
+              _c("v-file-input", {
+                attrs: {
+                  id: "fileUpdate",
+                  type: "file",
+                  accept: ".csv",
+                  label: "Update CSV input"
+                },
+                model: {
+                  value: _vm.fileUpdate,
+                  callback: function($$v) {
+                    _vm.fileUpdate = $$v;
+                  },
+                  expression: "fileUpdate"
+                }
+              })
+            ],
+            1
+          ),
+          _vm._v(" "),
+          _c(
+            "v-card-actions",
+            { staticClass: "justify-center" },
+            [
+              _c(
+                "v-btn",
+                {
+                  attrs: {
+                    rounded: "",
+                    color: "primary",
+                    disabled: _vm.encodedUpdate
+                  },
+                  on: {
+                    click: function($event) {
+                      return _vm.submitFileUpdate()
                     }
                   }
                 },
@@ -8370,4 +8532,4 @@ finally {
 var ui = UI$1.getInstance();
 ui.registerStore("admin", usersStore());
 
-export { AdminUi, getAdminUi };
+export { AdminUi, MessageType, NotificationType, getAdminUi };
