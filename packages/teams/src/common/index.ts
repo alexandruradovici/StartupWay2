@@ -2,12 +2,15 @@ export enum BusinessTrack {
 	NONE = "NONE",
     AGRICULTURE = "Agriculture",
     CYBERSECURITY = "CyberSecurity",
-    FINTECH = "FinTech",
+	FINTECH = "FinTech",
+	BLOCKCHAIN = "Blockchain",
     HL = "Health&Lifestyle",
+    "HEALTH&LIFESTYLE" = "Health&Lifestyle",
     RETAIL = "Retail",
-    SMARTCITY = "SmartCity",
+    SMARTCITIES = "SmartCities",
     SMARTMOBILITY = "SmartMobility",
-    OTHER = "Other"
+	OTHER = "Other"
+	
 }
 
 export enum TeamType {

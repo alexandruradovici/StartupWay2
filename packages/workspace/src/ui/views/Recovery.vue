@@ -78,7 +78,7 @@ export default Vue.extend({
 					});
 					if (serverResponse.status !== 401) {
 						if(this.$route.path !== "/workspace")
-						this.$router.push("/workspace");
+							this.$router.push("/workspace");
 					}
 					// get user - if not 401 push this.$router.push ("/workspace")
 					// else delete token
@@ -92,7 +92,7 @@ export default Vue.extend({
 			async handler(newRoute?:string):Promise<void> {
 				this.token = this.$route.params.token;
                 try {
-                    let response = await this.ui.api.post<{matched:true} | null>("/api/v1/admin/checkToken",{token:this.token});
+					let response = await this.ui.api.post<{matched:true} | null>("/api/v1/admin/checkToken",{token:this.token});
 					if(response.data)
 						if(!response.data.matched)
 							if(this.$route.path !== "/login")
@@ -117,7 +117,7 @@ export default Vue.extend({
                     let response = await this.ui.api.post<{username:string} | null>("/api/v1/admin/resetPassword", {
                         token:this.token,
                         password:this.password
-                    });
+					});
                     if(response.data) {
                         let token = await this.ui.storeDispatch("users/login", {
 							username: response.data.username,

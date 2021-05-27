@@ -50,8 +50,8 @@ export interface Review {
     teamId: string;
     mentorNotes: string;
     adminNotes: string;
-    assessment20May: boolean;
-    assessment12Oct: boolean;
+    assessmentSemifinals: boolean;
+    assessmentFinals: boolean;
     updatedAt: string;
     lastMentorUpdate: string;
 }

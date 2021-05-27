@@ -1,5 +1,5 @@
 <template>
-	<v-main style="background-color: rgba(25, 126, 129, 0.1)">
+	<v-main>
 			<v-container fluid fill-height>
 				<v-layout align-center justify-center> 
 					<v-flex xs12 sm8 md4>
@@ -84,12 +84,17 @@ import { UI } from '@startupway/main/lib/ui';
 import { User } from "../../common";
 import { SnackBarOptions, SnackBarTypes } from '@startupway/menu/lib/ui';
 import { mapGetters } from "vuex";
+import VueRecaptcha from 'vue-recaptcha';
 export default Vue.extend({
 	name: "Login",
 	// components: {
 	// 	"SnackBar": SnackBar
 	// },
+	components: {
+		VueRecaptcha
+	},
 	mounted() {
+		console.log(`${VueRecaptcha.name} Loaded`);
 		// this.ui = UI.getInstance();
 	},
 	data() {
@@ -160,9 +165,9 @@ export default Vue.extend({
 		
 		async resetPassword():Promise<void> {
 			try {
-				let response = await this.ui.api.get<{accept:string}>("/api/v1/verify/"+this.email);
+				let response = await this.ui.api.get<{accept:string}>("/api/v1/users/verify/"+this.email);
 				if(response.data.accept = "Yes") {
-					await this.ui.api.post("/api/v1/createResetEmail", {email:this.email});
+					await this.ui.api.post("/api/v1/admin/createResetEmail", {email:this.email});
 					this.verified = false;
 					this.sent=false;
 				}

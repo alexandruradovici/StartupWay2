@@ -212,11 +212,11 @@ var FeedServer = /** @class */ (function () {
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 13, , 17]);
+                        _a.trys.push([1, 11, 14, 15]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 11];
+                        if (!conn) return [3 /*break*/, 9];
                         conn.beginTransaction();
                         queryOptions = {
                             namedPlaceholders: true,
@@ -229,37 +229,32 @@ var FeedServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, { feedId: feedParam.feedId })];
                     case 4:
                         response = _a.sent();
-                        if (!(response && response.length === 0)) return [3 /*break*/, 7];
+                        if (!(response && response.length === 0)) return [3 /*break*/, 6];
                         return [4 /*yield*/, conn.commit()];
                     case 5:
                         _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 6:
-                        _a.sent();
                         return [2 /*return*/, true];
-                    case 7: return [4 /*yield*/, conn.rollback()];
-                    case 8:
-                        _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 9:
+                    case 6: return [4 /*yield*/, conn.rollback()];
+                    case 7:
                         _a.sent();
                         return [2 /*return*/, false];
-                    case 10: return [3 /*break*/, 12];
-                    case 11: return [2 /*return*/, false];
-                    case 12: return [3 /*break*/, 17];
-                    case 13:
+                    case 8: return [3 /*break*/, 10];
+                    case 9: return [2 /*return*/, false];
+                    case 10: return [3 /*break*/, 15];
+                    case 11:
                         e_3 = _a.sent();
                         console.error(e_3);
-                        if (!conn) return [3 /*break*/, 16];
+                        if (!conn) return [3 /*break*/, 13];
                         return [4 /*yield*/, conn.rollback()];
+                    case 12:
+                        _a.sent();
+                        _a.label = 13;
+                    case 13: return [2 /*return*/, false];
                     case 14:
-                        _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 15:
-                        _a.sent();
-                        _a.label = 16;
-                    case 16: return [2 /*return*/, false];
-                    case 17: return [2 /*return*/];
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 15: return [2 /*return*/];
                 }
             });
         });
@@ -273,11 +268,11 @@ var FeedServer = /** @class */ (function () {
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 10, , 13]);
+                        _a.trys.push([1, 6, 7, 8]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 8];
+                        if (!conn) return [3 /*break*/, 4];
                         queryOptions = {
                             namedPlaceholders: true,
                             sql: "SELECT feeds.* FROM feeds WHERE feeds.teamId=:teamId ORDER BY feeds.date",
@@ -285,28 +280,24 @@ var FeedServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, { teamId: teamId })];
                     case 3:
                         feeds = _a.sent();
-                        if (!(feeds && feeds.length > 0)) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.release()];
-                    case 4:
-                        _a.sent();
-                        return [2 /*return*/, feeds];
-                    case 5: return [4 /*yield*/, conn.release()];
+                        if (feeds && feeds.length > 0) {
+                            return [2 /*return*/, feeds];
+                        }
+                        else {
+                            return [2 /*return*/, []];
+                        }
+                        return [3 /*break*/, 5];
+                    case 4: return [2 /*return*/, []];
+                    case 5: return [3 /*break*/, 8];
                     case 6:
-                        _a.sent();
-                        return [2 /*return*/, []];
-                    case 7: return [3 /*break*/, 9];
-                    case 8: return [2 /*return*/, []];
-                    case 9: return [3 /*break*/, 13];
-                    case 10:
                         e_4 = _a.sent();
                         console.error(e_4);
-                        if (!conn) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.release()];
-                    case 11:
-                        _a.sent();
-                        _a.label = 12;
-                    case 12: return [2 /*return*/, []];
-                    case 13: return [2 /*return*/];
+                        return [2 /*return*/, []];
+                    case 7:
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 8: return [2 /*return*/];
                 }
             });
         });

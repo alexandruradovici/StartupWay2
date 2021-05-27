@@ -65,11 +65,11 @@ var TeamsServer = /** @class */ (function () {
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 24, , 28]);
+                        _a.trys.push([1, 20, 23, 24]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 22];
+                        if (!conn) return [3 /*break*/, 18];
                         return [4 /*yield*/, conn.beginTransaction()];
                     case 3:
                         _a.sent();
@@ -85,7 +85,7 @@ var TeamsServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, { productId: product.productId })];
                     case 5:
                         productResponse = _a.sent();
-                        if (!(productResponse && productResponse.length > 0 && productResponse[0])) return [3 /*break*/, 18];
+                        if (!(productResponse && productResponse.length > 0 && productResponse[0])) return [3 /*break*/, 15];
                         team.productId = productResponse[0].productId;
                         queryOptions.sql = "INSERT INTO teams (teamId,productId,teamName,teamDetails,location,year) VALUES(:teamId,:productId,:teamName,:teamDetails,:location,:year)";
                         return [4 /*yield*/, conn.query(queryOptions, team)];
@@ -95,7 +95,7 @@ var TeamsServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, { teamId: team.teamId })];
                     case 7:
                         teamResponse = _a.sent();
-                        if (!(teamResponse && teamResponse.length > 0 && teamResponse[0])) return [3 /*break*/, 14];
+                        if (!(teamResponse && teamResponse.length > 0 && teamResponse[0])) return [3 /*break*/, 12];
                         team = teamResponse[0];
                         product = productResponse[0];
                         o = {
@@ -118,58 +118,47 @@ var TeamsServer = /** @class */ (function () {
                             updatedAt: product.updatedAt,
                             lastMentorUpdate: product.lastMentorUpdate
                         };
-                        if (!o) return [3 /*break*/, 10];
+                        if (!o) return [3 /*break*/, 9];
                         return [4 /*yield*/, conn.commit()];
                     case 8:
                         _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 9:
-                        _a.sent();
                         return [2 /*return*/, o];
-                    case 10: return [4 /*yield*/, conn.rollback()];
-                    case 11:
-                        _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 12:
+                    case 9: return [4 /*yield*/, conn.rollback()];
+                    case 10:
                         _a.sent();
                         console.log("No obj addTeam");
                         return [2 /*return*/, null];
-                    case 13: return [3 /*break*/, 17];
-                    case 14: return [4 /*yield*/, conn.rollback()];
-                    case 15:
-                        _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 16:
+                    case 11: return [3 /*break*/, 14];
+                    case 12: return [4 /*yield*/, conn.rollback()];
+                    case 13:
                         _a.sent();
                         console.log("No teams addTeam");
                         return [2 /*return*/, null];
-                    case 17: return [3 /*break*/, 21];
-                    case 18: return [4 /*yield*/, conn.rollback()];
-                    case 19:
-                        _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 20:
+                    case 14: return [3 /*break*/, 17];
+                    case 15: return [4 /*yield*/, conn.rollback()];
+                    case 16:
                         _a.sent();
                         console.log("No procut addTeam");
                         return [2 /*return*/, null];
-                    case 21: return [3 /*break*/, 23];
-                    case 22:
+                    case 17: return [3 /*break*/, 19];
+                    case 18:
                         console.log("No conn addTeam");
                         return [2 /*return*/, null];
-                    case 23: return [3 /*break*/, 28];
-                    case 24:
+                    case 19: return [3 /*break*/, 24];
+                    case 20:
                         error_1 = _a.sent();
                         console.error(error_1);
-                        if (!conn) return [3 /*break*/, 27];
+                        if (!conn) return [3 /*break*/, 22];
                         return [4 /*yield*/, conn.rollback()];
-                    case 25:
+                    case 21:
                         _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 26:
-                        _a.sent();
-                        _a.label = 27;
-                    case 27: return [2 /*return*/, null];
-                    case 28: return [2 /*return*/];
+                        _a.label = 22;
+                    case 22: return [2 /*return*/, null];
+                    case 23:
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 24: return [2 /*return*/];
                 }
             });
         });
@@ -183,11 +172,11 @@ var TeamsServer = /** @class */ (function () {
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 17, , 21]);
+                        _a.trys.push([1, 15, 18, 19]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 15];
+                        if (!conn) return [3 /*break*/, 13];
                         return [4 /*yield*/, conn.beginTransaction()];
                     case 3:
                         _a.sent();
@@ -202,7 +191,7 @@ var TeamsServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, { teamId: team.teamId })];
                     case 5:
                         deleteUT = _a.sent();
-                        if (!(deleteUT && deleteUT.length === 0)) return [3 /*break*/, 12];
+                        if (!(deleteUT && deleteUT.length === 0)) return [3 /*break*/, 11];
                         queryOptions.sql = "DELETE FROM teams WHERE teams.teamId=:teamId";
                         return [4 /*yield*/, conn.query(queryOptions, { teamId: team.teamId })];
                     case 6:
@@ -211,7 +200,7 @@ var TeamsServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, { teamId: team.teamId })];
                     case 7:
                         deleteT = _a.sent();
-                        if (!(deleteT && deleteT.length === 0)) return [3 /*break*/, 12];
+                        if (!(deleteT && deleteT.length === 0)) return [3 /*break*/, 11];
                         queryOptions.sql = "DELETE FROM products WHERE product.productId=:productId";
                         return [4 /*yield*/, conn.query(queryOptions, { teamId: team.teamId })];
                     case 8:
@@ -220,36 +209,31 @@ var TeamsServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, { productId: team.productId })];
                     case 9:
                         deleteP = _a.sent();
-                        if (!(deleteP && deleteP.length === 0)) return [3 /*break*/, 12];
+                        if (!(deleteP && deleteP.length === 0)) return [3 /*break*/, 11];
                         return [4 /*yield*/, conn.commit()];
                     case 10:
                         _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 11:
+                        return [2 /*return*/, true];
+                    case 11: return [4 /*yield*/, conn.rollback()];
+                    case 12:
                         _a.sent();
                         return [2 /*return*/, true];
-                    case 12: return [4 /*yield*/, conn.rollback()];
-                    case 13:
-                        _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 14:
-                        _a.sent();
-                        return [2 /*return*/, true];
-                    case 15: return [2 /*return*/, false];
-                    case 16: return [3 /*break*/, 21];
-                    case 17:
+                    case 13: return [2 /*return*/, false];
+                    case 14: return [3 /*break*/, 19];
+                    case 15:
                         error_2 = _a.sent();
                         console.error(error_2);
-                        if (!conn) return [3 /*break*/, 20];
+                        if (!conn) return [3 /*break*/, 17];
                         return [4 /*yield*/, conn.rollback()];
+                    case 16:
+                        _a.sent();
+                        _a.label = 17;
+                    case 17: return [2 /*return*/, false];
                     case 18:
-                        _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 19:
-                        _a.sent();
-                        _a.label = 20;
-                    case 20: return [2 /*return*/, false];
-                    case 21: return [2 /*return*/];
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 19: return [2 /*return*/];
                 }
             });
         });
@@ -263,11 +247,11 @@ var TeamsServer = /** @class */ (function () {
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 14, , 18]);
+                        _a.trys.push([1, 12, 15, 16]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 12];
+                        if (!conn) return [3 /*break*/, 10];
                         return [4 /*yield*/, conn.beginTransaction()];
                     case 3:
                         _a.sent();
@@ -283,37 +267,32 @@ var TeamsServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, { userProductId: userProductId })];
                     case 5:
                         userInTeam = _a.sent();
-                        if (!(userInTeam && userInTeam.length > 0 && userInTeam[0])) return [3 /*break*/, 8];
+                        if (!(userInTeam && userInTeam.length > 0 && userInTeam[0])) return [3 /*break*/, 7];
                         return [4 /*yield*/, conn.commit()];
                     case 6:
                         _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 7:
-                        _a.sent();
                         return [2 /*return*/, userInTeam[0]];
-                    case 8: return [4 /*yield*/, conn.rollback()];
-                    case 9:
-                        _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 10:
+                    case 7: return [4 /*yield*/, conn.rollback()];
+                    case 8:
                         _a.sent();
                         return [2 /*return*/, null];
-                    case 11: return [3 /*break*/, 13];
-                    case 12: return [2 /*return*/, null];
-                    case 13: return [3 /*break*/, 18];
-                    case 14:
+                    case 9: return [3 /*break*/, 11];
+                    case 10: return [2 /*return*/, null];
+                    case 11: return [3 /*break*/, 16];
+                    case 12:
                         e_1 = _a.sent();
                         console.error(e_1);
-                        if (!conn) return [3 /*break*/, 17];
+                        if (!conn) return [3 /*break*/, 14];
                         return [4 /*yield*/, conn.rollback()];
+                    case 13:
+                        _a.sent();
+                        _a.label = 14;
+                    case 14: return [2 /*return*/, null];
                     case 15:
-                        _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 16:
-                        _a.sent();
-                        _a.label = 17;
-                    case 17: return [2 /*return*/, null];
-                    case 18: return [2 /*return*/];
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 16: return [2 /*return*/];
                 }
             });
         });
@@ -327,11 +306,11 @@ var TeamsServer = /** @class */ (function () {
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 14, , 18]);
+                        _a.trys.push([1, 12, 15, 16]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 12];
+                        if (!conn) return [3 /*break*/, 10];
                         return [4 /*yield*/, conn.beginTransaction()];
                     case 3:
                         _a.sent();
@@ -346,37 +325,32 @@ var TeamsServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, { userId: user.userId, teamId: team.teamId })];
                     case 5:
                         response = _a.sent();
-                        if (!(response && response.length === 0)) return [3 /*break*/, 8];
+                        if (!(response && response.length === 0)) return [3 /*break*/, 7];
                         return [4 /*yield*/, conn.commit()];
                     case 6:
                         _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 7:
-                        _a.sent();
                         return [2 /*return*/, true];
-                    case 8: return [4 /*yield*/, conn.rollback()];
-                    case 9:
-                        _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 10:
+                    case 7: return [4 /*yield*/, conn.rollback()];
+                    case 8:
                         _a.sent();
                         return [2 /*return*/, false];
-                    case 11: return [3 /*break*/, 13];
-                    case 12: return [2 /*return*/, false];
-                    case 13: return [3 /*break*/, 18];
-                    case 14:
+                    case 9: return [3 /*break*/, 11];
+                    case 10: return [2 /*return*/, false];
+                    case 11: return [3 /*break*/, 16];
+                    case 12:
                         e_2 = _a.sent();
                         console.error(e_2);
-                        if (!conn) return [3 /*break*/, 17];
+                        if (!conn) return [3 /*break*/, 14];
                         return [4 /*yield*/, conn.rollback()];
+                    case 13:
+                        _a.sent();
+                        _a.label = 14;
+                    case 14: return [2 /*return*/, false];
                     case 15:
-                        _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 16:
-                        _a.sent();
-                        _a.label = 17;
-                    case 17: return [2 /*return*/, false];
-                    case 18: return [2 /*return*/];
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 16: return [2 /*return*/];
                 }
             });
         });
@@ -391,11 +365,11 @@ var TeamsServer = /** @class */ (function () {
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 10, , 13]);
+                        _a.trys.push([1, 6, 7, 8]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 8];
+                        if (!conn) return [3 /*break*/, 4];
                         queryOptions = {
                             namedPlaceholders: true,
                             sql: "SELECT teams.*, userTeams.userProductId, userTeams.role, userTeams.userId FROM teams INNER JOIN userTeams ON userTeams.teamId = teams.teamId WHERE userTeams.userId=:userId"
@@ -403,28 +377,24 @@ var TeamsServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, { userId: userId })];
                     case 3:
                         teamsReponse = _a.sent();
-                        if (!(teamsReponse && teamsReponse.length > 0)) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.release()];
-                    case 4:
-                        _a.sent();
-                        return [2 /*return*/, teamsReponse];
-                    case 5: return [4 /*yield*/, conn.release()];
+                        if (teamsReponse && teamsReponse.length > 0) {
+                            return [2 /*return*/, teamsReponse];
+                        }
+                        else {
+                            return [2 /*return*/, []];
+                        }
+                        return [3 /*break*/, 5];
+                    case 4: return [2 /*return*/, []];
+                    case 5: return [3 /*break*/, 8];
                     case 6:
-                        _a.sent();
-                        return [2 /*return*/, []];
-                    case 7: return [3 /*break*/, 9];
-                    case 8: return [2 /*return*/, []];
-                    case 9: return [3 /*break*/, 13];
-                    case 10:
                         e_3 = _a.sent();
                         console.error(e_3);
-                        if (!conn) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.release()];
-                    case 11:
-                        _a.sent();
-                        _a.label = 12;
-                    case 12: return [2 /*return*/, []];
-                    case 13: return [2 /*return*/];
+                        return [2 /*return*/, []];
+                    case 7:
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 8: return [2 /*return*/];
                 }
             });
         });
@@ -438,11 +408,11 @@ var TeamsServer = /** @class */ (function () {
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 10, , 13]);
+                        _a.trys.push([1, 6, 7, 8]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 8];
+                        if (!conn) return [3 /*break*/, 4];
                         queryOptions = {
                             namedPlaceholders: true,
                             sql: "SELECT teams.teamId, teams.teamName, teams.teamDetails, teams.location, teams.year, products.* FROM teams INNER JOIN products ON teams.productId = products.productId"
@@ -450,28 +420,24 @@ var TeamsServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions)];
                     case 3:
                         teamsReponse = _a.sent();
-                        if (!(teamsReponse && teamsReponse.length > 0)) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.release()];
-                    case 4:
-                        _a.sent();
-                        return [2 /*return*/, teamsReponse];
-                    case 5: return [4 /*yield*/, conn.release()];
+                        if (teamsReponse && teamsReponse.length > 0) {
+                            return [2 /*return*/, teamsReponse];
+                        }
+                        else {
+                            return [2 /*return*/, []];
+                        }
+                        return [3 /*break*/, 5];
+                    case 4: return [2 /*return*/, []];
+                    case 5: return [3 /*break*/, 8];
                     case 6:
-                        _a.sent();
-                        return [2 /*return*/, []];
-                    case 7: return [3 /*break*/, 9];
-                    case 8: return [2 /*return*/, []];
-                    case 9: return [3 /*break*/, 13];
-                    case 10:
                         e_4 = _a.sent();
                         console.error(e_4);
-                        if (!conn) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.release()];
-                    case 11:
-                        _a.sent();
-                        _a.label = 12;
-                    case 12: return [2 /*return*/, []];
-                    case 13: return [2 /*return*/];
+                        return [2 /*return*/, []];
+                    case 7:
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 8: return [2 /*return*/];
                 }
             });
         });
@@ -485,11 +451,11 @@ var TeamsServer = /** @class */ (function () {
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 10, , 13]);
+                        _a.trys.push([1, 6, 7, 8]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 8];
+                        if (!conn) return [3 /*break*/, 4];
                         queryOptions = {
                             namedPlaceholders: true,
                             sql: "SELECT teams.teamId, teams.teamName, teams.teamDetails, teams.location, teams.year, products.* FROM teams INNER JOIN products ON teams.productId = products.productId and teams.location=:location"
@@ -497,33 +463,29 @@ var TeamsServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, { location: location })];
                     case 3:
                         teamsReponse = _a.sent();
-                        if (!(teamsReponse && teamsReponse.length > 0)) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.release()];
-                    case 4:
-                        _a.sent();
-                        return [2 /*return*/, teamsReponse];
-                    case 5: return [4 /*yield*/, conn.release()];
+                        if (teamsReponse && teamsReponse.length > 0) {
+                            return [2 /*return*/, teamsReponse];
+                        }
+                        else {
+                            return [2 /*return*/, []];
+                        }
+                        return [3 /*break*/, 5];
+                    case 4: return [2 /*return*/, []];
+                    case 5: return [3 /*break*/, 8];
                     case 6:
-                        _a.sent();
-                        return [2 /*return*/, []];
-                    case 7: return [3 /*break*/, 9];
-                    case 8: return [2 /*return*/, []];
-                    case 9: return [3 /*break*/, 13];
-                    case 10:
                         e_5 = _a.sent();
                         console.error(e_5);
-                        if (!conn) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.release()];
-                    case 11:
-                        _a.sent();
-                        _a.label = 12;
-                    case 12: return [2 /*return*/, []];
-                    case 13: return [2 /*return*/];
+                        return [2 /*return*/, []];
+                    case 7:
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 8: return [2 /*return*/];
                 }
             });
         });
     };
-    TeamsServer.prototype.getTeamById = function (teamId) {
+    TeamsServer.prototype.getTeamsByLocationBtFinals = function (location, businessTrack, semifinals, finals) {
         return __awaiter(this, void 0, void 0, function () {
             var conn, queryOptions, teamsReponse, e_6;
             return __generator(this, function (_a) {
@@ -532,52 +494,41 @@ var TeamsServer = /** @class */ (function () {
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 13, , 16]);
+                        _a.trys.push([1, 6, 7, 8]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 11];
-                        if (!(teamId && teamId !== "")) return [3 /*break*/, 8];
+                        if (!conn) return [3 /*break*/, 4];
                         queryOptions = {
                             namedPlaceholders: true,
-                            sql: "SELECT * FROM teams WHERE teams.teamId=:teamId"
+                            sql: "SELECT teams.teamId, teams.teamName, teams.teamDetails, teams.location, teams.year, products.* FROM teams INNER JOIN products ON teams.productId = products.productId and teams.location=:location and product.businessTrack=:businessTrack and AND JSON_EXTRACT(productDetails,'$.assessmentSemifinals') = :semifinals AND JSON_EXTRACT(productDetails,'$.assessmentFinals') = :finals)"
                         };
-                        return [4 /*yield*/, conn.query(queryOptions, { teamId: teamId })];
+                        return [4 /*yield*/, conn.query(queryOptions, { location: location, businessTrack: businessTrack, semifinals: semifinals, finals: finals })];
                     case 3:
                         teamsReponse = _a.sent();
-                        if (!(teamsReponse && teamsReponse.length > 0 && teamsReponse[0])) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.release()];
-                    case 4:
-                        _a.sent();
-                        return [2 /*return*/, teamsReponse[0]];
-                    case 5: return [4 /*yield*/, conn.release()];
+                        if (teamsReponse && teamsReponse.length > 0) {
+                            return [2 /*return*/, teamsReponse];
+                        }
+                        else {
+                            return [2 /*return*/, []];
+                        }
+                        return [3 /*break*/, 5];
+                    case 4: return [2 /*return*/, []];
+                    case 5: return [3 /*break*/, 8];
                     case 6:
-                        _a.sent();
-                        return [2 /*return*/, null];
-                    case 7: return [3 /*break*/, 10];
-                    case 8: return [4 /*yield*/, conn.release()];
-                    case 9:
-                        _a.sent();
-                        return [2 /*return*/, null];
-                    case 10: return [3 /*break*/, 12];
-                    case 11: return [2 /*return*/, null];
-                    case 12: return [3 /*break*/, 16];
-                    case 13:
                         e_6 = _a.sent();
-                        console.log("GetTeamByID");
                         console.error(e_6);
-                        if (!conn) return [3 /*break*/, 15];
-                        return [4 /*yield*/, conn.release()];
-                    case 14:
-                        _a.sent();
-                        _a.label = 15;
-                    case 15: return [2 /*return*/, null];
-                    case 16: return [2 /*return*/];
+                        return [2 /*return*/, []];
+                    case 7:
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 8: return [2 /*return*/];
                 }
             });
         });
     };
-    TeamsServer.prototype.getTeamByProductId = function (productId) {
+    TeamsServer.prototype.getTeamById = function (teamId) {
         return __awaiter(this, void 0, void 0, function () {
             var conn, queryOptions, teamsReponse, e_7;
             return __generator(this, function (_a) {
@@ -586,51 +537,45 @@ var TeamsServer = /** @class */ (function () {
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 13, , 16]);
+                        _a.trys.push([1, 8, 9, 10]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 11];
-                        if (!(productId && productId !== "")) return [3 /*break*/, 8];
+                        if (!conn) return [3 /*break*/, 6];
+                        if (!(teamId && teamId !== "")) return [3 /*break*/, 4];
                         queryOptions = {
                             namedPlaceholders: true,
-                            sql: "SELECT * FROM teams WHERE teams.productId=:productId"
+                            sql: "SELECT * FROM teams WHERE teams.teamId=:teamId"
                         };
-                        return [4 /*yield*/, conn.query(queryOptions, { productId: productId })];
+                        return [4 /*yield*/, conn.query(queryOptions, { teamId: teamId })];
                     case 3:
                         teamsReponse = _a.sent();
-                        if (!(teamsReponse && teamsReponse.length > 0 && teamsReponse[0])) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.release()];
-                    case 4:
-                        _a.sent();
-                        return [2 /*return*/, teamsReponse[0]];
-                    case 5: return [4 /*yield*/, conn.release()];
-                    case 6:
-                        _a.sent();
-                        return [2 /*return*/, null];
+                        if (teamsReponse && teamsReponse.length > 0 && teamsReponse[0]) {
+                            return [2 /*return*/, teamsReponse[0]];
+                        }
+                        else {
+                            return [2 /*return*/, null];
+                        }
+                        return [3 /*break*/, 5];
+                    case 4: return [2 /*return*/, null];
+                    case 5: return [3 /*break*/, 7];
+                    case 6: return [2 /*return*/, null];
                     case 7: return [3 /*break*/, 10];
-                    case 8: return [4 /*yield*/, conn.release()];
-                    case 9:
-                        _a.sent();
-                        return [2 /*return*/, null];
-                    case 10: return [3 /*break*/, 12];
-                    case 11: return [2 /*return*/, null];
-                    case 12: return [3 /*break*/, 16];
-                    case 13:
+                    case 8:
                         e_7 = _a.sent();
+                        console.log("GetTeamByID");
                         console.error(e_7);
-                        if (!conn) return [3 /*break*/, 15];
-                        return [4 /*yield*/, conn.release()];
-                    case 14:
-                        _a.sent();
-                        _a.label = 15;
-                    case 15: return [2 /*return*/, null];
-                    case 16: return [2 /*return*/];
+                        return [2 /*return*/, null];
+                    case 9:
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 10: return [2 /*return*/];
                 }
             });
         });
     };
-    TeamsServer.prototype.getTeamsByIdList = function (list) {
+    TeamsServer.prototype.getTeamByProductId = function (productId) {
         return __awaiter(this, void 0, void 0, function () {
             var conn, queryOptions, teamsReponse, e_8;
             return __generator(this, function (_a) {
@@ -639,11 +584,57 @@ var TeamsServer = /** @class */ (function () {
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 10, , 13]);
+                        _a.trys.push([1, 8, 9, 10]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 8];
+                        if (!conn) return [3 /*break*/, 6];
+                        if (!(productId && productId !== "")) return [3 /*break*/, 4];
+                        queryOptions = {
+                            namedPlaceholders: true,
+                            sql: "SELECT * FROM teams WHERE teams.productId=:productId"
+                        };
+                        return [4 /*yield*/, conn.query(queryOptions, { productId: productId })];
+                    case 3:
+                        teamsReponse = _a.sent();
+                        if (teamsReponse && teamsReponse.length > 0 && teamsReponse[0]) {
+                            return [2 /*return*/, teamsReponse[0]];
+                        }
+                        else {
+                            return [2 /*return*/, null];
+                        }
+                        return [3 /*break*/, 5];
+                    case 4: return [2 /*return*/, null];
+                    case 5: return [3 /*break*/, 7];
+                    case 6: return [2 /*return*/, null];
+                    case 7: return [3 /*break*/, 10];
+                    case 8:
+                        e_8 = _a.sent();
+                        console.error(e_8);
+                        return [2 /*return*/, null];
+                    case 9:
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 10: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    TeamsServer.prototype.getTeamsByIdList = function (list) {
+        return __awaiter(this, void 0, void 0, function () {
+            var conn, queryOptions, teamsReponse, e_9;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        conn = null;
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 6, 7, 8]);
+                        return [4 /*yield*/, server_2.getPool().getConnection()];
+                    case 2:
+                        conn = _a.sent();
+                        if (!conn) return [3 /*break*/, 4];
                         queryOptions = {
                             namedPlaceholders: true,
                             sql: "SELECT * FROM teams WHERE teams.teamId IN (:...list)"
@@ -651,28 +642,24 @@ var TeamsServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, { list: list })];
                     case 3:
                         teamsReponse = _a.sent();
-                        if (!(teamsReponse && teamsReponse.length > 0 && teamsReponse[0])) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.release()];
-                    case 4:
-                        _a.sent();
-                        return [2 /*return*/, teamsReponse];
-                    case 5: return [4 /*yield*/, conn.release()];
+                        if (teamsReponse && teamsReponse.length > 0 && teamsReponse[0]) {
+                            return [2 /*return*/, teamsReponse];
+                        }
+                        else {
+                            return [2 /*return*/, []];
+                        }
+                        return [3 /*break*/, 5];
+                    case 4: return [2 /*return*/, []];
+                    case 5: return [3 /*break*/, 8];
                     case 6:
-                        _a.sent();
+                        e_9 = _a.sent();
+                        console.error(e_9);
                         return [2 /*return*/, []];
-                    case 7: return [3 /*break*/, 9];
-                    case 8: return [2 /*return*/, []];
-                    case 9: return [3 /*break*/, 13];
-                    case 10:
-                        e_8 = _a.sent();
-                        console.error(e_8);
-                        if (!conn) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.release()];
-                    case 11:
-                        _a.sent();
-                        _a.label = 12;
-                    case 12: return [2 /*return*/, []];
-                    case 13: return [2 /*return*/];
+                    case 7:
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 8: return [2 /*return*/];
                 }
             });
         });
@@ -697,19 +684,19 @@ var TeamsServer = /** @class */ (function () {
     */
     TeamsServer.prototype.tempF = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var conn, tList, queryOptions, teamsList, teamsList_1, teamsList_1_1, t, e_9;
-            var e_10, _a;
+            var conn, tList, queryOptions, teamsList, teamsList_1, teamsList_1_1, t, e_10;
+            var e_11, _a;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
                         conn = null;
                         _b.label = 1;
                     case 1:
-                        _b.trys.push([1, 10, , 13]);
+                        _b.trys.push([1, 6, 7, 8]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _b.sent();
-                        if (!conn) return [3 /*break*/, 8];
+                        if (!conn) return [3 /*break*/, 4];
                         tList = [];
                         queryOptions = {
                             namedPlaceholders: true,
@@ -718,60 +705,56 @@ var TeamsServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, { list: [28, 35, 36, 105, 32, 40, 101, 34, 26, 15, 67, 25, 21, 106, 89, 18] })];
                     case 3:
                         teamsList = _b.sent();
-                        if (!(teamsList && teamsList.length > 0)) return [3 /*break*/, 5];
-                        try {
-                            for (teamsList_1 = __values(teamsList), teamsList_1_1 = teamsList_1.next(); !teamsList_1_1.done; teamsList_1_1 = teamsList_1.next()) {
-                                t = teamsList_1_1.value;
-                                tList.push(t.teamId);
-                            }
-                        }
-                        catch (e_10_1) { e_10 = { error: e_10_1 }; }
-                        finally {
+                        if (teamsList && teamsList.length > 0) {
                             try {
-                                if (teamsList_1_1 && !teamsList_1_1.done && (_a = teamsList_1.return)) _a.call(teamsList_1);
+                                for (teamsList_1 = __values(teamsList), teamsList_1_1 = teamsList_1.next(); !teamsList_1_1.done; teamsList_1_1 = teamsList_1.next()) {
+                                    t = teamsList_1_1.value;
+                                    tList.push(t.teamId);
+                                }
                             }
-                            finally { if (e_10) throw e_10.error; }
+                            catch (e_11_1) { e_11 = { error: e_11_1 }; }
+                            finally {
+                                try {
+                                    if (teamsList_1_1 && !teamsList_1_1.done && (_a = teamsList_1.return)) _a.call(teamsList_1);
+                                }
+                                finally { if (e_11) throw e_11.error; }
+                            }
+                            return [2 /*return*/, tList];
                         }
-                        return [4 /*yield*/, conn.release()];
-                    case 4:
-                        _b.sent();
-                        return [2 /*return*/, tList];
-                    case 5: return [4 /*yield*/, conn.release()];
+                        else {
+                            return [2 /*return*/, []];
+                        }
+                        return [3 /*break*/, 5];
+                    case 4: return [2 /*return*/, []];
+                    case 5: return [3 /*break*/, 8];
                     case 6:
-                        _b.sent();
+                        e_10 = _b.sent();
+                        console.error(e_10);
                         return [2 /*return*/, []];
-                    case 7: return [3 /*break*/, 9];
-                    case 8: return [2 /*return*/, []];
-                    case 9: return [3 /*break*/, 13];
-                    case 10:
-                        e_9 = _b.sent();
-                        console.error(e_9);
-                        if (!conn) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.release()];
-                    case 11:
-                        _b.sent();
-                        _b.label = 12;
-                    case 12: return [2 /*return*/, []];
-                    case 13: return [2 /*return*/];
+                    case 7:
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 8: return [2 /*return*/];
                 }
             });
         });
     };
     TeamsServer.prototype.getProductById = function (productId) {
         return __awaiter(this, void 0, void 0, function () {
-            var conn, queryOptions, productResponse, e_11;
+            var conn, queryOptions, productResponse, e_12;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 13, , 16]);
+                        _a.trys.push([1, 8, 9, 10]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 11];
-                        if (!(productId && productId !== "")) return [3 /*break*/, 8];
+                        if (!conn) return [3 /*break*/, 6];
+                        if (!(productId && productId !== "")) return [3 /*break*/, 4];
                         queryOptions = {
                             namedPlaceholders: true,
                             sql: "SELECT * FROM products WHERE products.productId=:productId"
@@ -779,53 +762,45 @@ var TeamsServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, { productId: productId })];
                     case 3:
                         productResponse = _a.sent();
-                        if (!(productResponse && productResponse.length > 0 && productResponse[0])) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.release()];
-                    case 4:
-                        _a.sent();
-                        return [2 /*return*/, productResponse[0]];
-                    case 5: return [4 /*yield*/, conn.release()];
-                    case 6:
-                        _a.sent();
-                        return [2 /*return*/, null];
-                    case 7:
+                        if (productResponse && productResponse.length > 0 && productResponse[0]) {
+                            return [2 /*return*/, productResponse[0]];
+                        }
+                        else {
+                            return [2 /*return*/, null];
+                        }
                         ;
-                        return [3 /*break*/, 10];
-                    case 8: return [4 /*yield*/, conn.release()];
-                    case 9:
-                        _a.sent();
+                        return [3 /*break*/, 5];
+                    case 4: return [2 /*return*/, null];
+                    case 5: return [3 /*break*/, 7];
+                    case 6: return [2 /*return*/, null];
+                    case 7: return [3 /*break*/, 10];
+                    case 8:
+                        e_12 = _a.sent();
+                        console.error(e_12);
                         return [2 /*return*/, null];
-                    case 10: return [3 /*break*/, 12];
-                    case 11: return [2 /*return*/, null];
-                    case 12: return [3 /*break*/, 16];
-                    case 13:
-                        e_11 = _a.sent();
-                        console.error(e_11);
-                        if (!conn) return [3 /*break*/, 15];
-                        return [4 /*yield*/, conn.release()];
-                    case 14:
-                        _a.sent();
-                        _a.label = 15;
-                    case 15: return [2 /*return*/, null];
-                    case 16: return [2 /*return*/];
+                    case 9:
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 10: return [2 /*return*/];
                 }
             });
         });
     };
     TeamsServer.prototype.getUserInTeam = function (userId, teamId) {
         return __awaiter(this, void 0, void 0, function () {
-            var conn, queryOptions, userTeamsResponse, e_12;
+            var conn, queryOptions, userTeamsResponse, e_13;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 10, , 13]);
+                        _a.trys.push([1, 6, 7, 8]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 8];
+                        if (!conn) return [3 /*break*/, 4];
                         queryOptions = {
                             namedPlaceholders: true,
                             sql: "SELECT * FROM userTeams WHERE userTeams.userId=:userId AND userTeams.teamId=:teamId"
@@ -833,46 +808,42 @@ var TeamsServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, { teamId: teamId, userId: userId })];
                     case 3:
                         userTeamsResponse = _a.sent();
-                        if (!(userTeamsResponse && userTeamsResponse.length > 0 && userTeamsResponse[0])) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.release()];
-                    case 4:
-                        _a.sent();
-                        return [2 /*return*/, userTeamsResponse[0]];
-                    case 5: return [4 /*yield*/, conn.release()];
+                        if (userTeamsResponse && userTeamsResponse.length > 0 && userTeamsResponse[0]) {
+                            return [2 /*return*/, userTeamsResponse[0]];
+                        }
+                        else {
+                            return [2 /*return*/, null];
+                        }
+                        return [3 /*break*/, 5];
+                    case 4: return [2 /*return*/, null];
+                    case 5: return [3 /*break*/, 8];
                     case 6:
-                        _a.sent();
+                        e_13 = _a.sent();
+                        console.error(e_13);
                         return [2 /*return*/, null];
-                    case 7: return [3 /*break*/, 9];
-                    case 8: return [2 /*return*/, null];
-                    case 9: return [3 /*break*/, 13];
-                    case 10:
-                        e_12 = _a.sent();
-                        console.error(e_12);
-                        if (!conn) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.release()];
-                    case 11:
-                        _a.sent();
-                        _a.label = 12;
-                    case 12: return [2 /*return*/, null];
-                    case 13: return [2 /*return*/];
+                    case 7:
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 8: return [2 /*return*/];
                 }
             });
         });
     };
     TeamsServer.prototype.getTimestampProduct = function (productId) {
         return __awaiter(this, void 0, void 0, function () {
-            var conn, queryOptions, productResponse, e_13;
+            var conn, queryOptions, productResponse, e_14;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 10, , 13]);
+                        _a.trys.push([1, 6, 7, 8]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 8];
+                        if (!conn) return [3 /*break*/, 4];
                         queryOptions = {
                             namedPlaceholders: true,
                             sql: "SELECT products.timestamp FROM products WHERE products.productId=:productId"
@@ -880,46 +851,42 @@ var TeamsServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, { productId: productId })];
                     case 3:
                         productResponse = _a.sent();
-                        if (!(productResponse && productResponse.length > 0 && productResponse[0])) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.release()];
-                    case 4:
-                        _a.sent();
-                        return [2 /*return*/, productResponse[0]];
-                    case 5: return [4 /*yield*/, conn.release()];
+                        if (productResponse && productResponse.length > 0 && productResponse[0]) {
+                            return [2 /*return*/, productResponse[0]];
+                        }
+                        else {
+                            return [2 /*return*/, null];
+                        }
+                        return [3 /*break*/, 5];
+                    case 4: return [2 /*return*/, null];
+                    case 5: return [3 /*break*/, 8];
                     case 6:
-                        _a.sent();
+                        e_14 = _a.sent();
+                        console.error(e_14);
                         return [2 /*return*/, null];
-                    case 7: return [3 /*break*/, 9];
-                    case 8: return [2 /*return*/, null];
-                    case 9: return [3 /*break*/, 13];
-                    case 10:
-                        e_13 = _a.sent();
-                        console.error(e_13);
-                        if (!conn) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.release()];
-                    case 11:
-                        _a.sent();
-                        _a.label = 12;
-                    case 12: return [2 /*return*/, null];
-                    case 13: return [2 /*return*/];
+                    case 7:
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 8: return [2 /*return*/];
                 }
             });
         });
     };
     TeamsServer.prototype.getTeamByYearAndLocation = function (year, location, teamName) {
         return __awaiter(this, void 0, void 0, function () {
-            var conn, queryOptions, teamResponse, e_14;
+            var conn, queryOptions, teamResponse, e_15;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 10, , 13]);
+                        _a.trys.push([1, 6, 7, 8]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 8];
+                        if (!conn) return [3 /*break*/, 4];
                         queryOptions = {
                             namedPlaceholders: true,
                             sql: "SELECT * FROM teams WHERE teams.year=:year AND teams.location=:location AND teams.teamName=:teamName"
@@ -927,115 +894,105 @@ var TeamsServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, { year: year, location: location, teamName: teamName })];
                     case 3:
                         teamResponse = _a.sent();
-                        if (!(teamResponse && teamResponse.length > 0 && teamResponse[0])) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.release()];
-                    case 4:
-                        _a.sent();
-                        return [2 /*return*/, teamResponse[0]];
-                    case 5: return [4 /*yield*/, conn.release()];
+                        if (teamResponse && teamResponse.length > 0 && teamResponse[0]) {
+                            return [2 /*return*/, teamResponse[0]];
+                        }
+                        else {
+                            return [2 /*return*/, null];
+                        }
+                        return [3 /*break*/, 5];
+                    case 4: return [2 /*return*/, null];
+                    case 5: return [3 /*break*/, 8];
                     case 6:
-                        _a.sent();
+                        e_15 = _a.sent();
+                        console.error(e_15);
                         return [2 /*return*/, null];
-                    case 7: return [3 /*break*/, 9];
-                    case 8: return [2 /*return*/, null];
-                    case 9: return [3 /*break*/, 13];
-                    case 10:
-                        e_14 = _a.sent();
-                        console.error(e_14);
-                        if (!conn) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.release()];
-                    case 11:
-                        _a.sent();
-                        _a.label = 12;
-                    case 12: return [2 /*return*/, null];
-                    case 13: return [2 /*return*/];
+                    case 7:
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 8: return [2 /*return*/];
                 }
             });
         });
     };
     TeamsServer.prototype.isTeamInDate = function (date, productId) {
         return __awaiter(this, void 0, void 0, function () {
-            var conn, queryOptions, response, e_15;
+            var conn, queryOptions, response, e_16;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 17, , 20]);
+                        _a.trys.push([1, 10, 11, 12]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 15];
+                        if (!conn) return [3 /*break*/, 8];
                         queryOptions = {
                             namedPlaceholders: true,
                             sql: ""
                         };
                         response = void 0;
                         if (!(date === "may")) return [3 /*break*/, 4];
-                        queryOptions.sql = "SELECT * FROM products WHERE products.productId=:productId JSON_EXTRACT(productDetails,'$.assessment20May') = 'Yes'";
+                        queryOptions.sql = "SELECT * FROM products WHERE products.productId=:productId AND JSON_EXTRACT(productDetails,'$.assessmentSemifinals') = true";
                         return [4 /*yield*/, conn.query(queryOptions, { productId: productId })];
                     case 3:
                         response = _a.sent();
-                        return [3 /*break*/, 10];
+                        return [3 /*break*/, 7];
                     case 4:
                         if (!(date === "oct")) return [3 /*break*/, 6];
-                        queryOptions.sql = "SELECT * FROM products WHERE products.productId=:productId JSON_EXTRACT(productDetails,'$.assessment20May') = 'Yes' AND JSON_EXTRACT(productDetails,'$.assessment12Oct') = 'Yes'";
+                        queryOptions.sql = "SELECT * FROM products WHERE products.productId=:productId AND JSON_EXTRACT(productDetails,'$.assessmentSemifinals') = true AND JSON_EXTRACT(productDetails,'$.assessmentFinals') = true";
                         return [4 /*yield*/, conn.query(queryOptions, { productId: productId })];
                     case 5:
                         response = _a.sent();
-                        return [3 /*break*/, 10];
+                        return [3 /*break*/, 7];
                     case 6:
-                        if (!(date === "none")) return [3 /*break*/, 8];
-                        return [4 /*yield*/, conn.release()];
+                        if (date === "none") {
+                            return [2 /*return*/, true];
+                        }
+                        else {
+                            return [2 /*return*/, false];
+                        }
+                        _a.label = 7;
                     case 7:
-                        _a.sent();
-                        return [2 /*return*/, true];
-                    case 8: return [4 /*yield*/, conn.release()];
-                    case 9:
-                        _a.sent();
-                        return [2 /*return*/, false];
+                        if (response && response.length > 0 && response[0]) {
+                            return [2 /*return*/, true];
+                        }
+                        else {
+                            return [2 /*return*/, false];
+                        }
+                        return [3 /*break*/, 9];
+                    case 8: return [2 /*return*/, false];
+                    case 9: return [3 /*break*/, 12];
                     case 10:
-                        if (!(response && response.length > 0 && response[0])) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.release()];
-                    case 11:
-                        _a.sent();
-                        return [2 /*return*/, true];
-                    case 12: return [4 /*yield*/, conn.release()];
-                    case 13:
-                        _a.sent();
+                        e_16 = _a.sent();
+                        console.error(e_16);
                         return [2 /*return*/, false];
-                    case 14: return [3 /*break*/, 16];
-                    case 15: return [2 /*return*/, false];
-                    case 16: return [3 /*break*/, 20];
-                    case 17:
-                        e_15 = _a.sent();
-                        console.error(e_15);
-                        if (!conn) return [3 /*break*/, 19];
-                        return [4 /*yield*/, conn.release()];
-                    case 18:
-                        _a.sent();
-                        _a.label = 19;
-                    case 19: return [2 /*return*/, false];
-                    case 20: return [2 /*return*/];
+                    case 11:
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 12: return [2 /*return*/];
                 }
             });
         });
     };
     TeamsServer.prototype.getUsersByTeamId = function (teamId) {
         return __awaiter(this, void 0, void 0, function () {
-            var conn, queryOptions, teamResponse, e_16;
+            var conn, queryOptions, teamResponse, e_17;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 10, , 13]);
+                        _a.trys.push([1, 6, 7, 8]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 8];
+                        if (!conn) return [3 /*break*/, 4];
                         queryOptions = {
                             namedPlaceholders: true,
                             sql: "SELECT userTeams.userProductId, userTeams.teamId, users.* FROM userTeams INNER JOIN users ON users.userId=userTeams.userId WHERE userTeams.teamId=:teamId"
@@ -1043,50 +1000,46 @@ var TeamsServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, { teamId: teamId })];
                     case 3:
                         teamResponse = _a.sent();
-                        if (!(teamResponse && teamResponse.length > 0)) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.release()];
-                    case 4:
-                        _a.sent();
-                        return [2 /*return*/, teamResponse];
-                    case 5: return [4 /*yield*/, conn.release()];
+                        if (teamResponse && teamResponse.length > 0) {
+                            return [2 /*return*/, teamResponse];
+                        }
+                        else {
+                            return [2 /*return*/, []];
+                        }
+                        return [3 /*break*/, 5];
+                    case 4: return [2 /*return*/, []];
+                    case 5: return [3 /*break*/, 8];
                     case 6:
-                        _a.sent();
+                        e_17 = _a.sent();
+                        console.error(e_17);
                         return [2 /*return*/, []];
-                    case 7: return [3 /*break*/, 9];
-                    case 8: return [2 /*return*/, []];
-                    case 9: return [3 /*break*/, 13];
-                    case 10:
-                        e_16 = _a.sent();
-                        console.error(e_16);
-                        if (!conn) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.release()];
-                    case 11:
-                        _a.sent();
-                        _a.label = 12;
-                    case 12: return [2 /*return*/, []];
-                    case 13: return [2 /*return*/];
+                    case 7:
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 8: return [2 /*return*/];
                 }
             });
         });
     };
     TeamsServer.prototype.getProductByTeamId = function (teamId) {
         return __awaiter(this, void 0, void 0, function () {
-            var conn, teamById, queryOptions, teamResponse, e_17;
+            var conn, teamById, queryOptions, teamResponse, e_18;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 13, , 16]);
+                        _a.trys.push([1, 9, 10, 11]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 11];
+                        if (!conn) return [3 /*break*/, 7];
                         return [4 /*yield*/, this.getTeamById(teamId)];
                     case 3:
                         teamById = _a.sent();
-                        if (!teamById) return [3 /*break*/, 9];
+                        if (!teamById) return [3 /*break*/, 5];
                         queryOptions = {
                             namedPlaceholders: true,
                             sql: "SELECT * FROM products WHERE products.productId=:productId"
@@ -1094,31 +1047,27 @@ var TeamsServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, { productId: teamById.productId })];
                     case 4:
                         teamResponse = _a.sent();
-                        if (!(teamResponse && teamResponse.length > 0 && teamResponse[0])) return [3 /*break*/, 6];
-                        return [4 /*yield*/, conn.release()];
-                    case 5:
-                        _a.sent();
-                        return [2 /*return*/, teamResponse[0]];
-                    case 6: return [4 /*yield*/, conn.release()];
-                    case 7:
-                        _a.sent();
-                        return [2 /*return*/, null];
-                    case 8: return [3 /*break*/, 10];
-                    case 9: return [2 /*return*/, null];
-                    case 10: return [3 /*break*/, 12];
-                    case 11: return [2 /*return*/, null];
-                    case 12: return [3 /*break*/, 16];
-                    case 13:
-                        e_17 = _a.sent();
+                        if (teamResponse && teamResponse.length > 0 && teamResponse[0]) {
+                            return [2 /*return*/, teamResponse[0]];
+                        }
+                        else {
+                            return [2 /*return*/, null];
+                        }
+                        return [3 /*break*/, 6];
+                    case 5: return [2 /*return*/, null];
+                    case 6: return [3 /*break*/, 8];
+                    case 7: return [2 /*return*/, null];
+                    case 8: return [3 /*break*/, 11];
+                    case 9:
+                        e_18 = _a.sent();
                         console.log("getProductByTeamId");
-                        console.error(e_17);
-                        if (!conn) return [3 /*break*/, 15];
-                        return [4 /*yield*/, conn.release()];
-                    case 14:
-                        _a.sent();
-                        _a.label = 15;
-                    case 15: return [2 /*return*/, null];
-                    case 16: return [2 /*return*/];
+                        console.error(e_18);
+                        return [2 /*return*/, null];
+                    case 10:
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 11: return [2 /*return*/];
                 }
             });
         });
@@ -1132,11 +1081,11 @@ var TeamsServer = /** @class */ (function () {
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 10, , 13]);
+                        _a.trys.push([1, 6, 7, 8]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 8];
+                        if (!conn) return [3 /*break*/, 4];
                         queryOptions = {
                             namedPlaceholders: true,
                             sql: "SELECT teams.teamId, teams.teamName, teams.teamDetails, teams.location, teams.year, products.* FROM teams INNER JOIN products ON teams.productId=products.productId AND products.mentorId=:mentorId"
@@ -1144,28 +1093,24 @@ var TeamsServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, { mentorId: mentorId })];
                     case 3:
                         teamResponse = _a.sent();
-                        if (!(teamResponse && teamResponse.length > 0)) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.release()];
-                    case 4:
-                        _a.sent();
-                        return [2 /*return*/, teamResponse];
-                    case 5: return [4 /*yield*/, conn.release()];
+                        if (teamResponse && teamResponse.length > 0) {
+                            return [2 /*return*/, teamResponse];
+                        }
+                        else {
+                            return [2 /*return*/, []];
+                        }
+                        return [3 /*break*/, 5];
+                    case 4: return [2 /*return*/, []];
+                    case 5: return [3 /*break*/, 8];
                     case 6:
-                        _a.sent();
-                        return [2 /*return*/, []];
-                    case 7: return [3 /*break*/, 9];
-                    case 8: return [2 /*return*/, []];
-                    case 9: return [3 /*break*/, 13];
-                    case 10:
                         error_3 = _a.sent();
                         console.error(error_3);
-                        if (!conn) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.release()];
-                    case 11:
-                        _a.sent();
-                        _a.label = 12;
-                    case 12: return [2 /*return*/, []];
-                    case 13: return [2 /*return*/];
+                        return [2 /*return*/, []];
+                    case 7:
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 8: return [2 /*return*/];
                 }
             });
         });
@@ -1179,11 +1124,11 @@ var TeamsServer = /** @class */ (function () {
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 10, , 13]);
+                        _a.trys.push([1, 6, 7, 8]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 8];
+                        if (!conn) return [3 /*break*/, 4];
                         queryOptions = {
                             namedPlaceholders: true,
                             sql: "SELECT teams.* FROM teams INNER JOIN products ON products.productId=teams.productId WHERE products.mentorId=:mentorId"
@@ -1191,28 +1136,24 @@ var TeamsServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, { mentorId: mentorId })];
                     case 3:
                         teamResponse = _a.sent();
-                        if (!(teamResponse && teamResponse.length > 0)) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.release()];
-                    case 4:
-                        _a.sent();
-                        return [2 /*return*/, teamResponse];
-                    case 5: return [4 /*yield*/, conn.release()];
+                        if (teamResponse && teamResponse.length > 0) {
+                            return [2 /*return*/, teamResponse];
+                        }
+                        else {
+                            return [2 /*return*/, []];
+                        }
+                        return [3 /*break*/, 5];
+                    case 4: return [2 /*return*/, []];
+                    case 5: return [3 /*break*/, 8];
                     case 6:
-                        _a.sent();
-                        return [2 /*return*/, []];
-                    case 7: return [3 /*break*/, 9];
-                    case 8: return [2 /*return*/, []];
-                    case 9: return [3 /*break*/, 13];
-                    case 10:
                         error_4 = _a.sent();
                         console.error(error_4);
-                        if (!conn) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.release()];
-                    case 11:
-                        _a.sent();
-                        _a.label = 12;
-                    case 12: return [2 /*return*/, []];
-                    case 13: return [2 /*return*/];
+                        return [2 /*return*/, []];
+                    case 7:
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 8: return [2 /*return*/];
                 }
             });
         });
@@ -1226,11 +1167,11 @@ var TeamsServer = /** @class */ (function () {
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 10, , 13]);
+                        _a.trys.push([1, 6, 7, 8]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 8];
+                        if (!conn) return [3 /*break*/, 4];
                         queryOptions = {
                             namedPlaceholders: true,
                             sql: "SELECT * FROM products WHERE mentorId=:mentorId"
@@ -1238,28 +1179,24 @@ var TeamsServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, { mentorId: mentorId })];
                     case 3:
                         productResponse = _a.sent();
-                        if (!(productResponse && productResponse.length > 0)) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.release()];
-                    case 4:
-                        _a.sent();
-                        return [2 /*return*/, productResponse];
-                    case 5: return [4 /*yield*/, conn.release()];
+                        if (productResponse && productResponse.length > 0) {
+                            return [2 /*return*/, productResponse];
+                        }
+                        else {
+                            return [2 /*return*/, []];
+                        }
+                        return [3 /*break*/, 5];
+                    case 4: return [2 /*return*/, []];
+                    case 5: return [3 /*break*/, 8];
                     case 6:
-                        _a.sent();
-                        return [2 /*return*/, []];
-                    case 7: return [3 /*break*/, 9];
-                    case 8: return [2 /*return*/, []];
-                    case 9: return [3 /*break*/, 13];
-                    case 10:
                         error_5 = _a.sent();
                         console.error(error_5);
-                        if (!conn) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.release()];
-                    case 11:
-                        _a.sent();
-                        _a.label = 12;
-                    case 12: return [2 /*return*/, []];
-                    case 13: return [2 /*return*/];
+                        return [2 /*return*/, []];
+                    case 7:
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 8: return [2 /*return*/];
                 }
             });
         });
@@ -1273,11 +1210,11 @@ var TeamsServer = /** @class */ (function () {
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 14, , 18]);
+                        _a.trys.push([1, 12, 15, 16]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 12];
+                        if (!conn) return [3 /*break*/, 10];
                         return [4 /*yield*/, conn.beginTransaction()];
                     case 3:
                         _a.sent();
@@ -1292,37 +1229,32 @@ var TeamsServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, product)];
                     case 5:
                         teamResponse = _a.sent();
-                        if (!(teamResponse && teamResponse.length > 0 && teamResponse[0])) return [3 /*break*/, 8];
+                        if (!(teamResponse && teamResponse.length > 0 && teamResponse[0])) return [3 /*break*/, 7];
                         return [4 /*yield*/, conn.commit()];
                     case 6:
                         _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 7:
-                        _a.sent();
                         return [2 /*return*/, teamResponse[0]];
-                    case 8: return [4 /*yield*/, conn.rollback()];
-                    case 9:
-                        _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 10:
+                    case 7: return [4 /*yield*/, conn.rollback()];
+                    case 8:
                         _a.sent();
                         return [2 /*return*/, null];
-                    case 11: return [3 /*break*/, 13];
-                    case 12: return [2 /*return*/, null];
-                    case 13: return [3 /*break*/, 18];
-                    case 14:
+                    case 9: return [3 /*break*/, 11];
+                    case 10: return [2 /*return*/, null];
+                    case 11: return [3 /*break*/, 16];
+                    case 12:
                         error_6 = _a.sent();
                         console.error(error_6);
-                        if (!conn) return [3 /*break*/, 17];
+                        if (!conn) return [3 /*break*/, 14];
                         return [4 /*yield*/, conn.rollback()];
+                    case 13:
+                        _a.sent();
+                        _a.label = 14;
+                    case 14: return [2 /*return*/, null];
                     case 15:
-                        _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 16:
-                        _a.sent();
-                        _a.label = 17;
-                    case 17: return [2 /*return*/, null];
-                    case 18: return [2 /*return*/];
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 16: return [2 /*return*/];
                 }
             });
         });
@@ -1336,11 +1268,11 @@ var TeamsServer = /** @class */ (function () {
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 14, , 18]);
+                        _a.trys.push([1, 12, 15, 16]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 12];
+                        if (!conn) return [3 /*break*/, 10];
                         return [4 /*yield*/, conn.beginTransaction()];
                     case 3:
                         _a.sent();
@@ -1355,37 +1287,32 @@ var TeamsServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, team)];
                     case 5:
                         teamResponse = _a.sent();
-                        if (!(teamResponse && teamResponse.length > 0 && teamResponse[0])) return [3 /*break*/, 8];
+                        if (!(teamResponse && teamResponse.length > 0 && teamResponse[0])) return [3 /*break*/, 7];
                         return [4 /*yield*/, conn.commit()];
                     case 6:
                         _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 7:
-                        _a.sent();
                         return [2 /*return*/, teamResponse[0]];
-                    case 8: return [4 /*yield*/, conn.rollback()];
-                    case 9:
-                        _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 10:
+                    case 7: return [4 /*yield*/, conn.rollback()];
+                    case 8:
                         _a.sent();
                         return [2 /*return*/, null];
-                    case 11: return [3 /*break*/, 13];
-                    case 12: return [2 /*return*/, null];
-                    case 13: return [3 /*break*/, 18];
-                    case 14:
+                    case 9: return [3 /*break*/, 11];
+                    case 10: return [2 /*return*/, null];
+                    case 11: return [3 /*break*/, 16];
+                    case 12:
                         error_7 = _a.sent();
                         console.error(error_7);
-                        if (!conn) return [3 /*break*/, 17];
+                        if (!conn) return [3 /*break*/, 14];
                         return [4 /*yield*/, conn.rollback()];
+                    case 13:
+                        _a.sent();
+                        _a.label = 14;
+                    case 14: return [2 /*return*/, null];
                     case 15:
-                        _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 16:
-                        _a.sent();
-                        _a.label = 17;
-                    case 17: return [2 /*return*/, null];
-                    case 18: return [2 /*return*/];
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 16: return [2 /*return*/];
                 }
             });
         });
@@ -1430,40 +1357,36 @@ var TeamsServer = /** @class */ (function () {
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 10, , 13]);
+                        _a.trys.push([1, 6, 7, 8]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 8];
+                        if (!conn) return [3 /*break*/, 4];
                         queryOptions = {
                             namedPlaceholders: true,
-                            sql: "SELECT * FROM userActivities WHERE userActivities.userId=:userId AND userActivities.teamId=:teamId"
+                            sql: "SELECT * FROM userActivities WHERE userActivities.userId=:userId AND userActivities.teamId=:teamId ORDER BY date ASC"
                         };
                         return [4 /*yield*/, conn.query(queryOptions, { userId: userId, teamId: teamId })];
                     case 3:
                         teamResponse = _a.sent();
-                        if (!(teamResponse && teamResponse.length > 0)) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.release()];
-                    case 4:
-                        _a.sent();
-                        return [2 /*return*/, teamResponse];
-                    case 5: return [4 /*yield*/, conn.release()];
+                        if (teamResponse && teamResponse.length > 0) {
+                            return [2 /*return*/, teamResponse];
+                        }
+                        else {
+                            return [2 /*return*/, []];
+                        }
+                        return [3 /*break*/, 5];
+                    case 4: return [2 /*return*/, []];
+                    case 5: return [3 /*break*/, 8];
                     case 6:
-                        _a.sent();
-                        return [2 /*return*/, []];
-                    case 7: return [3 /*break*/, 9];
-                    case 8: return [2 /*return*/, []];
-                    case 9: return [3 /*break*/, 13];
-                    case 10:
                         error_9 = _a.sent();
                         console.error(error_9);
-                        if (!conn) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.release()];
-                    case 11:
-                        _a.sent();
-                        _a.label = 12;
-                    case 12: return [2 /*return*/, []];
-                    case 13: return [2 /*return*/];
+                        return [2 /*return*/, []];
+                    case 7:
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 8: return [2 /*return*/];
                 }
             });
         });
@@ -1477,11 +1400,11 @@ var TeamsServer = /** @class */ (function () {
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 18, , 22]);
+                        _a.trys.push([1, 15, 18, 19]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 16];
+                        if (!conn) return [3 /*break*/, 13];
                         return [4 /*yield*/, conn.beginTransaction()];
                     case 3:
                         _a.sent();
@@ -1492,54 +1415,46 @@ var TeamsServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, userActivity)];
                     case 4:
                         activityResponse = _a.sent();
-                        if (!(activityResponse && activityResponse.length > 0 && activityResponse[0])) return [3 /*break*/, 7];
+                        if (!(activityResponse && activityResponse.length > 0 && activityResponse[0])) return [3 /*break*/, 6];
                         return [4 /*yield*/, conn.rollback()];
                     case 5:
                         _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 6:
-                        _a.sent();
                         return [2 /*return*/, null];
-                    case 7:
+                    case 6:
                         queryOptions.sql = "INSERT INTO userActivities (activityId,userId,teamId,noOfHours,date,description) VALUES(:activityId,:userId,:teamId,:noOfHours,:date,:description)";
                         return [4 /*yield*/, conn.query(queryOptions, userActivity)];
-                    case 8:
+                    case 7:
                         _a.sent();
                         queryOptions.sql = "SELECT activityId,userId,teamId,noOfHours,date,description FROM userActivities WHERE activityId=:activityId";
                         return [4 /*yield*/, conn.query(queryOptions, { activityId: userActivity.activityId })];
-                    case 9:
+                    case 8:
                         activity = _a.sent();
-                        if (!(activity && activity.length > 0 && activity[0])) return [3 /*break*/, 12];
+                        if (!(activity && activity.length > 0 && activity[0])) return [3 /*break*/, 10];
                         return [4 /*yield*/, conn.commit()];
-                    case 10:
-                        _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 11:
+                    case 9:
                         _a.sent();
                         return [2 /*return*/, activity[0]];
-                    case 12: return [4 /*yield*/, conn.rollback()];
-                    case 13:
-                        _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 14:
+                    case 10: return [4 /*yield*/, conn.rollback()];
+                    case 11:
                         _a.sent();
                         return [2 /*return*/, null];
-                    case 15: return [3 /*break*/, 17];
-                    case 16: return [2 /*return*/, null];
-                    case 17: return [3 /*break*/, 22];
-                    case 18:
+                    case 12: return [3 /*break*/, 14];
+                    case 13: return [2 /*return*/, null];
+                    case 14: return [3 /*break*/, 19];
+                    case 15:
                         error_10 = _a.sent();
                         console.error(error_10);
-                        if (!conn) return [3 /*break*/, 21];
+                        if (!conn) return [3 /*break*/, 17];
                         return [4 /*yield*/, conn.rollback()];
-                    case 19:
+                    case 16:
                         _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 20:
-                        _a.sent();
-                        _a.label = 21;
-                    case 21: return [2 /*return*/, null];
-                    case 22: return [2 /*return*/];
+                        _a.label = 17;
+                    case 17: return [2 /*return*/, null];
+                    case 18:
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 19: return [2 /*return*/];
                 }
             });
         });
@@ -1553,11 +1468,11 @@ var TeamsServer = /** @class */ (function () {
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 19, , 23]);
+                        _a.trys.push([1, 16, 19, 20]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 17];
+                        if (!conn) return [3 /*break*/, 14];
                         return [4 /*yield*/, conn.beginTransaction()];
                     case 3:
                         _a.sent();
@@ -1568,7 +1483,7 @@ var TeamsServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, userActivity)];
                     case 4:
                         activityResponse = _a.sent();
-                        if (!(activityResponse && activityResponse.length > 0 && activityResponse[0])) return [3 /*break*/, 13];
+                        if (!(activityResponse && activityResponse.length > 0 && activityResponse[0])) return [3 /*break*/, 11];
                         queryOptions.sql = "UPDATE userActivities SET userId=:userId, teamId=:teamId, noOfHours=:noOfHours, date=:date, description=:description";
                         return [4 /*yield*/, conn.query(queryOptions, userActivity)];
                     case 5:
@@ -1577,63 +1492,55 @@ var TeamsServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, userActivity)];
                     case 6:
                         activity = _a.sent();
-                        if (!(activity && activity.length > 0 && activity[0])) return [3 /*break*/, 9];
+                        if (!(activity && activity.length > 0 && activity[0])) return [3 /*break*/, 8];
                         return [4 /*yield*/, conn.commit()];
                     case 7:
                         _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 8:
-                        _a.sent();
                         return [2 /*return*/, activity[0]];
-                    case 9: return [4 /*yield*/, conn.rollback()];
-                    case 10:
-                        _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 11:
+                    case 8: return [4 /*yield*/, conn.rollback()];
+                    case 9:
                         _a.sent();
                         return [2 /*return*/, null];
-                    case 12: return [3 /*break*/, 16];
-                    case 13: return [4 /*yield*/, conn.rollback()];
-                    case 14:
-                        _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 15:
+                    case 10: return [3 /*break*/, 13];
+                    case 11: return [4 /*yield*/, conn.rollback()];
+                    case 12:
                         _a.sent();
                         return [2 /*return*/, null];
-                    case 16: return [3 /*break*/, 18];
-                    case 17: return [2 /*return*/, null];
-                    case 18: return [3 /*break*/, 23];
-                    case 19:
+                    case 13: return [3 /*break*/, 15];
+                    case 14: return [2 /*return*/, null];
+                    case 15: return [3 /*break*/, 20];
+                    case 16:
                         error_11 = _a.sent();
                         console.error(error_11);
-                        if (!conn) return [3 /*break*/, 22];
+                        if (!conn) return [3 /*break*/, 18];
                         return [4 /*yield*/, conn.rollback()];
-                    case 20:
+                    case 17:
                         _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 21:
-                        _a.sent();
-                        _a.label = 22;
-                    case 22: return [2 /*return*/, null];
-                    case 23: return [2 /*return*/];
+                        _a.label = 18;
+                    case 18: return [2 /*return*/, null];
+                    case 19:
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 20: return [2 /*return*/];
                 }
             });
         });
     };
     TeamsServer.prototype.updateActivity = function (userActivity) {
         return __awaiter(this, void 0, void 0, function () {
-            var conn, queryOptions, activity, e_18;
+            var conn, queryOptions, activity, e_19;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 14, , 18]);
+                        _a.trys.push([1, 12, 15, 16]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 12];
+                        if (!conn) return [3 /*break*/, 10];
                         return [4 /*yield*/, conn.beginTransaction()];
                     case 3:
                         _a.sent();
@@ -1648,55 +1555,50 @@ var TeamsServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, userActivity)];
                     case 5:
                         activity = _a.sent();
-                        if (!(activity && activity.length > 0 && activity[0])) return [3 /*break*/, 8];
+                        if (!(activity && activity.length > 0 && activity[0])) return [3 /*break*/, 7];
                         return [4 /*yield*/, conn.commit()];
                     case 6:
                         _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 7:
-                        _a.sent();
                         return [2 /*return*/, activity[0]];
-                    case 8: return [4 /*yield*/, conn.rollback()];
-                    case 9:
-                        _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 10:
+                    case 7: return [4 /*yield*/, conn.rollback()];
+                    case 8:
                         _a.sent();
                         return [2 /*return*/, null];
-                    case 11: return [3 /*break*/, 13];
-                    case 12: return [2 /*return*/, null];
-                    case 13: return [3 /*break*/, 18];
-                    case 14:
-                        e_18 = _a.sent();
-                        console.error(e_18);
-                        if (!conn) return [3 /*break*/, 17];
+                    case 9: return [3 /*break*/, 11];
+                    case 10: return [2 /*return*/, null];
+                    case 11: return [3 /*break*/, 16];
+                    case 12:
+                        e_19 = _a.sent();
+                        console.error(e_19);
+                        if (!conn) return [3 /*break*/, 14];
                         return [4 /*yield*/, conn.rollback()];
+                    case 13:
+                        _a.sent();
+                        _a.label = 14;
+                    case 14: return [2 /*return*/, null];
                     case 15:
-                        _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 16:
-                        _a.sent();
-                        _a.label = 17;
-                    case 17: return [2 /*return*/, null];
-                    case 18: return [2 /*return*/];
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 16: return [2 /*return*/];
                 }
             });
         });
     };
     TeamsServer.prototype.updateUserTeamDetails = function (userTeam) {
         return __awaiter(this, void 0, void 0, function () {
-            var conn, queryOptions, activity, e_19;
+            var conn, queryOptions, activity, e_20;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 14, , 18]);
+                        _a.trys.push([1, 12, 15, 16]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 12];
+                        if (!conn) return [3 /*break*/, 10];
                         return [4 /*yield*/, conn.beginTransaction()];
                     case 3:
                         _a.sent();
@@ -1711,37 +1613,32 @@ var TeamsServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, userTeam)];
                     case 5:
                         activity = _a.sent();
-                        if (!(activity && activity.length > 0 && activity[0])) return [3 /*break*/, 8];
+                        if (!(activity && activity.length > 0 && activity[0])) return [3 /*break*/, 7];
                         return [4 /*yield*/, conn.commit()];
                     case 6:
                         _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 7:
-                        _a.sent();
                         return [2 /*return*/, activity[0]];
-                    case 8: return [4 /*yield*/, conn.rollback()];
-                    case 9:
-                        _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 10:
+                    case 7: return [4 /*yield*/, conn.rollback()];
+                    case 8:
                         _a.sent();
                         return [2 /*return*/, null];
-                    case 11: return [3 /*break*/, 13];
-                    case 12: return [2 /*return*/, null];
-                    case 13: return [3 /*break*/, 18];
-                    case 14:
-                        e_19 = _a.sent();
-                        console.error(e_19);
-                        if (!conn) return [3 /*break*/, 17];
+                    case 9: return [3 /*break*/, 11];
+                    case 10: return [2 /*return*/, null];
+                    case 11: return [3 /*break*/, 16];
+                    case 12:
+                        e_20 = _a.sent();
+                        console.error(e_20);
+                        if (!conn) return [3 /*break*/, 14];
                         return [4 /*yield*/, conn.rollback()];
+                    case 13:
+                        _a.sent();
+                        _a.label = 14;
+                    case 14: return [2 /*return*/, null];
                     case 15:
-                        _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 16:
-                        _a.sent();
-                        _a.label = 17;
-                    case 17: return [2 /*return*/, null];
-                    case 18: return [2 /*return*/];
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 16: return [2 /*return*/];
                 }
             });
         });
@@ -1762,8 +1659,8 @@ if (authFunct)
     router.use(authFunct);
 // Bypass params dictionary and send authorization Function
 router.get("/teams:userId", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var all_teams, all_teams_1, all_teams_1_1, team, e_20;
-    var e_21, _a;
+    var all_teams, all_teams_1, all_teams_1_1, team, e_21;
+    var e_22, _a;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
@@ -1777,12 +1674,12 @@ router.get("/teams:userId", function (req, res) { return __awaiter(void 0, void 
                         team.teamDetails = JSON.parse(team.teamDetails);
                     }
                 }
-                catch (e_21_1) { e_21 = { error: e_21_1 }; }
+                catch (e_22_1) { e_22 = { error: e_22_1 }; }
                 finally {
                     try {
                         if (all_teams_1_1 && !all_teams_1_1.done && (_a = all_teams_1.return)) _a.call(all_teams_1);
                     }
-                    finally { if (e_21) throw e_21.error; }
+                    finally { if (e_22) throw e_22.error; }
                 }
                 if (all_teams)
                     res.send(all_teams);
@@ -1790,8 +1687,8 @@ router.get("/teams:userId", function (req, res) { return __awaiter(void 0, void 
                     res.status(204).send({ err: 204, data: [] });
                 return [3 /*break*/, 3];
             case 2:
-                e_20 = _b.sent();
-                console.error(e_20);
+                e_21 = _b.sent();
+                console.error(e_21);
                 res.status(500).send({ err: 500, data: [] });
                 return [3 /*break*/, 3];
             case 3: return [2 /*return*/];
@@ -1800,8 +1697,8 @@ router.get("/teams:userId", function (req, res) { return __awaiter(void 0, void 
 }); });
 // List all teams
 router.get("/mentor/teamsAndProduct/:mentorId", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var allTeams, allTeams_1, allTeams_1_1, team, e_22;
-    var e_23, _a;
+    var allTeams, allTeams_1, allTeams_1_1, team, e_23;
+    var e_24, _a;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
@@ -1816,12 +1713,12 @@ router.get("/mentor/teamsAndProduct/:mentorId", function (req, res) { return __a
                         team.teamDetails = JSON.parse(team.teamDetails);
                     }
                 }
-                catch (e_23_1) { e_23 = { error: e_23_1 }; }
+                catch (e_24_1) { e_24 = { error: e_24_1 }; }
                 finally {
                     try {
                         if (allTeams_1_1 && !allTeams_1_1.done && (_a = allTeams_1.return)) _a.call(allTeams_1);
                     }
-                    finally { if (e_23) throw e_23.error; }
+                    finally { if (e_24) throw e_24.error; }
                 }
                 if (allTeams)
                     res.status(200).send(allTeams);
@@ -1829,8 +1726,8 @@ router.get("/mentor/teamsAndProduct/:mentorId", function (req, res) { return __a
                     res.status(204).send([]);
                 return [3 /*break*/, 3];
             case 2:
-                e_22 = _b.sent();
-                console.error(e_22);
+                e_23 = _b.sent();
+                console.error(e_23);
                 res.status(500).send({ err: 500, data: [] });
                 return [3 /*break*/, 3];
             case 3: return [2 /*return*/];
@@ -1838,8 +1735,8 @@ router.get("/mentor/teamsAndProduct/:mentorId", function (req, res) { return __a
     });
 }); });
 router.get("/mentor/teams/:mentorId", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var allTeams, allTeams_2, allTeams_2_1, team, e_24;
-    var e_25, _a;
+    var allTeams, allTeams_2, allTeams_2_1, team, e_25;
+    var e_26, _a;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
@@ -1853,12 +1750,12 @@ router.get("/mentor/teams/:mentorId", function (req, res) { return __awaiter(voi
                         team.teamDetails = JSON.parse(team.teamDetails);
                     }
                 }
-                catch (e_25_1) { e_25 = { error: e_25_1 }; }
+                catch (e_26_1) { e_26 = { error: e_26_1 }; }
                 finally {
                     try {
                         if (allTeams_2_1 && !allTeams_2_1.done && (_a = allTeams_2.return)) _a.call(allTeams_2);
                     }
-                    finally { if (e_25) throw e_25.error; }
+                    finally { if (e_26) throw e_26.error; }
                 }
                 if (allTeams)
                     res.status(200).send(allTeams);
@@ -1866,8 +1763,8 @@ router.get("/mentor/teams/:mentorId", function (req, res) { return __awaiter(voi
                     res.status(204).send([]);
                 return [3 /*break*/, 3];
             case 2:
-                e_24 = _b.sent();
-                console.error(e_24);
+                e_25 = _b.sent();
+                console.error(e_25);
                 res.status(500).send({ err: 500, data: [] });
                 return [3 /*break*/, 3];
             case 3: return [2 /*return*/];
@@ -1875,7 +1772,7 @@ router.get("/mentor/teams/:mentorId", function (req, res) { return __awaiter(voi
     });
 }); });
 router.get("/teams/demoDay", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var demoDayTeams, e_26;
+    var demoDayTeams, e_27;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -1889,8 +1786,8 @@ router.get("/teams/demoDay", function (req, res) { return __awaiter(void 0, void
                     res.status(204).send([]);
                 return [3 /*break*/, 3];
             case 2:
-                e_26 = _a.sent();
-                console.error(e_26);
+                e_27 = _a.sent();
+                console.error(e_27);
                 res.status(500).send({ err: 500, data: [] });
                 return [3 /*break*/, 3];
             case 3: return [2 /*return*/];
@@ -1898,7 +1795,7 @@ router.get("/teams/demoDay", function (req, res) { return __awaiter(void 0, void
     });
 }); });
 router.get("/team/:teamId", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var team, e_27;
+    var team, e_28;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -1912,8 +1809,8 @@ router.get("/team/:teamId", function (req, res) { return __awaiter(void 0, void 
                     res.status(204).send(null);
                 return [3 /*break*/, 3];
             case 2:
-                e_27 = _a.sent();
-                console.error(e_27);
+                e_28 = _a.sent();
+                console.error(e_28);
                 res.status(500).send({ err: 500, data: null });
                 return [3 /*break*/, 3];
             case 3: return [2 /*return*/];
@@ -1921,8 +1818,8 @@ router.get("/team/:teamId", function (req, res) { return __awaiter(void 0, void 
     });
 }); });
 router.get("/team/users/:teamId", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var users, users_1, users_1_1, user, e_28;
-    var e_29, _a;
+    var users, users_1, users_1_1, user, e_29;
+    var e_30, _a;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
@@ -1938,12 +1835,12 @@ router.get("/team/users/:teamId", function (req, res) { return __awaiter(void 0,
                             user.userDetails = JSON.parse(user.userDetails);
                         }
                     }
-                    catch (e_29_1) { e_29 = { error: e_29_1 }; }
+                    catch (e_30_1) { e_30 = { error: e_30_1 }; }
                     finally {
                         try {
                             if (users_1_1 && !users_1_1.done && (_a = users_1.return)) _a.call(users_1);
                         }
-                        finally { if (e_29) throw e_29.error; }
+                        finally { if (e_30) throw e_30.error; }
                     }
                     res.status(200).send(users);
                 }
@@ -1951,8 +1848,8 @@ router.get("/team/users/:teamId", function (req, res) { return __awaiter(void 0,
                     res.status(204).send([]);
                 return [3 /*break*/, 3];
             case 2:
-                e_28 = _b.sent();
-                console.error(e_28);
+                e_29 = _b.sent();
+                console.error(e_29);
                 res.status(500).send({ err: 500, data: [] });
                 return [3 /*break*/, 3];
             case 3: return [2 /*return*/];
@@ -1960,7 +1857,7 @@ router.get("/team/users/:teamId", function (req, res) { return __awaiter(void 0,
     });
 }); });
 router.post("/team/activity", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var userActivities, e_30;
+    var userActivities, e_31;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -1974,8 +1871,8 @@ router.post("/team/activity", function (req, res) { return __awaiter(void 0, voi
                     res.status(204).send([]);
                 return [3 /*break*/, 3];
             case 2:
-                e_30 = _a.sent();
-                console.error(e_30);
+                e_31 = _a.sent();
+                console.error(e_31);
                 res.status(500).send({ err: 500, data: [] });
                 return [3 /*break*/, 3];
             case 3: return [2 /*return*/];
@@ -1983,7 +1880,7 @@ router.post("/team/activity", function (req, res) { return __awaiter(void 0, voi
     });
 }); });
 router.post("/team/activity/update", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var userActivity, e_31;
+    var userActivity, e_32;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -1997,8 +1894,8 @@ router.post("/team/activity/update", function (req, res) { return __awaiter(void
                     res.status(204).send(null);
                 return [3 /*break*/, 3];
             case 2:
-                e_31 = _a.sent();
-                console.error(e_31);
+                e_32 = _a.sent();
+                console.error(e_32);
                 res.status(500).send({ err: 500, data: null });
                 return [3 /*break*/, 3];
             case 3: return [2 /*return*/];
@@ -2006,8 +1903,8 @@ router.post("/team/activity/update", function (req, res) { return __awaiter(void
     });
 }); });
 router.post("/team/remove/users", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var toRemove, teamId, r, toRemove_1, toRemove_1_1, user, e_32_1, e_33;
-    var e_32, _a;
+    var toRemove, teamId, r, toRemove_1, toRemove_1_1, user, e_33_1, e_34;
+    var e_33, _a;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
@@ -2037,14 +1934,14 @@ router.post("/team/remove/users", function (req, res) { return __awaiter(void 0,
                 return [3 /*break*/, 2];
             case 5: return [3 /*break*/, 8];
             case 6:
-                e_32_1 = _b.sent();
-                e_32 = { error: e_32_1 };
+                e_33_1 = _b.sent();
+                e_33 = { error: e_33_1 };
                 return [3 /*break*/, 8];
             case 7:
                 try {
                     if (toRemove_1_1 && !toRemove_1_1.done && (_a = toRemove_1.return)) _a.call(toRemove_1);
                 }
-                finally { if (e_32) throw e_32.error; }
+                finally { if (e_33) throw e_33.error; }
                 return [7 /*endfinally*/];
             case 8:
                 if (r)
@@ -2053,8 +1950,8 @@ router.post("/team/remove/users", function (req, res) { return __awaiter(void 0,
                     res.status(204).send(false);
                 return [3 /*break*/, 10];
             case 9:
-                e_33 = _b.sent();
-                console.error(e_33);
+                e_34 = _b.sent();
+                console.error(e_34);
                 res.status(500).send({ err: 500, data: false });
                 return [3 /*break*/, 10];
             case 10: return [2 /*return*/];
@@ -2062,8 +1959,8 @@ router.post("/team/remove/users", function (req, res) { return __awaiter(void 0,
     });
 }); });
 router.post("/team/add/users", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var toAdd, teamId, userTeam, toAdd_1, toAdd_1_1, user, e_34_1, e_35;
-    var e_34, _a;
+    var toAdd, teamId, userTeam, toAdd_1, toAdd_1_1, user, e_35_1, e_36;
+    var e_35, _a;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
@@ -2093,14 +1990,14 @@ router.post("/team/add/users", function (req, res) { return __awaiter(void 0, vo
                 return [3 /*break*/, 2];
             case 5: return [3 /*break*/, 8];
             case 6:
-                e_34_1 = _b.sent();
-                e_34 = { error: e_34_1 };
+                e_35_1 = _b.sent();
+                e_35 = { error: e_35_1 };
                 return [3 /*break*/, 8];
             case 7:
                 try {
                     if (toAdd_1_1 && !toAdd_1_1.done && (_a = toAdd_1.return)) _a.call(toAdd_1);
                 }
-                finally { if (e_34) throw e_34.error; }
+                finally { if (e_35) throw e_35.error; }
                 return [7 /*endfinally*/];
             case 8:
                 if (userTeam)
@@ -2109,8 +2006,8 @@ router.post("/team/add/users", function (req, res) { return __awaiter(void 0, vo
                     res.status(204).send(false);
                 return [3 /*break*/, 10];
             case 9:
-                e_35 = _b.sent();
-                console.error(e_35);
+                e_36 = _b.sent();
+                console.error(e_36);
                 res.status(500).send({ err: 500, data: false });
                 return [3 /*break*/, 10];
             case 10: return [2 /*return*/];
@@ -2118,7 +2015,7 @@ router.post("/team/add/users", function (req, res) { return __awaiter(void 0, vo
     });
 }); });
 router.post("/product", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var newProduct, e_36;
+    var newProduct, e_37;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -2132,8 +2029,8 @@ router.post("/product", function (req, res) { return __awaiter(void 0, void 0, v
                     res.status(204).send(null);
                 return [3 /*break*/, 3];
             case 2:
-                e_36 = _a.sent();
-                console.error(e_36);
+                e_37 = _a.sent();
+                console.error(e_37);
                 res.status(500).send({ err: 500, data: null });
                 return [3 /*break*/, 3];
             case 3: return [2 /*return*/];
@@ -2141,7 +2038,7 @@ router.post("/product", function (req, res) { return __awaiter(void 0, void 0, v
     });
 }); });
 router.get("/product/:teamId", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var product, e_37;
+    var product, e_38;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -2157,8 +2054,8 @@ router.get("/product/:teamId", function (req, res) { return __awaiter(void 0, vo
                     res.status(204).send(null);
                 return [3 /*break*/, 3];
             case 2:
-                e_37 = _a.sent();
-                console.error(e_37);
+                e_38 = _a.sent();
+                console.error(e_38);
                 res.status(500).send({ err: 500, data: null });
                 return [3 /*break*/, 3];
             case 3: return [2 /*return*/];
@@ -2166,7 +2063,7 @@ router.get("/product/:teamId", function (req, res) { return __awaiter(void 0, vo
     });
 }); });
 router.post("/product/approve/description", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var product, response, e_38;
+    var product, response, e_39;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -2192,8 +2089,8 @@ router.post("/product/approve/description", function (req, res) { return __await
                 _a.label = 3;
             case 3: return [3 /*break*/, 5];
             case 4:
-                e_38 = _a.sent();
-                console.error(e_38);
+                e_39 = _a.sent();
+                console.error(e_39);
                 res.status(500).send({ err: 500, data: null });
                 return [3 /*break*/, 5];
             case 5: return [2 /*return*/];
@@ -2201,7 +2098,7 @@ router.post("/product/approve/description", function (req, res) { return __await
     });
 }); });
 router.post("/product/update", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var product, teamId, team, newTeam, newProduct, e_39;
+    var product, teamId, team, newTeam, newProduct, e_40;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -2239,8 +2136,8 @@ router.post("/product/update", function (req, res) { return __awaiter(void 0, vo
                 _a.label = 9;
             case 9: return [3 /*break*/, 11];
             case 10:
-                e_39 = _a.sent();
-                console.error(e_39);
+                e_40 = _a.sent();
+                console.error(e_40);
                 res.status(500).send({ err: 500, data: null });
                 return [3 /*break*/, 11];
             case 11: return [2 /*return*/];

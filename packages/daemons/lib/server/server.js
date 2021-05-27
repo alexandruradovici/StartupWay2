@@ -339,7 +339,7 @@ function emailDaemon() {
                     conn = null;
                     _a.label = 1;
                 case 1:
-                    _a.trys.push([1, 24, , 28]);
+                    _a.trys.push([1, 24, 27, 28]);
                     return [4 /*yield*/, server_1.getPool().getConnection()];
                 case 2:
                     conn = _a.sent();
@@ -429,17 +429,18 @@ function emailDaemon() {
                 case 24:
                     error_1 = _a.sent();
                     console.error(error_1);
-                    if (!conn) return [3 /*break*/, 27];
+                    if (!conn) return [3 /*break*/, 26];
                     return [4 /*yield*/, conn.rollback()];
                 case 25:
                     _a.sent();
-                    return [4 /*yield*/, conn.release()];
+                    _a.label = 26;
                 case 26:
-                    _a.sent();
-                    _a.label = 27;
-                case 27:
                     console.error("Daemon Failed");
                     return [3 /*break*/, 28];
+                case 27:
+                    if (conn)
+                        conn.release();
+                    return [7 /*endfinally*/];
                 case 28: return [2 /*return*/];
             }
         });

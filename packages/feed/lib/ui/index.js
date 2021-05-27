@@ -475,7 +475,7 @@ var __vue_render__ = function() {
                     "v-card",
                     {
                       staticClass: "justify-center",
-                      attrs: { flat: "", outlined: "", color: "#fcfcfc" }
+                      attrs: { flat: "", outlined: "" }
                     },
                     [
                       _c(
@@ -507,7 +507,7 @@ var __vue_render__ = function() {
                 "v-card",
                 {
                   staticStyle: { margin: "auto", "margin-top": "20px" },
-                  attrs: { flat: "", "max-width": "1000", color: "#fcfcfc" }
+                  attrs: { flat: "", "max-width": "1000" }
                 },
                 [
                   _c("v-divider"),

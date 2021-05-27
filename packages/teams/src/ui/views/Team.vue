@@ -1,11 +1,11 @@
 <template>
 	<v-app>
 		<v-container fluid pl-7 pr-7 v-if="!loadingPage">
-			<v-card color="#fcfcfc" flat style="margin: auto; margin-top: 50px;">
+			<v-card  flat style="margin: auto; margin-top: 50px;">
 				
 				<v-divider></v-divider>
 				<v-card-text>
-					<v-list nav dense color="#fcfcfc">
+					<v-list nav dense >
 						<v-list-item
 						v-for="user in users"
 						:key="user.email"

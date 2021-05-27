@@ -1,6 +1,6 @@
 <template>
 	<v-app>
-		<v-card flat  style="margin-left: auto; margin-right: auto; padding-top: 20px;" >
+		<v-card flat min-width="500">
 			<v-card-title class="justify-center" style="font-family: Georgia, serif; font-weight: bold;">Workshops Attendance List</v-card-title>
 			<v-divider></v-divider>
 			

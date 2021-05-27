@@ -2,7 +2,7 @@
 	<v-app>
 		<v-container v-if="!loadingPage">
 			<v-container>
-				<v-card flat outlined color="#fcfcfc" class="justify-center">
+				<v-card flat outlined  class="justify-center">
 					<v-card-text class="justify-center">
 						<v-row align="center" justify="center">
 							<strong color="accent">Note: You can update the business canvas once a day</strong>
@@ -10,7 +10,7 @@
 					</v-card-text>
 				</v-card>
 			</v-container>
-			<v-card flat style="margin: auto; margin-top: 50px;"  max-width="1000" color="#fcfcfc">
+			<v-card flat style="margin: auto; margin-top: 50px;"  max-width="1000" >
 				<v-divider></v-divider>
 				<v-card-text>
 					<v-row no-gutters>
@@ -326,7 +326,7 @@ export default Vue.extend({
 					this.canvas = {
 						modelId: uiidv4(),
 						productId: this.productId,
-						date: new Date(),
+						date: new Date().toISOString().slice(0, 19).replace('T', ' '),
 						fields: {
 							["Problem"]: "",
 							["Solution"]: "",
@@ -426,7 +426,7 @@ export default Vue.extend({
 						} 
 			let canvas = {
 				modelId: uiidv4(),
-				date: new Date(),
+				date: new Date().toISOString().slice(0, 19).replace('T', ' '),
 				productId: this.productId,
 				fields: fields
 			} as BModelCanvas;

@@ -65,15 +65,15 @@ var BModelCanvasServer = /** @class */ (function () {
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 23, , 27]);
+                        _a.trys.push([1, 19, 22, 23]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 21];
+                        if (!conn) return [3 /*break*/, 17];
                         conn.beginTransaction();
                         queryOptions = {
                             namedPlaceholders: true,
-                            sql: "SELECT bModelCanvas.* FROM bModelCanvas WHERE bModelCanvas.productId=:productId AND DATE(bModelCanvas.date)=DATE(NOW())"
+                            sql: "SELECT bModelCanvas.* FROM bModelCanvas WHERE bModelCanvas.productId=:productId AND DATEDIFF(DATE(NOW()),DATE(bModelCanvas.date)) < 1 ORDER BY bModelCanvas.date"
                         };
                         values = {
                             productId: canvas.productId
@@ -81,7 +81,7 @@ var BModelCanvasServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, values)];
                     case 3:
                         canvases = _a.sent();
-                        if (!(canvases && canvases.length > 0 && canvases[0])) return [3 /*break*/, 12];
+                        if (!(canvases && canvases.length > 0 && canvases[0])) return [3 /*break*/, 10];
                         queryOptions = {
                             namedPlaceholders: true,
                             sql: "UPDATE bModelCanvas SET bModelCanvas.fields=:fields, bModelCanvas.date=:date WHERE bModelCanvas.modelId=:modelId"
@@ -98,65 +98,54 @@ var BModelCanvasServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, updateValues)];
                     case 5:
                         canvasResult = _a.sent();
-                        if (!(canvasResult && canvasResult.length > 0 && canvasResult[0])) return [3 /*break*/, 8];
+                        if (!(canvasResult && canvasResult.length > 0 && canvasResult[0])) return [3 /*break*/, 7];
                         return [4 /*yield*/, conn.commit()];
                     case 6:
                         _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 7:
-                        _a.sent();
                         return [2 /*return*/, canvasResult[0]];
-                    case 8: return [4 /*yield*/, conn.rollback()];
-                    case 9:
-                        _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 10:
+                    case 7: return [4 /*yield*/, conn.rollback()];
+                    case 8:
                         _a.sent();
                         return [2 /*return*/, null];
-                    case 11: return [3 /*break*/, 20];
-                    case 12:
+                    case 9: return [3 /*break*/, 16];
+                    case 10:
                         queryOptions = {
                             namedPlaceholders: true,
                             sql: "INSERT INTO bModelCanvas values(:modelId,:productId,:date,:fields)"
                         };
                         return [4 /*yield*/, conn.query(queryOptions, canvas)];
-                    case 13:
+                    case 11:
                         _a.sent();
                         queryOptions.sql = "SELECT modelId,productId,date,fields FROM bModelCanvas WHERE modelId=:modelId";
                         return [4 /*yield*/, conn.query(queryOptions, { modelId: canvas.modelId })];
-                    case 14:
+                    case 12:
                         result = _a.sent();
-                        if (!(result && result.length > 0 && result[0])) return [3 /*break*/, 17];
+                        if (!(result && result.length > 0 && result[0])) return [3 /*break*/, 14];
                         return [4 /*yield*/, conn.commit()];
-                    case 15:
-                        _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 16:
+                    case 13:
                         _a.sent();
                         return [2 /*return*/, result[0]];
-                    case 17: return [4 /*yield*/, conn.rollback()];
-                    case 18:
-                        _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 19:
+                    case 14: return [4 /*yield*/, conn.rollback()];
+                    case 15:
                         _a.sent();
                         return [2 /*return*/, null];
-                    case 20: return [3 /*break*/, 22];
-                    case 21: return [2 /*return*/, null];
-                    case 22: return [3 /*break*/, 27];
-                    case 23:
+                    case 16: return [3 /*break*/, 18];
+                    case 17: return [2 /*return*/, null];
+                    case 18: return [3 /*break*/, 23];
+                    case 19:
                         error_1 = _a.sent();
                         console.error(error_1);
-                        if (!conn) return [3 /*break*/, 26];
+                        if (!conn) return [3 /*break*/, 21];
                         return [4 /*yield*/, conn.rollback()];
-                    case 24:
+                    case 20:
                         _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 25:
-                        _a.sent();
-                        _a.label = 26;
-                    case 26: return [2 /*return*/, null];
-                    case 27: return [2 /*return*/];
+                        _a.label = 21;
+                    case 21: return [2 /*return*/, null];
+                    case 22:
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 23: return [2 /*return*/];
                 }
             });
         });
@@ -170,11 +159,11 @@ var BModelCanvasServer = /** @class */ (function () {
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 10, , 13]);
+                        _a.trys.push([1, 6, 7, 8]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 8];
+                        if (!conn) return [3 /*break*/, 4];
                         queryOptions = {
                             namedPlaceholders: true,
                             sql: "SELECT bModelCanvas.* FROM bModelCanvas INNER JOIN teams ON teams.productId=bModelCanvas.productId AND teams.teamId=:tId"
@@ -185,28 +174,24 @@ var BModelCanvasServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, values)];
                     case 3:
                         canvases = _a.sent();
-                        if (!(canvases && canvases.length > 0)) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.release()];
-                    case 4:
-                        _a.sent();
-                        return [2 /*return*/, canvases];
-                    case 5: return [4 /*yield*/, conn.release()];
+                        if (canvases && canvases.length > 0) {
+                            return [2 /*return*/, canvases];
+                        }
+                        else {
+                            return [2 /*return*/, []];
+                        }
+                        return [3 /*break*/, 5];
+                    case 4: return [2 /*return*/, []];
+                    case 5: return [3 /*break*/, 8];
                     case 6:
-                        _a.sent();
-                        return [2 /*return*/, []];
-                    case 7: return [3 /*break*/, 9];
-                    case 8: return [2 /*return*/, []];
-                    case 9: return [3 /*break*/, 13];
-                    case 10:
                         error_2 = _a.sent();
                         console.error(error_2);
-                        if (!conn) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.release()];
-                    case 11:
-                        _a.sent();
-                        _a.label = 12;
-                    case 12: return [2 /*return*/, []];
-                    case 13: return [2 /*return*/];
+                        return [2 /*return*/, []];
+                    case 7:
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 8: return [2 /*return*/];
                 }
             });
         });

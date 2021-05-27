@@ -1,5 +1,7 @@
 node_modules
 npm-debug.log
+dump.sql
+docker_build.ps1
 Dockerfile
 distributions/startupway/.env
 packages/database/src/server/.env

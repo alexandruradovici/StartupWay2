@@ -3,9 +3,11 @@ export declare enum BusinessTrack {
     AGRICULTURE = "Agriculture",
     CYBERSECURITY = "CyberSecurity",
     FINTECH = "FinTech",
+    BLOCKCHAIN = "Blockchain",
     HL = "Health&Lifestyle",
+    "HEALTH&LIFESTYLE" = "Health&Lifestyle",
     RETAIL = "Retail",
-    SMARTCITY = "SmartCity",
+    SMARTCITIES = "SmartCities",
     SMARTMOBILITY = "SmartMobility",
     OTHER = "Other"
 }

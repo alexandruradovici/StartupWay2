@@ -568,12 +568,7 @@ var __vue_render__ = function() {
         2
       ),
       _vm._v(" "),
-      _c(
-        "v-main",
-        { attrs: { "background-color": "#fcfcfc" } },
-        [_c("router-view")],
-        1
-      )
+      _c("v-main", [_c("router-view")], 1)
     ],
     1
   )

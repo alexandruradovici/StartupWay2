@@ -2,7 +2,7 @@
 	<v-app>
 		<v-container v-if="!loadingPage">
 			<v-form v-model="valid" lazy-validation> 
-				<v-card flat style="margin: auto; padding-top: 20px;" max-width="900" color="#fcfcfc">
+				<v-card flat style="margin: auto; padding-top: 20px;" max-width="1200" elevation-1>
 					<v-card-title class="justify-center">
 						<v-list-item-avatar size="60">
 								<v-img   v-if="imgData !== ''" :src="imgData" @click="extendImage(imgData)"></v-img>
@@ -88,7 +88,7 @@
 											v-model="date"
 											label="Birthdate"
 											persistent-hint
-											prepend-icon="event"
+											prepend-icon="mdi-calendar"
 											v-on="on"
 										></v-text-field>
 									</template>

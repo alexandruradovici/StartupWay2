@@ -32,7 +32,7 @@ export default Vue.extend({
 					},
 					{
 						id: MENU.CSV,
-						title:"Import CSV",
+						title:"Imports",
 						icon:"mdi-file-delimited",
 						link:"/admin/csv"
 					}

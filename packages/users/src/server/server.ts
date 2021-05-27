@@ -35,11 +35,9 @@ export class UsersServer {
 				const response:User[] = await conn.query(queryOptions, {userId:user.userId});
 				if(response && response.length > 0 && response[0]) {
 					await conn.commit();
-					await conn.release();
 					return response[0];
 				} else {
 					await conn.rollback();
-					await conn.release();
 					return null;
 				}
 			} else {
@@ -49,9 +47,11 @@ export class UsersServer {
 			console.error(error);
 			if(conn) {
 				await conn.rollback();
-				await conn.release();
 			}
 			return null;
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 	async getAllUserTeams(): Promise<User[]> {
@@ -63,17 +63,16 @@ export class UsersServer {
 			}
 			const allUserTeams:(User&UserTeams)[] = await conn.query(queryOptions);
 			if(allUserTeams && allUserTeams.length > 0) {
-				await conn.release();
 				return allUserTeams;
-			} else { 
-				await conn.release();
+			} else {
 				return [];
 			}
 		} catch (error) {
 			console.error(error);
+			return [];
+		} finally {
 			if(conn)
 				await conn.release();
-			return [];
 		}
 	}
 
@@ -92,10 +91,8 @@ export class UsersServer {
 				const response:{deleted_id:string}[] = await conn.query(queryOptions, user);
 				if(response && response.length === 0) {
 					await conn.commit();
-					await conn.release();
 					return true;
 				} else {
-					await conn.release();
 					return false;
 				}
 			} else {
@@ -105,9 +102,11 @@ export class UsersServer {
 			console.error(error);
 			if(conn) {
 				await conn.rollback();
-				await conn.release();
 			}
 			return false;
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 
@@ -142,7 +141,6 @@ export class UsersServer {
 						const resSession:Session[] = await conn.query(queryOptions,{sessionId:sessionId}) as Session[];
 						if(resSession && resSession.length > 0 && resSession[0]) {
 							await conn.commit();
-							await conn.release();
 							return resSession[0];
 						}
 					} catch (error) {
@@ -156,16 +154,13 @@ export class UsersServer {
 						errorSession.token = "error";
 						if(conn) {
 							await conn.rollback();
-							await conn.release();
 							return errorSession;
 						}
 					}
 				} else {
-					await conn.release();
 					return {sessionId:"",token:"cred",userId:"",createdAt: new Date(0)};
 				}
 			} else {
-				await conn.release();
 				return {sessionId:"",token:"cred",userId:"",createdAt: new Date(0)};
 			}
 		} catch(e) {
@@ -177,16 +172,15 @@ export class UsersServer {
 				createdAt: new Date(),
 			};
 			errorSession.token = "error";
-			if(conn)
-				await conn.release();
 			return errorSession;
+		} finally {
+			if(conn)
+				conn.release();
 		}
-		if(conn)
-			await conn.release();
 		return null;
 	}
 
-	async modifyUser(user: User, changedPass?: string):Promise<boolean> {
+	async modifyUser(user: User, changedPass?: boolean):Promise<boolean> {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
@@ -205,7 +199,6 @@ export class UsersServer {
 				const resp:User[] = await conn.query(queryOptions, user);
 				if(resp && resp.length > 0 && resp[0]) {
 					await conn.commit();
-					await conn.release();
 					return true;
 				}
 			}
@@ -213,13 +206,13 @@ export class UsersServer {
 			console.error(error);
 			if(conn) {
 				await conn.rollback();
-				await conn.release();
 			}
 			return false;
+		} finally {
+			if(conn)
+				conn.release();
 		}
-		if(conn)
-			await conn.release();
-			return false;
+		return false;
 	}
 
 	async getUserByUsername(username: string): Promise<User | null> {
@@ -233,15 +226,15 @@ export class UsersServer {
 			const user:User[] = await conn.query(queryOptions,{username}) as User[];
 			if(user && user.length > 0 && user[0]) {
 				if (user[0]) {
-					await conn.release();
 					return user[0];
 				}
 			}
 		} catch (error) {
 			console.error(error);
+		} finally {
+			if(conn)
+				await conn.release();
 		}
-		if(conn)
-			await conn.release();
 		return null;
 	}
 	async getUserByEmail(email: string): Promise<User | null> {
@@ -255,16 +248,16 @@ export class UsersServer {
 			const user:User[] = await conn.query(queryOptions,{email}) as User[];
 			if(user && user.length > 0 && user[0]) {
 				if (user[0]) {
-					await conn.release();
 					return user[0];
 				}
 			}
 		}
 		catch (error) {
 			console.error(error);
+		} finally {
+			if(conn)
+				conn.release();
 		}
-		if(conn)
-			await conn.release();
 		return null;
 	}
 
@@ -279,15 +272,15 @@ export class UsersServer {
 			const user:User[] = await conn.query(queryOptions,{userId}) as User[];
 			if(user && user.length > 0 && user[0]) {
 				if (user[0]){
-					await conn.release();
 					return user[0];
 				}
 			}
 		} catch (error) {
 			console.error(error);
+		} finally {
+			if(conn)
+				conn.release();
 		}
-		if(conn)
-			await conn.release();
 		return null;
 	}
 
@@ -320,7 +313,6 @@ export class UsersServer {
 				const response:{deleted_id:string}[] = await conn.query(queryOptions,values);
 				if(response && response.length === 0) {
 					await conn.commit();
-					await conn.release();
 					return true;
 				}
 			} else {
@@ -330,12 +322,12 @@ export class UsersServer {
 			console.error(error);
 			if(conn) {
 				await conn.rollback();
-				await conn.release();
 			}
 			return false;
+		} finally {
+			if(conn)
+				conn.release();
 		}
-		if(conn)
-			await conn.release();
 		return false;
 	}
 
@@ -350,14 +342,14 @@ export class UsersServer {
 			}
 			const session:Session[] = await conn.query(queryOptions,{userId}) as Session[];
 			if(session && session.length > 0 && session[0]) {
-				await conn.release();
 				return session[0];
 			}
 		} catch (error) {
 			console.error(error);
+		} finally {
+			if(conn)
+				conn.release();
 		}
-		if(conn)
-			await conn.release();
 		return null;
 	}
 
@@ -376,14 +368,14 @@ export class UsersServer {
 					if(u.userDetails)
 						u.userDetails = JSON.parse((u.userDetails as any) as string);
 				}
-				await conn.release();
 				return users;
 			}
 		} catch (error) {
 			console.error(error);
+		} finally {
+			if(conn)
+				conn.release();
 		}
-		if(conn)
-			await conn.release();
 		return [];
 	}
 	async getAllUsers():Promise<User[]> {
@@ -395,14 +387,14 @@ export class UsersServer {
 			}
 			const users:User[] = await conn.query(queryOptions) as User[];
 			if(users && users.length > 0) {
-				await conn.release();
 				return users;
 			}
 		} catch (error) {
 			console.error(error);
+		} finally {
+			if(conn)
+				conn.release();
 		}
-		if(conn)
-			await conn.release();
 		return [];
 	}
 
@@ -422,15 +414,15 @@ export class UsersServer {
 				}
 				const user:User[] = await conn.query(queryOptions,{userId:session[0].userId}) as User[];// where data de azi mai noua decat expirare
 				if(user && user.length > 0 && user[0]) {
-					await conn.release();
 					return user[0];
 				}
 			}
 		} catch (error) {
 			console.error(error);
+		} finally {
+			if(conn)
+				conn.release();
 		}
-		if(conn)
-			await conn.release();
 		return null;
 	}
 
@@ -516,7 +508,7 @@ router.get("/user", async (req:ApiRequest<undefined>, res:ApiResponse<User|null>
 });
 
 
-router.post("/user/update", async (req:ApiRequest<{newUser:User,changedPass:string}>, res:ApiResponse<boolean>) => {
+router.post("/user/update", async (req:ApiRequest<{newUser:User,changedPass:boolean}>, res:ApiResponse<boolean>) => {
 	try {
 		const user:User = req.body.newUser;
 		const changedPass = req.body.changedPass;
@@ -525,7 +517,7 @@ router.post("/user/update", async (req:ApiRequest<{newUser:User,changedPass:stri
 		// 	+ "Here is your new password, please do not disclose these informations to anyone.\n" 
 		// 	+ "		Username: " +user.username + "\n"
 		// 	+ "		Password: " +user.password + "\n" 
-		// 	+ "Use these credidentials to login on "+ process.env.HOSTNAME +"\n\n"
+		// 	+ "Use these credidentials to login on "+ process.env.WEBHOSTNAME +"\n\n"
 		// 	+ "Regards, Innovation Labs Team\n"
 		// const notification:SWNotify = {
 		// 	email:user.email,

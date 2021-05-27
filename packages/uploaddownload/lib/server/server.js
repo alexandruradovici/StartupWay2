@@ -83,11 +83,11 @@ var UploadDownloadServer = /** @class */ (function () {
                         conn = null;
                         _b.label = 1;
                     case 1:
-                        _b.trys.push([1, 7, , 10]);
+                        _b.trys.push([1, 6, 7, 8]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _b.sent();
-                        if (!conn) return [3 /*break*/, 5];
+                        if (!conn) return [3 /*break*/, 4];
                         queryOptions = {
                             sql: "SELECT uploadDownload.* FROM uploadDownload where uploadDownload.productId=:productId"
                         };
@@ -113,22 +113,18 @@ var UploadDownloadServer = /** @class */ (function () {
                                 finally { if (e_2) throw e_2.error; }
                             }
                         }
-                        return [4 /*yield*/, conn.release()];
-                    case 4:
-                        _b.sent();
                         return [2 /*return*/, true];
-                    case 5: return [2 /*return*/, false];
-                    case 6: return [3 /*break*/, 10];
-                    case 7:
+                    case 4: return [2 /*return*/, false];
+                    case 5: return [3 /*break*/, 8];
+                    case 6:
                         e_1 = _b.sent();
                         console.error(e_1);
-                        if (!conn) return [3 /*break*/, 9];
-                        return [4 /*yield*/, conn.release()];
-                    case 8:
-                        _b.sent();
-                        _b.label = 9;
-                    case 9: return [2 /*return*/, false];
-                    case 10: return [2 /*return*/];
+                        return [2 /*return*/, false];
+                    case 7:
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 8: return [2 /*return*/];
                 }
             });
         });
@@ -142,11 +138,11 @@ var UploadDownloadServer = /** @class */ (function () {
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 14, , 18]);
+                        _a.trys.push([1, 12, 15, 16]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 12];
+                        if (!conn) return [3 /*break*/, 10];
                         return [4 /*yield*/, conn.beginTransaction()];
                     case 3:
                         _a.sent();
@@ -165,37 +161,32 @@ var UploadDownloadServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, { uuid: uploadDownloadLink.uuid })];
                     case 5:
                         response = _a.sent();
-                        if (!(response && response.length > 0 && response[0])) return [3 /*break*/, 8];
+                        if (!(response && response.length > 0 && response[0])) return [3 /*break*/, 7];
                         return [4 /*yield*/, conn.commit()];
                     case 6:
                         _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 7:
-                        _a.sent();
                         return [2 /*return*/, response[0]];
-                    case 8: return [4 /*yield*/, conn.rollback()];
-                    case 9:
-                        _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 10:
+                    case 7: return [4 /*yield*/, conn.rollback()];
+                    case 8:
                         _a.sent();
                         return [2 /*return*/, null];
-                    case 11: return [3 /*break*/, 13];
-                    case 12: return [2 /*return*/, null];
-                    case 13: return [3 /*break*/, 18];
-                    case 14:
+                    case 9: return [3 /*break*/, 11];
+                    case 10: return [2 /*return*/, null];
+                    case 11: return [3 /*break*/, 16];
+                    case 12:
                         e_3 = _a.sent();
                         console.error(e_3);
-                        if (!conn) return [3 /*break*/, 17];
+                        if (!conn) return [3 /*break*/, 14];
                         return [4 /*yield*/, conn.rollback()];
+                    case 13:
+                        _a.sent();
+                        _a.label = 14;
+                    case 14: return [2 /*return*/, null];
                     case 15:
-                        _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 16:
-                        _a.sent();
-                        _a.label = 17;
-                    case 17: return [2 /*return*/, null];
-                    case 18: return [2 /*return*/];
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 16: return [2 /*return*/];
                 }
             });
         });
@@ -209,11 +200,11 @@ var UploadDownloadServer = /** @class */ (function () {
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 14, , 18]);
+                        _a.trys.push([1, 12, 15, 16]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 12];
+                        if (!conn) return [3 /*break*/, 10];
                         return [4 /*yield*/, conn.beginTransaction()];
                     case 3:
                         _a.sent();
@@ -228,37 +219,32 @@ var UploadDownloadServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, { uuid: uuid })];
                     case 5:
                         response = _a.sent();
-                        if (!(response && response.length === 0)) return [3 /*break*/, 8];
+                        if (!(response && response.length === 0)) return [3 /*break*/, 7];
                         return [4 /*yield*/, conn.commit()];
                     case 6:
                         _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 7:
-                        _a.sent();
                         return [2 /*return*/, true];
-                    case 8: return [4 /*yield*/, conn.rollback()];
-                    case 9:
-                        _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 10:
+                    case 7: return [4 /*yield*/, conn.rollback()];
+                    case 8:
                         _a.sent();
                         return [2 /*return*/, false];
-                    case 11: return [3 /*break*/, 13];
-                    case 12: return [2 /*return*/, false];
-                    case 13: return [3 /*break*/, 18];
-                    case 14:
+                    case 9: return [3 /*break*/, 11];
+                    case 10: return [2 /*return*/, false];
+                    case 11: return [3 /*break*/, 16];
+                    case 12:
                         error_1 = _a.sent();
                         console.error(error_1);
-                        if (!conn) return [3 /*break*/, 17];
+                        if (!conn) return [3 /*break*/, 14];
                         return [4 /*yield*/, conn.rollback()];
+                    case 13:
+                        _a.sent();
+                        _a.label = 14;
+                    case 14: return [2 /*return*/, false];
                     case 15:
-                        _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 16:
-                        _a.sent();
-                        _a.label = 17;
-                    case 17: return [2 /*return*/, false];
-                    case 18: return [2 /*return*/];
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 16: return [2 /*return*/];
                 }
             });
         });
@@ -272,11 +258,11 @@ var UploadDownloadServer = /** @class */ (function () {
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 10, , 13]);
+                        _a.trys.push([1, 6, 7, 8]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 8];
+                        if (!conn) return [3 /*break*/, 4];
                         queryOptions = {
                             namedPlaceholders: true,
                             sql: "SELECT * FROM uploadDownload WHERE uuid=:uuid"
@@ -284,28 +270,24 @@ var UploadDownloadServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, { uuid: uuid })];
                     case 3:
                         uploadDownloadLink = _a.sent();
-                        if (!(uploadDownloadLink && uploadDownloadLink.length > 0 && uploadDownloadLink[0])) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.release()];
-                    case 4:
-                        _a.sent();
-                        return [2 /*return*/, uploadDownloadLink[0]];
-                    case 5: return [4 /*yield*/, conn.release()];
+                        if (uploadDownloadLink && uploadDownloadLink.length > 0 && uploadDownloadLink[0]) {
+                            return [2 /*return*/, uploadDownloadLink[0]];
+                        }
+                        else {
+                            return [2 /*return*/, null];
+                        }
+                        return [3 /*break*/, 5];
+                    case 4: return [2 /*return*/, null];
+                    case 5: return [3 /*break*/, 8];
                     case 6:
-                        _a.sent();
-                        return [2 /*return*/, null];
-                    case 7: return [3 /*break*/, 9];
-                    case 8: return [2 /*return*/, null];
-                    case 9: return [3 /*break*/, 13];
-                    case 10:
                         error_2 = _a.sent();
                         console.error(error_2);
-                        if (!conn) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.release()];
-                    case 11:
-                        _a.sent();
-                        _a.label = 12;
-                    case 12: return [2 /*return*/, null];
-                    case 13: return [2 /*return*/];
+                        return [2 /*return*/, null];
+                    case 7:
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 8: return [2 /*return*/];
                 }
             });
         });
@@ -319,11 +301,11 @@ var UploadDownloadServer = /** @class */ (function () {
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 10, , 13]);
+                        _a.trys.push([1, 6, 7, 8]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 8];
+                        if (!conn) return [3 /*break*/, 4];
                         queryOptions = {
                             namedPlaceholders: true,
                             sql: "SELECT * FROM uploadDownload WHERE productId=:productId AND fileType=:fileType"
@@ -331,28 +313,24 @@ var UploadDownloadServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, { productId: productId, fileType: fileType })];
                     case 3:
                         uploadDownloadLinks = _a.sent();
-                        if (!(uploadDownloadLinks && uploadDownloadLinks.length > 0)) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.release()];
-                    case 4:
-                        _a.sent();
-                        return [2 /*return*/, uploadDownloadLinks];
-                    case 5: return [4 /*yield*/, conn.release()];
+                        if (uploadDownloadLinks && uploadDownloadLinks.length > 0) {
+                            return [2 /*return*/, uploadDownloadLinks];
+                        }
+                        else {
+                            return [2 /*return*/, []];
+                        }
+                        return [3 /*break*/, 5];
+                    case 4: return [2 /*return*/, []];
+                    case 5: return [3 /*break*/, 8];
                     case 6:
-                        _a.sent();
-                        return [2 /*return*/, []];
-                    case 7: return [3 /*break*/, 9];
-                    case 8: return [2 /*return*/, []];
-                    case 9: return [3 /*break*/, 13];
-                    case 10:
                         error_3 = _a.sent();
                         console.error(error_3);
-                        if (!conn) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.release()];
-                    case 11:
-                        _a.sent();
-                        _a.label = 12;
-                    case 12: return [2 /*return*/, []];
-                    case 13: return [2 /*return*/];
+                        return [2 /*return*/, []];
+                    case 7:
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 8: return [2 /*return*/];
                 }
             });
         });
@@ -366,11 +344,11 @@ var UploadDownloadServer = /** @class */ (function () {
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 15, , 18]);
+                        _a.trys.push([1, 11, 12, 13]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 13];
+                        if (!conn) return [3 /*break*/, 9];
                         queryOptions = {
                             namedPlaceholders: true,
                             sql: ""
@@ -385,7 +363,7 @@ var UploadDownloadServer = /** @class */ (function () {
                     case 4:
                         if (!(date === "may")) return [3 /*break*/, 6];
                         // queryOptions.nestTables="_";
-                        queryOptions.sql = "SELECT uploadDownload.* products.* FROM uploadDownload INNER JOIN products ON products.productId = uploadDownload.productId AND JSON_EXTRACT(productDetails,'$.assessment20May') = 'Yes' WHERE uploadDownload.productId=:productId ";
+                        queryOptions.sql = "SELECT uploadDownload.* products.* FROM uploadDownload INNER JOIN products ON products.productId = uploadDownload.productId AND JSON_EXTRACT(productDetails,'$.assessmentSemifinals') = true WHERE uploadDownload.productId=:productId ";
                         return [4 /*yield*/, conn.query(queryOptions, { productId: productId })];
                     case 5:
                         links = _a.sent();
@@ -393,34 +371,31 @@ var UploadDownloadServer = /** @class */ (function () {
                     case 6:
                         if (!(date === "oct")) return [3 /*break*/, 8];
                         // queryOptions.nestTables="_";
-                        queryOptions.sql = "SELECT uploadDownload.* products.* FROM uploadDownload INNER JOIN products ON products.productId = uploadDownload.productId AND JSON_EXTRACT(productDetails,'$.assessment20May') = 'Yes' AND JSON_EXTRACT(productDetails,'$.assessment12Oct') = 'Yes' WHERE uploadDownload.productId=:productId ";
+                        queryOptions.sql =
+                            "SELECT uploadDownload.* products.* FROM uploadDownload INNER JOIN products ON products.productId = uploadDownload.productId AND JSON_EXTRACT(productDetails,'$.assessmentSemifinals') = true AND JSON_EXTRACT(productDetails,'$.assessmentFinals') = true WHERE uploadDownload.productId=:productId ";
                         return [4 /*yield*/, conn.query(queryOptions, { productId: productId })];
                     case 7:
                         links = _a.sent();
                         _a.label = 8;
                     case 8:
-                        if (!links) return [3 /*break*/, 10];
-                        return [4 /*yield*/, conn.release()];
-                    case 9:
-                        _a.sent();
-                        return [2 /*return*/, links];
-                    case 10: return [4 /*yield*/, conn.release()];
+                        if (links) {
+                            return [2 /*return*/, links];
+                        }
+                        else {
+                            return [2 /*return*/, []];
+                        }
+                        return [3 /*break*/, 10];
+                    case 9: return [2 /*return*/, []];
+                    case 10: return [3 /*break*/, 13];
                     case 11:
-                        _a.sent();
-                        return [2 /*return*/, []];
-                    case 12: return [3 /*break*/, 14];
-                    case 13: return [2 /*return*/, []];
-                    case 14: return [3 /*break*/, 18];
-                    case 15:
                         e_4 = _a.sent();
                         console.error(e_4);
-                        if (!conn) return [3 /*break*/, 17];
-                        return [4 /*yield*/, conn.release()];
-                    case 16:
-                        _a.sent();
-                        _a.label = 17;
-                    case 17: return [2 /*return*/, []];
-                    case 18: return [2 /*return*/];
+                        return [2 /*return*/, []];
+                    case 12:
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 13: return [2 /*return*/];
                 }
             });
         });
@@ -434,11 +409,11 @@ var UploadDownloadServer = /** @class */ (function () {
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 15, , 18]);
+                        _a.trys.push([1, 11, 12, 13]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 13];
+                        if (!conn) return [3 /*break*/, 9];
                         queryOptions = {
                             namedPlaceholders: true,
                             sql: ""
@@ -452,41 +427,38 @@ var UploadDownloadServer = /** @class */ (function () {
                         return [3 /*break*/, 8];
                     case 4:
                         if (!(date === "may")) return [3 /*break*/, 6];
-                        queryOptions.sql = "SELECT uploadDownload.uuid, uploadDownload.fileType, uploadDownload.extension, uploadDownload.uploadTime, products.* FROM uploadDownload INNER JOIN products ON products.productId=uploadDownload.productId AND JSON_EXTRACT(productDetails,'$.assessment20May') = 'Yes' WHERE uploadDownload.fileType=:fileType";
+                        queryOptions.sql = "SELECT uploadDownload.uuid, uploadDownload.fileType, uploadDownload.extension, uploadDownload.uploadTime, products.* FROM uploadDownload INNER JOIN products ON products.productId=uploadDownload.productId AND JSON_EXTRACT(productDetails,'$.assessmentSemifinals') = true WHERE uploadDownload.fileType=:fileType";
                         return [4 /*yield*/, conn.query(queryOptions, { fileType: fileType })];
                     case 5:
                         links = _a.sent();
                         return [3 /*break*/, 8];
                     case 6:
                         if (!(date === "oct")) return [3 /*break*/, 8];
-                        queryOptions.sql = "SELECT uploadDownload.uuid, uploadDownload.fileType, uploadDownload.extension, uploadDownload.uploadTime, products.* FROM uploadDownload INNER JOIN products ON products.productId=uploadDownload.productId AND JSON_EXTRACT(productDetails,'$.assessment20May') = 'Yes' AND JSON_EXTRACT(productDetails,'$.assessment12Oct') = 'Yes' WHERE uploadDownload.fileType=:fileType";
+                        queryOptions.sql =
+                            "SELECT uploadDownload.uuid, uploadDownload.fileType, uploadDownload.extension, uploadDownload.uploadTime, products.* FROM uploadDownload INNER JOIN products ON products.productId=uploadDownload.productId AND JSON_EXTRACT(productDetails,'$.assessmentSemifinals') = true AND JSON_EXTRACT(productDetails,'$.assessmentFinals') = true WHERE uploadDownload.fileType=:fileType";
                         return [4 /*yield*/, conn.query(queryOptions, { fileType: fileType })];
                     case 7:
                         links = _a.sent();
                         _a.label = 8;
                     case 8:
-                        if (!links) return [3 /*break*/, 10];
-                        return [4 /*yield*/, conn.release()];
-                    case 9:
-                        _a.sent();
-                        return [2 /*return*/, links];
-                    case 10: return [4 /*yield*/, conn.release()];
+                        if (links) {
+                            return [2 /*return*/, links];
+                        }
+                        else {
+                            return [2 /*return*/, []];
+                        }
+                        return [3 /*break*/, 10];
+                    case 9: return [2 /*return*/, []];
+                    case 10: return [3 /*break*/, 13];
                     case 11:
-                        _a.sent();
-                        return [2 /*return*/, []];
-                    case 12: return [3 /*break*/, 14];
-                    case 13: return [2 /*return*/, []];
-                    case 14: return [3 /*break*/, 18];
-                    case 15:
                         e_5 = _a.sent();
                         console.error(e_5);
-                        if (!conn) return [3 /*break*/, 17];
-                        return [4 /*yield*/, conn.release()];
-                    case 16:
-                        _a.sent();
-                        _a.label = 17;
-                    case 17: return [2 /*return*/, []];
-                    case 18: return [2 /*return*/];
+                        return [2 /*return*/, []];
+                    case 12:
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 13: return [2 /*return*/];
                 }
             });
         });
@@ -714,10 +686,309 @@ var UploadDownloadServer = /** @class */ (function () {
             });
         });
     };
+    UploadDownloadServer.prototype.generateCustomZip = function (linkUuid, city, businessTrack, semiFianals, finals) {
+        return __awaiter(this, void 0, void 0, function () {
+            var zip, products, products_1, products_1_1, product, prId, links, users_2, users_1, users_1_1, user, obj, name_2, e_9_1, links_2, links_2_1, link, date, name_3, obj, e_10_1, e_11_1, uuid_2, link, tmpPath, upload, e_12;
+            var e_11, _a, e_9, _b, e_10, _c;
+            var _this = this;
+            return __generator(this, function (_d) {
+                switch (_d.label) {
+                    case 0:
+                        _d.trys.push([0, 38, , 39]);
+                        UploadDownloadServer.zips[linkUuid] = new jszip_1.default();
+                        zip = UploadDownloadServer.zips[linkUuid];
+                        if (!city) return [3 /*break*/, 26];
+                        return [4 /*yield*/, teams.getTeamsByLocationBtFinals(city, businessTrack, semiFianals, finals)];
+                    case 1:
+                        products = _d.sent();
+                        _d.label = 2;
+                    case 2:
+                        _d.trys.push([2, 24, 25, 26]);
+                        products_1 = __values(products), products_1_1 = products_1.next();
+                        _d.label = 3;
+                    case 3:
+                        if (!!products_1_1.done) return [3 /*break*/, 23];
+                        product = products_1_1.value;
+                        prId = product.productId;
+                        return [4 /*yield*/, uploadDownload.getLinksByProductId(prId, "none")];
+                    case 4:
+                        links = _d.sent();
+                        return [4 /*yield*/, teams.getUsersByTeamId(product.teamId)];
+                    case 5:
+                        users_2 = _d.sent();
+                        if (!(users_2.length !== 0)) return [3 /*break*/, 13];
+                        _d.label = 6;
+                    case 6:
+                        _d.trys.push([6, 11, 12, 13]);
+                        users_1 = (e_9 = void 0, __values(users_2)), users_1_1 = users_1.next();
+                        _d.label = 7;
+                    case 7:
+                        if (!!users_1_1.done) return [3 /*break*/, 10];
+                        user = users_1_1.value;
+                        if (!user) return [3 /*break*/, 9];
+                        if (!(user.avatarUu !== "" &&
+                            user.avatarUu !== null)) return [3 /*break*/, 9];
+                        return [4 /*yield*/, uploadDownload.getS3Object(user.avatarUu)];
+                    case 8:
+                        obj = _d.sent();
+                        name_2 = product.teamName +
+                            "/UserImages/" +
+                            product.location +
+                            "_" +
+                            product.teamName +
+                            "_profile_photo_" +
+                            user.firstName +
+                            "_" +
+                            user.lastName +
+                            ".png";
+                        if (obj !== "" && zip) {
+                            zip.file(name_2, obj, { base64: true });
+                        }
+                        else {
+                            console.error("No obj GETS3OBJ");
+                        }
+                        _d.label = 9;
+                    case 9:
+                        users_1_1 = users_1.next();
+                        return [3 /*break*/, 7];
+                    case 10: return [3 /*break*/, 13];
+                    case 11:
+                        e_9_1 = _d.sent();
+                        e_9 = { error: e_9_1 };
+                        return [3 /*break*/, 13];
+                    case 12:
+                        try {
+                            if (users_1_1 && !users_1_1.done && (_b = users_1.return)) _b.call(users_1);
+                        }
+                        finally { if (e_9) throw e_9.error; }
+                        return [7 /*endfinally*/];
+                    case 13:
+                        if (!(links.length !== 0 && zip)) return [3 /*break*/, 22];
+                        zip.folder(product.teamName);
+                        zip.folder(product.teamName + "/Videos");
+                        zip.folder(product.teamName + "/Images");
+                        zip.folder(product.teamName + "/PowerPoint");
+                        _d.label = 14;
+                    case 14:
+                        _d.trys.push([14, 20, 21, 22]);
+                        links_2 = (e_10 = void 0, __values(links)), links_2_1 = links_2.next();
+                        _d.label = 15;
+                    case 15:
+                        if (!!links_2_1.done) return [3 /*break*/, 19];
+                        link = links_2_1.value;
+                        if (!(prId !== "" && product !== undefined)) return [3 /*break*/, 17];
+                        date = uploadDownload.formatDate(link.uploadTime);
+                        name_3 = "";
+                        if (link.fileType === "demoVid") {
+                            name_3 =
+                                product.teamName +
+                                    "/Videos/" +
+                                    product.location +
+                                    "_" +
+                                    product.teamName +
+                                    "_tehnic_demo_video_" +
+                                    date +
+                                    "." +
+                                    link.extension;
+                        }
+                        else if (link.fileType === "presVid") {
+                            name_3 =
+                                product.teamName +
+                                    "/Videos/" +
+                                    product.location +
+                                    "_" +
+                                    product.teamName +
+                                    "_products_presentation_video_" +
+                                    date +
+                                    "." +
+                                    link.extension;
+                        }
+                        else if (link.fileType === "pres") {
+                            name_3 =
+                                product.teamName +
+                                    "/PowerPoint/" +
+                                    product.location +
+                                    "_" +
+                                    product.teamName +
+                                    "_powerpoint_presentation_" +
+                                    date +
+                                    "." +
+                                    link.extension;
+                        }
+                        else if (link.fileType === "image") {
+                            name_3 =
+                                product.teamName +
+                                    "/Images/" +
+                                    product.location +
+                                    "_" +
+                                    product.teamName +
+                                    "_products_image_" +
+                                    link.uuid[0] +
+                                    link.uuid[1] +
+                                    link.uuid[2] +
+                                    "_" +
+                                    date +
+                                    "." +
+                                    link.extension;
+                        }
+                        else if (link.fileType === "logo") {
+                            name_3 =
+                                product.teamName +
+                                    "/Images/" +
+                                    product.location +
+                                    "_" +
+                                    product.teamName +
+                                    "_logo_" +
+                                    date +
+                                    "." +
+                                    link.extension;
+                        }
+                        else {
+                            console.error("Unidentified link");
+                        }
+                        return [4 /*yield*/, uploadDownload.getS3Object(link.uuid)];
+                    case 16:
+                        obj = _d.sent();
+                        if (obj !== "") {
+                            zip.file(name_3, obj, { base64: true });
+                        }
+                        else {
+                            console.error("No obj GETS3OBJ");
+                        }
+                        return [3 /*break*/, 18];
+                    case 17:
+                        console.error("No Product");
+                        _d.label = 18;
+                    case 18:
+                        links_2_1 = links_2.next();
+                        return [3 /*break*/, 15];
+                    case 19: return [3 /*break*/, 22];
+                    case 20:
+                        e_10_1 = _d.sent();
+                        e_10 = { error: e_10_1 };
+                        return [3 /*break*/, 22];
+                    case 21:
+                        try {
+                            if (links_2_1 && !links_2_1.done && (_c = links_2.return)) _c.call(links_2);
+                        }
+                        finally { if (e_10) throw e_10.error; }
+                        return [7 /*endfinally*/];
+                    case 22:
+                        products_1_1 = products_1.next();
+                        return [3 /*break*/, 3];
+                    case 23: return [3 /*break*/, 26];
+                    case 24:
+                        e_11_1 = _d.sent();
+                        e_11 = { error: e_11_1 };
+                        return [3 /*break*/, 26];
+                    case 25:
+                        try {
+                            if (products_1_1 && !products_1_1.done && (_a = products_1.return)) _a.call(products_1);
+                        }
+                        finally { if (e_11) throw e_11.error; }
+                        return [7 /*endfinally*/];
+                    case 26:
+                        uuid_2 = uuid_1.v4();
+                        if (!(zip !== null)) return [3 /*break*/, 36];
+                        if (!(Object.keys(zip.files).length === 0)) return [3 /*break*/, 34];
+                        return [4 /*yield*/, fs_extra_1.default.writeFile(path_1.default.join("/tmp", "NO_FILE.txt"), "NO_FILE")];
+                    case 27:
+                        _d.sent();
+                        link = {
+                            uuid: linkUuid,
+                            productId: "7051998",
+                            fileType: linkUuid + "_zip",
+                            extension: ".txt",
+                            uploadTime: new Date()
+                        };
+                        tmpPath = path_1.default.join("/tmp", "NO_FILE.txt");
+                        return [4 /*yield*/, uploadDownload.addS3File(link.uuid, tmpPath, "path")];
+                    case 28:
+                        upload = _d.sent();
+                        if (!upload) return [3 /*break*/, 31];
+                        console.log("Uploaded file");
+                        return [4 /*yield*/, uploadDownload.addLink(link)];
+                    case 29:
+                        _d.sent();
+                        return [4 /*yield*/, fs_extra_1.default.remove(tmpPath)];
+                    case 30:
+                        _d.sent();
+                        return [3 /*break*/, 33];
+                    case 31: return [4 /*yield*/, fs_extra_1.default.remove(tmpPath)];
+                    case 32:
+                        _d.sent();
+                        console.error("Didn't upload ADDS3File");
+                        _d.label = 33;
+                    case 33: return [3 /*break*/, 35];
+                    case 34:
+                        zip.generateNodeStream({
+                            type: "nodebuffer",
+                            streamFiles: true
+                        })
+                            .pipe(fs_extra_1.default.createWriteStream(path_1.default.join("/tmp", uuid_2 + ".zip")))
+                            .on("finish", function () { return __awaiter(_this, void 0, void 0, function () {
+                            var link, upload, tmpFile;
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0:
+                                        console.log("Finished writing zip");
+                                        console.log("Trying to send zip");
+                                        link = {
+                                            uuid: linkUuid,
+                                            productId: "7051998",
+                                            fileType: linkUuid + "_zip",
+                                            extension: ".zip",
+                                            uploadTime: new Date()
+                                        };
+                                        if (!(link.uuid !== "")) return [3 /*break*/, 7];
+                                        upload = false;
+                                        tmpFile = path_1.default.join("/tmp", uuid_2 + ".zip");
+                                        return [4 /*yield*/, uploadDownload.addS3File(link.uuid, tmpFile, "path")];
+                                    case 1:
+                                        upload = _a.sent();
+                                        if (!upload) return [3 /*break*/, 4];
+                                        console.log("Uploaded file");
+                                        return [4 /*yield*/, uploadDownload.addLink(link)];
+                                    case 2:
+                                        _a.sent();
+                                        return [4 /*yield*/, fs_extra_1.default.remove(tmpFile)];
+                                    case 3:
+                                        _a.sent();
+                                        return [3 /*break*/, 6];
+                                    case 4: return [4 /*yield*/, fs_extra_1.default.remove(tmpFile)];
+                                    case 5:
+                                        _a.sent();
+                                        console.error("Didn't upload ADDS3File");
+                                        _a.label = 6;
+                                    case 6: return [3 /*break*/, 8];
+                                    case 7:
+                                        console.error("Didn't create link ADDLINK");
+                                        _a.label = 8;
+                                    case 8: return [2 /*return*/];
+                                }
+                            });
+                        }); });
+                        _d.label = 35;
+                    case 35: return [3 /*break*/, 37];
+                    case 36:
+                        console.log("No archive");
+                        _d.label = 37;
+                    case 37:
+                        zip = null;
+                        return [3 /*break*/, 39];
+                    case 38:
+                        e_12 = _d.sent();
+                        console.error(e_12);
+                        return [3 /*break*/, 39];
+                    case 39: return [2 /*return*/];
+                }
+            });
+        });
+    };
     UploadDownloadServer.prototype.generateZip = function (type, date, linkUuid, option, city, team) {
         return __awaiter(this, void 0, void 0, function () {
-            var zip, products, products_1, products_1_1, product, prId, links, usersArr, folder, d, usersArr_1, usersArr_1_1, user, obj, name_2, e_9_1, links_2, links_2_1, link, date_1, name_3, obj, e_10_1, e_11_1, products, products_2, products_2_1, product, prId, links, users_4, d, users_1, users_1_1, user, obj, name_4, e_12_1, links_3, links_3_1, link, date_2, name_5, obj, e_13_1, e_14_1, links, teamP, users_5, d, users_2, users_2_1, user, obj, name_6, e_15_1, links_4, links_4_1, link, product, date_3, name_7, obj, e_16_1, teamsArr, teamsArr_1, teamsArr_1_1, teamP, prId, users_6, d, users_3, users_3_1, user, obj, name_8, e_17_1, links, links_5, links_5_1, link, date_4, name_9, obj, e_18_1, e_19_1, uuid_2, link, tmpPath, upload, e_20;
-            var e_11, _a, e_9, _b, e_10, _c, e_14, _d, e_12, _e, e_13, _f, e_15, _g, e_16, _h, e_19, _j, e_17, _k, e_18, _l;
+            var zip, products, products_2, products_2_1, product, prId, links, usersArr, folder, d, usersArr_1, usersArr_1_1, user, obj, name_4, e_13_1, links_3, links_3_1, link, date_1, name_5, obj, e_14_1, e_15_1, products, products_3, products_3_1, product, prId, links, users_6, d, users_3, users_3_1, user, obj, name_6, e_16_1, links_4, links_4_1, link, date_2, name_7, obj, e_17_1, e_18_1, links, teamP, users_7, d, users_4, users_4_1, user, obj, name_8, e_19_1, links_5, links_5_1, link, product, date_3, name_9, obj, e_20_1, teamsArr, teamsArr_1, teamsArr_1_1, teamP, prId, users_8, d, users_5, users_5_1, user, obj, name_10, e_21_1, links, links_6, links_6_1, link, date_4, name_11, obj, e_22_1, e_23_1, uuid_3, link, tmpPath, upload, e_24;
+            var e_15, _a, e_13, _b, e_14, _c, e_18, _d, e_16, _e, e_17, _f, e_19, _g, e_20, _h, e_23, _j, e_21, _k, e_22, _l;
             var _this = this;
             return __generator(this, function (_m) {
                 switch (_m.label) {
@@ -732,11 +1003,11 @@ var UploadDownloadServer = /** @class */ (function () {
                         _m.label = 2;
                     case 2:
                         _m.trys.push([2, 25, 26, 27]);
-                        products_1 = __values(products), products_1_1 = products_1.next();
+                        products_2 = __values(products), products_2_1 = products_2.next();
                         _m.label = 3;
                     case 3:
-                        if (!!products_1_1.done) return [3 /*break*/, 24];
-                        product = products_1_1.value;
+                        if (!!products_2_1.done) return [3 /*break*/, 24];
+                        product = products_2_1.value;
                         prId = product.productId;
                         return [4 /*yield*/, uploadDownload.getLinksByProductId(prId, date)];
                     case 4:
@@ -752,7 +1023,7 @@ var UploadDownloadServer = /** @class */ (function () {
                         _m.label = 7;
                     case 7:
                         _m.trys.push([7, 12, 13, 14]);
-                        usersArr_1 = (e_9 = void 0, __values(usersArr)), usersArr_1_1 = usersArr_1.next();
+                        usersArr_1 = (e_13 = void 0, __values(usersArr)), usersArr_1_1 = usersArr_1.next();
                         _m.label = 8;
                     case 8:
                         if (!!usersArr_1_1.done) return [3 /*break*/, 11];
@@ -762,9 +1033,9 @@ var UploadDownloadServer = /** @class */ (function () {
                         return [4 /*yield*/, uploadDownload.getS3Object(user.avatarUu)];
                     case 9:
                         obj = _m.sent();
-                        name_2 = folder + '/UserImages/' + product.location + "_" + product.teamName + '_profile_photo_' + user.firstName + "_" + user.lastName + '.png';
+                        name_4 = folder + '/UserImages/' + product.location + "_" + product.teamName + '_profile_photo_' + user.firstName + "_" + user.lastName + '.png';
                         if (obj !== "" && zip) {
-                            zip.file(name_2, obj, { base64: true });
+                            zip.file(name_4, obj, { base64: true });
                         }
                         else {
                             console.error("No such object");
@@ -775,14 +1046,14 @@ var UploadDownloadServer = /** @class */ (function () {
                         return [3 /*break*/, 8];
                     case 11: return [3 /*break*/, 14];
                     case 12:
-                        e_9_1 = _m.sent();
-                        e_9 = { error: e_9_1 };
+                        e_13_1 = _m.sent();
+                        e_13 = { error: e_13_1 };
                         return [3 /*break*/, 14];
                     case 13:
                         try {
                             if (usersArr_1_1 && !usersArr_1_1.done && (_b = usersArr_1.return)) _b.call(usersArr_1);
                         }
-                        finally { if (e_9) throw e_9.error; }
+                        finally { if (e_13) throw e_13.error; }
                         return [7 /*endfinally*/];
                     case 14:
                         if (!(links.length !== 0 && zip)) return [3 /*break*/, 23];
@@ -793,28 +1064,28 @@ var UploadDownloadServer = /** @class */ (function () {
                         _m.label = 15;
                     case 15:
                         _m.trys.push([15, 21, 22, 23]);
-                        links_2 = (e_10 = void 0, __values(links)), links_2_1 = links_2.next();
+                        links_3 = (e_14 = void 0, __values(links)), links_3_1 = links_3.next();
                         _m.label = 16;
                     case 16:
-                        if (!!links_2_1.done) return [3 /*break*/, 20];
-                        link = links_2_1.value;
+                        if (!!links_3_1.done) return [3 /*break*/, 20];
+                        link = links_3_1.value;
                         if (!(prId !== "" && product !== undefined)) return [3 /*break*/, 18];
                         date_1 = uploadDownload.formatDate(link.uploadTime);
-                        name_3 = "";
+                        name_5 = "";
                         if (link.fileType === "demoVid") {
-                            name_3 = folder + '/Videos/' + product.location + "_" + product.teamName + "_tehnic_demo_video_" + date_1 + "." + link.extension;
+                            name_5 = folder + '/Videos/' + product.location + "_" + product.teamName + "_tehnic_demo_video_" + date_1 + "." + link.extension;
                         }
                         else if (link.fileType === "presVid") {
-                            name_3 = folder + '/Videos/' + product.location + "_" + product.teamName + "_products_presentation_video_" + date_1 + "." + link.extension;
+                            name_5 = folder + '/Videos/' + product.location + "_" + product.teamName + "_products_presentation_video_" + date_1 + "." + link.extension;
                         }
                         else if (link.fileType === "pres") {
-                            name_3 = folder + '/PowerPoint/' + product.location + "_" + product.teamName + "_powerpoint_presentation_" + date_1 + "." + link.extension;
+                            name_5 = folder + '/PowerPoint/' + product.location + "_" + product.teamName + "_powerpoint_presentation_" + date_1 + "." + link.extension;
                         }
                         else if (link.fileType === "image") {
-                            name_3 = folder + '/Images/' + product.location + "_" + product.teamName + "_products_image_" + link.uuid[0] + link.uuid[1] + link.uuid[2] + "_" + date_1 + "." + link.extension;
+                            name_5 = folder + '/Images/' + product.location + "_" + product.teamName + "_products_image_" + link.uuid[0] + link.uuid[1] + link.uuid[2] + "_" + date_1 + "." + link.extension;
                         }
                         else if (link.fileType === "logo") {
-                            name_3 = folder + '/Images/' + product.location + "_" + product.teamName + "_logo_" + date_1 + "." + link.extension;
+                            name_5 = folder + '/Images/' + product.location + "_" + product.teamName + "_logo_" + date_1 + "." + link.extension;
                         }
                         else {
                             console.error("Unidentified link");
@@ -823,7 +1094,7 @@ var UploadDownloadServer = /** @class */ (function () {
                     case 17:
                         obj = _m.sent();
                         if (obj !== "") {
-                            zip.file(name_3, obj, { base64: true });
+                            zip.file(name_5, obj, { base64: true });
                         }
                         else {
                             console.error("No such object");
@@ -833,32 +1104,32 @@ var UploadDownloadServer = /** @class */ (function () {
                         console.error("No productId");
                         _m.label = 19;
                     case 19:
-                        links_2_1 = links_2.next();
+                        links_3_1 = links_3.next();
                         return [3 /*break*/, 16];
                     case 20: return [3 /*break*/, 23];
                     case 21:
-                        e_10_1 = _m.sent();
-                        e_10 = { error: e_10_1 };
+                        e_14_1 = _m.sent();
+                        e_14 = { error: e_14_1 };
                         return [3 /*break*/, 23];
                     case 22:
                         try {
-                            if (links_2_1 && !links_2_1.done && (_c = links_2.return)) _c.call(links_2);
+                            if (links_3_1 && !links_3_1.done && (_c = links_3.return)) _c.call(links_3);
                         }
-                        finally { if (e_10) throw e_10.error; }
+                        finally { if (e_14) throw e_14.error; }
                         return [7 /*endfinally*/];
                     case 23:
-                        products_1_1 = products_1.next();
+                        products_2_1 = products_2.next();
                         return [3 /*break*/, 3];
                     case 24: return [3 /*break*/, 27];
                     case 25:
-                        e_11_1 = _m.sent();
-                        e_11 = { error: e_11_1 };
+                        e_15_1 = _m.sent();
+                        e_15 = { error: e_15_1 };
                         return [3 /*break*/, 27];
                     case 26:
                         try {
-                            if (products_1_1 && !products_1_1.done && (_a = products_1.return)) _a.call(products_1);
+                            if (products_2_1 && !products_2_1.done && (_a = products_2.return)) _a.call(products_2);
                         }
-                        finally { if (e_11) throw e_11.error; }
+                        finally { if (e_15) throw e_15.error; }
                         return [7 /*endfinally*/];
                     case 27: return [3 /*break*/, 112];
                     case 28:
@@ -869,56 +1140,56 @@ var UploadDownloadServer = /** @class */ (function () {
                         _m.label = 30;
                     case 30:
                         _m.trys.push([30, 53, 54, 55]);
-                        products_2 = __values(products), products_2_1 = products_2.next();
+                        products_3 = __values(products), products_3_1 = products_3.next();
                         _m.label = 31;
                     case 31:
-                        if (!!products_2_1.done) return [3 /*break*/, 52];
-                        product = products_2_1.value;
+                        if (!!products_3_1.done) return [3 /*break*/, 52];
+                        product = products_3_1.value;
                         prId = product.productId;
                         return [4 /*yield*/, uploadDownload.getLinksByProductId(prId, date)];
                     case 32:
                         links = _m.sent();
                         return [4 /*yield*/, teams.getUsersByTeamId(product.teamId)];
                     case 33:
-                        users_4 = _m.sent();
+                        users_6 = _m.sent();
                         return [4 /*yield*/, teams.isTeamInDate(date, prId)];
                     case 34:
                         d = _m.sent();
-                        if (!(users_4.length !== 0 && d)) return [3 /*break*/, 42];
+                        if (!(users_6.length !== 0 && d)) return [3 /*break*/, 42];
                         _m.label = 35;
                     case 35:
                         _m.trys.push([35, 40, 41, 42]);
-                        users_1 = (e_12 = void 0, __values(users_4)), users_1_1 = users_1.next();
+                        users_3 = (e_16 = void 0, __values(users_6)), users_3_1 = users_3.next();
                         _m.label = 36;
                     case 36:
-                        if (!!users_1_1.done) return [3 /*break*/, 39];
-                        user = users_1_1.value;
+                        if (!!users_3_1.done) return [3 /*break*/, 39];
+                        user = users_3_1.value;
                         if (!user) return [3 /*break*/, 38];
                         if (!(user.avatarUu !== '' && user.avatarUu !== null)) return [3 /*break*/, 38];
                         return [4 /*yield*/, uploadDownload.getS3Object(user.avatarUu)];
                     case 37:
                         obj = _m.sent();
-                        name_4 = product.teamName + '/UserImages/' + product.location + "_" + product.teamName + '_profile_photo_' + user.firstName + "_" + user.lastName + '.png';
+                        name_6 = product.teamName + '/UserImages/' + product.location + "_" + product.teamName + '_profile_photo_' + user.firstName + "_" + user.lastName + '.png';
                         if (obj !== "" && zip) {
-                            zip.file(name_4, obj, { base64: true });
+                            zip.file(name_6, obj, { base64: true });
                         }
                         else {
                             console.error('No obj GETS3OBJ');
                         }
                         _m.label = 38;
                     case 38:
-                        users_1_1 = users_1.next();
+                        users_3_1 = users_3.next();
                         return [3 /*break*/, 36];
                     case 39: return [3 /*break*/, 42];
                     case 40:
-                        e_12_1 = _m.sent();
-                        e_12 = { error: e_12_1 };
+                        e_16_1 = _m.sent();
+                        e_16 = { error: e_16_1 };
                         return [3 /*break*/, 42];
                     case 41:
                         try {
-                            if (users_1_1 && !users_1_1.done && (_e = users_1.return)) _e.call(users_1);
+                            if (users_3_1 && !users_3_1.done && (_e = users_3.return)) _e.call(users_3);
                         }
-                        finally { if (e_12) throw e_12.error; }
+                        finally { if (e_16) throw e_16.error; }
                         return [7 /*endfinally*/];
                     case 42:
                         if (!(links.length !== 0 && zip)) return [3 /*break*/, 51];
@@ -929,28 +1200,28 @@ var UploadDownloadServer = /** @class */ (function () {
                         _m.label = 43;
                     case 43:
                         _m.trys.push([43, 49, 50, 51]);
-                        links_3 = (e_13 = void 0, __values(links)), links_3_1 = links_3.next();
+                        links_4 = (e_17 = void 0, __values(links)), links_4_1 = links_4.next();
                         _m.label = 44;
                     case 44:
-                        if (!!links_3_1.done) return [3 /*break*/, 48];
-                        link = links_3_1.value;
+                        if (!!links_4_1.done) return [3 /*break*/, 48];
+                        link = links_4_1.value;
                         if (!(prId !== "" && product !== undefined)) return [3 /*break*/, 46];
                         date_2 = uploadDownload.formatDate(link.uploadTime);
-                        name_5 = "";
+                        name_7 = "";
                         if (link.fileType === "demoVid") {
-                            name_5 = product.teamName + '/Videos/' + product.location + "_" + product.teamName + "_tehnic_demo_video_" + date_2 + "." + link.extension;
+                            name_7 = product.teamName + '/Videos/' + product.location + "_" + product.teamName + "_tehnic_demo_video_" + date_2 + "." + link.extension;
                         }
                         else if (link.fileType === "presVid") {
-                            name_5 = product.teamName + '/Videos/' + product.location + "_" + product.teamName + "_products_presentation_video_" + date_2 + "." + link.extension;
+                            name_7 = product.teamName + '/Videos/' + product.location + "_" + product.teamName + "_products_presentation_video_" + date_2 + "." + link.extension;
                         }
                         else if (link.fileType === "pres") {
-                            name_5 = product.teamName + '/PowerPoint/' + product.location + "_" + product.teamName + "_powerpoint_presentation_" + date_2 + "." + link.extension;
+                            name_7 = product.teamName + '/PowerPoint/' + product.location + "_" + product.teamName + "_powerpoint_presentation_" + date_2 + "." + link.extension;
                         }
                         else if (link.fileType === "image") {
-                            name_5 = product.teamName + '/Images/' + product.location + "_" + product.teamName + "_products_image_" + link.uuid[0] + link.uuid[1] + link.uuid[2] + "_" + date_2 + "." + link.extension;
+                            name_7 = product.teamName + '/Images/' + product.location + "_" + product.teamName + "_products_image_" + link.uuid[0] + link.uuid[1] + link.uuid[2] + "_" + date_2 + "." + link.extension;
                         }
                         else if (link.fileType === "logo") {
-                            name_5 = product.teamName + '/Images/' + product.location + "_" + product.teamName + "_logo_" + date_2 + "." + link.extension;
+                            name_7 = product.teamName + '/Images/' + product.location + "_" + product.teamName + "_logo_" + date_2 + "." + link.extension;
                         }
                         else {
                             console.error('Unidentified link');
@@ -959,7 +1230,7 @@ var UploadDownloadServer = /** @class */ (function () {
                     case 45:
                         obj = _m.sent();
                         if (obj !== "") {
-                            zip.file(name_5, obj, { base64: true });
+                            zip.file(name_7, obj, { base64: true });
                         }
                         else {
                             console.error('No obj GETS3OBJ');
@@ -969,32 +1240,32 @@ var UploadDownloadServer = /** @class */ (function () {
                         console.error('No Product');
                         _m.label = 47;
                     case 47:
-                        links_3_1 = links_3.next();
+                        links_4_1 = links_4.next();
                         return [3 /*break*/, 44];
                     case 48: return [3 /*break*/, 51];
                     case 49:
-                        e_13_1 = _m.sent();
-                        e_13 = { error: e_13_1 };
+                        e_17_1 = _m.sent();
+                        e_17 = { error: e_17_1 };
                         return [3 /*break*/, 51];
                     case 50:
                         try {
-                            if (links_3_1 && !links_3_1.done && (_f = links_3.return)) _f.call(links_3);
+                            if (links_4_1 && !links_4_1.done && (_f = links_4.return)) _f.call(links_4);
                         }
-                        finally { if (e_13) throw e_13.error; }
+                        finally { if (e_17) throw e_17.error; }
                         return [7 /*endfinally*/];
                     case 51:
-                        products_2_1 = products_2.next();
+                        products_3_1 = products_3.next();
                         return [3 /*break*/, 31];
                     case 52: return [3 /*break*/, 55];
                     case 53:
-                        e_14_1 = _m.sent();
-                        e_14 = { error: e_14_1 };
+                        e_18_1 = _m.sent();
+                        e_18 = { error: e_18_1 };
                         return [3 /*break*/, 55];
                     case 54:
                         try {
-                            if (products_2_1 && !products_2_1.done && (_d = products_2.return)) _d.call(products_2);
+                            if (products_3_1 && !products_3_1.done && (_d = products_3.return)) _d.call(products_3);
                         }
-                        finally { if (e_14) throw e_14.error; }
+                        finally { if (e_18) throw e_18.error; }
                         return [7 /*endfinally*/];
                     case 55: return [3 /*break*/, 112];
                     case 56:
@@ -1008,47 +1279,47 @@ var UploadDownloadServer = /** @class */ (function () {
                         if (!teamP) return [3 /*break*/, 60];
                         return [4 /*yield*/, teams.getUsersByTeamId(teamP.teamId)];
                     case 59:
-                        users_5 = _m.sent();
+                        users_7 = _m.sent();
                         _m.label = 60;
                     case 60: return [4 /*yield*/, teams.isTeamInDate(date, team)];
                     case 61:
                         d = _m.sent();
-                        if (!(users_5 && teamP)) return [3 /*break*/, 69];
-                        if (!(users_5.length !== 0 && d)) return [3 /*break*/, 69];
+                        if (!(users_7 && teamP)) return [3 /*break*/, 69];
+                        if (!(users_7.length !== 0 && d)) return [3 /*break*/, 69];
                         _m.label = 62;
                     case 62:
                         _m.trys.push([62, 67, 68, 69]);
-                        users_2 = __values(users_5), users_2_1 = users_2.next();
+                        users_4 = __values(users_7), users_4_1 = users_4.next();
                         _m.label = 63;
                     case 63:
-                        if (!!users_2_1.done) return [3 /*break*/, 66];
-                        user = users_2_1.value;
+                        if (!!users_4_1.done) return [3 /*break*/, 66];
+                        user = users_4_1.value;
                         if (!user) return [3 /*break*/, 65];
                         if (!(user.avatarUu !== '' && user.avatarUu !== null)) return [3 /*break*/, 65];
                         return [4 /*yield*/, uploadDownload.getS3Object(user.avatarUu)];
                     case 64:
                         obj = _m.sent();
-                        name_6 = 'UserImages/' + teamP.location + "_" + teamP.teamName + '_profile_photo_' + user.firstName + "_" + user.lastName + '.png';
+                        name_8 = 'UserImages/' + teamP.location + "_" + teamP.teamName + '_profile_photo_' + user.firstName + "_" + user.lastName + '.png';
                         if (obj !== "" && zip) {
-                            zip.file(name_6, obj, { base64: true });
+                            zip.file(name_8, obj, { base64: true });
                         }
                         else {
                             console.error('No obj GETS3OBJ');
                         }
                         _m.label = 65;
                     case 65:
-                        users_2_1 = users_2.next();
+                        users_4_1 = users_4.next();
                         return [3 /*break*/, 63];
                     case 66: return [3 /*break*/, 69];
                     case 67:
-                        e_15_1 = _m.sent();
-                        e_15 = { error: e_15_1 };
+                        e_19_1 = _m.sent();
+                        e_19 = { error: e_19_1 };
                         return [3 /*break*/, 69];
                     case 68:
                         try {
-                            if (users_2_1 && !users_2_1.done && (_g = users_2.return)) _g.call(users_2);
+                            if (users_4_1 && !users_4_1.done && (_g = users_4.return)) _g.call(users_4);
                         }
-                        finally { if (e_15) throw e_15.error; }
+                        finally { if (e_19) throw e_19.error; }
                         return [7 /*endfinally*/];
                     case 69:
                         if (!(links.length !== 0 && zip)) return [3 /*break*/, 80];
@@ -1058,31 +1329,31 @@ var UploadDownloadServer = /** @class */ (function () {
                         _m.label = 70;
                     case 70:
                         _m.trys.push([70, 77, 78, 79]);
-                        links_4 = __values(links), links_4_1 = links_4.next();
+                        links_5 = __values(links), links_5_1 = links_5.next();
                         _m.label = 71;
                     case 71:
-                        if (!!links_4_1.done) return [3 /*break*/, 76];
-                        link = links_4_1.value;
+                        if (!!links_5_1.done) return [3 /*break*/, 76];
+                        link = links_5_1.value;
                         return [4 /*yield*/, teams.getProductById(link.productId)];
                     case 72:
                         product = _m.sent();
                         if (!(product && teamP)) return [3 /*break*/, 74];
                         date_3 = uploadDownload.formatDate(link.uploadTime);
-                        name_7 = "";
+                        name_9 = "";
                         if (link.fileType === "demoVid") {
-                            name_7 = "Videos/" + teamP.location + "_" + product.startupName + "_tehnic_demo_video_" + date_3 + "." + link.extension;
+                            name_9 = "Videos/" + teamP.location + "_" + product.startupName + "_tehnic_demo_video_" + date_3 + "." + link.extension;
                         }
                         else if (link.fileType === "presVid") {
-                            name_7 = "Videos/" + teamP.location + "_" + product.startupName + "_products_presentation_video_" + date_3 + "." + link.extension;
+                            name_9 = "Videos/" + teamP.location + "_" + product.startupName + "_products_presentation_video_" + date_3 + "." + link.extension;
                         }
                         else if (link.fileType === "pres") {
-                            name_7 = "PowerPoint/" + teamP.location + "_" + product.startupName + "_powerpoint_presentation_" + date_3 + "." + link.extension;
+                            name_9 = "PowerPoint/" + teamP.location + "_" + product.startupName + "_powerpoint_presentation_" + date_3 + "." + link.extension;
                         }
                         else if (link.fileType === "image") {
-                            name_7 = "Images/" + teamP.location + "_" + product.startupName + "_products_image_" + link.uuid[0] + link.uuid[1] + link.uuid[2] + "_" + date_3 + "." + link.extension;
+                            name_9 = "Images/" + teamP.location + "_" + product.startupName + "_products_image_" + link.uuid[0] + link.uuid[1] + link.uuid[2] + "_" + date_3 + "." + link.extension;
                         }
                         else if (link.fileType === "logo") {
-                            name_7 = "Images/" + teamP.location + "_" + product.startupName + "_logo_" + date_3 + "." + link.extension;
+                            name_9 = "Images/" + teamP.location + "_" + product.startupName + "_logo_" + date_3 + "." + link.extension;
                         }
                         else {
                             console.error('Unidentified link');
@@ -1091,7 +1362,7 @@ var UploadDownloadServer = /** @class */ (function () {
                     case 73:
                         obj = _m.sent();
                         if (obj !== "") {
-                            zip.file(name_7, obj, { base64: true });
+                            zip.file(name_9, obj, { base64: true });
                         }
                         else {
                             console.error('No obj GETS3OBJ');
@@ -1101,18 +1372,18 @@ var UploadDownloadServer = /** @class */ (function () {
                         console.error('No Product');
                         _m.label = 75;
                     case 75:
-                        links_4_1 = links_4.next();
+                        links_5_1 = links_5.next();
                         return [3 /*break*/, 71];
                     case 76: return [3 /*break*/, 79];
                     case 77:
-                        e_16_1 = _m.sent();
-                        e_16 = { error: e_16_1 };
+                        e_20_1 = _m.sent();
+                        e_20 = { error: e_20_1 };
                         return [3 /*break*/, 79];
                     case 78:
                         try {
-                            if (links_4_1 && !links_4_1.done && (_h = links_4.return)) _h.call(links_4);
+                            if (links_5_1 && !links_5_1.done && (_h = links_5.return)) _h.call(links_5);
                         }
-                        finally { if (e_16) throw e_16.error; }
+                        finally { if (e_20) throw e_20.error; }
                         return [7 /*endfinally*/];
                     case 79: return [3 /*break*/, 81];
                     case 80:
@@ -1135,45 +1406,45 @@ var UploadDownloadServer = /** @class */ (function () {
                         prId = teamP.productId;
                         return [4 /*yield*/, teams.getUsersByTeamId(teamP.teamId)];
                     case 86:
-                        users_6 = _m.sent();
+                        users_8 = _m.sent();
                         return [4 /*yield*/, teams.isTeamInDate(date, prId)];
                     case 87:
                         d = _m.sent();
-                        if (!(users_6.length !== 0 && d && option === "everything")) return [3 /*break*/, 95];
+                        if (!(users_8.length !== 0 && d && option === "everything")) return [3 /*break*/, 95];
                         _m.label = 88;
                     case 88:
                         _m.trys.push([88, 93, 94, 95]);
-                        users_3 = (e_17 = void 0, __values(users_6)), users_3_1 = users_3.next();
+                        users_5 = (e_21 = void 0, __values(users_8)), users_5_1 = users_5.next();
                         _m.label = 89;
                     case 89:
-                        if (!!users_3_1.done) return [3 /*break*/, 92];
-                        user = users_3_1.value;
+                        if (!!users_5_1.done) return [3 /*break*/, 92];
+                        user = users_5_1.value;
                         if (!user) return [3 /*break*/, 91];
                         if (!(user.avatarUu !== '' && user.avatarUu !== null)) return [3 /*break*/, 91];
                         return [4 /*yield*/, uploadDownload.getS3Object(user.avatarUu)];
                     case 90:
                         obj = _m.sent();
-                        name_8 = teamP.teamName + '/UserImages/' + teamP.location + "_" + teamP.teamName + '_profile_photo_' + user.firstName + "_" + user.lastName + '.png';
+                        name_10 = teamP.teamName + '/UserImages/' + teamP.location + "_" + teamP.teamName + '_profile_photo_' + user.firstName + "_" + user.lastName + '.png';
                         if (obj !== "" && zip) {
-                            zip.file(name_8, obj, { base64: true });
+                            zip.file(name_10, obj, { base64: true });
                         }
                         else {
                             console.error('No obj GETS3OBJ');
                         }
                         _m.label = 91;
                     case 91:
-                        users_3_1 = users_3.next();
+                        users_5_1 = users_5.next();
                         return [3 /*break*/, 89];
                     case 92: return [3 /*break*/, 95];
                     case 93:
-                        e_17_1 = _m.sent();
-                        e_17 = { error: e_17_1 };
+                        e_21_1 = _m.sent();
+                        e_21 = { error: e_21_1 };
                         return [3 /*break*/, 95];
                     case 94:
                         try {
-                            if (users_3_1 && !users_3_1.done && (_k = users_3.return)) _k.call(users_3);
+                            if (users_5_1 && !users_5_1.done && (_k = users_5.return)) _k.call(users_5);
                         }
-                        finally { if (e_17) throw e_17.error; }
+                        finally { if (e_21) throw e_21.error; }
                         return [7 /*endfinally*/];
                     case 95:
                         links = [];
@@ -1197,29 +1468,29 @@ var UploadDownloadServer = /** @class */ (function () {
                         _m.label = 100;
                     case 100:
                         _m.trys.push([100, 106, 107, 108]);
-                        links_5 = (e_18 = void 0, __values(links)), links_5_1 = links_5.next();
+                        links_6 = (e_22 = void 0, __values(links)), links_6_1 = links_6.next();
                         _m.label = 101;
                     case 101:
-                        if (!!links_5_1.done) return [3 /*break*/, 105];
-                        link = links_5_1.value;
+                        if (!!links_6_1.done) return [3 /*break*/, 105];
+                        link = links_6_1.value;
                         if (!(prId !== "" && teamP !== undefined)) return [3 /*break*/, 103];
                         date_4 = uploadDownload.formatDate(link.uploadTime);
-                        name_9 = "";
+                        name_11 = "";
                         if (option === "everything") {
                             if (link.fileType === "demoVid") {
-                                name_9 = teamP.teamName + '/Videos/' + teamP.location + "_" + teamP.teamName + "_tehnic_demo_video_" + date_4 + "." + link.extension;
+                                name_11 = teamP.teamName + '/Videos/' + teamP.location + "_" + teamP.teamName + "_tehnic_demo_video_" + date_4 + "." + link.extension;
                             }
                             else if (link.fileType === "presVid") {
-                                name_9 = teamP.teamName + '/Videos/' + teamP.location + "_" + teamP.teamName + "_products_presentation_video_" + date_4 + "." + link.extension;
+                                name_11 = teamP.teamName + '/Videos/' + teamP.location + "_" + teamP.teamName + "_products_presentation_video_" + date_4 + "." + link.extension;
                             }
                             else if (link.fileType === "pres") {
-                                name_9 = teamP.teamName + '/PowerPoint/' + teamP.location + "_" + teamP.teamName + "_powerpoint_presentation_" + date_4 + "." + link.extension;
+                                name_11 = teamP.teamName + '/PowerPoint/' + teamP.location + "_" + teamP.teamName + "_powerpoint_presentation_" + date_4 + "." + link.extension;
                             }
                             else if (link.fileType === "image") {
-                                name_9 = teamP.teamName + '/Images/' + teamP.location + "_" + teamP.teamName + "_products_image_" + link.uuid[0] + link.uuid[1] + link.uuid[2] + "_" + date_4 + "." + link.extension;
+                                name_11 = teamP.teamName + '/Images/' + teamP.location + "_" + teamP.teamName + "_products_image_" + link.uuid[0] + link.uuid[1] + link.uuid[2] + "_" + date_4 + "." + link.extension;
                             }
                             else if (link.fileType === "logo") {
-                                name_9 = teamP.teamName + '/Images/' + teamP.location + "_" + teamP.teamName + "_logo_" + date_4 + "." + link.extension;
+                                name_11 = teamP.teamName + '/Images/' + teamP.location + "_" + teamP.teamName + "_logo_" + date_4 + "." + link.extension;
                             }
                             else {
                                 console.error('Unidentified link');
@@ -1227,19 +1498,19 @@ var UploadDownloadServer = /** @class */ (function () {
                         }
                         else {
                             if (option === "demoVid") {
-                                name_9 = teamP.location + "_" + teamP.teamName + "_tehnic_demo_video_" + date_4 + "." + link.extension;
+                                name_11 = teamP.location + "_" + teamP.teamName + "_tehnic_demo_video_" + date_4 + "." + link.extension;
                             }
                             else if (option === "presVid") {
-                                name_9 = teamP.location + "_" + teamP.teamName + "_products_presentation_video_" + date_4 + "." + link.extension;
+                                name_11 = teamP.location + "_" + teamP.teamName + "_products_presentation_video_" + date_4 + "." + link.extension;
                             }
                             else if (option === "pres") {
-                                name_9 = teamP.location + "_" + teamP.teamName + "_powerpoint_presentation_" + date_4 + "." + link.extension;
+                                name_11 = teamP.location + "_" + teamP.teamName + "_powerpoint_presentation_" + date_4 + "." + link.extension;
                             }
                             else if (option === "image") {
-                                name_9 = teamP.location + "_" + teamP.teamName + "_products_image_" + link.uuid[0] + link.uuid[1] + link.uuid[2] + "_" + date_4 + "." + link.extension;
+                                name_11 = teamP.location + "_" + teamP.teamName + "_products_image_" + link.uuid[0] + link.uuid[1] + link.uuid[2] + "_" + date_4 + "." + link.extension;
                             }
                             else if (option === "logo") {
-                                name_9 = teamP.location + "_" + teamP.teamName + "_logo_" + date_4 + "." + link.extension;
+                                name_11 = teamP.location + "_" + teamP.teamName + "_logo_" + date_4 + "." + link.extension;
                             }
                             else {
                                 console.error('Unidentified link');
@@ -1249,7 +1520,7 @@ var UploadDownloadServer = /** @class */ (function () {
                     case 102:
                         obj = _m.sent();
                         if (obj !== "" && zip) {
-                            zip.file(name_9, obj, { base64: true });
+                            zip.file(name_11, obj, { base64: true });
                         }
                         else {
                             console.error('No obj GETS3OBJ');
@@ -1259,35 +1530,35 @@ var UploadDownloadServer = /** @class */ (function () {
                         console.error('No Product');
                         _m.label = 104;
                     case 104:
-                        links_5_1 = links_5.next();
+                        links_6_1 = links_6.next();
                         return [3 /*break*/, 101];
                     case 105: return [3 /*break*/, 108];
                     case 106:
-                        e_18_1 = _m.sent();
-                        e_18 = { error: e_18_1 };
+                        e_22_1 = _m.sent();
+                        e_22 = { error: e_22_1 };
                         return [3 /*break*/, 108];
                     case 107:
                         try {
-                            if (links_5_1 && !links_5_1.done && (_l = links_5.return)) _l.call(links_5);
+                            if (links_6_1 && !links_6_1.done && (_l = links_6.return)) _l.call(links_6);
                         }
-                        finally { if (e_18) throw e_18.error; }
+                        finally { if (e_22) throw e_22.error; }
                         return [7 /*endfinally*/];
                     case 108:
                         teamsArr_1_1 = teamsArr_1.next();
                         return [3 /*break*/, 85];
                     case 109: return [3 /*break*/, 112];
                     case 110:
-                        e_19_1 = _m.sent();
-                        e_19 = { error: e_19_1 };
+                        e_23_1 = _m.sent();
+                        e_23 = { error: e_23_1 };
                         return [3 /*break*/, 112];
                     case 111:
                         try {
                             if (teamsArr_1_1 && !teamsArr_1_1.done && (_j = teamsArr_1.return)) _j.call(teamsArr_1);
                         }
-                        finally { if (e_19) throw e_19.error; }
+                        finally { if (e_23) throw e_23.error; }
                         return [7 /*endfinally*/];
                     case 112:
-                        uuid_2 = uuid_1.v4();
+                        uuid_3 = uuid_1.v4();
                         if (!(zip !== null)) return [3 /*break*/, 122];
                         if (!(Object.keys(zip.files).length === 0)) return [3 /*break*/, 120];
                         return [4 /*yield*/, fs_extra_1.default.writeFile(path_1.default.join("/tmp", "NO_FILE.txt"), "NO_FILE")];
@@ -1320,7 +1591,7 @@ var UploadDownloadServer = /** @class */ (function () {
                         _m.label = 119;
                     case 119: return [3 /*break*/, 121];
                     case 120:
-                        zip.generateNodeStream({ type: 'nodebuffer', streamFiles: true }).pipe(fs_extra_1.default.createWriteStream(path_1.default.join("/tmp", uuid_2 + '.zip'))).on('finish', function () { return __awaiter(_this, void 0, void 0, function () {
+                        zip.generateNodeStream({ type: 'nodebuffer', streamFiles: true }).pipe(fs_extra_1.default.createWriteStream(path_1.default.join("/tmp", uuid_3 + '.zip'))).on('finish', function () { return __awaiter(_this, void 0, void 0, function () {
                             var link, upload, tmpFile;
                             return __generator(this, function (_a) {
                                 switch (_a.label) {
@@ -1336,7 +1607,7 @@ var UploadDownloadServer = /** @class */ (function () {
                                         };
                                         if (!(link.uuid !== "")) return [3 /*break*/, 7];
                                         upload = false;
-                                        tmpFile = path_1.default.join("/tmp", uuid_2 + ".zip");
+                                        tmpFile = path_1.default.join("/tmp", uuid_3 + ".zip");
                                         return [4 /*yield*/, uploadDownload.addS3File(link.uuid, tmpFile, "path")];
                                     case 1:
                                         upload = _a.sent();
@@ -1371,30 +1642,75 @@ var UploadDownloadServer = /** @class */ (function () {
                         zip = null;
                         return [3 /*break*/, 125];
                     case 124:
-                        e_20 = _m.sent();
-                        console.error(e_20);
+                        e_24 = _m.sent();
+                        console.error(e_24);
                         return [3 /*break*/, 125];
                     case 125: return [2 /*return*/];
                 }
             });
         });
     };
+    UploadDownloadServer.prototype.checkCustomZip = function (city, businessTrack, workshopNo, semifinals, finals) {
+        return __awaiter(this, void 0, void 0, function () {
+            var uuid, tsf, tf, link, truthful, oldDate, newDate, e_25;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 6, , 7]);
+                        uuid = city + "_uploads_arhive_" + businessTrack + "_" + workshopNo;
+                        tsf = semifinals ? "t" : "f";
+                        tf = finals ? "t" : "f";
+                        uuid = uuid + "_" + tsf + tf;
+                        return [4 /*yield*/, uploadDownload.getLinkByUuid(uuid)];
+                    case 1:
+                        link = _a.sent();
+                        truthful = false;
+                        if (link) {
+                            oldDate = new Date(link.uploadTime).getTime();
+                            newDate = new Date().getTime();
+                            truthful = (newDate - oldDate >= 86400000);
+                        }
+                        else {
+                            truthful = true;
+                        }
+                        if (!truthful) return [3 /*break*/, 5];
+                        if (!(UploadDownloadServer.zips[uuid] === null)) return [3 /*break*/, 3];
+                        return [4 /*yield*/, uploadDownload.generateCustomZip(uuid, city, businessTrack, semifinals, finals)];
+                    case 2:
+                        _a.sent();
+                        return [2 /*return*/];
+                    case 3:
+                        if (!(UploadDownloadServer.zips[uuid] === undefined)) return [3 /*break*/, 5];
+                        UploadDownloadServer.zips[uuid] = null;
+                        return [4 /*yield*/, uploadDownload.generateCustomZip(uuid, city, businessTrack, semifinals, finals)];
+                    case 4:
+                        _a.sent();
+                        return [2 /*return*/];
+                    case 5: return [3 /*break*/, 7];
+                    case 6:
+                        e_25 = _a.sent();
+                        console.error(e_25);
+                        return [2 /*return*/];
+                    case 7: return [2 /*return*/];
+                }
+            });
+        });
+    };
     UploadDownloadServer.prototype.checkZip = function (type, date, option, city, team) {
         return __awaiter(this, void 0, void 0, function () {
-            var link, uuid, product, oldDate, newDate, e_21;
+            var link, uuid, product, truthful, oldDate, newDate, e_26;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 14, , 15]);
                         link = null;
-                        if (link)
-                            null;
                         uuid = '';
                         if (!(type === "all")) return [3 /*break*/, 2];
                         uuid = "all_uploads_arhive_" + date;
                         return [4 /*yield*/, uploadDownload.getLinkByUuid(uuid)];
                     case 1:
                         link = _a.sent();
+                        console.log(link);
                         return [3 /*break*/, 9];
                     case 2:
                         if (!city) return [3 /*break*/, 4];
@@ -1425,10 +1741,16 @@ var UploadDownloadServer = /** @class */ (function () {
                         link = _a.sent();
                         _a.label = 9;
                     case 9:
-                        if (!link) return [3 /*break*/, 13];
-                        oldDate = new Date(link.uploadTime).getTime();
-                        newDate = new Date().getTime();
-                        if (!(link.uuid === '' || newDate - oldDate >= 86400000)) return [3 /*break*/, 13];
+                        truthful = false;
+                        if (link) {
+                            oldDate = new Date(link.uploadTime).getTime();
+                            newDate = new Date().getTime();
+                            truthful = (newDate - oldDate >= 86400000);
+                        }
+                        else {
+                            truthful = true;
+                        }
+                        if (!truthful) return [3 /*break*/, 13];
                         if (!(UploadDownloadServer.zips[uuid] === null)) return [3 /*break*/, 11];
                         return [4 /*yield*/, uploadDownload.generateZip(type, date, uuid, option, city, team)];
                     case 10:
@@ -1443,8 +1765,8 @@ var UploadDownloadServer = /** @class */ (function () {
                         return [2 /*return*/];
                     case 13: return [3 /*break*/, 15];
                     case 14:
-                        e_21 = _a.sent();
-                        console.error(e_21);
+                        e_26 = _a.sent();
+                        console.error(e_26);
                         return [2 /*return*/];
                     case 15: return [2 /*return*/];
                 }
@@ -1453,7 +1775,7 @@ var UploadDownloadServer = /** @class */ (function () {
     };
     UploadDownloadServer.prototype.getZip = function (type, date, option, city, team) {
         return __awaiter(this, void 0, void 0, function () {
-            var link, uuid, product, obj, file, ref, url, e_22;
+            var link, uuid, product, obj, file, ref, url, e_27;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -1512,11 +1834,13 @@ var UploadDownloadServer = /** @class */ (function () {
                             return [2 /*return*/, "ERROR"];
                         _a.label = 13;
                     case 13: return [3 /*break*/, 15];
-                    case 14: return [2 /*return*/, "NOT_DONE"];
+                    case 14:
+                        console.log("else");
+                        return [2 /*return*/, "NOT_DONE"];
                     case 15: return [3 /*break*/, 17];
                     case 16:
-                        e_22 = _a.sent();
-                        console.error(e_22);
+                        e_27 = _a.sent();
+                        console.error(e_27);
                         return [2 /*return*/, "ERROR"];
                     case 17: return [2 /*return*/];
                 }
@@ -1561,8 +1885,8 @@ var authFunct = server_3.getAuthorizationFunction();
 if (authFunct)
     router.use(authFunct);
 router.get("/get/file/product/:fileType/:productId", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var type, productId, links, results, _a, _b, link, url, e_23_1, e_24;
-    var e_23, _c;
+    var type, productId, links, results, _a, _b, link, url, e_28_1, e_29;
+    var e_28, _c;
     return __generator(this, function (_d) {
         switch (_d.label) {
             case 0:
@@ -1598,14 +1922,14 @@ router.get("/get/file/product/:fileType/:productId", function (req, res) { retur
                 return [3 /*break*/, 3];
             case 6: return [3 /*break*/, 9];
             case 7:
-                e_23_1 = _d.sent();
-                e_23 = { error: e_23_1 };
+                e_28_1 = _d.sent();
+                e_28 = { error: e_28_1 };
                 return [3 /*break*/, 9];
             case 8:
                 try {
                     if (_b && !_b.done && (_c = _a.return)) _c.call(_a);
                 }
-                finally { if (e_23) throw e_23.error; }
+                finally { if (e_28) throw e_28.error; }
                 return [7 /*endfinally*/];
             case 9:
                 res.status(200).send(results);
@@ -1615,8 +1939,8 @@ router.get("/get/file/product/:fileType/:productId", function (req, res) { retur
                 _d.label = 11;
             case 11: return [3 /*break*/, 13];
             case 12:
-                e_24 = _d.sent();
-                console.error(e_24);
+                e_29 = _d.sent();
+                console.error(e_29);
                 res.status(500).send({ err: 500, data: null });
                 return [3 /*break*/, 13];
             case 13: return [2 /*return*/];
@@ -1624,7 +1948,7 @@ router.get("/get/file/product/:fileType/:productId", function (req, res) { retur
     });
 }); });
 router.post("/delete/file/", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var uuid, file, rs, rss, name_10, tmpFile, e_25;
+    var uuid, file, rs, rss, name_12, tmpFile, e_30;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -1645,8 +1969,8 @@ router.post("/delete/file/", function (req, res) { return __awaiter(void 0, void
                 res.status(200).send(true);
                 return [3 /*break*/, 8];
             case 4:
-                name_10 = uuid_1.v4();
-                tmpFile = path_1.default.join("/tmp", name_10);
+                name_12 = uuid_1.v4();
+                tmpFile = path_1.default.join("/tmp", name_12);
                 return [4 /*yield*/, fs_extra_1.default.writeFile(tmpFile, file)];
             case 5:
                 _a.sent();
@@ -1664,8 +1988,8 @@ router.post("/delete/file/", function (req, res) { return __awaiter(void 0, void
                 _a.label = 10;
             case 10: return [3 /*break*/, 12];
             case 11:
-                e_25 = _a.sent();
-                console.error(e_25);
+                e_30 = _a.sent();
+                console.error(e_30);
                 res.status(500).send({ err: 500, data: false });
                 return [3 /*break*/, 12];
             case 12: return [2 /*return*/];
@@ -1673,7 +1997,7 @@ router.post("/delete/file/", function (req, res) { return __awaiter(void 0, void
     });
 }); });
 router.get("/download/file/:uuid", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var uuid, url, e_26;
+    var uuid, url, e_31;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -1694,8 +2018,8 @@ router.get("/download/file/:uuid", function (req, res) { return __awaiter(void 0
                 }
                 return [3 /*break*/, 4];
             case 3:
-                e_26 = _a.sent();
-                console.error(e_26);
+                e_31 = _a.sent();
+                console.error(e_31);
                 res.status(500).send({ err: 500, data: null });
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
@@ -1703,8 +2027,8 @@ router.get("/download/file/:uuid", function (req, res) { return __awaiter(void 0
     });
 }); });
 router.get("/download/zip/:type/:date", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var type_1, date, links, zip, links_6, links_6_1, link, product, date_5, name_11, obj, e_27_1, uuid_3, e_28;
-    var e_27, _a;
+    var type_1, date, links, zip, links_7, links_7_1, link, product, date_5, name_13, obj, e_32_1, uuid_4, e_33;
+    var e_32, _a;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
@@ -1719,41 +2043,41 @@ router.get("/download/zip/:type/:date", function (req, res) { return __awaiter(v
                 _b.label = 2;
             case 2:
                 _b.trys.push([2, 9, 10, 11]);
-                links_6 = __values(links), links_6_1 = links_6.next();
+                links_7 = __values(links), links_7_1 = links_7.next();
                 _b.label = 3;
             case 3:
-                if (!!links_6_1.done) return [3 /*break*/, 8];
-                link = links_6_1.value;
+                if (!!links_7_1.done) return [3 /*break*/, 8];
+                link = links_7_1.value;
                 return [4 /*yield*/, teams.getProductById(link.productId)];
             case 4:
                 product = _b.sent();
                 if (!product) return [3 /*break*/, 6];
                 date_5 = uploadDownload.formatDate(link.uploadTime);
-                name_11 = "";
+                name_13 = "";
                 if (type_1 === "demoVid") {
-                    name_11 = product.startupName + "_tehnic_demo_video_" + date_5 + "." + link.extension;
+                    name_13 = product.startupName + "_tehnic_demo_video_" + date_5 + "." + link.extension;
                 }
                 else if (type_1 === "presVid") {
-                    name_11 = product.startupName + "_products_presentation_video_" + date_5 + "." + link.extension;
+                    name_13 = product.startupName + "_products_presentation_video_" + date_5 + "." + link.extension;
                 }
                 else if (type_1 === "pres") {
-                    name_11 = product.startupName + "_powerpoint_presentation_" + date_5 + "." + link.extension;
+                    name_13 = product.startupName + "_powerpoint_presentation_" + date_5 + "." + link.extension;
                 }
                 else if (type_1 === "image") {
                     zip.folder(product.startupName);
-                    name_11 = product.startupName + "/" + product.startupName + "_products_image_" + link.uuid[0] + link.uuid[1] + link.uuid[2] + "_" + date_5 + "." + link.extension;
+                    name_13 = product.startupName + "/" + product.startupName + "_products_image_" + link.uuid[0] + link.uuid[1] + link.uuid[2] + "_" + date_5 + "." + link.extension;
                 }
                 else if (type_1 === "logo") {
-                    name_11 = product.startupName + "_logo_" + date_5 + "." + link.extension;
+                    name_13 = product.startupName + "_logo_" + date_5 + "." + link.extension;
                 }
                 else {
-                    name_11 = type_1 + link.extension;
+                    name_13 = type_1 + link.extension;
                 }
                 return [4 /*yield*/, uploadDownload.getS3Object(link.uuid)];
             case 5:
                 obj = _b.sent();
                 if (obj !== "") {
-                    zip.file(name_11, obj, { base64: true });
+                    zip.file(name_13, obj, { base64: true });
                 }
                 else {
                     res.status(404).send('No obj GETS3OBJ');
@@ -1763,22 +2087,22 @@ router.get("/download/zip/:type/:date", function (req, res) { return __awaiter(v
                 res.status(500).send({ err: 500, data: null });
                 _b.label = 7;
             case 7:
-                links_6_1 = links_6.next();
+                links_7_1 = links_7.next();
                 return [3 /*break*/, 3];
             case 8: return [3 /*break*/, 11];
             case 9:
-                e_27_1 = _b.sent();
-                e_27 = { error: e_27_1 };
+                e_32_1 = _b.sent();
+                e_32 = { error: e_32_1 };
                 return [3 /*break*/, 11];
             case 10:
                 try {
-                    if (links_6_1 && !links_6_1.done && (_a = links_6.return)) _a.call(links_6);
+                    if (links_7_1 && !links_7_1.done && (_a = links_7.return)) _a.call(links_7);
                 }
-                finally { if (e_27) throw e_27.error; }
+                finally { if (e_32) throw e_32.error; }
                 return [7 /*endfinally*/];
             case 11:
-                uuid_3 = uuid_1.v4();
-                zip.generateNodeStream({ type: 'nodebuffer', streamFiles: true }).pipe(fs_extra_1.default.createWriteStream(path_1.default.join("/tmp", uuid_3 + '.zip'))).on('finish', function () { return __awaiter(void 0, void 0, void 0, function () {
+                uuid_4 = uuid_1.v4();
+                zip.generateNodeStream({ type: 'nodebuffer', streamFiles: true }).pipe(fs_extra_1.default.createWriteStream(path_1.default.join("/tmp", uuid_4 + '.zip'))).on('finish', function () { return __awaiter(void 0, void 0, void 0, function () {
                     var link, newLink, upload, tmpFile, url;
                     return __generator(this, function (_a) {
                         switch (_a.label) {
@@ -1796,7 +2120,7 @@ router.get("/download/zip/:type/:date", function (req, res) { return __awaiter(v
                                 newLink = _a.sent();
                                 if (!newLink) return [3 /*break*/, 13];
                                 upload = false;
-                                tmpFile = path_1.default.join("/tmp", uuid_3 + ".zip");
+                                tmpFile = path_1.default.join("/tmp", uuid_4 + ".zip");
                                 return [4 /*yield*/, uploadDownload.addS3File(newLink.uuid, tmpFile, "path")];
                             case 2:
                                 upload = _a.sent();
@@ -1842,16 +2166,41 @@ router.get("/download/zip/:type/:date", function (req, res) { return __awaiter(v
                 _b.label = 13;
             case 13: return [3 /*break*/, 15];
             case 14:
-                e_28 = _b.sent();
-                console.error(e_28);
+                e_33 = _b.sent();
+                console.error(e_33);
                 res.status(500).send({ err: 500, data: null });
                 return [3 /*break*/, 15];
             case 15: return [2 /*return*/];
         }
     });
 }); });
+router.post("/download/zip/:city", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var city, businessTrack, workshopNo, semiFinals, finals, e_34;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                _a.trys.push([0, 2, , 3]);
+                city = req.params.city;
+                businessTrack = req.body.businessTrack;
+                workshopNo = req.body.workshopNo;
+                semiFinals = req.body.semiFinals;
+                finals = req.body.finals;
+                res.status(200).send('OK');
+                return [4 /*yield*/, uploadDownload.checkCustomZip(city, businessTrack, workshopNo, semiFinals, finals)];
+            case 1:
+                _a.sent();
+                return [3 /*break*/, 3];
+            case 2:
+                e_34 = _a.sent();
+                console.error(e_34);
+                res.status(500).send({ err: 500, data: null });
+                return [3 /*break*/, 3];
+            case 3: return [2 /*return*/];
+        }
+    });
+}); });
 router.post("/download/zip/", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var type, date, team, city, option, e_29;
+    var type, date, team, city, option, e_35;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -1867,8 +2216,8 @@ router.post("/download/zip/", function (req, res) { return __awaiter(void 0, voi
                 _a.sent();
                 return [3 /*break*/, 3];
             case 2:
-                e_29 = _a.sent();
-                console.error(e_29);
+                e_35 = _a.sent();
+                console.error(e_35);
                 res.status(500).send({ err: 500, data: null });
                 return [3 /*break*/, 3];
             case 3: return [2 /*return*/];
@@ -1876,7 +2225,7 @@ router.post("/download/zip/", function (req, res) { return __awaiter(void 0, voi
     });
 }); });
 router.post("/check/zip/status/", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var type, date, city, team, option, response, e_30;
+    var type, date, city, team, option, response, e_36;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -1889,6 +2238,7 @@ router.post("/check/zip/status/", function (req, res) { return __awaiter(void 0,
                 return [4 /*yield*/, uploadDownload.getZip(type, date, option, city, team)];
             case 1:
                 response = _a.sent();
+                console.log(response);
                 if (response === "NOT_DONE") {
                     res.status(204).send(response);
                 }
@@ -1900,8 +2250,8 @@ router.post("/check/zip/status/", function (req, res) { return __awaiter(void 0,
                 }
                 return [3 /*break*/, 3];
             case 2:
-                e_30 = _a.sent();
-                console.error(e_30);
+                e_36 = _a.sent();
+                console.error(e_36);
                 res.status(500).send({ err: 500, data: null });
                 return [3 /*break*/, 3];
             case 3: return [2 /*return*/];
@@ -1909,8 +2259,8 @@ router.post("/check/zip/status/", function (req, res) { return __awaiter(void 0,
     });
 }); });
 router.post("/download/team/zip/:type/:date", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var type_2, date_6, zip, exists, productId, product, uuid, link, oldDate, newDate, links, team, users_10, users_7, users_7_1, user, obj, name_12, e_31_1, links_7, links_7_1, link_1, product_1, date_7, name_13, obj, e_32_1, city, uuid, link, oldDate, newDate, products, products_3, products_3_1, product, prId, links, users_11, users_8, users_8_1, user, obj, name_14, e_33_1, links_8, links_8_1, link_2, date_8, name_15, e_34_1, e_35_1, uuid, link, oldDate, newDate, products, products_4, products_4_1, product, prId, links, users_12, folder, users_9, users_9_1, user, obj, name_16, e_36_1, links_9, links_9_1, link_3, date_9, name_17, obj, e_37_1, e_38_1, uuid_4, url, uuid, newLink, product, city, e_39;
-    var e_31, _a, e_32, _b, e_35, _c, e_33, _d, e_34, _e, e_38, _f, e_36, _g, e_37, _h;
+    var type_2, date_6, zip, exists, productId, product, uuid, link, oldDate, newDate, links, team, users_12, users_9, users_9_1, user, obj, name_14, e_37_1, links_8, links_8_1, link_1, product_1, date_7, name_15, obj, e_38_1, city, uuid, link, oldDate, newDate, products, products_4, products_4_1, product, prId, links, users_13, users_10, users_10_1, user, obj, name_16, e_39_1, links_9, links_9_1, link_2, date_8, name_17, e_40_1, e_41_1, uuid, link, oldDate, newDate, products, products_5, products_5_1, product, prId, links, users_14, folder, users_11, users_11_1, user, obj, name_18, e_42_1, links_10, links_10_1, link_3, date_9, name_19, obj, e_43_1, e_44_1, uuid_5, url, uuid, newLink, product, city, e_45;
+    var e_37, _a, e_38, _b, e_41, _c, e_39, _d, e_40, _e, e_44, _f, e_42, _g, e_43, _h;
     return __generator(this, function (_j) {
         switch (_j.label) {
             case 0:
@@ -1950,44 +2300,44 @@ router.post("/download/team/zip/:type/:date", function (req, res) { return __awa
                 if (!team) return [3 /*break*/, 8];
                 return [4 /*yield*/, teams.getUsersByTeamId(team.teamId)];
             case 7:
-                users_10 = _j.sent();
+                users_12 = _j.sent();
                 _j.label = 8;
             case 8:
-                if (!(team && users_10 && users_10.length !== 0)) return [3 /*break*/, 16];
+                if (!(team && users_12 && users_12.length !== 0)) return [3 /*break*/, 16];
                 _j.label = 9;
             case 9:
                 _j.trys.push([9, 14, 15, 16]);
-                users_7 = __values(users_10), users_7_1 = users_7.next();
+                users_9 = __values(users_12), users_9_1 = users_9.next();
                 _j.label = 10;
             case 10:
-                if (!!users_7_1.done) return [3 /*break*/, 13];
-                user = users_7_1.value;
+                if (!!users_9_1.done) return [3 /*break*/, 13];
+                user = users_9_1.value;
                 if (!user) return [3 /*break*/, 12];
                 if (!(user.avatarUu !== '' && user.avatarUu !== null)) return [3 /*break*/, 12];
                 return [4 /*yield*/, uploadDownload.getS3Object(user.avatarUu)];
             case 11:
                 obj = _j.sent();
-                name_12 = 'UserImages/' + team.location + "_" + team.teamName + '_profile_photo_' + user.firstName + "_" + user.lastName + '.png';
+                name_14 = 'UserImages/' + team.location + "_" + team.teamName + '_profile_photo_' + user.firstName + "_" + user.lastName + '.png';
                 if (obj !== "") {
-                    zip.file(name_12, obj, { base64: true });
+                    zip.file(name_14, obj, { base64: true });
                 }
                 else {
                     res.status(404).send('No obj GETS3OBJ');
                 }
                 _j.label = 12;
             case 12:
-                users_7_1 = users_7.next();
+                users_9_1 = users_9.next();
                 return [3 /*break*/, 10];
             case 13: return [3 /*break*/, 16];
             case 14:
-                e_31_1 = _j.sent();
-                e_31 = { error: e_31_1 };
+                e_37_1 = _j.sent();
+                e_37 = { error: e_37_1 };
                 return [3 /*break*/, 16];
             case 15:
                 try {
-                    if (users_7_1 && !users_7_1.done && (_a = users_7.return)) _a.call(users_7);
+                    if (users_9_1 && !users_9_1.done && (_a = users_9.return)) _a.call(users_9);
                 }
-                finally { if (e_31) throw e_31.error; }
+                finally { if (e_37) throw e_37.error; }
                 return [7 /*endfinally*/];
             case 16:
                 if (!(links.length !== 0)) return [3 /*break*/, 27];
@@ -1997,31 +2347,31 @@ router.post("/download/team/zip/:type/:date", function (req, res) { return __awa
                 _j.label = 17;
             case 17:
                 _j.trys.push([17, 24, 25, 26]);
-                links_7 = __values(links), links_7_1 = links_7.next();
+                links_8 = __values(links), links_8_1 = links_8.next();
                 _j.label = 18;
             case 18:
-                if (!!links_7_1.done) return [3 /*break*/, 23];
-                link_1 = links_7_1.value;
+                if (!!links_8_1.done) return [3 /*break*/, 23];
+                link_1 = links_8_1.value;
                 return [4 /*yield*/, teams.getProductById(link_1.productId)];
             case 19:
                 product_1 = _j.sent();
                 if (!(product_1 && team)) return [3 /*break*/, 21];
                 date_7 = uploadDownload.formatDate(link_1.uploadTime);
-                name_13 = "";
+                name_15 = "";
                 if (link_1.fileType === "demoVid") {
-                    name_13 = "Videos/" + team.location + "_" + product_1.startupName + "_tehnic_demo_video_" + date_7 + "." + link_1.extension;
+                    name_15 = "Videos/" + team.location + "_" + product_1.startupName + "_tehnic_demo_video_" + date_7 + "." + link_1.extension;
                 }
                 else if (link_1.fileType === "presVid") {
-                    name_13 = "Videos/" + team.location + "_" + product_1.startupName + "_products_presentation_video_" + date_7 + "." + link_1.extension;
+                    name_15 = "Videos/" + team.location + "_" + product_1.startupName + "_products_presentation_video_" + date_7 + "." + link_1.extension;
                 }
                 else if (link_1.fileType === "pres") {
-                    name_13 = "PowerPoint/" + team.location + "_" + product_1.startupName + "_powerpoint_presentation_" + date_7 + "." + link_1.extension;
+                    name_15 = "PowerPoint/" + team.location + "_" + product_1.startupName + "_powerpoint_presentation_" + date_7 + "." + link_1.extension;
                 }
                 else if (link_1.fileType === "image") {
-                    name_13 = "Images/" + team.location + "_" + product_1.startupName + "_products_image_" + link_1.uuid[0] + link_1.uuid[1] + link_1.uuid[2] + "_" + date_7 + "." + link_1.extension;
+                    name_15 = "Images/" + team.location + "_" + product_1.startupName + "_products_image_" + link_1.uuid[0] + link_1.uuid[1] + link_1.uuid[2] + "_" + date_7 + "." + link_1.extension;
                 }
                 else if (link_1.fileType === "logo") {
-                    name_13 = "Images/" + team.location + "_" + product_1.startupName + "_logo_" + date_7 + "." + link_1.extension;
+                    name_15 = "Images/" + team.location + "_" + product_1.startupName + "_logo_" + date_7 + "." + link_1.extension;
                 }
                 else {
                     res.status(400).send('Unidentified link');
@@ -2030,7 +2380,7 @@ router.post("/download/team/zip/:type/:date", function (req, res) { return __awa
             case 20:
                 obj = _j.sent();
                 if (obj !== "") {
-                    zip.file(name_13, obj, { base64: true });
+                    zip.file(name_15, obj, { base64: true });
                 }
                 else {
                     res.status(404).send('No obj GETS3OBJ');
@@ -2040,18 +2390,18 @@ router.post("/download/team/zip/:type/:date", function (req, res) { return __awa
                 res.status(500).send({ err: 500 });
                 _j.label = 22;
             case 22:
-                links_7_1 = links_7.next();
+                links_8_1 = links_8.next();
                 return [3 /*break*/, 18];
             case 23: return [3 /*break*/, 26];
             case 24:
-                e_32_1 = _j.sent();
-                e_32 = { error: e_32_1 };
+                e_38_1 = _j.sent();
+                e_38 = { error: e_38_1 };
                 return [3 /*break*/, 26];
             case 25:
                 try {
-                    if (links_7_1 && !links_7_1.done && (_b = links_7.return)) _b.call(links_7);
+                    if (links_8_1 && !links_8_1.done && (_b = links_8.return)) _b.call(links_8);
                 }
-                finally { if (e_32) throw e_32.error; }
+                finally { if (e_38) throw e_38.error; }
                 return [7 /*endfinally*/];
             case 26: return [3 /*break*/, 28];
             case 27:
@@ -2078,53 +2428,53 @@ router.post("/download/team/zip/:type/:date", function (req, res) { return __awa
                 _j.label = 33;
             case 33:
                 _j.trys.push([33, 55, 56, 57]);
-                products_3 = __values(products), products_3_1 = products_3.next();
+                products_4 = __values(products), products_4_1 = products_4.next();
                 _j.label = 34;
             case 34:
-                if (!!products_3_1.done) return [3 /*break*/, 54];
-                product = products_3_1.value;
+                if (!!products_4_1.done) return [3 /*break*/, 54];
+                product = products_4_1.value;
                 prId = product.productId;
                 return [4 /*yield*/, uploadDownload.getLinksByProductId(prId, date_6)];
             case 35:
                 links = _j.sent();
                 return [4 /*yield*/, teams.getUsersByTeamId(product.teamId)];
             case 36:
-                users_11 = _j.sent();
-                if (!(users_11.length !== 0)) return [3 /*break*/, 44];
+                users_13 = _j.sent();
+                if (!(users_13.length !== 0)) return [3 /*break*/, 44];
                 _j.label = 37;
             case 37:
                 _j.trys.push([37, 42, 43, 44]);
-                users_8 = (e_33 = void 0, __values(users_11)), users_8_1 = users_8.next();
+                users_10 = (e_39 = void 0, __values(users_13)), users_10_1 = users_10.next();
                 _j.label = 38;
             case 38:
-                if (!!users_8_1.done) return [3 /*break*/, 41];
-                user = users_8_1.value;
+                if (!!users_10_1.done) return [3 /*break*/, 41];
+                user = users_10_1.value;
                 if (!user) return [3 /*break*/, 40];
                 if (!(user.avatarUu !== '' && user.avatarUu !== null)) return [3 /*break*/, 40];
                 return [4 /*yield*/, uploadDownload.getS3Object(user.avatarUu)];
             case 39:
                 obj = _j.sent();
-                name_14 = product.teamName + '/UserImages/' + product.location + "_" + product.teamName + '_profile_photo_' + user.firstName + "_" + user.lastName + '.png';
+                name_16 = product.teamName + '/UserImages/' + product.location + "_" + product.teamName + '_profile_photo_' + user.firstName + "_" + user.lastName + '.png';
                 if (obj !== "") {
-                    zip.file(name_14, obj, { base64: true });
+                    zip.file(name_16, obj, { base64: true });
                 }
                 else {
                     res.status(404).send('No obj GETS3OBJ');
                 }
                 _j.label = 40;
             case 40:
-                users_8_1 = users_8.next();
+                users_10_1 = users_10.next();
                 return [3 /*break*/, 38];
             case 41: return [3 /*break*/, 44];
             case 42:
-                e_33_1 = _j.sent();
-                e_33 = { error: e_33_1 };
+                e_39_1 = _j.sent();
+                e_39 = { error: e_39_1 };
                 return [3 /*break*/, 44];
             case 43:
                 try {
-                    if (users_8_1 && !users_8_1.done && (_d = users_8.return)) _d.call(users_8);
+                    if (users_10_1 && !users_10_1.done && (_d = users_10.return)) _d.call(users_10);
                 }
-                finally { if (e_33) throw e_33.error; }
+                finally { if (e_39) throw e_39.error; }
                 return [7 /*endfinally*/];
             case 44:
                 if (!(links.length !== 0)) return [3 /*break*/, 53];
@@ -2135,29 +2485,29 @@ router.post("/download/team/zip/:type/:date", function (req, res) { return __awa
                 _j.label = 45;
             case 45:
                 _j.trys.push([45, 51, 52, 53]);
-                links_8 = (e_34 = void 0, __values(links)), links_8_1 = links_8.next();
+                links_9 = (e_40 = void 0, __values(links)), links_9_1 = links_9.next();
                 _j.label = 46;
             case 46:
-                if (!!links_8_1.done) return [3 /*break*/, 50];
-                link_2 = links_8_1.value;
+                if (!!links_9_1.done) return [3 /*break*/, 50];
+                link_2 = links_9_1.value;
                 if (!(prId !== "" && product !== undefined)) return [3 /*break*/, 48];
                 date_8 = uploadDownload.formatDate(link_2.uploadTime);
-                name_15 = "";
-                console.log(name_15 + " ");
+                name_17 = "";
+                console.log(name_17 + " ");
                 if (link_2.fileType === "demoVid") {
-                    name_15 = product.teamName + '/Videos/' + product.location + "_" + product.teamName + "_tehnic_demo_video_" + date_8 + "." + link_2.extension;
+                    name_17 = product.teamName + '/Videos/' + product.location + "_" + product.teamName + "_tehnic_demo_video_" + date_8 + "." + link_2.extension;
                 }
                 else if (link_2.fileType === "presVid") {
-                    name_15 = product.teamName + '/Videos/' + product.location + "_" + product.teamName + "_products_presentation_video_" + date_8 + "." + link_2.extension;
+                    name_17 = product.teamName + '/Videos/' + product.location + "_" + product.teamName + "_products_presentation_video_" + date_8 + "." + link_2.extension;
                 }
                 else if (link_2.fileType === "pres") {
-                    name_15 = product.teamName + '/PowerPoint/' + product.location + "_" + product.teamName + "_powerpoint_presentation_" + date_8 + "." + link_2.extension;
+                    name_17 = product.teamName + '/PowerPoint/' + product.location + "_" + product.teamName + "_powerpoint_presentation_" + date_8 + "." + link_2.extension;
                 }
                 else if (link_2.fileType === "image") {
-                    name_15 = product.teamName + '/Images/' + product.location + "_" + product.teamName + "_products_image_" + link_2.uuid[0] + link_2.uuid[1] + link_2.uuid[2] + "_" + date_8 + "." + link_2.extension;
+                    name_17 = product.teamName + '/Images/' + product.location + "_" + product.teamName + "_products_image_" + link_2.uuid[0] + link_2.uuid[1] + link_2.uuid[2] + "_" + date_8 + "." + link_2.extension;
                 }
                 else if (link_2.fileType === "logo") {
-                    name_15 = product.teamName + '/Images/' + product.location + "_" + product.teamName + "_logo_" + date_8 + "." + link_2.extension;
+                    name_17 = product.teamName + '/Images/' + product.location + "_" + product.teamName + "_logo_" + date_8 + "." + link_2.extension;
                 }
                 else {
                     res.status(400).send('Unidentified link');
@@ -2170,32 +2520,32 @@ router.post("/download/team/zip/:type/:date", function (req, res) { return __awa
                 res.status(500).send({ err: 500 });
                 _j.label = 49;
             case 49:
-                links_8_1 = links_8.next();
+                links_9_1 = links_9.next();
                 return [3 /*break*/, 46];
             case 50: return [3 /*break*/, 53];
             case 51:
-                e_34_1 = _j.sent();
-                e_34 = { error: e_34_1 };
+                e_40_1 = _j.sent();
+                e_40 = { error: e_40_1 };
                 return [3 /*break*/, 53];
             case 52:
                 try {
-                    if (links_8_1 && !links_8_1.done && (_e = links_8.return)) _e.call(links_8);
+                    if (links_9_1 && !links_9_1.done && (_e = links_9.return)) _e.call(links_9);
                 }
-                finally { if (e_34) throw e_34.error; }
+                finally { if (e_40) throw e_40.error; }
                 return [7 /*endfinally*/];
             case 53:
-                products_3_1 = products_3.next();
+                products_4_1 = products_4.next();
                 return [3 /*break*/, 34];
             case 54: return [3 /*break*/, 57];
             case 55:
-                e_35_1 = _j.sent();
-                e_35 = { error: e_35_1 };
+                e_41_1 = _j.sent();
+                e_41 = { error: e_41_1 };
                 return [3 /*break*/, 57];
             case 56:
                 try {
-                    if (products_3_1 && !products_3_1.done && (_c = products_3.return)) _c.call(products_3);
+                    if (products_4_1 && !products_4_1.done && (_c = products_4.return)) _c.call(products_4);
                 }
-                finally { if (e_35) throw e_35.error; }
+                finally { if (e_41) throw e_41.error; }
                 return [7 /*endfinally*/];
             case 57: return [3 /*break*/, 88];
             case 58:
@@ -2217,54 +2567,54 @@ router.post("/download/team/zip/:type/:date", function (req, res) { return __awa
                 _j.label = 62;
             case 62:
                 _j.trys.push([62, 84, 85, 86]);
-                products_4 = __values(products), products_4_1 = products_4.next();
+                products_5 = __values(products), products_5_1 = products_5.next();
                 _j.label = 63;
             case 63:
-                if (!!products_4_1.done) return [3 /*break*/, 83];
-                product = products_4_1.value;
+                if (!!products_5_1.done) return [3 /*break*/, 83];
+                product = products_5_1.value;
                 prId = product.productId;
                 return [4 /*yield*/, uploadDownload.getLinksByProductId(prId, date_6)];
             case 64:
                 links = _j.sent();
                 return [4 /*yield*/, teams.getUsersByTeamId(product.teamId)];
             case 65:
-                users_12 = _j.sent();
+                users_14 = _j.sent();
                 folder = product.location + '/' + product.teamName;
-                if (!(users_12.length !== 0)) return [3 /*break*/, 73];
+                if (!(users_14.length !== 0)) return [3 /*break*/, 73];
                 _j.label = 66;
             case 66:
                 _j.trys.push([66, 71, 72, 73]);
-                users_9 = (e_36 = void 0, __values(users_12)), users_9_1 = users_9.next();
+                users_11 = (e_42 = void 0, __values(users_14)), users_11_1 = users_11.next();
                 _j.label = 67;
             case 67:
-                if (!!users_9_1.done) return [3 /*break*/, 70];
-                user = users_9_1.value;
+                if (!!users_11_1.done) return [3 /*break*/, 70];
+                user = users_11_1.value;
                 if (!user) return [3 /*break*/, 69];
                 if (!(user.avatarUu !== '' && user.avatarUu !== null)) return [3 /*break*/, 69];
                 return [4 /*yield*/, uploadDownload.getS3Object(user.avatarUu)];
             case 68:
                 obj = _j.sent();
-                name_16 = folder + '/UserImages/' + product.location + "_" + product.teamName + '_profile_photo_' + user.firstName + "_" + user.lastName + '.png';
+                name_18 = folder + '/UserImages/' + product.location + "_" + product.teamName + '_profile_photo_' + user.firstName + "_" + user.lastName + '.png';
                 if (obj !== "") {
-                    zip.file(name_16, obj, { base64: true });
+                    zip.file(name_18, obj, { base64: true });
                 }
                 else {
                     res.status(404).send('No obj GETS3OBJ');
                 }
                 _j.label = 69;
             case 69:
-                users_9_1 = users_9.next();
+                users_11_1 = users_11.next();
                 return [3 /*break*/, 67];
             case 70: return [3 /*break*/, 73];
             case 71:
-                e_36_1 = _j.sent();
-                e_36 = { error: e_36_1 };
+                e_42_1 = _j.sent();
+                e_42 = { error: e_42_1 };
                 return [3 /*break*/, 73];
             case 72:
                 try {
-                    if (users_9_1 && !users_9_1.done && (_g = users_9.return)) _g.call(users_9);
+                    if (users_11_1 && !users_11_1.done && (_g = users_11.return)) _g.call(users_11);
                 }
-                finally { if (e_36) throw e_36.error; }
+                finally { if (e_42) throw e_42.error; }
                 return [7 /*endfinally*/];
             case 73:
                 if (!(links.length !== 0)) return [3 /*break*/, 82];
@@ -2275,28 +2625,28 @@ router.post("/download/team/zip/:type/:date", function (req, res) { return __awa
                 _j.label = 74;
             case 74:
                 _j.trys.push([74, 80, 81, 82]);
-                links_9 = (e_37 = void 0, __values(links)), links_9_1 = links_9.next();
+                links_10 = (e_43 = void 0, __values(links)), links_10_1 = links_10.next();
                 _j.label = 75;
             case 75:
-                if (!!links_9_1.done) return [3 /*break*/, 79];
-                link_3 = links_9_1.value;
+                if (!!links_10_1.done) return [3 /*break*/, 79];
+                link_3 = links_10_1.value;
                 if (!(prId !== "" && product !== undefined)) return [3 /*break*/, 77];
                 date_9 = uploadDownload.formatDate(link_3.uploadTime);
-                name_17 = "";
+                name_19 = "";
                 if (link_3.fileType === "demoVid") {
-                    name_17 = folder + '/Videos/' + product.location + "_" + product.teamName + "_tehnic_demo_video_" + date_9 + "." + link_3.extension;
+                    name_19 = folder + '/Videos/' + product.location + "_" + product.teamName + "_tehnic_demo_video_" + date_9 + "." + link_3.extension;
                 }
                 else if (link_3.fileType === "presVid") {
-                    name_17 = folder + '/Videos/' + product.location + "_" + product.teamName + "_products_presentation_video_" + date_9 + "." + link_3.extension;
+                    name_19 = folder + '/Videos/' + product.location + "_" + product.teamName + "_products_presentation_video_" + date_9 + "." + link_3.extension;
                 }
                 else if (link_3.fileType === "pres") {
-                    name_17 = folder + '/PowerPoint/' + product.location + "_" + product.teamName + "_powerpoint_presentation_" + date_9 + "." + link_3.extension;
+                    name_19 = folder + '/PowerPoint/' + product.location + "_" + product.teamName + "_powerpoint_presentation_" + date_9 + "." + link_3.extension;
                 }
                 else if (link_3.fileType === "image") {
-                    name_17 = folder + '/Images/' + product.location + "_" + product.teamName + "_products_image_" + link_3.uuid[0] + link_3.uuid[1] + link_3.uuid[2] + "_" + date_9 + "." + link_3.extension;
+                    name_19 = folder + '/Images/' + product.location + "_" + product.teamName + "_products_image_" + link_3.uuid[0] + link_3.uuid[1] + link_3.uuid[2] + "_" + date_9 + "." + link_3.extension;
                 }
                 else if (link_3.fileType === "logo") {
-                    name_17 = folder + '/Images/' + product.location + "_" + product.teamName + "_logo_" + date_9 + "." + link_3.extension;
+                    name_19 = folder + '/Images/' + product.location + "_" + product.teamName + "_logo_" + date_9 + "." + link_3.extension;
                 }
                 else {
                     res.status(400).send('Unidentified link');
@@ -2305,7 +2655,7 @@ router.post("/download/team/zip/:type/:date", function (req, res) { return __awa
             case 76:
                 obj = _j.sent();
                 if (obj !== "") {
-                    zip.file(name_17, obj, { base64: true });
+                    zip.file(name_19, obj, { base64: true });
                 }
                 else {
                     res.status(404).send('No obj GETS3OBJ');
@@ -2315,32 +2665,32 @@ router.post("/download/team/zip/:type/:date", function (req, res) { return __awa
                 res.status(500).send({ err: 500 });
                 _j.label = 78;
             case 78:
-                links_9_1 = links_9.next();
+                links_10_1 = links_10.next();
                 return [3 /*break*/, 75];
             case 79: return [3 /*break*/, 82];
             case 80:
-                e_37_1 = _j.sent();
-                e_37 = { error: e_37_1 };
+                e_43_1 = _j.sent();
+                e_43 = { error: e_43_1 };
                 return [3 /*break*/, 82];
             case 81:
                 try {
-                    if (links_9_1 && !links_9_1.done && (_h = links_9.return)) _h.call(links_9);
+                    if (links_10_1 && !links_10_1.done && (_h = links_10.return)) _h.call(links_10);
                 }
-                finally { if (e_37) throw e_37.error; }
+                finally { if (e_43) throw e_43.error; }
                 return [7 /*endfinally*/];
             case 82:
-                products_4_1 = products_4.next();
+                products_5_1 = products_5.next();
                 return [3 /*break*/, 63];
             case 83: return [3 /*break*/, 86];
             case 84:
-                e_38_1 = _j.sent();
-                e_38 = { error: e_38_1 };
+                e_44_1 = _j.sent();
+                e_44 = { error: e_44_1 };
                 return [3 /*break*/, 86];
             case 85:
                 try {
-                    if (products_4_1 && !products_4_1.done && (_f = products_4.return)) _f.call(products_4);
+                    if (products_5_1 && !products_5_1.done && (_f = products_5.return)) _f.call(products_5);
                 }
-                finally { if (e_38) throw e_38.error; }
+                finally { if (e_44) throw e_44.error; }
                 return [7 /*endfinally*/];
             case 86: return [3 /*break*/, 88];
             case 87:
@@ -2348,9 +2698,9 @@ router.post("/download/team/zip/:type/:date", function (req, res) { return __awa
                 _j.label = 88;
             case 88:
                 if (!!exists) return [3 /*break*/, 89];
-                uuid_4 = uuid_1.v4();
+                uuid_5 = uuid_1.v4();
                 if (Object.keys(zip.files).length !== 0)
-                    zip.generateNodeStream({ type: 'nodebuffer', streamFiles: true }).pipe(fs_extra_1.default.createWriteStream(path_1.default.join("/tmp", uuid_4 + '.zip'))).on('finish', function () { return __awaiter(void 0, void 0, void 0, function () {
+                    zip.generateNodeStream({ type: 'nodebuffer', streamFiles: true }).pipe(fs_extra_1.default.createWriteStream(path_1.default.join("/tmp", uuid_5 + '.zip'))).on('finish', function () { return __awaiter(void 0, void 0, void 0, function () {
                         var linkUuid, productId, product, city, link, newLink, upload, tmpFile, url;
                         return __generator(this, function (_a) {
                             switch (_a.label) {
@@ -2388,7 +2738,7 @@ router.post("/download/team/zip/:type/:date", function (req, res) { return __awa
                                     newLink = _a.sent();
                                     if (!newLink) return [3 /*break*/, 16];
                                     upload = false;
-                                    tmpFile = path_1.default.join("/tmp", uuid_4 + ".zip");
+                                    tmpFile = path_1.default.join("/tmp", uuid_5 + ".zip");
                                     return [4 /*yield*/, uploadDownload.addS3File(newLink.uuid, tmpFile, "path")];
                                 case 5:
                                     upload = _a.sent();
@@ -2479,8 +2829,8 @@ router.post("/download/team/zip/:type/:date", function (req, res) { return __awa
                 _j.label = 100;
             case 100: return [3 /*break*/, 102];
             case 101:
-                e_39 = _j.sent();
-                console.error(e_39);
+                e_45 = _j.sent();
+                console.error(e_45);
                 res.status(500).send({ err: 500, data: null });
                 return [3 /*break*/, 102];
             case 102: return [2 /*return*/];
@@ -2488,7 +2838,7 @@ router.post("/download/team/zip/:type/:date", function (req, res) { return __awa
     });
 }); });
 router.post("/upload/file/chunk", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var end, fileName, base64, data, checkDir, fileType_1, productId_1, filePath_1, width_1, height_1, checkFile, e_40, link, links, file, name_18, tmpFile, newLink, upload, e_41;
+    var end, fileName, base64, data, checkDir, fileType_1, productId_1, filePath_1, width_1, height_1, checkFile, e_46, link, links, file, name_20, tmpFile, newLink, upload, e_47;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -2529,12 +2879,10 @@ router.post("/upload/file/chunk", function (req, res) { return __awaiter(void 0,
                 // as any because no ffmpeg types
                 return [4 /*yield*/, fluent_ffmpeg_1.default(filePath_1).ffprobe(function (err, metadata) {
                         return __awaiter(this, void 0, void 0, function () {
-                            var link, links, file, name_19, tmpFile, newLink, upload;
+                            var link, links, file, name_21, tmpFile, newLink, upload;
                             return __generator(this, function (_a) {
                                 switch (_a.label) {
-                                    case 0:
-                                        console.log(metadata);
-                                        return [4 /*yield*/, metadata.streams[0].width];
+                                    case 0: return [4 /*yield*/, metadata.streams[0].width];
                                     case 1:
                                         width_1 = _a.sent();
                                         return [4 /*yield*/, metadata.streams[0].height];
@@ -2556,7 +2904,9 @@ router.post("/upload/file/chunk", function (req, res) { return __awaiter(void 0,
                                         height_1 = _a.sent();
                                         _a.label = 7;
                                     case 7:
-                                        if (!((width_1 !== 0 && width_1 >= 1920) && (height_1 !== 0 && height_1 >= 1080))) return [3 /*break*/, 34];
+                                        console.log(width_1);
+                                        console.log(height_1);
+                                        if (!((width_1 !== 0 && width_1 >= 1280) && (height_1 !== 0 && height_1 >= 720))) return [3 /*break*/, 34];
                                         link = {
                                             uuid: "",
                                             productId: productId_1,
@@ -2580,8 +2930,8 @@ router.post("/upload/file/chunk", function (req, res) { return __awaiter(void 0,
                                         return [4 /*yield*/, uploadDownload.deleteLink(links[0].uuid)];
                                     case 11:
                                         if (!!(_a.sent())) return [3 /*break*/, 16];
-                                        name_19 = uuid_1.v4();
-                                        tmpFile = path_1.default.join("/tmp", name_19);
+                                        name_21 = uuid_1.v4();
+                                        tmpFile = path_1.default.join("/tmp", name_21);
                                         return [4 /*yield*/, fs_extra_1.default.writeFile(tmpFile, file)];
                                     case 12:
                                         _a.sent();
@@ -2661,8 +3011,8 @@ router.post("/upload/file/chunk", function (req, res) { return __awaiter(void 0,
                 _a.sent();
                 return [3 /*break*/, 10];
             case 9:
-                e_40 = _a.sent();
-                console.error(e_40);
+                e_46 = _a.sent();
+                console.error(e_46);
                 res.status(500).send({ err: 500, data: false });
                 return [3 /*break*/, 10];
             case 10: return [3 /*break*/, 37];
@@ -2688,8 +3038,8 @@ router.post("/upload/file/chunk", function (req, res) { return __awaiter(void 0,
                 return [4 /*yield*/, uploadDownload.deleteLink(links[0].uuid)];
             case 15:
                 if (!!(_a.sent())) return [3 /*break*/, 20];
-                name_18 = uuid_1.v4();
-                tmpFile = path_1.default.join("/tmp", name_18);
+                name_20 = uuid_1.v4();
+                tmpFile = path_1.default.join("/tmp", name_20);
                 return [4 /*yield*/, fs_extra_1.default.writeFile(tmpFile, file)];
             case 16:
                 _a.sent();
@@ -2750,8 +3100,8 @@ router.post("/upload/file/chunk", function (req, res) { return __awaiter(void 0,
                 _a.label = 37;
             case 37: return [3 /*break*/, 39];
             case 38:
-                e_41 = _a.sent();
-                console.error(e_41);
+                e_47 = _a.sent();
+                console.error(e_47);
                 res.status(500).send({ err: 500, data: false });
                 return [3 /*break*/, 39];
             case 39: return [2 /*return*/];
@@ -2759,7 +3109,7 @@ router.post("/upload/file/chunk", function (req, res) { return __awaiter(void 0,
     });
 }); });
 router.post("/upload/file/user/avatar", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var base64Encode, userId, uuid, upload, user, e_42;
+    var base64Encode, userId, uuid, upload, user, e_48;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -2798,8 +3148,8 @@ router.post("/upload/file/user/avatar", function (req, res) { return __awaiter(v
                 _a.label = 10;
             case 10: return [3 /*break*/, 12];
             case 11:
-                e_42 = _a.sent();
-                console.error(e_42);
+                e_48 = _a.sent();
+                console.error(e_48);
                 res.status(500).send({ err: 500, data: false });
                 return [3 /*break*/, 12];
             case 12: return [2 /*return*/];
@@ -2807,7 +3157,7 @@ router.post("/upload/file/user/avatar", function (req, res) { return __awaiter(v
     });
 }); });
 router.post("/get/file/user/avatar", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var userId, user, uuid, string, e_43;
+    var userId, user, uuid, string, e_49;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -2839,8 +3189,8 @@ router.post("/get/file/user/avatar", function (req, res) { return __awaiter(void
                 _a.label = 6;
             case 6: return [3 /*break*/, 8];
             case 7:
-                e_43 = _a.sent();
-                console.error(e_43);
+                e_49 = _a.sent();
+                console.error(e_49);
                 res.status(500).send({ err: 500, data: null });
                 return [3 /*break*/, 8];
             case 8: return [2 /*return*/];

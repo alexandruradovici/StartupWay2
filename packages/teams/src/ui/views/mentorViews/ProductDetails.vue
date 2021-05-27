@@ -2,7 +2,7 @@
 	<v-app id="app">
 		<v-container v-if="!loadingPage" class="content" fluid pl-7 pr-7>
 			<v-divider></v-divider>
-			<v-card flat style="margin: auto;" max-width="1000" color="#fcfcfc">
+			<v-card flat style="margin: auto;" max-width="1000" >
 				<v-form v-model="productValid" lazy-validation>
 					<div class="details">Startup name</div>
 					<v-text-field 
@@ -183,7 +183,7 @@
 								<div style="max-width: 200px;" align="center" justify="center">
 									<v-card outlined flat align="center" justify="center">
 										<v-hover v-slot:default="{ hover }" >
-											<v-card flat color="#fcfcfc" @click="extendImage(logo.data)"  rounded :elevation="hover ? 16 : 0">
+											<v-card flat  @click="extendImage(logo.data)"  rounded :elevation="hover ? 16 : 0">
 												<v-img :src="logo.data" max-width="200" max-height="200"></v-img>
 											</v-card>
 										</v-hover>
@@ -202,7 +202,7 @@
 					<v-row align="center" justify="center" no-gutters style="margin-top: 20px; margin-bottom: 20px;">
 						<v-col cols="12" sm="12" md="8" lg="10" xl="10">
 							<!-- <div v-if="images.length > 0"> -->
-								<v-card flat outlined v-if="images.length > 0" color="#fcfcfc">
+								<v-card flat outlined v-if="images.length > 0" >
 									<v-card-title class="justify-center">Product Images</v-card-title>
 									<v-divider></v-divider>
 									<v-card-text>
@@ -211,7 +211,7 @@
 												<div style="max-width: 200px;">
 													<v-card outlined flat>
 														<v-hover v-slot:default="{ hover }">
-															<v-card style="max-width: 200px;"  flat color="#fcfcfc" @click="extendImage(image.data)" rounded :elevation="hover ? 16 : 0">
+															<v-card style="max-width: 200px;"  flat  @click="extendImage(image.data)" rounded :elevation="hover ? 16 : 0">
 																<v-img :src="image.data" max-width="200" max-height="200"></v-img>
 															</v-card>
 														</v-hover>

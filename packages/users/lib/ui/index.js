@@ -3,6 +3,7 @@ import { WorkspaceUI, ToolbarButtonPosition } from '@startupway/workspace/lib/ui
 import Vue from 'vue';
 import { SnackBarTypes } from '@startupway/menu/lib/ui';
 import { mapGetters } from 'vuex';
+import VueRecaptcha from 'vue-recaptcha';
 
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation.
@@ -227,7 +228,11 @@ var script = Vue.extend({
     // components: {
     // 	"SnackBar": SnackBar
     // },
+    components: {
+        VueRecaptcha: VueRecaptcha
+    },
     mounted: function () {
+        console.log(VueRecaptcha.name + " Loaded");
         // this.ui = UI.getInstance();
     },
     data: function () {
@@ -308,11 +313,11 @@ var script = Vue.extend({
                     switch (_a.label) {
                         case 0:
                             _a.trys.push([0, 4, , 5]);
-                            return [4 /*yield*/, this.ui.api.get("/api/v1/verify/" + this.email)];
+                            return [4 /*yield*/, this.ui.api.get("/api/v1/users/verify/" + this.email)];
                         case 1:
                             response = _a.sent();
                             if (!(response.data.accept = "Yes")) return [3 /*break*/, 3];
-                            return [4 /*yield*/, this.ui.api.post("/api/v1/createResetEmail", { email: this.email })];
+                            return [4 /*yield*/, this.ui.api.post("/api/v1/admin/createResetEmail", { email: this.email })];
                         case 2:
                             _a.sent();
                             this.verified = false;
@@ -468,7 +473,6 @@ var __vue_render__ = function() {
   var _c = _vm._self._c || _h;
   return _c(
     "v-main",
-    { staticStyle: { "background-color": "rgba(25, 126, 129, 0.1)" } },
     [
       _c(
         "v-container",
@@ -1357,7 +1361,11 @@ var __vue_render__$2 = function() {
                     "v-card",
                     {
                       staticStyle: { margin: "auto", "padding-top": "20px" },
-                      attrs: { flat: "", "max-width": "900", color: "#fcfcfc" }
+                      attrs: {
+                        flat: "",
+                        "max-width": "1200",
+                        "elevation-1": ""
+                      }
                     },
                     [
                       _c(
@@ -1606,7 +1614,8 @@ var __vue_render__$2 = function() {
                                                       attrs: {
                                                         label: "Birthdate",
                                                         "persistent-hint": "",
-                                                        "prepend-icon": "event"
+                                                        "prepend-icon":
+                                                          "mdi-calendar"
                                                       },
                                                       model: {
                                                         value: _vm.date,
@@ -1627,7 +1636,7 @@ var __vue_render__$2 = function() {
                                         ],
                                         null,
                                         false,
-                                        3973987613
+                                        2271028494
                                       ),
                                       model: {
                                         value: _vm.dateMenu,
@@ -2259,7 +2268,7 @@ var __vue_render__$3 = function() {
                     "v-card",
                     {
                       staticStyle: { margin: "auto", "padding-top": "20px" },
-                      attrs: { flat: "", "max-width": "900", color: "#fcfcfc" }
+                      attrs: { flat: "", "max-width": "900" }
                     },
                     [
                       _c(

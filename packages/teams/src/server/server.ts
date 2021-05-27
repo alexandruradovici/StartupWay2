@@ -56,23 +56,19 @@ export class TeamsServer {
 						}
 						if(o) {
 							await conn.commit();
-							await conn.release();
 							return o;
 						} else {
 							await conn.rollback();
-							await conn.release();
 							console.log("No obj addTeam");
 							return null;
 						}
 					} else {
 						await conn.rollback();
-						await conn.release();
 						console.log("No teams addTeam");
 						return null;
 					}
 				} else {
 					await conn.rollback();
-					await conn.release();
 					console.log("No procut addTeam");
 					return null;
 				}
@@ -84,9 +80,11 @@ export class TeamsServer {
 			console.error(error);
 			if(conn) {
 				await conn.rollback();
-				await conn.release();
 			}
 			return null;
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 
@@ -115,13 +113,11 @@ export class TeamsServer {
 						const deleteP:{deleted_id:string}[] = await conn.query(queryOptions, { productId: team.productId });
 						if(deleteP && deleteP.length === 0) {
 							await conn.commit();
-							await conn.release();
 							return true;
 						}
 					}
 				}
 				await conn.rollback();
-				await conn.release();
 				return true;
 			} else {
 				return false;
@@ -130,9 +126,11 @@ export class TeamsServer {
 			console.error(error);
 			if(conn) {
 				await conn.rollback();
-				await conn.release();
 			}
 			return false;
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 
@@ -152,11 +150,9 @@ export class TeamsServer {
 				const userInTeam: UserTeams[] = await conn.query(queryOptions, {  userProductId: userProductId });
 				if (userInTeam && userInTeam.length > 0 && userInTeam[0]) {
 					await conn.commit();
-					await conn.release();
 					return userInTeam[0];
 				} else {
 					await conn.rollback();
-					await conn.release();
 					return null;
 				}
 			} else {
@@ -166,9 +162,11 @@ export class TeamsServer {
 			console.error(e);
 			if(conn){
 				await conn.rollback();
-				await conn.release();
 			}
 			return null
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 
@@ -187,11 +185,9 @@ export class TeamsServer {
 				const response:{deleted_id:string}[] = await conn.query(queryOptions, { userId: user.userId, teamId: team.teamId });
 				if(response && response.length === 0) {
 					await conn.commit();
-					await conn.release();
 					return true;
 				} else {
 					await conn.rollback();
-					await conn.release();
 					return false;
 				}
 			} else {
@@ -201,9 +197,11 @@ export class TeamsServer {
 			console.error(e);
 			if(conn) {
 				await conn.rollback();
-				await conn.release();
 			}
 			return false
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 	// changed param from User to number, (userId)
@@ -218,10 +216,8 @@ export class TeamsServer {
 				};
 				const teamsReponse: (Team & UserTeams)[] = await conn.query(queryOptions, { userId });
 				if (teamsReponse && teamsReponse.length > 0) {
-					await conn.release();
 					return teamsReponse;
 				} else {
-					await conn.release();
 					return [];
 				}
 			} else {
@@ -229,9 +225,10 @@ export class TeamsServer {
 			}
 		} catch (e) {
 			console.error(e);
-			if(conn)
-				await conn.release();
 			return [];
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 
@@ -246,10 +243,8 @@ export class TeamsServer {
 				};
 				const teamsReponse: (Team & Product)[] = await conn.query(queryOptions);
 				if (teamsReponse && teamsReponse.length > 0) {
-					await conn.release();
 					return teamsReponse;
 				} else {
-					await conn.release();
 					return [];
 				}
 			} else {
@@ -257,11 +252,13 @@ export class TeamsServer {
 			}
 		} catch (e) {
 			console.error(e);
-			if(conn)
-				await conn.release();
 			return [];
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
+	
 	async getTeamsByLocation(location: string): Promise<(Team & Product)[]> {
 		let conn:PoolConnection | null = null;
 		try {
@@ -273,10 +270,8 @@ export class TeamsServer {
 				};
 				const teamsReponse: (Team & Product)[] = await conn.query(queryOptions, { location });
 				if (teamsReponse && teamsReponse.length > 0) {
-					await conn.release();
 					return teamsReponse;
 				} else {
-					await conn.release();
 					return [];
 				}
 			} else {
@@ -284,9 +279,38 @@ export class TeamsServer {
 			}
 		} catch (e) {
 			console.error(e);
-			if(conn)
-				await conn.release();
 			return [];
+		} finally {
+			if(conn)
+				conn.release();
+		}
+	}
+
+	async getTeamsByLocationBtFinals(location: string, businessTrack:string, semifinals:boolean, finals:boolean): Promise<(Team & Product)[]> {
+		let conn:PoolConnection | null = null;
+		try {
+			conn = await getPool().getConnection();
+			if(conn) {
+				const queryOptions: QueryOptions = {
+					namedPlaceholders: true,
+					sql:
+						"SELECT teams.teamId, teams.teamName, teams.teamDetails, teams.location, teams.year, products.* FROM teams INNER JOIN products ON teams.productId = products.productId and teams.location=:location and product.businessTrack=:businessTrack and AND JSON_EXTRACT(productDetails,'$.assessmentSemifinals') = :semifinals AND JSON_EXTRACT(productDetails,'$.assessmentFinals') = :finals)"
+				};
+				const teamsReponse: (Team & Product)[] = await conn.query(queryOptions, { location, businessTrack, semifinals, finals});
+				if (teamsReponse && teamsReponse.length > 0) {
+					return teamsReponse;
+				} else {
+					return [];
+				}
+			} else {
+				return [];
+			}
+		} catch (e) {
+			console.error(e);
+			return [];
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 
@@ -302,14 +326,11 @@ export class TeamsServer {
 					};
 					const teamsReponse: Team[] = await conn.query(queryOptions, { teamId });
 					if (teamsReponse && teamsReponse.length > 0 && teamsReponse[0]){
-						await conn.release();
 						return teamsReponse[0];
 					} else {
-						await conn.release()
 						return null;
 					}
 				} else{
-					await conn.release();
 					return null;
 				}
 			} else {
@@ -318,9 +339,10 @@ export class TeamsServer {
 		} catch (e) {
 			console.log("GetTeamByID");
 			console.error(e);
-			if(conn)
-				await conn.release();
 			return null;
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 
@@ -336,14 +358,11 @@ export class TeamsServer {
 					};
 					const teamsReponse: Team[] = await conn.query(queryOptions, { productId });
 					if (teamsReponse && teamsReponse.length > 0 && teamsReponse[0]) {
-						await conn.release();
 						return teamsReponse[0];
 					} else {
-						await conn.release();
 						return null;
 					}
 				} else {
-					await conn.release();
 					return null;
 				}
 			} else {
@@ -351,9 +370,10 @@ export class TeamsServer {
 			}
 		} catch (e) {
 			console.error(e);
-			if(conn)
-				await conn.release();
 			return null;
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 
@@ -368,10 +388,8 @@ export class TeamsServer {
 				};
 				const teamsReponse: Team[] = await conn.query(queryOptions, { list });
 				if (teamsReponse && teamsReponse.length > 0 && teamsReponse[0]) {
-					await conn.release();
 					return teamsReponse;
 				} else {
-					await conn.release();
 					return [];
 				}
 			} else {
@@ -379,9 +397,10 @@ export class TeamsServer {
 			}
 		} catch (e) {
 			console.error(e);
-			if(conn)
-				await conn.release();
 			return [];
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 	/**
@@ -417,10 +436,8 @@ export class TeamsServer {
 					for (const t of teamsList) {
 						tList.push(t.teamId);
 					}
-					await conn.release();
 					return tList;
 				} else {
-					await conn.release();
 					return [];
 				}
 			} else {
@@ -428,9 +445,10 @@ export class TeamsServer {
 			}
 		} catch (e) {
 			console.error(e);
-			if(conn)
-				await conn.release();
 			return [];
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 
@@ -446,14 +464,11 @@ export class TeamsServer {
 					};
 					const productResponse: Product[] = await conn.query(queryOptions, { productId });
 					if (productResponse && productResponse.length > 0 && productResponse[0]) {
-						await conn.release();
 						return productResponse[0];
 					} else {
-						await conn.release();
 						return null;
 					};
 				} else {
-					await conn.release();
 					return null;
 				}
 			} else {
@@ -461,9 +476,10 @@ export class TeamsServer {
 			}
 		} catch (e) {
 			console.error(e);
-			if(conn)
-				await conn.release();
 			return null;
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 	async getUserInTeam(userId: string, teamId: string): Promise<UserTeams | null> {
@@ -477,10 +493,8 @@ export class TeamsServer {
 				};
 				const userTeamsResponse: UserTeams[] = await conn.query(queryOptions, { teamId, userId });
 				if (userTeamsResponse && userTeamsResponse.length > 0 && userTeamsResponse[0]) {
-					await conn.release();
 					return userTeamsResponse[0];
 				} else {
-					await conn.release();
 					return null;
 				}
 			} else {
@@ -488,9 +502,10 @@ export class TeamsServer {
 			}
 		} catch (e) {
 			console.error(e);
-			if(conn)
-				await conn.release();
 			return null;
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 
@@ -505,10 +520,8 @@ export class TeamsServer {
 				};
 				const productResponse: Product[] = await conn.query(queryOptions, { productId });
 				if (productResponse && productResponse.length > 0 && productResponse[0]) {
-					await conn.release();
 					return productResponse[0];
 				} else {
-					await conn.release();
 					return null;
 				}
 			} else {
@@ -516,9 +529,10 @@ export class TeamsServer {
 			}
 		} catch (e) {
 			console.error(e);
-			if(conn)
-				await conn.release();
 			return null;
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 	async getTeamByYearAndLocation(year: number, location: string, teamName: string): Promise<Team | null> {
@@ -532,10 +546,8 @@ export class TeamsServer {
 				};
 				const teamResponse: Team[] = await conn.query(queryOptions, { year:year, location:location, teamName:teamName });
 				if (teamResponse && teamResponse.length > 0 && teamResponse[0]) {
-					await conn.release();
 					return teamResponse[0];
 				} else {
-					await conn.release();
 					return null;
 				}
 			} else {
@@ -543,9 +555,10 @@ export class TeamsServer {
 			}
 		} catch (e) {
 			console.error(e);
-			if(conn)
-				await conn.release();
 			return null;
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 
@@ -560,23 +573,19 @@ export class TeamsServer {
 				};
 				let response: Product[];
 				if (date === "may") {
-					queryOptions.sql = "SELECT * FROM products WHERE products.productId=:productId JSON_EXTRACT(productDetails,'$.assessment20May') = 'Yes'"
+					queryOptions.sql = "SELECT * FROM products WHERE products.productId=:productId AND JSON_EXTRACT(productDetails,'$.assessmentSemifinals') = true"
 					response = await conn.query(queryOptions, { productId });
 				} else if (date === "oct") {
-					queryOptions.sql = "SELECT * FROM products WHERE products.productId=:productId JSON_EXTRACT(productDetails,'$.assessment20May') = 'Yes' AND JSON_EXTRACT(productDetails,'$.assessment12Oct') = 'Yes'"
+					queryOptions.sql = "SELECT * FROM products WHERE products.productId=:productId AND JSON_EXTRACT(productDetails,'$.assessmentSemifinals') = true AND JSON_EXTRACT(productDetails,'$.assessmentFinals') = true"
 					response = await conn.query(queryOptions, { productId });
 				} else if (date === "none") {
-					await conn.release();
 					return true;
 				} else {
-					await conn.release();
 					return false;
 				}
 				if (response && response.length > 0 && response[0]) {
-					await conn.release();
 					return true;
 				} else {
-					await conn.release();
 					return false;
 				}
 			} else {
@@ -584,9 +593,10 @@ export class TeamsServer {
 			}
 		} catch (e) {
 			console.error(e);
-			if(conn)
-				await conn.release();
 			return false;
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 	async getUsersByTeamId(teamId: string): Promise<(User & UserTeams)[]> {
@@ -600,10 +610,8 @@ export class TeamsServer {
 				};
 				const teamResponse: (User & UserTeams)[] = await conn.query(queryOptions, { teamId });
 				if (teamResponse && teamResponse.length > 0) {
-					await conn.release();
 					return teamResponse;
 				} else {
-					await conn.release();
 					return [];
 				}
 			} else {
@@ -611,9 +619,10 @@ export class TeamsServer {
 			}
 		} catch (e) {
 			console.error(e);
-			if(conn)
-				await conn.release();
 			return [];
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 
@@ -630,10 +639,8 @@ export class TeamsServer {
 					};
 					const teamResponse: Product[] = await conn.query(queryOptions, { productId: teamById.productId });
 					if (teamResponse && teamResponse.length > 0 && teamResponse[0]){
-						await conn.release();
 						return teamResponse[0];
 					} else {
-						await conn.release();
 						return null;
 					}
 				} else {
@@ -645,9 +652,10 @@ export class TeamsServer {
 		} catch (e) {
 			console.log("getProductByTeamId");
 			console.error(e);
-			if(conn)
-				await conn.release();
 			return null;
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 	async getTeamAndProductByMentorId(mentorId: string): Promise<(Team & Product)[]> {
@@ -661,10 +669,8 @@ export class TeamsServer {
 				};
 				const teamResponse: (Team & Product)[] = await conn.query(queryOptions, { mentorId });
 				if (teamResponse && teamResponse.length > 0) {
-					await conn.release();
 					return teamResponse;
 				} else {
-					await conn.release();
 					return [];
 				}
 			} else {
@@ -672,9 +678,10 @@ export class TeamsServer {
 			}
 		} catch (error) {
 			console.error(error);
-			if(conn)
-				await conn.release();
 			return [];
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 	async getTeamByMentorId(mentorId: string): Promise<(Team & Product)[]> {
@@ -688,10 +695,8 @@ export class TeamsServer {
 				};
 				const teamResponse: (Team & Product)[] = await conn.query(queryOptions, { mentorId });
 				if (teamResponse && teamResponse.length > 0) {
-					await conn.release();
 					return teamResponse;
 				} else {
-					await conn.release();
 					return [];
 				}
 			} else {
@@ -699,9 +704,10 @@ export class TeamsServer {
 			}
 		} catch (error) {
 			console.error(error);
-			if(conn)
-				await conn.release();
 			return [];
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 	async getProductByMentorId(mentorId: string): Promise<Product[]> {
@@ -715,10 +721,8 @@ export class TeamsServer {
 				};
 				const productResponse: Product[] = await conn.query(queryOptions, { mentorId });
 				if (productResponse && productResponse.length > 0) {
-					await conn.release();
 					return productResponse;
 				} else {
-					await conn.release();
 					return [];
 				}
 			} else {
@@ -726,9 +730,10 @@ export class TeamsServer {
 			}
 		} catch (error) {
 			console.error(error);
-			if(conn)
-				await conn.release();
 			return [];
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 	async updateProduct(product: Product): Promise<Product | null> {
@@ -746,11 +751,9 @@ export class TeamsServer {
 				const teamResponse: Product[] = await conn.query(queryOptions, product);
 				if (teamResponse && teamResponse.length > 0 && teamResponse[0]) {
 					await conn.commit();
-					await conn.release();
 					return teamResponse[0];
 				} else {
 					await conn.rollback();
-					await conn.release();
 					return null;
 				}
 			} else {
@@ -760,9 +763,11 @@ export class TeamsServer {
 			console.error(error);
 			if(conn) {
 				await conn.rollback();
-				await conn.release();
 			}
 			return null;
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 	async updateTeam(team: Team): Promise<Team | null> {
@@ -780,11 +785,9 @@ export class TeamsServer {
 				const teamResponse: Team[] = await conn.query(queryOptions, team);
 				if (teamResponse && teamResponse.length > 0 && teamResponse[0]) {
 					await conn.commit();
-					await conn.release();
 					return teamResponse[0];
 				} else {
 					await conn.rollback();
-					await conn.release();
 					return null;
 				}
 			} else {
@@ -794,9 +797,11 @@ export class TeamsServer {
 			console.error(error);
 			if(conn) {
 				await conn.rollback();
-				await conn.release();
 			}
 			return null;
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 	
@@ -826,14 +831,12 @@ export class TeamsServer {
 			if(conn) {
 				const queryOptions: QueryOptions = {
 					namedPlaceholders: true,
-					sql: "SELECT * FROM userActivities WHERE userActivities.userId=:userId AND userActivities.teamId=:teamId"
+					sql: "SELECT * FROM userActivities WHERE userActivities.userId=:userId AND userActivities.teamId=:teamId ORDER BY date ASC"
 				};
 				const teamResponse: UserActivity[] = await conn.query(queryOptions, { userId, teamId });
 				if (teamResponse && teamResponse.length > 0) {
-					await conn.release();
 					return teamResponse;					
 				} else {
-					await conn.release();
 					return [];
 				}
 			} else {
@@ -841,9 +844,10 @@ export class TeamsServer {
 			}
 		} catch (error) {
 			console.error(error);
-			if(conn)
-				await conn.release();
 			return [];
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 
@@ -860,7 +864,6 @@ export class TeamsServer {
 				const activityResponse: UserActivity[] = await conn.query(queryOptions, userActivity);
 				if (activityResponse && activityResponse.length > 0 && activityResponse[0]) {
 					await conn.rollback();
-					await conn.release();
 					return null;
 				} else {
 					queryOptions.sql = "INSERT INTO userActivities (activityId,userId,teamId,noOfHours,date,description) VALUES(:activityId,:userId,:teamId,:noOfHours,:date,:description)";
@@ -869,11 +872,9 @@ export class TeamsServer {
 					const activity: UserActivity[] = await conn.query(queryOptions, {activityId:userActivity.activityId});
 					if (activity && activity.length > 0 && activity[0]) {
 						await conn.commit();
-						await conn.release();
 						return activity[0];
 					} else {
 						await conn.rollback();
-						await conn.release();
 						return null;
 					}
 				}
@@ -884,9 +885,11 @@ export class TeamsServer {
 			console.error(error);
 			if(conn) {
 				await conn.rollback();
-				await conn.release();
 			}
 			return null;
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 
@@ -908,16 +911,13 @@ export class TeamsServer {
 					const activity: UserActivity[] = await conn.query(queryOptions, userActivity);
 					if (activity && activity.length > 0 && activity[0]) {
 						await conn.commit();
-						await conn.release();
 						return activity[0];
 					} else {
 						await conn.rollback();
-						await conn.release();
 						return null;
 					}
 				} else {
 					await conn.rollback();
-					await conn.release();
 					return null;
 				}
 			} else {
@@ -927,9 +927,11 @@ export class TeamsServer {
 			console.error(error);
 			if(conn) {
 				await conn.rollback();
-				await conn.release();
 			}
 			return null;
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 	async updateActivity(userActivity: UserActivity): Promise<UserActivity | null> {
@@ -947,11 +949,9 @@ export class TeamsServer {
 				const activity: UserActivity[] = await conn.query(queryOptions, userActivity);
 				if (activity && activity.length > 0 && activity[0]) {
 					await conn.commit();
-					await conn.release();
 					return activity[0];
 				} else {
 					await conn.rollback();
-					await conn.release();
 					return null;
 				}
 			} else {
@@ -961,9 +961,11 @@ export class TeamsServer {
 			console.error(e);
 			if(conn) {
 				await conn.rollback();
-				await conn.release();
 			}
 			return null;
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 	async updateUserTeamDetails(userTeam: UserTeams): Promise<UserTeams | null> {
@@ -981,11 +983,9 @@ export class TeamsServer {
 				const activity: UserTeams[] = await conn.query(queryOptions, userTeam);
 				if (activity && activity.length > 0 && activity[0]) {
 					await conn.commit();
-					await conn.release();
 					return activity[0];
 				} else {
 					await conn.rollback();
-					await conn.release();
 					return null;
 				}
 			} else {
@@ -995,9 +995,11 @@ export class TeamsServer {
 			console.error(e);
 			if(conn) {
 				await conn.rollback();
-				await conn.release();
 			}
 			return null;
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 

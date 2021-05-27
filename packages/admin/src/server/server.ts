@@ -96,6 +96,8 @@ export class AdminServer {
 			let bT:string = "";
 			if(businessTrack !== undefined) {
 				bT = (businessTrack as string).toUpperCase().replace(/\s+/g, '');
+				if(bT === "Health&Lifestyle")
+					bT = "HL";
 			}
 			let tT = "";
 			if(teamTrack !== undefined) {
@@ -138,8 +140,8 @@ export class AdminServer {
 					facebook: "",
 					mentorNotes: "",
 					adminNotes: "",
-					assesmentFinals: "",
-					assesmentSemifinals: ""
+					assessmentFinals: "",
+					assessmentSemifinals: ""
 				},
 				updatedAt:new Date(),
 				lastMentorUpdate:new Date(),
@@ -167,37 +169,38 @@ export class AdminServer {
 			if(email !== undefined)
 				username = (email as string).split("@")[0].toLowerCase();
 
-			let aux = new Date(); // .toISOString().split('T')[0];
+			let aux = new Date();// .toISOString().split('T')[0];
 
 			try {
 				if(birthDate !== undefined)
-					aux = new Date((birthDate as string)); // .toISOString().split('T')[0];
+					aux = new Date(birthDate as string); // .toISOString().split('T')[0];
 			} catch (e) {
 				console.error(e);
 			}
 			const userId = uiidv4();
 			parsedCSV.user = {
-				userId:userId,
-				firstName:(firstName as string),
-				lastName:(lastName as string),
-				username:username,
-				password:"",
-				email:(email as string),
-				phone:(phone as string),
-				socialMedia:{
-					"facebook":(facebook as string),
-					"linkedin":(linkedin as string)
+				userId: userId,
+				firstName: firstName as string,
+				lastName: lastName as string,
+				username: username,
+				password: "",
+				email: email as string,
+				phone: phone as string,
+				socialMedia: {
+					facebook: facebook as string,
+					linkedin: linkedin as string
 				},
-				birthDate:aux,
-				userDetails:{
-					"faculty":faculty,
-					"group":group,
-					"details":"How din you find about Innovation Labs: " +findProgram
+				birthDate: aux,
+				userDetails: {
+					faculty: faculty,
+					group: group,
+					details:
+						"How din you find about Innovation Labs: " + findProgram
 				},
-				role:(role as string),
-				avatarUu:"",
-				lastLogin:new Date()
-			}
+				role: role as string,
+				avatarUu: "",
+				lastLogin: new Date()
+			};
 			return parsedCSV;
 		} catch (error) {
 			console.error("Error in function \"_parseCSVData(...array of params)\"|\"admin\" ")
@@ -270,7 +273,7 @@ export class AdminServer {
 	}
 
 	/**
-	 * Function that extract information from the database about all teams that have passed 20th may assesment and 
+	 * Function that extract information from the database about all teams that have passed 20th may assessment and 
 	 * 		all of their uploaded files. 
 	 * @returns {Promise<any[]>} an array of informations about each team
 	 */
@@ -281,14 +284,12 @@ export class AdminServer {
 			if(conn) {
 				const queryOptions:QueryOptions = {
 					namedPlaceholders:true,
-					sql:"SELECT IF(JSON_EXTRACT(productDetails,'$.assessment20May') = \"Yes\",\"DA\",\ Echipa,JSON_EXTRACT(t.teamDetails,'$.mentor') as Mentor,IF((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"pres\")>0,\"DA\",\"NU\") as 'Au prezentare pptx incarcata?',IF((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"image\")>0,(SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"image\"),0) as 'Au poze la \"Product Images\"?',IF((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"demoVid\")>0,\"DA\",\"NU\") as 'Au \"Tehnic Demo Video\" incarcat?', IF((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"presVid\")>0,\"DA\",\"NU\") as 'Au \"Product Presentation Video\" incarcat?',IF((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"logo\")>0,\"DA\",\"NU\") as 'Au \"Logo\" incarcat?',IF((JSON_EXTRACT(p.productDetails,'$.website')=''),'NU','DA') as 'Au link catre pagina web a produsului?',IF((JSON_EXTRACT(p.productDetails,'$.facebook')=''),'NU','DA') as 'Au link catre pagina de facebook a produsului?',DATE_FORMAT(p.lastMentorUpdate, \"%d %M %Y\") as \"Ultima actualizare a descrierii RO\",DATE_FORMAT(p.lastMentorUpdate, \"%d %M %Y\") as \"Ultima actualizare a descrierii ENG\",CONCAT((SELECT count(*) from (SELECT u.avatarUu, t1.teamId,IF(u.avatarUu!='',\"Yes\",\"No\") as has from users u inner join userTeams uT on u.userId = uT.userId inner join teams t1 on t1.teamId = uT.teamId ) as t2 where t2.teamId = t.teamId and t2.has =\"Yes\" ),'|',(SELECT count(*) from (SELECT u.avatarUu, t1.teamId, IF(u.avatarUu!='',\"Yes\",\"No\") as has from users u inner join userTeams uT on u.userId = uT.userId inner join teams t1 on t1.teamId = uT.teamId ) as t2 where t2.teamId = t.teamId)) as \"Au toti membrii echipei poza incarcata?\", IFNULL(DATE_FORMAT(tab.date, '%d %M %Y'),'') as \"Ultima actualizare a Lean Model Canvas\",DATE_FORMAT(p.updatedAt, \"%d %M %Y\") as \"Ultima actualizare\" from teams t inner join products p on t.productId = p.productId and JSON_EXTRACT(productDetails,'$.assessment20May') = \"Yes\" left join (SELECT date, productId from bModelCanvas group by productId) as tab on p.productId = tab.productId;"
+					sql:"SELECT IF(JSON_EXTRACT(productDetails,'$.assessmentSemifinals') = \"Yes\",\"DA\",\ as Echipa,JSON_EXTRACT(t.teamDetails,'$.mentor') as Mentor,IF((SELECT count(*) from uploadDownload ud where ud.productId = p.productId and fileType=\"pres\")>0,\"DA\",\"NU\") as 'Au prezentare pptx incarcata?',IF((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"image\")>0,(SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"image\"),0) as 'Au poze la \"Product Images\"?',IF((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"demoVid\")>0,\"DA\",\"NU\") as 'Au \"Tehnic Demo Video\" incarcat?', IF((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"presVid\")>0,\"DA\",\"NU\") as 'Au \"Product Presentation Video\" incarcat?',IF((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"logo\")>0,\"DA\",\"NU\") as 'Au \"Logo\" incarcat?',IF((JSON_EXTRACT(p.productDetails,'$.website')=''),'NU','DA') as 'Au link catre pagina web a produsului?',IF((JSON_EXTRACT(p.productDetails,'$.facebook')=''),'NU','DA') as 'Au link catre pagina de facebook a produsului?',DATE_FORMAT(p.lastMentorUpdate, \"%d %M %Y\") as \"Ultima actualizare a descrierii RO\",DATE_FORMAT(p.lastMentorUpdate, \"%d %M %Y\") as \"Ultima actualizare a descrierii ENG\",CONCAT((SELECT count(*) from (SELECT u.avatarUu, t1.teamId,IF(u.avatarUu!='',\"Yes\",\"No\") as has from users u inner join userTeams uT on u.userId = uT.userId inner join teams t1 on t1.teamId = uT.teamId ) as t2 where t2.teamId = t.teamId and t2.has =\"Yes\" ),'|',(SELECT count(*) from (SELECT u.avatarUu, t1.teamId, IF(u.avatarUu!='',\"Yes\",\"No\") as has from users u inner join userTeams uT on u.userId = uT.userId inner join teams t1 on t1.teamId = uT.teamId ) as t2 where t2.teamId = t.teamId)) as \"Au toti membrii echipei poza incarcata?\", IFNULL(DATE_FORMAT(tab.date, '%d %M %Y'),'') as \"Ultima actualizare a Lean Model Canvas\",DATE_FORMAT(p.updatedAt, \"%d %M %Y\") as \"Ultima actualizare\" from teams t inner join products p on t.productId = p.productId and JSON_EXTRACT(productDetails,'$.assessmentSemifinals') = \"Yes\" left join (SELECT date, productId from bModelCanvas group by productId) as tab on p.productId = tab.productId;"
 				}
 				const response:any[] = await conn.query(queryOptions);
 				if(response && response.length > 0) {
-					await conn.release();
 					return response
 				} else {
-					await conn.release();
 					return [];
 				}
 			} else {
@@ -297,9 +298,57 @@ export class AdminServer {
 		} catch (e) {
 			console.log("Error in function \"getUDCData()\"|\"admin\"")
 			console.error(e);
-			if(conn)
-				await conn.release();
 			return [];
+		} finally {
+			if(conn)
+				conn.release();
+		}
+	} 
+	async getCEOData():Promise<{
+		Location:string,
+		"Numele Echipei":string,
+		"Descriere RO":string,
+		Prenume:string,
+		Nume:string,
+		Email:string,
+		"Numar de telefon":string,
+		"Team Track":string,
+		"Business Track":string
+
+	}[]> {
+		let conn:PoolConnection | null = null;
+		try {
+			conn = await getPool().getConnection();
+			if (conn) {
+				const queryOptions: QueryOptions = {
+					sql:
+						'select teams.location as Location, teams.teamName as "Numele Echipei", products.descriptionRO as "Descriere RO", users.firstName as "Prenume", users.lastName as "Nume", users.email as "Email", users.phone as "Numar de telefon" , products.teamType as "Team Track", products.businessTrack as "Business Track" from users inner join userTeams on users.userId = userTeams.userId inner join teams on teams.teamId = userTeams.teamId inner join products on products.productId = teams.productId  where users.role = "CEO" order by location;'
+				};
+				const response: {
+					Location: string;
+					"Numele Echipei": string;
+					"Descriere RO": string;
+					Prenume: string;
+					Nume: string;
+					Email: string;
+					"Numar de telefon": string;
+					"Team Track": string;
+					"Business Track": string;
+				}[] = await conn.query(queryOptions);
+				if (response && response.length > 0) {
+					return response;
+				} else {
+					return [];
+				}
+			} else {
+				return [];
+			}
+		} catch (e) {
+			console.log('Error in function "getCEOData()"|"admin"');
+			console.error(e);
+			return [];
+		} finally {
+			if (conn) conn.release();
 		}
 	}
 	
@@ -314,15 +363,13 @@ export class AdminServer {
 			if(conn) {
 				const queryOptions:QueryOptions = {
 					namedPlaceholders:true,
-					sql:"SELECT t.location as 'oras', t.teamName as 'nume_echipa', p.businessTrack as 'business_track', p.teamType as 'type', p.descriptionRO as 'descriere_RO', p.descriptionEN as 'descriere_ENG' from teams t inner join products p on p.productId = t.productId and JSON_EXTRACT(productDetails,'$.assessment20May') = 'Yes';"
+					sql:"SELECT t.location as 'oras', t.teamName as 'nume_echipa', p.businessTrack as 'business_track', p.teamType as 'type', p.descriptionRO as 'descriere_RO', p.descriptionEN as 'descriere_ENG' from teams t inner join products p on p.productId = t.productId and JSON_EXTRACT(productDetails,'$.assessmentSemifinals') = true;"
 	
 				}
 				const response:any[] = await conn.query(queryOptions);
 				if(response && response.length > 0) {
-					await conn.release();
 					return response
 				} else {
-					await conn.release();
 					return [];
 				}
 			} else {
@@ -331,9 +378,10 @@ export class AdminServer {
 		} catch (e) {
 			console.log("Error in function \"getTeamData()\"|\"admin\"")
 			console.error(e);
-			if(conn)
-				await conn.release();
 			return [];
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 
@@ -366,20 +414,18 @@ export class AdminServer {
 					+ "Here is your activation link, please click here to reset your password.\n" 
 					+ "		https://teams.innovationlabs.ro/#/recovery/"+newRecovery[0].recoveryLink + "\n"
 					+ "Regards, Innovation Labs Team\n" ;
-					const notification:SWNotify = {
-						email:user.email,
-						notifyType:NotificationType.EMAIL,
-						msgType:MessageType.RESETPASS,
-						text:msg,
-						date:new Date()
-					}
+					const notification: SWNotify = {
+						email: user.email,
+						notifyType: NotificationType.EMAIL,
+						msgType: MessageType.RESETPASS,
+						text: msg,
+						date: new Date()
+					};
 					const newNotification:SWNotify | null = await daemon.addNotification(notification);
 					if(newNotification) {
 						await conn.commit();
-						await conn.release();
 					} else {
 						await conn.rollback();
-						await conn.release();
 						return null;
 					}
 					return newRecovery[0];
@@ -393,9 +439,11 @@ export class AdminServer {
 			console.error(error);
 			if(conn) {
 				await conn.rollback();
-				await conn.release();
 			}
 			return null;
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 
@@ -419,11 +467,9 @@ export class AdminServer {
 				const response:{deleted_id:string}[] = await conn.query(queryOptions, {recoveryId});
 				if(response && response.length === 0) {
 					await conn.commit();
-					await conn.release();
 					return true;
 				} else {
 					await conn.rollback();
-					await conn.release();
 					return false;
 				}
 			} else {
@@ -434,9 +480,11 @@ export class AdminServer {
 			console.error(error);
 			if(conn) {
 				await conn.rollback();
-				await conn.release();
 			}
 			return false;
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 
@@ -456,10 +504,8 @@ export class AdminServer {
 				}
 				const recovery:Recovery[] = await conn.query(queryOptions,{recoveryId});
 				if (recovery && recovery.length > 0 && recovery[0]) {
-					await conn.release();
 					return recovery[0];
 				} else {
-					await conn.release();
 					return null;
 				}
 
@@ -469,9 +515,10 @@ export class AdminServer {
 		} catch (error) {
 			console.log("Error in function \"findRecoveryById(id)\"|\"admin\"");
 			console.error(error);
-			if(conn)
-				await conn.release();
 			return null;
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 
@@ -491,10 +538,8 @@ export class AdminServer {
 				}
 				const recovery:Recovery[] = await conn.query(queryOptions,{recoveryLink});
 				if (recovery && recovery.length > 0 && recovery[0]) {
-					await conn.release();
 					return recovery[0];
 				} else {
-					await conn.release();
 					return null;
 				}
 			} else {
@@ -503,9 +548,10 @@ export class AdminServer {
 		} catch (error) {
 			console.log("Error in function \"findRecoveryByToken(recoveryLink)\"|\"admin\"");
 			console.error(error);
-			if(conn)
-				await conn.release();
 			return null;
+		} finally {
+			if(conn)
+				conn.release();
 		}
 
 	}
@@ -544,11 +590,10 @@ router.post("/createResetEmail", async (req:ApiRequest<{email:string}>,res:ApiRe
 		/** @type {Recovery} Recovery object */
 		const recovery:Recovery | null = await admin.addRecovery(aux);
 		if(recovery) {
-			res.send(recovery);	
+			res.status(200).send(recovery);	
 		} else {
 			res.status(401).send({err:401, data:null});
 		}
-		res.status(201).send({});
 	} catch (error) {
 		console.error("Error on route \"/createResetEmail\" in \"admin\" router");
 		console.error(error);	
@@ -574,8 +619,8 @@ router.post("/resetPassword", async (req:ApiRequest<{token:string,password:strin
 		if(recovery) {
 			const user:User | null = await users.getUserByEmail(recovery.email);
 			if(user) {
-				user.password = await UsersServer.passwordGenerator(password);
-				await users.modifyUser(user);
+				user.password = password;
+				await users.modifyUser(user, true);
 				res.status(200).send({username:user.username});
 			} else {
 				res.status(401).send({err:401, data:null});
@@ -736,38 +781,38 @@ router.post("/uploadCSV", async(req:ApiRequest<{encode:string}>,res:ApiResponse<
 						entry.product.mentorId = mentor.userId;
 					} else if(mentorUsername !== "") {
 						const password = admin.randomPassword();
-						let user:User | null = await users.addUser({
-							// as any -> todo -> discuss if we change to userId: string|null 
-							userId:uiidv4(),
+						let user: User | null = await users.addUser({
+							// as any -> todo -> discuss if we change to userId: string|null
+							userId: uiidv4(),
 							firstName: mentorUsername,
 							lastName: "",
-							username: mentorUsername, 
-							password: password, 
+							username: mentorUsername,
+							password: password,
 							email: mentorEmail,
 							phone: "",
-							socialMedia: {}, 
-							birthDate: new Date(), 
+							socialMedia: {},
+							birthDate: new Date(),
 							userDetails: {
-								"location":entry.team.teamDetails["location"]
+								location: entry.team.teamDetails["location"]
 							},
 							role: "Mentor",
-							avatarUu:"",
-							lastLogin:new Date()
+							avatarUu: "",
+							lastLogin: new Date()
 						});
 						if(user) {
 							const msg:string = "Hello " + user.firstName + " " + user.lastName +" ,\n\n" 
 								+ "Here is your new account, please do not disclose these informations to anyone.\n" 
 								+ "		Username: " +user.username + "\n"
 								+ "		Password: " +password + "\n" 
-								+ "Use these credidentials to login on "+ process.env.HOSTNAME +"\n\n"
+								+ "Use these credidentials to login on "+ process.env.WEBHOSTNAME +"\n\n"
 								+ "Regards, Innovation Labs Team\n";
-							const notification:SWNotify = {
-								email:user.email,
-								notifyType:NotificationType.EMAIL,
-								msgType:MessageType.WELCOME,
-								text:msg,
-								date:new Date()
-							}
+							const notification: SWNotify = {
+								email: user.email,
+								notifyType: NotificationType.EMAIL,
+								msgType: MessageType.WELCOME,
+								text: msg,
+								date: new Date()
+							};
 							await daemon.addNotification(notification);
 							entry.product.mentorId = user.userId;
 						}
@@ -787,18 +832,16 @@ router.post("/uploadCSV", async(req:ApiRequest<{encode:string}>,res:ApiResponse<
 							+ "Here is your new account, please do not disclose these informations to anyone.\n" 
 							+ "		Username: " +entry.user.username + "\n"
 							+ "		Password: " +password + "\n" 
-							+ "Use these credidentials to login on "+ process.env.HOSTNAME +"\n\n"
+							+ "Use these credidentials to login on "+ process.env.WEBHOSTNAME +"\n\n"
 							+ "Regards, Innovation Labs Team\n";
-						const notification:SWNotify = {
-							email:entry.user.email,
-							notifyType:NotificationType.EMAIL,
-							msgType:MessageType.WELCOME,
-							text:msg,
-							date:new Date()
-						}
+						const notification: SWNotify = {
+							email: entry.user.email,
+							notifyType: NotificationType.EMAIL,
+							msgType: MessageType.WELCOME,
+							text: msg,
+							date: new Date()
+						};
 						await daemon.addNotification(notification);
-						if(entry.product)
-							entry.product.mentorId = entry.user.userId;
 						user = await users.addUser(entry.user);
 					}
 				}
@@ -883,18 +926,32 @@ router.post("/newUserActivity", async (req:ApiRequest<UserActivity[]>,res:ApiRes
 	}
 	res.status(200).send(true);
 });
-
+router.get("/download/ceo/data", async (req, res) => {
+	try {
+		let ceoArr = await admin.getCEOData();
+		let csv = Papa.unparse(ceoArr, { quotes: true });
+		if (csv) {
+			res.send(csv);
+		} else {
+			console.error(
+				'Error on route "/download/ceo/data" in "admin" router'
+			);
+			console.error("No csv unparsed!");
+			res.status(401).send({ err: 401 });
+		}
+	} catch (error) {
+		console.error('Error on route "/download/ceo/data" in "admin" router');
+		console.error(error);
+		res.status(401).send({ err: 401 });
+	}
+});
 /**
  * 	Route on which information about users/uploads/teams is sent to be downloaded 
  */
 router.post("/download/udc/data", async (req:ApiRequest<undefined>,res:ApiResponse<string | null>) => {
 	try {
-		const usersString = await admin.getUDCData();
-		const array = [];
-		for(const row of usersString) {
-			array.push(row);
-		}
-		const csv = Papa.unparse(array);
+		const usersArr = await admin.getUDCData();
+		const csv = Papa.unparse(usersArr, {quotes:true});
 		if(csv) {
 			res.send(csv);
 		} else {
@@ -919,7 +976,7 @@ router.post("/download/team/data", async (req:ApiRequest<undefined>,res:ApiRespo
 		for(const row of usersString) {
 			array.push(row);
 		}
-		const csv = Papa.unparse(array);
+		const csv = Papa.unparse(array, { quotes: true });
 		if(csv) {
 			res.send(csv);
 		} else {
@@ -1072,11 +1129,11 @@ router.post("/teams/review", async (req:ApiRequest<{type:string,location:string,
 			if(mentor && product) {
 				let assesFinals = false;
 				let assesSemifinals = false;
-				if(product.assessment20May !== undefined) {
-					assesFinals = product.assessment20May;
+				if(product.assessmentSemifinals !== undefined) {
+					assesFinals = product.assessmentSemifinals;
 				}
-				if(product.assessment12Oct !== undefined) {
-					assesSemifinals = product.assessment12Oct;
+				if(product.assessmentFinals !== undefined) {
+					assesSemifinals = product.assessmentFinals;
 				}
 				review = {
 					location:team.location,
@@ -1090,8 +1147,8 @@ router.post("/teams/review", async (req:ApiRequest<{type:string,location:string,
 					teamId:team.teamId,
 					mentorNotes:product.mentorNotes,
 					adminNotes:product.adminNotes,
-					assessment20May:assesFinals,
-					assessment12Oct:assesSemifinals,
+					assessmentSemifinals:assesFinals,
+					assessmentFinals:assesSemifinals,
 					updatedAt: admin.formatDate(team.updatedAt),
 					lastMentorUpdate: admin.formatDate(team.lastMentorUpdate)
 				}
@@ -1156,8 +1213,8 @@ router.post("/teams/review/update", async (req:ApiRequest<{reviews:Review[],type
 				product.descriptionEN = review.description;
 				product.productDetails = JSON.parse((product.productDetails as any) as string);
 				product.productDetails["website"] = review.webLink;
-				product.productDetails["assessment20May"] = review.assessment20May;
-				product.productDetails["assessment12Oct"] = review.assessment12Oct;
+				product.productDetails["assessmentSemifinals"] = review.assessmentSemifinals;
+				product.productDetails["assessmentFinals"] = review.assessmentFinals;
 				product.lastMentorUpdate = new Date(review.lastMentorUpdate);
 				product.updatedAt = new Date(review.updatedAt);
 				const prodRes:(Product | null) = await teams.updateProduct(product);
@@ -1265,13 +1322,13 @@ router.post("/request/user", async (req:ApiRequest<{from:string,email:string,fir
 			+ "		Team: " + team.teamName + "\n" 
 			+ "		Location: " + team.location + "\n"
 			+ "		Mentor: " + mentor.email + "\n"
-		const notification:SWNotify = {
-			email:"marius.andrei.aluculesei@gmail.com",
-			notifyType:NotificationType.EMAIL,
-			msgType:MessageType.REQUESTUSER,
-			text:msg,
-			date:new Date()
-		}
+		const notification: SWNotify = {
+			email: "marius.andrei.aluculesei@gmail.com",
+			notifyType: NotificationType.EMAIL,
+			msgType: MessageType.REQUESTUSER,
+			text: msg,
+			date: new Date()
+		};
 		await daemon.addNotification(notification);
 		res.status(200).send(true);
 	} else {
@@ -1287,15 +1344,15 @@ router.post("/add/user", async (req:ApiRequest<{user:User,option:string,teamId:s
 			+ "Here is your new account, please do not disclose these informations to anyone.\n" 
 			+ "		Username: " +user.username + "\n"
 			+ "		Password: " +user.password + "\n" 
-			+ "Use these credidentials to login on "+ process.env.HOSTNAME +"\n\n"
+			+ "Use these credidentials to login on "+ process.env.WEBHOSTNAME +"\n\n"
 			+ "Regards, Innovation Labs Team\n" 
-		const notification:SWNotify = {
-			email:user.email,
-			notifyType:NotificationType.EMAIL,
-			msgType:MessageType.WELCOME,
-			text:msg,
-			date:new Date()
-		}
+		const notification: SWNotify = {
+			email: user.email,
+			notifyType: NotificationType.EMAIL,
+			msgType: MessageType.WELCOME,
+			text: msg,
+			date: new Date()
+		};
 		await daemon.addNotification(notification);
 		if(user) {
 			let newUser = await users.addUser((user as User));
@@ -1357,15 +1414,15 @@ router.post("/update/user", async (req:ApiRequest<{user:User,changedPass:boolean
 			+ "Here is your new password, please do not disclose these informations to anyone.\n" 
 			+ "		Username: " +user.username + "\n"
 			+ "		Password: " +user.password + "\n" 
-			+ "Use these credidentials to login on "+ process.env.HOSTNAME +"\n\n"
+			+ "Use these credidentials to login on "+ process.env.WEBHOSTNAME +"\n\n"
 			+ "Regards, Innovation Labs Team\n"
-		const notification:SWNotify = {
-			email:user.email,
-			notifyType:NotificationType.EMAIL,
-			msgType:MessageType.WELCOME,
-			text:msg,
-			date:new Date()
-		}
+		const notification: SWNotify = {
+			email: user.email,
+			notifyType: NotificationType.EMAIL,
+			msgType: MessageType.WELCOME,
+			text: msg,
+			date: new Date()
+		};
 		await daemon.addNotification(notification);
 		user.password = UsersServer.passwordGenerator(user.password);
 	}

@@ -317,7 +317,7 @@ var __vue_render__ = function() {
       _c(
         "v-navigation-drawer",
         {
-          staticStyle: { "border-left": "#ffb100 solid 10px" },
+          staticStyle: { width: "200px", "border-left": "#ffb100 solid 10px" },
           attrs: { app: "", clipped: "", permanent: "" }
         },
         [
@@ -401,32 +401,6 @@ var __vue_render__ = function() {
                 "v-list-item",
                 {
                   staticClass: "menu-item",
-                  attrs: { link: "", to: "/admin/workshops" }
-                },
-                [
-                  _c(
-                    "v-list-item-icon",
-                    [
-                      _c("v-icon", { attrs: { color: "primary" } }, [
-                        _vm._v("mdi-domain")
-                      ])
-                    ],
-                    1
-                  ),
-                  _vm._v(" "),
-                  _c(
-                    "v-list-item-content",
-                    [_c("v-list-item-title", [_vm._v("Workshops")])],
-                    1
-                  )
-                ],
-                1
-              ),
-              _vm._v(" "),
-              _c(
-                "v-list-item",
-                {
-                  staticClass: "menu-item",
                   attrs: { link: "", to: "/admin/csv" }
                 },
                 [
@@ -442,7 +416,7 @@ var __vue_render__ = function() {
                   _vm._v(" "),
                   _c(
                     "v-list-item-content",
-                    [_c("v-list-item-title", [_vm._v("Import CSV")])],
+                    [_c("v-list-item-title", [_vm._v("Imports")])],
                     1
                   )
                 ],
@@ -864,616 +838,648 @@ var __vue_render__$1 = function() {
     "v-app",
     [
       _c(
-        "v-container",
+        "v-card",
+        { attrs: { flat: "", "min-width": "500" } },
         [
           _c(
             "v-card",
             {
-              staticStyle: {
-                "margin-left": "auto",
-                "margin-right": "auto",
-                "padding-top": "20px",
-                "background-color": "#fcfcfc"
-              },
-              attrs: { flat: "" }
+              staticStyle: { "background-color": "#ffb100" },
+              attrs: { "max-height": "60", dark: "" }
             },
             [
+              _c("v-card-title", { staticClass: "justify-center" }, [
+                _vm._v("\n\t\t\t\tManage Users\n\t\t\t")
+              ])
+            ],
+            1
+          ),
+          _vm._v(" "),
+          _c(
+            "v-container",
+            [
               _c(
-                "v-card-title",
-                {
-                  staticClass: "justify-center",
-                  staticStyle: {
-                    "font-family": "Georgia, serif",
-                    "font-weight": "bold"
-                  }
-                },
-                [_vm._v("\n\t\t\t\tManage Users\n\t\t\t")]
-              ),
-              _vm._v(" "),
-              _c("v-divider"),
-              _vm._v(" "),
-              _c(
-                "v-card-text",
+                "v-card",
                 [
                   _c(
-                    "v-row",
+                    "v-card-text",
                     [
                       _c(
-                        "v-col",
-                        { attrs: { cols: "11", align: "center" } },
+                        "v-row",
                         [
-                          _c("v-text-field", {
-                            staticStyle: { flex: "0 1 auto" },
-                            attrs: {
-                              "append-icon": "mdi-magnify",
-                              label: "Search",
-                              "single-line": "",
-                              "hide-details": ""
-                            },
-                            model: {
-                              value: _vm.search,
-                              callback: function($$v) {
-                                _vm.search = $$v;
-                              },
-                              expression: "search"
-                            }
-                          })
+                          _c(
+                            "v-col",
+                            { attrs: { cols: "11", align: "center" } },
+                            [
+                              _c("v-text-field", {
+                                staticStyle: { flex: "0 1 auto" },
+                                attrs: {
+                                  "append-icon": "mdi-magnify",
+                                  label: "Search",
+                                  "single-line": "",
+                                  "hide-details": ""
+                                },
+                                model: {
+                                  value: _vm.search,
+                                  callback: function($$v) {
+                                    _vm.search = $$v;
+                                  },
+                                  expression: "search"
+                                }
+                              })
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-col",
+                            { attrs: { cols: "1" } },
+                            [
+                              _c(
+                                "v-tooltip",
+                                {
+                                  attrs: { top: "" },
+                                  scopedSlots: _vm._u([
+                                    {
+                                      key: "activator",
+                                      fn: function(ref) {
+                                        var on = ref.on;
+                                        return [
+                                          _c(
+                                            "v-btn",
+                                            _vm._g(
+                                              {
+                                                attrs: { icon: "" },
+                                                on: {
+                                                  click: function($event) {
+                                                    return _vm.openDialog(
+                                                      _vm.item
+                                                    )
+                                                  }
+                                                }
+                                              },
+                                              on
+                                            ),
+                                            [
+                                              _c(
+                                                "v-icon",
+                                                {
+                                                  attrs: {
+                                                    large: "",
+                                                    color: "primary"
+                                                  }
+                                                },
+                                                [_vm._v("mdi-plus")]
+                                              )
+                                            ],
+                                            1
+                                          )
+                                        ]
+                                      }
+                                    }
+                                  ]),
+                                  model: {
+                                    value: _vm.show,
+                                    callback: function($$v) {
+                                      _vm.show = $$v;
+                                    },
+                                    expression: "show"
+                                  }
+                                },
+                                [
+                                  _vm._v(" "),
+                                  _c("span", [_vm._v("Add new user")])
+                                ]
+                              )
+                            ],
+                            1
+                          )
                         ],
                         1
                       ),
                       _vm._v(" "),
-                      _c(
-                        "v-col",
-                        { attrs: { cols: "1" } },
-                        [
-                          _c(
-                            "v-tooltip",
-                            {
-                              attrs: { top: "" },
-                              scopedSlots: _vm._u([
-                                {
-                                  key: "activator",
-                                  fn: function(ref) {
-                                    var on = ref.on;
-                                    return [
-                                      _c(
-                                        "v-btn",
-                                        _vm._g(
-                                          {
-                                            attrs: { icon: "" },
-                                            on: {
-                                              click: function($event) {
-                                                return _vm.openDialog(_vm.item)
-                                              }
-                                            }
-                                          },
-                                          on
-                                        ),
-                                        [
-                                          _c(
-                                            "v-icon",
-                                            {
-                                              attrs: {
-                                                large: "",
-                                                color: "primary"
-                                              }
-                                            },
-                                            [_vm._v("mdi-plus")]
-                                          )
-                                        ],
-                                        1
-                                      )
-                                    ]
-                                  }
-                                }
-                              ]),
-                              model: {
-                                value: _vm.show,
-                                callback: function($$v) {
-                                  _vm.show = $$v;
-                                },
-                                expression: "show"
-                              }
-                            },
-                            [_vm._v(" "), _c("span", [_vm._v("Add new user")])]
-                          )
-                        ],
-                        1
-                      )
-                    ],
-                    1
-                  ),
-                  _vm._v(" "),
-                  _c("v-data-table", {
-                    attrs: {
-                      "item-key": "email",
-                      headers: _vm.headers,
-                      items: _vm.allUsers,
-                      search: _vm.search,
-                      loading: _vm.allUsers.length <= 0,
-                      "loading-text": "Loading users"
-                    },
-                    scopedSlots: _vm._u([
-                      {
-                        key: "top",
-                        fn: function() {
-                          return [
-                            _c(
-                              "div",
-                              [
+                      _c("v-data-table", {
+                        attrs: {
+                          "item-key": "email",
+                          headers: _vm.headers,
+                          items: _vm.allUsers,
+                          search: _vm.search,
+                          loading: _vm.allUsers.length <= 0,
+                          "loading-text": "Loading users"
+                        },
+                        scopedSlots: _vm._u([
+                          {
+                            key: "top",
+                            fn: function() {
+                              return [
                                 _c(
-                                  "v-dialog",
-                                  {
-                                    attrs: {
-                                      persistent: "",
-                                      "max-width": "500px"
-                                    },
-                                    model: {
-                                      value: _vm.dialog,
-                                      callback: function($$v) {
-                                        _vm.dialog = $$v;
-                                      },
-                                      expression: "dialog"
-                                    }
-                                  },
+                                  "div",
                                   [
                                     _c(
-                                      "v-card",
+                                      "v-dialog",
+                                      {
+                                        attrs: {
+                                          persistent: "",
+                                          "max-width": "500px"
+                                        },
+                                        model: {
+                                          value: _vm.dialog,
+                                          callback: function($$v) {
+                                            _vm.dialog = $$v;
+                                          },
+                                          expression: "dialog"
+                                        }
+                                      },
                                       [
-                                        _vm.item.userId === 0
-                                          ? _c(
-                                              "v-card-title",
-                                              {
-                                                staticClass: "justify-center",
-                                                staticStyle: {
-                                                  "font-family":
-                                                    "Georgia, serif"
-                                                }
-                                              },
-                                              [_vm._v("Add New User")]
-                                            )
-                                          : _c(
-                                              "v-card-title",
-                                              {
-                                                staticClass: "justify-center",
-                                                staticStyle: {
-                                                  "font-family":
-                                                    "Georgia, serif"
-                                                }
-                                              },
-                                              [_vm._v("Edit User")]
-                                            ),
-                                        _vm._v(" "),
-                                        _c("v-divider"),
-                                        _vm._v(" "),
                                         _c(
-                                          "v-card-text",
+                                          "v-card",
                                           [
-                                            _c("v-text-field", {
-                                              attrs: {
-                                                color: "primary",
-                                                label: "First Name",
-                                                "prepend-icon": "mdi-account"
-                                              },
-                                              model: {
-                                                value: _vm.item.firstName,
-                                                callback: function($$v) {
-                                                  _vm.$set(
-                                                    _vm.item,
-                                                    "firstName",
-                                                    $$v
-                                                  );
-                                                },
-                                                expression: "item.firstName"
-                                              }
-                                            }),
-                                            _vm._v(" "),
-                                            _c("v-text-field", {
-                                              attrs: {
-                                                color: "primary",
-                                                label: "Last Name",
-                                                "prepend-icon": "mdi-account"
-                                              },
-                                              model: {
-                                                value: _vm.item.lastName,
-                                                callback: function($$v) {
-                                                  _vm.$set(
-                                                    _vm.item,
-                                                    "lastName",
-                                                    $$v
-                                                  );
-                                                },
-                                                expression: "item.lastName"
-                                              }
-                                            }),
-                                            _vm._v(" "),
-                                            _c("v-text-field", {
-                                              attrs: {
-                                                color: "primary",
-                                                label: "Email",
-                                                "prepend-icon": "mdi-email"
-                                              },
-                                              model: {
-                                                value: _vm.item.email,
-                                                callback: function($$v) {
-                                                  _vm.$set(
-                                                    _vm.item,
-                                                    "email",
-                                                    $$v
-                                                  );
-                                                },
-                                                expression: "item.email"
-                                              }
-                                            }),
-                                            _vm._v(" "),
-                                            _c("v-text-field", {
-                                              attrs: {
-                                                color: "primary",
-                                                label: "Phone",
-                                                "prepend-icon": "mdi-phone"
-                                              },
-                                              model: {
-                                                value: _vm.item.phone,
-                                                callback: function($$v) {
-                                                  _vm.$set(
-                                                    _vm.item,
-                                                    "phone",
-                                                    $$v
-                                                  );
-                                                },
-                                                expression: "item.phone"
-                                              }
-                                            }),
-                                            _vm._v(" "),
-                                            _c("v-text-field", {
-                                              attrs: {
-                                                color: "primary",
-                                                label: "Username",
-                                                "prepend-icon":
-                                                  "mdi-account-badge"
-                                              },
-                                              model: {
-                                                value: _vm.item.username,
-                                                callback: function($$v) {
-                                                  _vm.$set(
-                                                    _vm.item,
-                                                    "username",
-                                                    $$v
-                                                  );
-                                                },
-                                                expression: "item.username"
-                                              }
-                                            }),
-                                            _vm._v(" "),
-                                            _vm.item.userId !== 0
+                                            _vm.item.userId === 0
                                               ? _c(
-                                                  "v-menu",
+                                                  "v-card-title",
                                                   {
-                                                    ref: "dateMenu",
-                                                    attrs: {
-                                                      "close-on-content-click": false,
-                                                      "return-value": _vm.date,
-                                                      transition:
-                                                        "scale-transition",
-                                                      "offset-y": "",
-                                                      "max-width": "290px",
-                                                      "min-width": "290px"
-                                                    },
-                                                    on: {
-                                                      "update:returnValue": function(
-                                                        $event
-                                                      ) {
-                                                        _vm.date = $event;
-                                                      },
-                                                      "update:return-value": function(
-                                                        $event
-                                                      ) {
-                                                        _vm.date = $event;
-                                                      }
-                                                    },
-                                                    scopedSlots: _vm._u(
-                                                      [
-                                                        {
-                                                          key: "activator",
-                                                          fn: function(ref) {
-                                                            var on = ref.on;
-                                                            return [
-                                                              _c(
-                                                                "v-text-field",
-                                                                _vm._g(
-                                                                  {
-                                                                    attrs: {
-                                                                      label:
-                                                                        "Birthdate",
-                                                                      "persistent-hint":
-                                                                        "",
-                                                                      "prepend-icon":
-                                                                        "mdi-event"
-                                                                    },
-                                                                    model: {
-                                                                      value:
-                                                                        _vm.item
-                                                                          .birthDate,
-                                                                      callback: function(
-                                                                        $$v
-                                                                      ) {
-                                                                        _vm.$set(
-                                                                          _vm.item,
-                                                                          "birthDate",
-                                                                          $$v
-                                                                        );
-                                                                      },
-                                                                      expression:
-                                                                        "item.birthDate"
-                                                                    }
-                                                                  },
-                                                                  on
-                                                                )
-                                                              )
-                                                            ]
-                                                          }
-                                                        }
-                                                      ],
-                                                      null,
-                                                      false,
-                                                      185940250
-                                                    ),
-                                                    model: {
-                                                      value: _vm.dateMenu,
-                                                      callback: function($$v) {
-                                                        _vm.dateMenu = $$v;
-                                                      },
-                                                      expression: "dateMenu"
+                                                    staticClass:
+                                                      "justify-center",
+                                                    staticStyle: {
+                                                      "font-family":
+                                                        "Georgia, serif"
                                                     }
                                                   },
-                                                  [
-                                                    _vm._v(" "),
-                                                    _c(
-                                                      "v-date-picker",
+                                                  [_vm._v("Add New User")]
+                                                )
+                                              : _c(
+                                                  "v-card-title",
+                                                  {
+                                                    staticClass:
+                                                      "justify-center",
+                                                    staticStyle: {
+                                                      "font-family":
+                                                        "Georgia, serif"
+                                                    }
+                                                  },
+                                                  [_vm._v("Edit User")]
+                                                ),
+                                            _vm._v(" "),
+                                            _c("v-divider"),
+                                            _vm._v(" "),
+                                            _c(
+                                              "v-card-text",
+                                              [
+                                                _c("v-text-field", {
+                                                  attrs: {
+                                                    color: "primary",
+                                                    label: "First Name",
+                                                    "prepend-icon":
+                                                      "mdi-account"
+                                                  },
+                                                  model: {
+                                                    value: _vm.item.firstName,
+                                                    callback: function($$v) {
+                                                      _vm.$set(
+                                                        _vm.item,
+                                                        "firstName",
+                                                        $$v
+                                                      );
+                                                    },
+                                                    expression: "item.firstName"
+                                                  }
+                                                }),
+                                                _vm._v(" "),
+                                                _c("v-text-field", {
+                                                  attrs: {
+                                                    color: "primary",
+                                                    label: "Last Name",
+                                                    "prepend-icon":
+                                                      "mdi-account"
+                                                  },
+                                                  model: {
+                                                    value: _vm.item.lastName,
+                                                    callback: function($$v) {
+                                                      _vm.$set(
+                                                        _vm.item,
+                                                        "lastName",
+                                                        $$v
+                                                      );
+                                                    },
+                                                    expression: "item.lastName"
+                                                  }
+                                                }),
+                                                _vm._v(" "),
+                                                _c("v-text-field", {
+                                                  attrs: {
+                                                    color: "primary",
+                                                    label: "Email",
+                                                    "prepend-icon": "mdi-email"
+                                                  },
+                                                  model: {
+                                                    value: _vm.item.email,
+                                                    callback: function($$v) {
+                                                      _vm.$set(
+                                                        _vm.item,
+                                                        "email",
+                                                        $$v
+                                                      );
+                                                    },
+                                                    expression: "item.email"
+                                                  }
+                                                }),
+                                                _vm._v(" "),
+                                                _c("v-text-field", {
+                                                  attrs: {
+                                                    color: "primary",
+                                                    label: "Phone",
+                                                    "prepend-icon": "mdi-phone"
+                                                  },
+                                                  model: {
+                                                    value: _vm.item.phone,
+                                                    callback: function($$v) {
+                                                      _vm.$set(
+                                                        _vm.item,
+                                                        "phone",
+                                                        $$v
+                                                      );
+                                                    },
+                                                    expression: "item.phone"
+                                                  }
+                                                }),
+                                                _vm._v(" "),
+                                                _c("v-text-field", {
+                                                  attrs: {
+                                                    color: "primary",
+                                                    label: "Username",
+                                                    "prepend-icon":
+                                                      "mdi-account-badge"
+                                                  },
+                                                  model: {
+                                                    value: _vm.item.username,
+                                                    callback: function($$v) {
+                                                      _vm.$set(
+                                                        _vm.item,
+                                                        "username",
+                                                        $$v
+                                                      );
+                                                    },
+                                                    expression: "item.username"
+                                                  }
+                                                }),
+                                                _vm._v(" "),
+                                                _vm.item.userId !== 0
+                                                  ? _c(
+                                                      "v-menu",
                                                       {
+                                                        ref: "dateMenu",
                                                         attrs: {
-                                                          "no-title": ""
+                                                          "close-on-content-click": false,
+                                                          "return-value":
+                                                            _vm.date,
+                                                          transition:
+                                                            "scale-transition",
+                                                          "offset-y": "",
+                                                          "max-width": "290px",
+                                                          "min-width": "290px"
                                                         },
+                                                        on: {
+                                                          "update:returnValue": function(
+                                                            $event
+                                                          ) {
+                                                            _vm.date = $event;
+                                                          },
+                                                          "update:return-value": function(
+                                                            $event
+                                                          ) {
+                                                            _vm.date = $event;
+                                                          }
+                                                        },
+                                                        scopedSlots: _vm._u(
+                                                          [
+                                                            {
+                                                              key: "activator",
+                                                              fn: function(
+                                                                ref
+                                                              ) {
+                                                                var on = ref.on;
+                                                                return [
+                                                                  _c(
+                                                                    "v-text-field",
+                                                                    _vm._g(
+                                                                      {
+                                                                        attrs: {
+                                                                          label:
+                                                                            "Birthdate",
+                                                                          "persistent-hint":
+                                                                            "",
+                                                                          "prepend-icon":
+                                                                            "mdi-event"
+                                                                        },
+                                                                        model: {
+                                                                          value:
+                                                                            _vm
+                                                                              .item
+                                                                              .birthDate,
+                                                                          callback: function(
+                                                                            $$v
+                                                                          ) {
+                                                                            _vm.$set(
+                                                                              _vm.item,
+                                                                              "birthDate",
+                                                                              $$v
+                                                                            );
+                                                                          },
+                                                                          expression:
+                                                                            "item.birthDate"
+                                                                        }
+                                                                      },
+                                                                      on
+                                                                    )
+                                                                  )
+                                                                ]
+                                                              }
+                                                            }
+                                                          ],
+                                                          null,
+                                                          false,
+                                                          185940250
+                                                        ),
                                                         model: {
-                                                          value:
-                                                            _vm.item.birthDate,
+                                                          value: _vm.dateMenu,
                                                           callback: function(
                                                             $$v
                                                           ) {
-                                                            _vm.$set(
-                                                              _vm.item,
-                                                              "birthDate",
-                                                              $$v
-                                                            );
+                                                            _vm.dateMenu = $$v;
                                                           },
-                                                          expression:
-                                                            "item.birthDate"
+                                                          expression: "dateMenu"
                                                         }
                                                       },
                                                       [
-                                                        _c("v-spacer"),
                                                         _vm._v(" "),
                                                         _c(
-                                                          "v-btn",
+                                                          "v-date-picker",
                                                           {
                                                             attrs: {
-                                                              text: "",
-                                                              color: "primary"
+                                                              "no-title": ""
                                                             },
-                                                            on: {
-                                                              click: function(
-                                                                $event
+                                                            model: {
+                                                              value:
+                                                                _vm.item
+                                                                  .birthDate,
+                                                              callback: function(
+                                                                $$v
                                                               ) {
-                                                                _vm.dateMenu = false;
-                                                              }
+                                                                _vm.$set(
+                                                                  _vm.item,
+                                                                  "birthDate",
+                                                                  $$v
+                                                                );
+                                                              },
+                                                              expression:
+                                                                "item.birthDate"
                                                             }
                                                           },
-                                                          [_vm._v("Cancel")]
-                                                        ),
-                                                        _vm._v(" "),
-                                                        _c(
-                                                          "v-btn",
-                                                          {
-                                                            attrs: {
-                                                              text: "",
-                                                              color: "primary"
-                                                            },
-                                                            on: {
-                                                              click: function(
-                                                                $event
-                                                              ) {
-                                                                return _vm.$refs.dateMenu.save(
-                                                                  _vm.date
-                                                                )
-                                                              }
-                                                            }
-                                                          },
-                                                          [_vm._v("OK")]
+                                                          [
+                                                            _c("v-spacer"),
+                                                            _vm._v(" "),
+                                                            _c(
+                                                              "v-btn",
+                                                              {
+                                                                attrs: {
+                                                                  text: "",
+                                                                  color:
+                                                                    "primary"
+                                                                },
+                                                                on: {
+                                                                  click: function(
+                                                                    $event
+                                                                  ) {
+                                                                    _vm.dateMenu = false;
+                                                                  }
+                                                                }
+                                                              },
+                                                              [_vm._v("Cancel")]
+                                                            ),
+                                                            _vm._v(" "),
+                                                            _c(
+                                                              "v-btn",
+                                                              {
+                                                                attrs: {
+                                                                  text: "",
+                                                                  color:
+                                                                    "primary"
+                                                                },
+                                                                on: {
+                                                                  click: function(
+                                                                    $event
+                                                                  ) {
+                                                                    return _vm.$refs.dateMenu.save(
+                                                                      _vm.date
+                                                                    )
+                                                                  }
+                                                                }
+                                                              },
+                                                              [_vm._v("OK")]
+                                                            )
+                                                          ],
+                                                          1
                                                         )
                                                       ],
                                                       1
                                                     )
-                                                  ],
-                                                  1
-                                                )
-                                              : _vm._e(),
-                                            _vm._v(" "),
-                                            _vm.item.userId !== 0
-                                              ? _c("v-text-field", {
+                                                  : _vm._e(),
+                                                _vm._v(" "),
+                                                _vm.item.userId !== 0
+                                                  ? _c("v-text-field", {
+                                                      attrs: {
+                                                        label: "Facebook Link",
+                                                        optional: "",
+                                                        color: "primary",
+                                                        "prepend-icon":
+                                                          "mdi-facebook"
+                                                      },
+                                                      model: {
+                                                        value:
+                                                          _vm.item.socialMedia
+                                                            .facebook,
+                                                        callback: function(
+                                                          $$v
+                                                        ) {
+                                                          _vm.$set(
+                                                            _vm.item
+                                                              .socialMedia,
+                                                            "facebook",
+                                                            $$v
+                                                          );
+                                                        },
+                                                        expression:
+                                                          "item.socialMedia.facebook"
+                                                      }
+                                                    })
+                                                  : _vm._e(),
+                                                _vm._v(" "),
+                                                _vm.item.userId !== 0
+                                                  ? _c("v-text-field", {
+                                                      attrs: {
+                                                        label: "Linkedin Link",
+                                                        optional: "",
+                                                        color: "primary",
+                                                        "prepend-icon":
+                                                          "mdi-linkedin"
+                                                      },
+                                                      model: {
+                                                        value:
+                                                          _vm.item.socialMedia
+                                                            .linkedin,
+                                                        callback: function(
+                                                          $$v
+                                                        ) {
+                                                          _vm.$set(
+                                                            _vm.item
+                                                              .socialMedia,
+                                                            "linkedin",
+                                                            $$v
+                                                          );
+                                                        },
+                                                        expression:
+                                                          "item.socialMedia.linkedin"
+                                                      }
+                                                    })
+                                                  : _vm._e(),
+                                                _vm._v(" "),
+                                                _vm.item.userId !== 0
+                                                  ? _c("v-text-field", {
+                                                      attrs: {
+                                                        label: "Webpage Link",
+                                                        optional: "",
+                                                        color: "primary",
+                                                        "prepend-icon":
+                                                          "mdi-web"
+                                                      },
+                                                      model: {
+                                                        value:
+                                                          _vm.item.socialMedia
+                                                            .webpage,
+                                                        callback: function(
+                                                          $$v
+                                                        ) {
+                                                          _vm.$set(
+                                                            _vm.item
+                                                              .socialMedia,
+                                                            "webpage",
+                                                            $$v
+                                                          );
+                                                        },
+                                                        expression:
+                                                          "item.socialMedia.webpage"
+                                                      }
+                                                    })
+                                                  : _vm._e(),
+                                                _vm._v(" "),
+                                                _c("v-textarea", {
                                                   attrs: {
-                                                    label: "Facebook Link",
+                                                    label: "User Details",
                                                     optional: "",
                                                     color: "primary",
                                                     "prepend-icon":
-                                                      "mdi-facebook"
+                                                      "mdi-information-outline",
+                                                    rows: "2"
                                                   },
                                                   model: {
-                                                    value:
-                                                      _vm.item.socialMedia
-                                                        .facebook,
-                                                    callback: function($$v) {
-                                                      _vm.$set(
-                                                        _vm.item.socialMedia,
-                                                        "facebook",
-                                                        $$v
-                                                      );
-                                                    },
-                                                    expression:
-                                                      "item.socialMedia.facebook"
-                                                  }
-                                                })
-                                              : _vm._e(),
-                                            _vm._v(" "),
-                                            _vm.item.userId !== 0
-                                              ? _c("v-text-field", {
-                                                  attrs: {
-                                                    label: "Linkedin Link",
-                                                    optional: "",
-                                                    color: "primary",
-                                                    "prepend-icon":
-                                                      "mdi-linkedin"
-                                                  },
-                                                  model: {
-                                                    value:
-                                                      _vm.item.socialMedia
-                                                        .linkedin,
-                                                    callback: function($$v) {
-                                                      _vm.$set(
-                                                        _vm.item.socialMedia,
-                                                        "linkedin",
-                                                        $$v
-                                                      );
-                                                    },
-                                                    expression:
-                                                      "item.socialMedia.linkedin"
-                                                  }
-                                                })
-                                              : _vm._e(),
-                                            _vm._v(" "),
-                                            _vm.item.userId !== 0
-                                              ? _c("v-text-field", {
-                                                  attrs: {
-                                                    label: "Webpage Link",
-                                                    optional: "",
-                                                    color: "primary",
-                                                    "prepend-icon": "mdi-web"
-                                                  },
-                                                  model: {
-                                                    value:
-                                                      _vm.item.socialMedia
-                                                        .webpage,
-                                                    callback: function($$v) {
-                                                      _vm.$set(
-                                                        _vm.item.socialMedia,
-                                                        "webpage",
-                                                        $$v
-                                                      );
-                                                    },
-                                                    expression:
-                                                      "item.socialMedia.webpage"
-                                                  }
-                                                })
-                                              : _vm._e(),
-                                            _vm._v(" "),
-                                            _c("v-textarea", {
-                                              attrs: {
-                                                label: "User Details",
-                                                optional: "",
-                                                color: "primary",
-                                                "prepend-icon":
-                                                  "mdi-information-outline",
-                                                rows: "2"
-                                              },
-                                              model: {
-                                                value: _vm.item.details,
-                                                callback: function($$v) {
-                                                  _vm.$set(
-                                                    _vm.item,
-                                                    "details",
-                                                    $$v
-                                                  );
-                                                },
-                                                expression: "item.details"
-                                              }
-                                            }),
-                                            _vm._v(" "),
-                                            _vm.item.userId !== 0
-                                              ? _c("v-select", {
-                                                  attrs: {
-                                                    items: _vm.roles,
-                                                    label: "Role",
-                                                    optional: "",
-                                                    color: "primary",
-                                                    "prepend-icon":
-                                                      "mdi-account-card-details-outline"
-                                                  },
-                                                  model: {
-                                                    value: _vm.item.role,
+                                                    value: _vm.item.details,
                                                     callback: function($$v) {
                                                       _vm.$set(
                                                         _vm.item,
-                                                        "role",
+                                                        "details",
                                                         $$v
                                                       );
                                                     },
-                                                    expression: "item.role"
+                                                    expression: "item.details"
                                                   }
-                                                })
-                                              : _vm._e()
-                                          ],
-                                          1
-                                        ),
-                                        _vm._v(" "),
-                                        _c(
-                                          "v-card-actions",
-                                          { staticClass: "justify-center" },
-                                          [
-                                            _vm.item.userId !== 0
-                                              ? _c(
-                                                  "v-btn",
-                                                  {
-                                                    attrs: {
-                                                      rounded: "",
-                                                      color: "primary"
-                                                    },
-                                                    on: {
-                                                      click: function($event) {
-                                                        return _vm.editUser()
+                                                }),
+                                                _vm._v(" "),
+                                                _vm.item.userId !== 0
+                                                  ? _c("v-select", {
+                                                      attrs: {
+                                                        items: _vm.roles,
+                                                        label: "Role",
+                                                        optional: "",
+                                                        color: "primary",
+                                                        "prepend-icon":
+                                                          "mdi-account-card-details-outline"
+                                                      },
+                                                      model: {
+                                                        value: _vm.item.role,
+                                                        callback: function(
+                                                          $$v
+                                                        ) {
+                                                          _vm.$set(
+                                                            _vm.item,
+                                                            "role",
+                                                            $$v
+                                                          );
+                                                        },
+                                                        expression: "item.role"
                                                       }
-                                                    }
-                                                  },
-                                                  [_vm._v("Edit User")]
-                                                )
-                                              : _c(
+                                                    })
+                                                  : _vm._e()
+                                              ],
+                                              1
+                                            ),
+                                            _vm._v(" "),
+                                            _c(
+                                              "v-card-actions",
+                                              { staticClass: "justify-center" },
+                                              [
+                                                _vm.item.userId !== 0
+                                                  ? _c(
+                                                      "v-btn",
+                                                      {
+                                                        attrs: {
+                                                          rounded: "",
+                                                          color: "primary"
+                                                        },
+                                                        on: {
+                                                          click: function(
+                                                            $event
+                                                          ) {
+                                                            return _vm.editUser()
+                                                          }
+                                                        }
+                                                      },
+                                                      [_vm._v("Edit User")]
+                                                    )
+                                                  : _c(
+                                                      "v-btn",
+                                                      {
+                                                        attrs: {
+                                                          color: "primary",
+                                                          rounded: ""
+                                                        },
+                                                        on: {
+                                                          click: function(
+                                                            $event
+                                                          ) {
+                                                            return _vm.addUser()
+                                                          }
+                                                        }
+                                                      },
+                                                      [_vm._v("Add User")]
+                                                    ),
+                                                _vm._v(" "),
+                                                _c(
                                                   "v-btn",
                                                   {
                                                     attrs: {
                                                       color: "primary",
-                                                      rounded: ""
+                                                      text: ""
                                                     },
                                                     on: {
                                                       click: function($event) {
-                                                        return _vm.addUser()
+                                                        return _vm.exitDialog()
                                                       }
                                                     }
                                                   },
-                                                  [_vm._v("Add User")]
-                                                ),
-                                            _vm._v(" "),
-                                            _c(
-                                              "v-btn",
-                                              {
-                                                attrs: {
-                                                  color: "primary",
-                                                  text: ""
-                                                },
-                                                on: {
-                                                  click: function($event) {
-                                                    return _vm.exitDialog()
-                                                  }
-                                                }
-                                              },
-                                              [_vm._v("Exit")]
+                                                  [_vm._v("Exit")]
+                                                )
+                                              ],
+                                              1
                                             )
                                           ],
                                           1
@@ -1484,39 +1490,39 @@ var __vue_render__$1 = function() {
                                   ],
                                   1
                                 )
-                              ],
-                              1
-                            )
-                          ]
-                        },
-                        proxy: true
-                      },
-                      {
-                        key: "action",
-                        fn: function(ref) {
-                          var item = ref.item;
-                          return [
-                            _c(
-                              "v-icon",
-                              {
-                                attrs: { small: "" },
-                                on: {
-                                  click: function($event) {
-                                    return _vm.openDialog(item)
-                                  }
-                                }
-                              },
-                              [
-                                _vm._v(
-                                  "\n\t\t\t\t\t\t\tmdi-pencil\n\t\t\t\t\t\t"
+                              ]
+                            },
+                            proxy: true
+                          },
+                          {
+                            key: "action",
+                            fn: function(ref) {
+                              var item = ref.item;
+                              return [
+                                _c(
+                                  "v-icon",
+                                  {
+                                    attrs: { small: "" },
+                                    on: {
+                                      click: function($event) {
+                                        return _vm.openDialog(item)
+                                      }
+                                    }
+                                  },
+                                  [
+                                    _vm._v(
+                                      "\n\t\t\t\t\t\t\t\tmdi-pencil\n\t\t\t\t\t\t\t"
+                                    )
+                                  ]
                                 )
                               ]
-                            )
-                          ]
-                        }
-                      }
-                    ])
-                  })
+                            }
+                          }
+                        ])
+                      })
+                    ],
+                    1
+                  )
                 ],
                 1
               )
@@ -1713,116 +1719,138 @@ var __vue_render__$2 = function() {
     [
       _c(
         "v-card",
-        {
-          staticStyle: {
-            "margin-left": "auto",
-            "margin-right": "auto",
-            "padding-top": "20px",
-            "background-color": "#fcfcfc"
-          },
-          attrs: { flat: "", width: "800" }
-        },
+        { attrs: { flat: "", "min-width": "500" } },
         [
           _c(
-            "v-card-title",
+            "v-card",
             {
-              staticClass: "justify-center",
-              staticStyle: {
-                "font-family": "Georgia, serif",
-                "font-weight": "bold"
-              }
+              staticStyle: { "background-color": "#ffb100" },
+              attrs: { "max-height": "60", dark: "" }
             },
-            [_vm._v("\n\t\t\tManage Teams\n\t\t")]
+            [
+              _c("v-card-title", { staticClass: "justify-center" }, [
+                _vm._v("\n\t\t\t\tManage Teams\n\t\t\t")
+              ])
+            ],
+            1
           ),
           _vm._v(" "),
-          _c("v-divider"),
-          _vm._v(" "),
           _c(
-            "v-card-text",
+            "v-container",
             [
               _c(
-                "div",
-                {
-                  staticStyle: {
-                    "margin-top": "20px",
-                    "margin-bottom": "20px"
-                  },
-                  attrs: { align: "center" }
-                },
-                [
-                  _vm._v(
-                    "Please select a team from the list to review its members."
-                  )
-                ]
-              ),
-              _vm._v(" "),
-              _c("v-select", {
-                staticClass: "justify-center",
-                staticStyle: { width: "500px", margin: "0 auto" },
-                attrs: {
-                  items: _vm.viewTeams,
-                  "item-text": "name",
-                  "item-value": "value",
-                  label: "All Teams"
-                },
-                model: {
-                  value: _vm.selectedTeam,
-                  callback: function($$v) {
-                    _vm.selectedTeam = $$v;
-                  },
-                  expression: "selectedTeam"
-                }
-              }),
-              _vm._v(" "),
-              _c(
-                "v-container",
-                { attrs: { "grid-list-xs": "" } },
+                "v-card",
                 [
                   _c(
-                    "v-card",
-                    { attrs: { flat: "" } },
+                    "v-card-text",
                     [
                       _c(
-                        "v-card-title",
-                        {
-                          staticClass: "justify-center",
-                          staticStyle: { "font-family": "Georgia, serif" }
-                        },
-                        [_vm._v("Team Composition")]
+                        "v-row",
+                        { staticClass: "md-6" },
+                        [
+                          _c(
+                            "v-col",
+                            [
+                              _c(
+                                "div",
+                                {
+                                  staticStyle: {
+                                    "margin-top": "20px",
+                                    "margin-bottom": "20px"
+                                  },
+                                  attrs: { align: "center" }
+                                },
+                                [
+                                  _vm._v(
+                                    "\n\t\t\t\t\t\t\t\tPlease select a team from the list to review its members.\n\t\t\t\t\t\t\t"
+                                  )
+                                ]
+                              ),
+                              _vm._v(" "),
+                              _c("v-select", {
+                                staticClass: "justify-center",
+                                staticStyle: {
+                                  width: "500px",
+                                  margin: "0 auto"
+                                },
+                                attrs: {
+                                  items: _vm.viewTeams,
+                                  "item-text": "name",
+                                  "item-value": "value",
+                                  label: "All Teams"
+                                },
+                                model: {
+                                  value: _vm.selectedTeam,
+                                  callback: function($$v) {
+                                    _vm.selectedTeam = $$v;
+                                  },
+                                  expression: "selectedTeam"
+                                }
+                              })
+                            ],
+                            1
+                          )
+                        ],
+                        1
                       ),
                       _vm._v(" "),
-                      _c("v-divider"),
-                      _vm._v(" "),
                       _c(
-                        "v-card-text",
+                        "v-row",
                         [
-                          _c("v-text-field", {
-                            staticClass: "justify-center",
-                            attrs: {
-                              "append-icon": "mdi-magnify",
-                              label: "Search",
-                              "single-line": "",
-                              "hide-details": ""
-                            },
-                            model: {
-                              value: _vm.search,
-                              callback: function($$v) {
-                                _vm.search = $$v;
-                              },
-                              expression: "search"
-                            }
-                          }),
-                          _vm._v(" "),
-                          _c("v-data-table", {
-                            attrs: {
-                              "item-key": "email",
-                              headers: _vm.headers,
-                              items: _vm.users,
-                              search: _vm.search,
-                              loading: _vm.users.length <= 0,
-                              "loading-text": "Loading users"
-                            }
-                          })
+                          _c(
+                            "v-col",
+                            [
+                              _c(
+                                "v-card",
+                                { attrs: { flat: "" } },
+                                [
+                                  _c(
+                                    "v-card-title",
+                                    { staticClass: "justify-center" },
+                                    [_vm._v("Team Composition")]
+                                  ),
+                                  _vm._v(" "),
+                                  _c("v-divider"),
+                                  _vm._v(" "),
+                                  _c(
+                                    "v-card-text",
+                                    [
+                                      _c("v-text-field", {
+                                        staticClass: "justify-center",
+                                        attrs: {
+                                          "append-icon": "mdi-magnify",
+                                          label: "Search",
+                                          "single-line": "",
+                                          "hide-details": ""
+                                        },
+                                        model: {
+                                          value: _vm.search,
+                                          callback: function($$v) {
+                                            _vm.search = $$v;
+                                          },
+                                          expression: "search"
+                                        }
+                                      }),
+                                      _vm._v(" "),
+                                      _c("v-data-table", {
+                                        attrs: {
+                                          "item-key": "email",
+                                          headers: _vm.headers,
+                                          items: _vm.users,
+                                          search: _vm.search,
+                                          loading: _vm.users.length <= 0,
+                                          "loading-text": "Loading users"
+                                        }
+                                      })
+                                    ],
+                                    1
+                                  )
+                                ],
+                                1
+                              )
+                            ],
+                            1
+                          )
                         ],
                         1
                       )
@@ -1914,7 +1942,6 @@ var script$3 = Vue.extend({
         base64EncodeImport: {
             immediate: true,
             handler: function (newBase64EncodeImport) {
-                console.log(newBase64EncodeImport);
                 if (newBase64EncodeImport !== '' && newBase64EncodeImport !== undefined) {
                     this.encodedImport = false;
                 }
@@ -1937,14 +1964,12 @@ var script$3 = Vue.extend({
         fileImport: {
             immediate: false,
             handler: function (newFile) {
-                console.log(this.base64EncodeImport);
                 if (newFile !== undefined) {
                     this.toBase64Import(newFile);
                 }
                 else {
                     this.base64EncodeImport = '';
                 }
-                console.log(this.base64EncodeImport);
             }
         },
         fileUpdate: {
@@ -2055,148 +2080,183 @@ var __vue_render__$3 = function() {
     [
       _c(
         "v-card",
-        {
-          staticStyle: {
-            "margin-left": "auto",
-            "margin-right": "auto",
-            "padding-top": "20px",
-            "background-color": "#fcfcfc"
-          },
-          attrs: { flat: "", "min-width": "500" }
-        },
+        { attrs: { flat: "", "min-width": "500" } },
         [
           _c(
-            "v-card-title",
+            "v-card",
             {
-              staticClass: "justify-center",
-              staticStyle: {
-                "font-family": "Georgia, serif",
-                "font-weight": "bold"
-              }
+              staticStyle: { "background-color": "#ffb100" },
+              attrs: { "max-height": "60", dark: "" }
             },
-            [_vm._v("Import Teams CSV")]
-          ),
-          _vm._v(" "),
-          _c("v-divider"),
-          _vm._v(" "),
-          _c(
-            "v-card-text",
-            { staticClass: "justify-center" },
             [
-              _c("v-file-input", {
-                attrs: {
-                  id: "fileImport",
-                  type: "file",
-                  accept: ".csv",
-                  label: "Import CSV input"
-                },
-                model: {
-                  value: _vm.fileImport,
-                  callback: function($$v) {
-                    _vm.fileImport = $$v;
-                  },
-                  expression: "fileImport"
-                }
-              })
+              _c("v-card-title", { staticClass: "justify-center" }, [
+                _vm._v("Imports")
+              ])
             ],
             1
           ),
           _vm._v(" "),
           _c(
-            "v-card-actions",
-            { staticClass: "justify-center" },
+            "v-container",
             [
               _c(
-                "v-btn",
-                {
-                  attrs: {
-                    rounded: "",
-                    color: "primary",
-                    disabled: _vm.encodedImport
-                  },
-                  on: {
-                    click: function($event) {
-                      return _vm.submitFileImport()
-                    }
-                  }
-                },
-                [_vm._v("Submit")]
-              )
-            ],
-            1
-          )
-        ],
-        1
-      ),
-      _vm._v(" "),
-      _c(
-        "v-card",
-        {
-          staticStyle: {
-            "margin-left": "auto",
-            "margin-right": "auto",
-            "padding-top": "20px",
-            "background-color": "#fcfcfc"
-          },
-          attrs: { flat: "", "min-width": "500" }
-        },
-        [
-          _c(
-            "v-card-title",
-            {
-              staticClass: "justify-center",
-              staticStyle: {
-                "font-family": "Georgia, serif",
-                "font-weight": "bold"
-              }
-            },
-            [_vm._v("Update Teams Description CSV")]
-          ),
-          _vm._v(" "),
-          _c("v-divider"),
-          _vm._v(" "),
-          _c(
-            "v-card-text",
-            { staticClass: "justify-center" },
-            [
-              _c("v-file-input", {
-                attrs: {
-                  id: "fileUpdate",
-                  type: "file",
-                  accept: ".csv",
-                  label: "Update CSV input"
-                },
-                model: {
-                  value: _vm.fileUpdate,
-                  callback: function($$v) {
-                    _vm.fileUpdate = $$v;
-                  },
-                  expression: "fileUpdate"
-                }
-              })
-            ],
-            1
-          ),
-          _vm._v(" "),
-          _c(
-            "v-card-actions",
-            { staticClass: "justify-center" },
-            [
+                "v-row",
+                [
+                  _c(
+                    "v-col",
+                    [
+                      _c(
+                        "v-card",
+                        { attrs: { "min-width": "500" } },
+                        [
+                          _c(
+                            "v-card-title",
+                            { staticClass: "justify-center" },
+                            [
+                              _vm._v(
+                                "\n\t\t\t\t\t\t\tImport Teams CSV\n\t\t\t\t\t\t"
+                              )
+                            ]
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-card-text",
+                            { staticClass: "justify-center" },
+                            [
+                              _c("v-file-input", {
+                                attrs: {
+                                  id: "fileImport",
+                                  type: "file",
+                                  accept: ".csv",
+                                  label: "Import CSV input"
+                                },
+                                model: {
+                                  value: _vm.fileImport,
+                                  callback: function($$v) {
+                                    _vm.fileImport = $$v;
+                                  },
+                                  expression: "fileImport"
+                                }
+                              })
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-card-actions",
+                            { staticClass: "justify-center" },
+                            [
+                              _c(
+                                "v-btn",
+                                {
+                                  attrs: {
+                                    rounded: "",
+                                    color: "primary",
+                                    disabled: _vm.encodedImport
+                                  },
+                                  on: {
+                                    click: function($event) {
+                                      return _vm.submitFileImport()
+                                    }
+                                  }
+                                },
+                                [
+                                  _c("v-icon", [_vm._v("mdi-upload")]),
+                                  _vm._v("\tSubmit\n\t\t\t\t\t\t\t")
+                                ],
+                                1
+                              )
+                            ],
+                            1
+                          )
+                        ],
+                        1
+                      )
+                    ],
+                    1
+                  )
+                ],
+                1
+              ),
+              _vm._v(" "),
               _c(
-                "v-btn",
-                {
-                  attrs: {
-                    rounded: "",
-                    color: "primary",
-                    disabled: _vm.encodedUpdate
-                  },
-                  on: {
-                    click: function($event) {
-                      return _vm.submitFileUpdate()
-                    }
-                  }
-                },
-                [_vm._v("Submit")]
+                "v-row",
+                [
+                  _c(
+                    "v-col",
+                    [
+                      _c(
+                        "v-card",
+                        { attrs: { "min-width": "500" } },
+                        [
+                          _c(
+                            "v-card-title",
+                            { staticClass: "justify-center" },
+                            [
+                              _vm._v(
+                                "\n\t\t\t\t\t\t\tImport Teams Description CSV\n\t\t\t\t\t\t"
+                              )
+                            ]
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-card-text",
+                            { staticClass: "justify-center" },
+                            [
+                              _c("v-file-input", {
+                                attrs: {
+                                  id: "fileUpdate",
+                                  type: "file",
+                                  accept: ".csv",
+                                  label: "Update CSV input"
+                                },
+                                model: {
+                                  value: _vm.fileUpdate,
+                                  callback: function($$v) {
+                                    _vm.fileUpdate = $$v;
+                                  },
+                                  expression: "fileUpdate"
+                                }
+                              })
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-card-actions",
+                            { staticClass: "justify-center" },
+                            [
+                              _c(
+                                "v-btn",
+                                {
+                                  attrs: {
+                                    rounded: "",
+                                    color: "primary",
+                                    disabled: _vm.encodedUpdate
+                                  },
+                                  on: {
+                                    click: function($event) {
+                                      return _vm.submitFileUpdate()
+                                    }
+                                  }
+                                },
+                                [
+                                  _c("v-icon", [_vm._v("mdi-upload")]),
+                                  _vm._v("\tSubmit\n\t\t\t\t\t\t\t")
+                                ],
+                                1
+                              )
+                            ],
+                            1
+                          )
+                        ],
+                        1
+                      )
+                    ],
+                    1
+                  )
+                ],
+                1
               )
             ],
             1
@@ -2758,14 +2818,7 @@ var __vue_render__$4 = function() {
     [
       _c(
         "v-card",
-        {
-          staticStyle: {
-            "margin-left": "auto",
-            "margin-right": "auto",
-            "padding-top": "20px"
-          },
-          attrs: { flat: "" }
-        },
+        { attrs: { flat: "", "min-width": "500" } },
         [
           _c(
             "v-card-title",
@@ -3473,7 +3526,7 @@ var script$5 = Vue.extend({
                     },
                     {
                         id: MENU.CSV,
-                        title: "Import CSV",
+                        title: "Imports",
                         icon: "mdi-file-delimited",
                         link: "/admin/csv"
                     }
@@ -3571,9 +3624,8 @@ var script$6 = Vue.extend({
     data: function () {
         return {
             ui: UI$1.getInstance(),
-            preset: '',
-            presetTeams: [],
             city: '',
+            cityExp: '',
             cities: [
                 "Bucharest",
                 "Cluj",
@@ -3581,9 +3633,68 @@ var script$6 = Vue.extend({
                 "Sibiu",
                 "Timisoara"
             ],
+            workshopNo: '',
+            days: [
+                {
+                    value: 'Mon',
+                    text: 'Monday'
+                },
+                {
+                    value: 'Tue',
+                    text: 'Tuesday'
+                },
+                {
+                    value: 'Wed',
+                    text: 'Wednesday'
+                },
+                {
+                    value: 'Thu',
+                    text: 'Thursday'
+                },
+                {
+                    value: 'Fri',
+                    text: 'Friday'
+                }
+            ],
+            businessTrack: '',
+            businessTracks: [
+                "Agriculture",
+                "CyberSecurity",
+                "FinTech",
+                "Health&Lifestyle",
+                "Retail",
+                "SmartCity",
+                "SmartMobility",
+                "Other"
+            ],
+            semiFinals: false,
+            finals: false,
             teamDate: '',
             cityDate: '',
             date: '',
+            exportType: '',
+            exportTypes: [
+                {
+                    text: 'PowerPoint Presentation',
+                    value: 'pres'
+                },
+                {
+                    text: 'Presentation Video',
+                    value: 'presVid'
+                },
+                {
+                    text: 'Tehnic Demo Video',
+                    value: 'demoVid'
+                },
+                {
+                    text: 'Images',
+                    value: 'image'
+                },
+                {
+                    text: 'Logo Image',
+                    value: 'logo'
+                }
+            ],
             dates: [
                 {
                     text: 'All Teams',
@@ -3678,9 +3789,36 @@ var script$6 = Vue.extend({
         update: function (prop) {
             this.snackbar = prop;
         },
+        exportCEO: function () {
+            return __awaiter(this, void 0, void 0, function () {
+                var response, hiddenElement, e_2;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            _a.trys.push([0, 2, , 3]);
+                            return [4 /*yield*/, this.ui.api.get("/api/v1/admin/download/ceo/data")];
+                        case 1:
+                            response = _a.sent();
+                            if (response) {
+                                hiddenElement = document.createElement('a');
+                                hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(response.data);
+                                hiddenElement.target = '_blank';
+                                hiddenElement.download = 'Export.csv';
+                                hiddenElement.click();
+                            }
+                            return [3 /*break*/, 3];
+                        case 2:
+                            e_2 = _a.sent();
+                            console.error(e_2);
+                            return [3 /*break*/, 3];
+                        case 3: return [2 /*return*/];
+                    }
+                });
+            });
+        },
         exportTeamZip: function (type, option) {
             return __awaiter(this, void 0, void 0, function () {
-                var body_1, response, noUpload_1, statusFunction_1, e_2;
+                var body_1, response, noUpload_1, statusFunction_1, e_3;
                 var _this = this;
                 return __generator(this, function (_a) {
                     switch (_a.label) {
@@ -3692,26 +3830,22 @@ var script$6 = Vue.extend({
                                 body_1 = {
                                     type: type,
                                     date: this.teamDate,
-                                    cityOrTeam: ''
+                                    city: null,
+                                    team: null
                                 };
                             else if (type === 'team')
                                 body_1 = {
                                     type: type,
                                     date: 'none',
-                                    cityOrTeam: this.team
+                                    city: null,
+                                    team: this.team
                                 };
                             else if (type === 'city')
                                 body_1 = {
                                     type: type,
                                     date: this.cityDate,
-                                    cityOrTeam: this.city
-                                };
-                            else if (type === 'preset')
-                                body_1 = {
-                                    type: type,
-                                    date: 'none',
-                                    cityOrTeam: this.preset,
-                                    option: option
+                                    city: this.city,
+                                    team: null
                                 };
                             return [4 /*yield*/, this.ui.api.post("/api/v1/uploadDownload/download/zip/", body_1)];
                         case 1:
@@ -3742,11 +3876,11 @@ var script$6 = Vue.extend({
                                     return __generator(this, function (_a) {
                                         switch (_a.label) {
                                             case 0:
-                                                _a.trys.push([0, 2, , 3]);
+                                                _a.trys.push([0, 2, , 7]);
                                                 return [4 /*yield*/, this.ui.api.post("/api/v1/uploadDownload/check/zip/status/", body_1)];
                                             case 1:
                                                 response_1 = _a.sent();
-                                                if (response_1.data) {
+                                                if (response_1.data !== null) {
                                                     if (response_1.data === "ERROR") {
                                                         this.snackOptions.text = "Server ERROR; Please contact teams@tech-lounge.ro for more information";
                                                         this.snackOptions.type = SnackBarTypes.ERROR;
@@ -3764,27 +3898,31 @@ var script$6 = Vue.extend({
                                                         this.openUrl(response_1.data);
                                                         return [2 /*return*/];
                                                     }
-                                                    if (!this.toStop)
+                                                    if (!this.toStop) {
                                                         setTimeout(statusFunction_1, 1000);
+                                                    }
                                                 }
-                                                return [3 /*break*/, 3];
+                                                return [3 /*break*/, 7];
                                             case 2:
                                                 error_1 = _a.sent();
-                                                if (error_1.response.status === 401 || error_1.response.status === 502) {
-                                                    if (!this.toStop)
-                                                        setTimeout(statusFunction_1, 1000);
-                                                }
-                                                else {
-                                                    console.error(error_1);
-                                                    this.snackOptions.text = "Server ERROR; Please contact teams@tech-lounge.ro for more information";
-                                                    this.snackOptions.type = SnackBarTypes.ERROR;
-                                                    this.snackOptions.timeout = 2000;
-                                                    this.snackbar = true;
-                                                    this.loadingPage = false;
-                                                    this.toStop = true;
-                                                }
-                                                return [3 /*break*/, 3];
-                                            case 3: return [2 /*return*/];
+                                                if (!(error_1.response.status === 401 || error_1.response.status === 502)) return [3 /*break*/, 5];
+                                                if (!!this.toStop) return [3 /*break*/, 4];
+                                                return [4 /*yield*/, setTimeout(statusFunction_1, 1000)];
+                                            case 3:
+                                                _a.sent();
+                                                _a.label = 4;
+                                            case 4: return [3 /*break*/, 6];
+                                            case 5:
+                                                console.error(error_1);
+                                                this.snackOptions.text = "Server ERROR; Please contact teams@tech-lounge.ro for more information";
+                                                this.snackOptions.type = SnackBarTypes.ERROR;
+                                                this.snackOptions.timeout = 2000;
+                                                this.snackbar = true;
+                                                this.loadingPage = false;
+                                                this.toStop = true;
+                                                _a.label = 6;
+                                            case 6: return [3 /*break*/, 7];
+                                            case 7: return [2 /*return*/];
                                         }
                                     });
                                 }); };
@@ -3798,17 +3936,17 @@ var script$6 = Vue.extend({
                             }
                             return [3 /*break*/, 3];
                         case 2:
-                            e_2 = _a.sent();
-                            console.error(e_2);
+                            e_3 = _a.sent();
+                            console.error(e_3);
                             return [3 /*break*/, 3];
                         case 3: return [2 /*return*/];
                     }
                 });
             });
         },
-        exportZip: function (type) {
+        exportCertainZip: function (type) {
             return __awaiter(this, void 0, void 0, function () {
-                var response, url, e_3;
+                var response, url, e_4;
                 return __generator(this, function (_a) {
                     switch (_a.label) {
                         case 0:
@@ -3835,8 +3973,8 @@ var script$6 = Vue.extend({
                             }
                             return [3 /*break*/, 3];
                         case 2:
-                            e_3 = _a.sent();
-                            console.error(e_3);
+                            e_4 = _a.sent();
+                            console.error(e_4);
                             return [3 /*break*/, 3];
                         case 3:
                             this.loadingPage = false;
@@ -3845,56 +3983,47 @@ var script$6 = Vue.extend({
                 });
             });
         },
-        exportUDC: function () {
+        exportZip: function (city) {
             return __awaiter(this, void 0, void 0, function () {
-                var response, hiddenElement, e_4;
+                var options, response, url, e_5;
                 return __generator(this, function (_a) {
                     switch (_a.label) {
                         case 0:
                             _a.trys.push([0, 2, , 3]);
-                            return [4 /*yield*/, this.ui.api.post("/api/v1/admin/download/udc/data")];
+                            this.loadingPage = true;
+                            options = {
+                                businessTrack: this.businessTrack,
+                                workshopNo: this.workshopNo,
+                                semiFinals: this.semiFinals,
+                                fianls: this.finals,
+                            };
+                            return [4 /*yield*/, this.ui.api.post("/api/v1/uploadDownload/download/zip/" + city, options)];
                         case 1:
                             response = _a.sent();
-                            if (response.data) {
-                                hiddenElement = document.createElement('a');
-                                hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(response.data);
-                                hiddenElement.target = '_blank';
-                                hiddenElement.download = 'users.csv';
-                                hiddenElement.click();
+                            if (response.status === 200 && response.data) {
+                                url = response.data;
+                                window.open(url, '_blank');
                             }
-                            return [3 /*break*/, 3];
-                        case 2:
-                            e_4 = _a.sent();
-                            console.error(e_4);
-                            return [3 /*break*/, 3];
-                        case 3: return [2 /*return*/];
-                    }
-                });
-            });
-        },
-        exportTDD: function () {
-            return __awaiter(this, void 0, void 0, function () {
-                var response, hiddenElement, e_5;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            _a.trys.push([0, 2, , 3]);
-                            return [4 /*yield*/, this.ui.api.post("/api/v1/admin/download/team/data")];
-                        case 1:
-                            response = _a.sent();
-                            if (response.data) {
-                                hiddenElement = document.createElement('a');
-                                hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(response.data);
-                                hiddenElement.target = '_blank';
-                                hiddenElement.download = 'team.csv';
-                                hiddenElement.click();
+                            else if (response.status === 204) {
+                                this.snackOptions.text = "There are no files uploaded for any of the teams";
+                                this.snackOptions.type = SnackBarTypes.INFO;
+                                this.snackOptions.timeout = 2000;
+                                this.snackbar = true;
+                            }
+                            else {
+                                this.snackOptions.text = "Server ERROR; Please contact teams@tech-lounge.ro for more information";
+                                this.snackOptions.type = SnackBarTypes.ERROR;
+                                this.snackOptions.timeout = 2000;
+                                this.snackbar = true;
                             }
                             return [3 /*break*/, 3];
                         case 2:
                             e_5 = _a.sent();
                             console.error(e_5);
                             return [3 /*break*/, 3];
-                        case 3: return [2 /*return*/];
+                        case 3:
+                            this.loadingPage = false;
+                            return [2 /*return*/];
                     }
                 });
             });
@@ -3912,6 +4041,59 @@ var script$6 = Vue.extend({
     }
 });
 
+const isOldIE = typeof navigator !== 'undefined' &&
+    /msie [6-9]\\b/.test(navigator.userAgent.toLowerCase());
+function createInjector(context) {
+    return (id, style) => addStyle(id, style);
+}
+let HEAD;
+const styles = {};
+function addStyle(id, css) {
+    const group = isOldIE ? css.media || 'default' : id;
+    const style = styles[group] || (styles[group] = { ids: new Set(), styles: [] });
+    if (!style.ids.has(id)) {
+        style.ids.add(id);
+        let code = css.source;
+        if (css.map) {
+            // https://developer.chrome.com/devtools/docs/javascript-debugging
+            // this makes source maps inside style tags work properly in Chrome
+            code += '\n/*# sourceURL=' + css.map.sources[0] + ' */';
+            // http://stackoverflow.com/a/26603875
+            code +=
+                '\n/*# sourceMappingURL=data:application/json;base64,' +
+                    btoa(unescape(encodeURIComponent(JSON.stringify(css.map)))) +
+                    ' */';
+        }
+        if (!style.element) {
+            style.element = document.createElement('style');
+            style.element.type = 'text/css';
+            if (css.media)
+                style.element.setAttribute('media', css.media);
+            if (HEAD === undefined) {
+                HEAD = document.head || document.getElementsByTagName('head')[0];
+            }
+            HEAD.appendChild(style.element);
+        }
+        if ('styleSheet' in style.element) {
+            style.styles.push(code);
+            style.element.styleSheet.cssText = style.styles
+                .filter(Boolean)
+                .join('\n');
+        }
+        else {
+            const index = style.ids.size - 1;
+            const textNode = document.createTextNode(code);
+            const nodes = style.element.childNodes;
+            if (nodes[index])
+                style.element.removeChild(nodes[index]);
+            if (nodes.length)
+                style.element.insertBefore(textNode, nodes[index]);
+            else
+                style.element.appendChild(textNode);
+        }
+    }
+}
+
 /* script */
 const __vue_script__$6 = script$6;
 
@@ -3925,16 +4107,22 @@ var __vue_render__$6 = function() {
     [
       _c(
         "v-card",
-        {
-          staticStyle: {
-            "margin-left": "auto",
-            "margin-right": "auto",
-            "padding-top": "20px",
-            "background-color": "#fcfcfc"
-          },
-          attrs: { flat: "", "min-width": "500" }
-        },
+        { attrs: { flat: "", "min-width": "500" } },
         [
+          _c(
+            "v-card",
+            {
+              staticStyle: { "background-color": "#ffb100" },
+              attrs: { "max-height": "60", dark: "" }
+            },
+            [
+              _c("v-card-title", { staticClass: "justify-center" }, [
+                _vm._v("Exports")
+              ])
+            ],
+            1
+          ),
+          _vm._v(" "),
           _c(
             "v-container",
             {
@@ -3949,148 +4137,91 @@ var __vue_render__$6 = function() {
             },
             [
               _c(
-                "v-card-title",
+                "div",
                 {
-                  staticClass: "justify-center",
                   staticStyle: {
-                    "font-family": "Georgia, serif",
-                    "font-weight": "bold"
+                    display: "grid",
+                    "grid-template-columns":
+                      "repeat(auto-fit, minmax(300px, 1fr))",
+                    "grid-gap": "10px"
                   }
                 },
-                [_vm._v("Export Data")]
-              ),
-              _vm._v(" "),
-              _c("v-divider"),
-              _vm._v(" "),
-              _c("v-card-text", { staticClass: "justify-center" }, [
-                _vm._v("\n\t\t\t\tMultiple export options\n\t\t\t")
-              ]),
-              _vm._v(" "),
-              _c(
-                "v-card-actions",
-                { staticClass: "justify-center" },
                 [
                   _c(
-                    "v-btn",
-                    {
-                      attrs: { rounded: "", color: "primary" },
-                      on: {
-                        click: function($event) {
-                          return _vm.exportUDC()
-                        }
-                      }
-                    },
+                    "v-card",
                     [
-                      _vm._v(
-                        "Extract csv with upload/description/canvas information"
-                      )
-                    ]
-                  )
-                ],
-                1
-              ),
-              _vm._v(" "),
-              _c(
-                "v-card-actions",
-                { staticClass: "justify-center" },
-                [
-                  _c(
-                    "v-btn",
-                    {
-                      attrs: { rounded: "", color: "primary" },
-                      on: {
-                        click: function($event) {
-                          return _vm.exportTDD()
-                        }
-                      }
-                    },
-                    [
-                      _vm._v(
-                        "Extract csv with description, name, business track, team track"
-                      )
-                    ]
-                  )
-                ],
-                1
-              ),
-              _vm._v(" "),
-              _c("v-divider"),
-              _vm._v(" "),
-              _c(
-                "v-row",
-                { attrs: { align: "center" } },
-                [
-                  _c("v-select", {
-                    attrs: {
-                      items: _vm.teams,
-                      label: "Select a team you wish to export",
-                      "item-text": "teamName",
-                      "item-value": "productId",
-                      hint: "Please make sure to select a value",
-                      "persistent-hint": ""
-                    },
-                    model: {
-                      value: _vm.team,
-                      callback: function($$v) {
-                        _vm.team = $$v;
-                      },
-                      expression: "team"
-                    }
-                  })
-                ],
-                1
-              ),
-              _vm._v(" "),
-              _c(
-                "v-row",
-                { attrs: { align: "center" } },
-                [
-                  _c(
-                    "v-btn",
-                    {
-                      attrs: {
-                        disabled: _vm.team === "",
-                        rounded: "",
-                        color: "primary"
-                      },
-                      on: {
-                        click: function($event) {
-                          return _vm.exportTeamZip("team")
-                        }
-                      }
-                    },
-                    [_vm._v("Download team zip")]
-                  )
-                ],
-                1
-              ),
-              _vm._v(" "),
-              _c(
-                "v-row",
-                [
-                  _c(
-                    "v-col",
-                    { attrs: { cols: "6", align: "center" } },
-                    [
-                      _c(
-                        "v-card-title",
-                        {
-                          staticClass: "justify-center",
-                          staticStyle: {
-                            "font-family": "Georgia, serif",
-                            "font-weight": "bold"
-                          }
-                        },
-                        [_vm._v("All Teams")]
-                      ),
+                      _c("v-card-title", { staticClass: "justify-center" }, [
+                        _vm._v("\n\t\t\t\t\t\tCustom Exports\n\t\t\t\t\t")
+                      ]),
+                      _vm._v(" "),
+                      _c("v-card-text", [
+                        _c("span", [
+                          _vm._v("\n\t\t\t\t\t\t\tContains:\n\t\t\t\t\t\t")
+                        ]),
+                        _vm._v(" "),
+                        _c(
+                          "div",
+                          {
+                            staticStyle: {
+                              display: "grid",
+                              "grid-template-columns":
+                                "repeat(auto-fit, minmax(50px,1fr))",
+                              "grid-gap": "2px"
+                            }
+                          },
+                          [
+                            _c("p", [
+                              _vm._v(
+                                "\n\t\t\t\t\t\t\t\tLocation,\n\t\t\t\t\t\t\t\tTeam Name,\n\t\t\t\t\t\t\t\tTeam Track,\n\t\t\t\t\t\t\t\tBusiness Track,\n\t\t\t\t\t\t\t\tRO Description,\n\t\t\t\t\t\t\t\tName of CEO,\n\t\t\t\t\t\t\t\tEmail of CEO,\n\t\t\t\t\t\t\t\tTelephone of CEO\n\t\t\t\t\t\t\t"
+                              )
+                            ])
+                          ]
+                        )
+                      ]),
                       _vm._v(" "),
                       _c(
-                        "v-row",
+                        "v-card-actions",
+                        { staticClass: "justify-center" },
+                        [
+                          _c(
+                            "v-btn",
+                            {
+                              attrs: { rounded: "", color: "primary" },
+                              on: {
+                                click: function($event) {
+                                  return _vm.exportCEO()
+                                }
+                              }
+                            },
+                            [
+                              _c("v-icon", [_vm._v("mdi-download")]),
+                              _vm._v(" Download \n\t\t\t\t\t\t")
+                            ],
+                            1
+                          )
+                        ],
+                        1
+                      )
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-card",
+                    [
+                      _c("v-card-title", { staticClass: "justify-center" }, [
+                        _vm._v(
+                          "\n\t\t\t\t\t\tAll teams | All resources\n\t\t\t\t\t"
+                        )
+                      ]),
+                      _vm._v(" "),
+                      _c(
+                        "v-card-text",
                         [
                           _c("v-select", {
                             attrs: {
                               items: _vm.dates,
-                              label: "Select type of exports for teams",
+                              label: "Select which teams to export",
                               "item-text": "text",
                               "item-value": "value",
                               hint: "Please make sure to select a value",
@@ -4103,8 +4234,15 @@ var __vue_render__$6 = function() {
                               },
                               expression: "teamDate"
                             }
-                          }),
-                          _vm._v(" "),
+                          })
+                        ],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-card-actions",
+                        { staticClass: "justify-center" },
+                        [
                           _c(
                             "v-btn",
                             {
@@ -4119,7 +4257,11 @@ var __vue_render__$6 = function() {
                                 }
                               }
                             },
-                            [_vm._v("Download all teams zip")]
+                            [
+                              _c("v-icon", [_vm._v("mdi-download")]),
+                              _vm._v(" Download\n\t\t\t\t\t\t")
+                            ],
+                            1
                           )
                         ],
                         1
@@ -4129,378 +4271,339 @@ var __vue_render__$6 = function() {
                   ),
                   _vm._v(" "),
                   _c(
-                    "v-col",
-                    { attrs: { cols: "6", align: "center" } },
+                    "v-card",
                     [
-                      _c("v-select", {
-                        attrs: {
-                          items: _vm.dates,
-                          label: "Select type of exports for resource",
-                          "item-text": "text",
-                          "item-value": "value",
-                          hint: "Please make sure to select a value",
-                          "persistent-hint": ""
-                        },
-                        model: {
-                          value: _vm.date,
-                          callback: function($$v) {
-                            _vm.date = $$v;
-                          },
-                          expression: "date"
-                        }
-                      })
-                    ],
-                    1
-                  )
-                ],
-                1
-              ),
-              _vm._v(" "),
-              _c(
-                "v-row",
-                [
-                  _c(
-                    "v-col",
-                    { attrs: { cols: "6", align: "center" } },
-                    [
+                      _c("v-card-title", { staticClass: "justify-center" }, [
+                        _vm._v(
+                          "\n\t\t\t\t\t\tSpecific City teams | All resources\n\t\t\t\t\t"
+                        )
+                      ]),
+                      _vm._v(" "),
                       _c(
-                        "v-row",
+                        "v-card-text",
                         [
                           _c(
-                            "v-card-title",
-                            {
-                              staticClass: "justify-center",
-                              staticStyle: {
-                                "font-family": "Georgia, serif",
-                                "font-weight": "bold"
-                              }
-                            },
-                            [_vm._v("City Teams")]
-                          ),
-                          _vm._v(" "),
-                          _c(
                             "v-row",
                             [
-                              _c(
-                                "v-col",
-                                [
-                                  _c("v-select", {
-                                    attrs: {
-                                      items: _vm.cities,
-                                      label:
-                                        "Select the city you wish to export",
-                                      "item-text": "text",
-                                      "item-value": "value",
-                                      hint:
-                                        "Please make sure to select a value",
-                                      "persistent-hint": ""
-                                    },
-                                    model: {
-                                      value: _vm.city,
-                                      callback: function($$v) {
-                                        _vm.city = $$v;
-                                      },
-                                      expression: "city"
-                                    }
-                                  })
-                                ],
-                                1
-                              ),
-                              _vm._v(" "),
-                              _c(
-                                "v-col",
-                                [
-                                  _c("v-select", {
-                                    attrs: {
-                                      items: _vm.dates,
-                                      label:
-                                        "Select type of exports for city teams",
-                                      "item-text": "text",
-                                      "item-value": "value",
-                                      hint:
-                                        "Please make sure to select a value",
-                                      "persistent-hint": ""
-                                    },
-                                    model: {
-                                      value: _vm.cityDate,
-                                      callback: function($$v) {
-                                        _vm.cityDate = $$v;
-                                      },
-                                      expression: "cityDate"
-                                    }
-                                  })
-                                ],
-                                1
-                              )
-                            ],
-                            1
-                          ),
-                          _vm._v(" "),
-                          _c(
-                            "v-row",
-                            [
-                              _c(
-                                "v-btn",
-                                {
-                                  attrs: {
-                                    disabled:
-                                      _vm.city === "" || _vm.cityDate === "",
-                                    rounded: "",
-                                    color: "primary"
-                                  },
-                                  on: {
-                                    click: function($event) {
-                                      return _vm.exportTeamZip("city")
-                                    }
-                                  }
+                              _c("v-select", {
+                                attrs: {
+                                  items: _vm.cities,
+                                  label: "Select the city you wish to export",
+                                  "item-text": "text",
+                                  "item-value": "value",
+                                  hint: "Please make sure to select a value",
+                                  "persistent-hint": ""
                                 },
-                                [_vm._v("Download city teams zip")]
-                              )
+                                model: {
+                                  value: _vm.city,
+                                  callback: function($$v) {
+                                    _vm.city = $$v;
+                                  },
+                                  expression: "city"
+                                }
+                              })
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-row",
+                            [
+                              _c("v-select", {
+                                attrs: {
+                                  items: _vm.dates,
+                                  label:
+                                    "Select type of exports for city teams",
+                                  "item-text": "text",
+                                  "item-value": "value",
+                                  hint: "Please make sure to select a value",
+                                  "persistent-hint": ""
+                                },
+                                model: {
+                                  value: _vm.cityDate,
+                                  callback: function($$v) {
+                                    _vm.cityDate = $$v;
+                                  },
+                                  expression: "cityDate"
+                                }
+                              })
                             ],
                             1
                           )
                         ],
                         1
-                      )
-                    ],
-                    1
-                  ),
-                  _vm._v(" "),
-                  _c(
-                    "v-col",
-                    { attrs: { cols: "6", align: "center" } },
-                    [
-                      _c(
-                        "v-row",
-                        [
-                          _c(
-                            "v-btn",
-                            {
-                              attrs: {
-                                disabled: _vm.date === "",
-                                rounded: "",
-                                color: "primary"
-                              },
-                              on: {
-                                click: function($event) {
-                                  return _vm.exportZip("pres")
-                                }
-                              }
-                            },
-                            [_vm._v("Download pptx zip")]
-                          )
-                        ],
-                        1
                       ),
                       _vm._v(" "),
                       _c(
-                        "v-row",
+                        "v-card-actions",
+                        { staticClass: "justify-center" },
                         [
-                          _c(
-                            "v-btn",
-                            {
-                              attrs: {
-                                disabled: _vm.date === "",
-                                rounded: "",
-                                color: "primary"
-                              },
-                              on: {
-                                click: function($event) {
-                                  return _vm.exportZip("demoVid")
-                                }
-                              }
-                            },
-                            [_vm._v("Download tehnic demo video zip")]
-                          )
-                        ],
-                        1
-                      ),
-                      _vm._v(" "),
-                      _c(
-                        "v-row",
-                        [
-                          _c(
-                            "v-btn",
-                            {
-                              attrs: {
-                                disabled: _vm.date === "",
-                                rounded: "",
-                                color: "primary"
-                              },
-                              on: {
-                                click: function($event) {
-                                  return _vm.exportZip("presVid")
-                                }
-                              }
-                            },
-                            [_vm._v("Download presentation video zip")]
-                          )
-                        ],
-                        1
-                      ),
-                      _vm._v(" "),
-                      _c(
-                        "v-row",
-                        [
-                          _c(
-                            "v-btn",
-                            {
-                              attrs: {
-                                disabled: _vm.date === "",
-                                rounded: "",
-                                color: "primary"
-                              },
-                              on: {
-                                click: function($event) {
-                                  return _vm.exportZip("image")
-                                }
-                              }
-                            },
-                            [_vm._v("Download images zip")]
-                          )
-                        ],
-                        1
-                      ),
-                      _vm._v(" "),
-                      _c(
-                        "v-row",
-                        [
-                          _c(
-                            "v-btn",
-                            {
-                              attrs: {
-                                disabled: _vm.date === "",
-                                rounded: "",
-                                color: "primary"
-                              },
-                              on: {
-                                click: function($event) {
-                                  return _vm.exportZip("logo")
-                                }
-                              }
-                            },
-                            [_vm._v("Download logo zip")]
-                          )
-                        ],
-                        1
-                      )
-                    ],
-                    1
-                  )
-                ],
-                1
-              ),
-              _vm._v(" "),
-              _c(
-                "v-row",
-                [
-                  _c(
-                    "v-col",
-                    { attrs: { cols: "6", align: "center" } },
-                    [
-                      _c(
-                        "v-row",
-                        [
-                          _c(
-                            "v-card-title",
-                            {
-                              staticClass: "justify-center",
-                              staticStyle: {
-                                "font-family": "Georgia, serif",
-                                "font-weight": "bold"
-                              }
-                            },
-                            [_vm._v("Preset Teams")]
-                          ),
-                          _vm._v(" "),
-                          _c("v-select", {
-                            attrs: {
-                              items: _vm.presetTeams,
-                              label: "Select the preset teams export",
-                              "item-text": "text",
-                              "item-value": "value",
-                              hint: "Please make sure to select a value",
-                              "persistent-hint": ""
-                            },
-                            model: {
-                              value: _vm.preset,
-                              callback: function($$v) {
-                                _vm.preset = $$v;
-                              },
-                              expression: "preset"
-                            }
-                          }),
-                          _vm._v(" "),
-                          _c(
-                            "v-btn",
-                            {
-                              attrs: {
-                                disabled: _vm.preset === "",
-                                rounded: "",
-                                color: "primary"
-                              },
-                              on: {
-                                click: function($event) {
-                                  return _vm.exportTeamZip("preset")
-                                }
-                              }
-                            },
-                            [_vm._v("Download preset teams zip")]
-                          )
-                        ],
-                        1
-                      )
-                    ],
-                    1
-                  )
-                ],
-                1
-              ),
-              _vm._v(" "),
-              _c(
-                "v-row",
-                [
-                  _c(
-                    "v-col",
-                    { attrs: { cols: "6", align: "center" } },
-                    [
-                      _c(
-                        "v-row",
-                        [
-                          _c("v-select", {
-                            attrs: {
-                              items: _vm.options,
-                              label: "Select the preset teams export",
-                              "item-text": "text",
-                              "item-value": "value",
-                              hint: "Please make sure to select a value",
-                              "persistent-hint": ""
-                            },
-                            model: {
-                              value: _vm.option,
-                              callback: function($$v) {
-                                _vm.option = $$v;
-                              },
-                              expression: "option"
-                            }
-                          }),
-                          _vm._v(" "),
                           _c(
                             "v-btn",
                             {
                               attrs: {
                                 disabled:
-                                  _vm.preset === "" || _vm.option === "",
+                                  _vm.city === "" || _vm.cityDate === "",
                                 rounded: "",
                                 color: "primary"
                               },
                               on: {
                                 click: function($event) {
-                                  return _vm.exportTeamZip("preset", _vm.option)
+                                  return _vm.exportTeamZip("city")
                                 }
                               }
                             },
-                            [_vm._v("Download preset teams resource")]
+                            [
+                              _c("v-icon", [_vm._v("mdi-download")]),
+                              _vm._v(" Download\n\t\t\t\t\t\t")
+                            ],
+                            1
+                          )
+                        ],
+                        1
+                      )
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-card",
+                    [
+                      _c("v-card-title", { staticClass: "justify-center" }, [
+                        _vm._v(
+                          "\n\t\t\t\t\t\tAll teams | Certain resources\n\t\t\t\t\t"
+                        )
+                      ]),
+                      _vm._v(" "),
+                      _c(
+                        "v-card-text",
+                        [
+                          _c(
+                            "v-row",
+                            [
+                              _c("v-select", {
+                                attrs: {
+                                  items: _vm.dates,
+                                  label: "Select which type of teams to export",
+                                  "item-text": "text",
+                                  "item-value": "value",
+                                  hint: "Please make sure to select a value",
+                                  "persistent-hint": ""
+                                },
+                                model: {
+                                  value: _vm.date,
+                                  callback: function($$v) {
+                                    _vm.date = $$v;
+                                  },
+                                  expression: "date"
+                                }
+                              })
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-row",
+                            [
+                              _c("v-select", {
+                                attrs: {
+                                  items: _vm.exportTypes,
+                                  label:
+                                    "Select the type of exports for resource",
+                                  "item-text": "text",
+                                  "item-value": "value",
+                                  hint: "Please make sure to select a value",
+                                  "persistent-hint": ""
+                                },
+                                model: {
+                                  value: _vm.exportType,
+                                  callback: function($$v) {
+                                    _vm.exportType = $$v;
+                                  },
+                                  expression: "exportType"
+                                }
+                              })
+                            ],
+                            1
+                          )
+                        ],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-card-actions",
+                        { staticClass: "justify-center" },
+                        [
+                          _c(
+                            "v-btn",
+                            {
+                              attrs: {
+                                disabled:
+                                  _vm.date === "" || _vm.exportType === "",
+                                rounded: "",
+                                color: "primary"
+                              },
+                              on: {
+                                click: function($event) {
+                                  return _vm.exportCertainZip(_vm.exportType)
+                                }
+                              }
+                            },
+                            [
+                              _c("v-icon", [_vm._v("mdi-download")]),
+                              _vm._v(" Download ")
+                            ],
+                            1
+                          )
+                        ],
+                        1
+                      )
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-card",
+                    [
+                      _c("v-card-title", { staticClass: "justify-center" }, [
+                        _vm._v("\n\t\t\t\t\t\tEXPORT\n\t\t\t\t\t")
+                      ]),
+                      _vm._v(" "),
+                      _c("v-card-text", [
+                        _c(
+                          "div",
+                          {
+                            staticStyle: {
+                              display: "grid",
+                              "grid-template-columns": "1fr",
+                              "grid-gap": "5px"
+                            }
+                          },
+                          [
+                            _c("v-select", {
+                              attrs: {
+                                items: _vm.cities,
+                                label: "Select the city you wish to export",
+                                "item-text": "text",
+                                "item-value": "value",
+                                hint: "Please make sure to select a value",
+                                "persistent-hint": ""
+                              },
+                              model: {
+                                value: _vm.cityExp,
+                                callback: function($$v) {
+                                  _vm.cityExp = $$v;
+                                },
+                                expression: "cityExp"
+                              }
+                            }),
+                            _vm._v(" "),
+                            _c("v-select", {
+                              attrs: {
+                                items: _vm.businessTracks,
+                                label: "Select the business track",
+                                "item-text": "text",
+                                "item-value": "value",
+                                hint: "Please make sure to select a value",
+                                "persistent-hint": ""
+                              },
+                              model: {
+                                value: _vm.businessTrack,
+                                callback: function($$v) {
+                                  _vm.businessTrack = $$v;
+                                },
+                                expression: "businessTrack"
+                              }
+                            }),
+                            _vm._v(" "),
+                            _c("v-select", {
+                              attrs: {
+                                items: _vm.days,
+                                label: "Select the workshopDay",
+                                "item-text": "text",
+                                "item-value": "value",
+                                hint: "Please make sure to select a value",
+                                "persistent-hint": ""
+                              },
+                              model: {
+                                value: _vm.workshopNo,
+                                callback: function($$v) {
+                                  _vm.workshopNo = $$v;
+                                },
+                                expression: "workshopNo"
+                              }
+                            }),
+                            _vm._v(" "),
+                            _c(
+                              "div",
+                              {
+                                staticStyle: {
+                                  display: "grid",
+                                  "template-grid-columns": "1fr 1fr"
+                                }
+                              },
+                              [
+                                _c("v-checkbox", {
+                                  attrs: {
+                                    color: "#ffb100",
+                                    label: "Is in Semifinals"
+                                  },
+                                  model: {
+                                    value: _vm.semiFinals,
+                                    callback: function($$v) {
+                                      _vm.semiFinals = $$v;
+                                    },
+                                    expression: "semiFinals"
+                                  }
+                                }),
+                                _vm._v(" "),
+                                _c("v-checkbox", {
+                                  attrs: {
+                                    color: "#ffb100",
+                                    label: "Is in Finals?"
+                                  },
+                                  model: {
+                                    value: _vm.finals,
+                                    callback: function($$v) {
+                                      _vm.finals = $$v;
+                                    },
+                                    expression: "finals"
+                                  }
+                                })
+                              ],
+                              1
+                            )
+                          ],
+                          1
+                        )
+                      ]),
+                      _vm._v(" "),
+                      _c(
+                        "v-card-actions",
+                        { staticClass: "justify-center" },
+                        [
+                          _c(
+                            "v-btn",
+                            {
+                              attrs: {
+                                disabled:
+                                  _vm.cityExp === "" ||
+                                  _vm.businessTrack === "" ||
+                                  _vm.workshopNo === "",
+                                rounded: "",
+                                color: "primary"
+                              },
+                              on: {
+                                click: function($event) {
+                                  return _vm.exportTeamZip("city")
+                                }
+                              }
+                            },
+                            [
+                              _c("v-icon", [_vm._v("mdi-download")]),
+                              _vm._v(" Download\n\t\t\t\t\t\t")
+                            ],
+                            1
                           )
                         ],
                         1
@@ -4511,8 +4614,7 @@ var __vue_render__$6 = function() {
                 ],
                 1
               )
-            ],
-            1
+            ]
           ),
           _vm._v(" "),
           _c(
@@ -4532,7 +4634,7 @@ var __vue_render__$6 = function() {
                 "v-card",
                 {
                   staticClass: "justify-center",
-                  attrs: { flat: "", outlined: "", color: "#fcfcfc" }
+                  attrs: { flat: "", outlined: "" }
                 },
                 [
                   _c(
@@ -4607,15 +4709,17 @@ var __vue_staticRenderFns__$6 = [];
 __vue_render__$6._withStripped = true;
 
   /* style */
-  const __vue_inject_styles__$6 = undefined;
+  const __vue_inject_styles__$6 = function (inject) {
+    if (!inject) return
+    inject("data-v-ff136712_0", { source: ".contained .v-col .v-card {\n  min-height: 10%;\n  background-color: red;\n  height: clamp(10%, 248px, 50%);\n}\n.export-grid {\n  display: grid;\n  grid-template-columns: 5fr 5fr 5fr;\n}\n", map: {"version":3,"sources":["ExportView.vue"],"names":[],"mappings":"AAAA;EACE,eAAe;EACf,qBAAqB;EACrB,8BAA8B;AAChC;AACA;EACE,aAAa;EACb,kCAAkC;AACpC","file":"ExportView.vue","sourcesContent":[".contained .v-col .v-card {\n  min-height: 10%;\n  background-color: red;\n  height: clamp(10%, 248px, 50%);\n}\n.export-grid {\n  display: grid;\n  grid-template-columns: 5fr 5fr 5fr;\n}\n"]}, media: undefined });
+
+  };
   /* scoped */
   const __vue_scope_id__$6 = undefined;
   /* module identifier */
   const __vue_module_identifier__$6 = undefined;
   /* functional template */
   const __vue_is_functional_template__$6 = false;
-  /* style inject */
-  
   /* style inject SSR */
   
   /* style inject shadow dom */
@@ -4630,7 +4734,7 @@ __vue_render__$6._withStripped = true;
     __vue_is_functional_template__$6,
     __vue_module_identifier__$6,
     false,
-    undefined,
+    createInjector,
     undefined,
     undefined
   );
@@ -4735,8 +4839,8 @@ var script$7 = Vue.extend({
                 { text: "Business Track", value: "businessTrack" },
                 { text: "Startup Name", value: "startupName" },
                 { text: "Web Page Link", value: "webLink" },
-                { text: "Assessment Finals", value: "assessment20May" },
-                { text: "Assessment SemiFinals", value: "assessment12Oct" },
+                { text: "Assessment Finals", value: "assessmentSemifinals" },
+                { text: "Assessment SemiFinals", value: "assessmentFinals" },
                 { text: "Actions", value: "actions", sortable: false },
                 { text: "Updated Description", value: "updated", sortable: false },
                 { text: "Last Team Update", value: "updatedAt", sortable: false },
@@ -5063,14 +5167,14 @@ var script$7 = Vue.extend({
                                 review.businessTrack.includes(_this.businessTracksFilter) &&
                                 review.location.includes(_this.locationFilter) &&
                                 review.workshopNr.includes(_this.workshopFilter) &&
-                                review.assessment20May === _this.finalsFilter &&
-                                review.assessment12Oct === _this.semifinalsFilter;
+                                review.assessmentSemifinals === _this.finalsFilter &&
+                                review.assessmentFinals === _this.semifinalsFilter;
                         }
                         return review.teamTrack.includes(_this.teamTypeFilter) &&
                             review.businessTrack.includes(_this.businessTracksFilter) &&
                             review.location.includes(_this.locationFilter) &&
                             review.workshopNr.includes(_this.workshopFilter) &&
-                            review.assessment20May === _this.finalsFilter;
+                            review.assessmentSemifinals === _this.finalsFilter;
                     }
                     else {
                         if (_this.semifinalsFilter !== null) {
@@ -5078,7 +5182,7 @@ var script$7 = Vue.extend({
                                 review.businessTrack.includes(_this.businessTracksFilter) &&
                                 review.location.includes(_this.locationFilter) &&
                                 review.workshopNr.includes(_this.workshopFilter) &&
-                                review.assessment12Oct === _this.semifinalsFilter;
+                                review.assessmentFinals === _this.semifinalsFilter;
                         }
                         return review.teamTrack.includes(_this.teamTypeFilter) &&
                             review.businessTrack.includes(_this.businessTracksFilter) &&
@@ -5145,8 +5249,10 @@ var script$7 = Vue.extend({
         },
         openLink: function (item) {
             var webLink = item.webLink;
-            if (!webLink.includes("http://")) {
-                webLink = "http://" + webLink;
+            if (!webLink.includes("https://")) {
+                if (!webLink.includes("http://")) {
+                    webLink = "http://" + webLink;
+                }
             }
             window.open(webLink, "_blank");
         },
@@ -5537,7 +5643,7 @@ var __vue_render__$7 = function() {
   return _c(
     "v-app",
     [
-      _c("v-container", { attrs: { "background-color": "#fcfcfc" } }, [
+      _c("v-container", [
         _c(
           "div",
           { staticClass: "justify-center" },
@@ -5610,7 +5716,7 @@ var __vue_render__$7 = function() {
                                       [
                                         _c(
                                           "v-icon",
-                                          { attrs: { color: "#fcfcfc" } },
+                                          { attrs: { color: "white" } },
                                           [_vm._v("mdi-chart-box-outline")]
                                         )
                                       ],
@@ -5642,10 +5748,7 @@ var __vue_render__$7 = function() {
               [
                 _c(
                   "v-card",
-                  {
-                    staticClass: "mx-auto",
-                    attrs: { flat: "", color: "#fcfcfc" }
-                  },
+                  { staticClass: "mx-auto", attrs: { flat: "" } },
                   [
                     _c("v-data-table", {
                       staticClass: "elevation-2",
@@ -6351,18 +6454,18 @@ var __vue_render__$7 = function() {
                                                               model: {
                                                                 value:
                                                                   _vm.team
-                                                                    .assessment20May,
+                                                                    .assessmentSemifinals,
                                                                 callback: function(
                                                                   $$v
                                                                 ) {
                                                                   _vm.$set(
                                                                     _vm.team,
-                                                                    "assessment20May",
+                                                                    "assessmentSemifinals",
                                                                     $$v
                                                                   );
                                                                 },
                                                                 expression:
-                                                                  "team.assessment20May"
+                                                                  "team.assessmentSemifinals"
                                                               }
                                                             }),
                                                             _vm._v(" "),
@@ -6384,18 +6487,18 @@ var __vue_render__$7 = function() {
                                                               model: {
                                                                 value:
                                                                   _vm.team
-                                                                    .assessment12Oct,
+                                                                    .assessmentFinals,
                                                                 callback: function(
                                                                   $$v
                                                                 ) {
                                                                   _vm.$set(
                                                                     _vm.team,
-                                                                    "assessment12Oct",
+                                                                    "assessmentFinals",
                                                                     $$v
                                                                   );
                                                                 },
                                                                 expression:
-                                                                  "team.assessment12Oct"
+                                                                  "team.assessmentFinals"
                                                               }
                                                             })
                                                           ],
@@ -6521,36 +6624,40 @@ var __vue_render__$7 = function() {
                             }
                           },
                           {
-                            key: "item.assessment12Oct",
+                            key: "item.assessmentFinals",
                             fn: function(ref) {
                               var item = ref.item;
                               return [
                                 _c("v-simple-checkbox", {
                                   attrs: { disabled: "" },
                                   model: {
-                                    value: item.assessment12Oct,
+                                    value: item.assessmentFinals,
                                     callback: function($$v) {
-                                      _vm.$set(item, "assessment12Oct", $$v);
+                                      _vm.$set(item, "assessmentFinals", $$v);
                                     },
-                                    expression: "item.assessment12Oct"
+                                    expression: "item.assessmentFinals"
                                   }
                                 })
                               ]
                             }
                           },
                           {
-                            key: "item.assessment20May",
+                            key: "item.assessmentSemifinals",
                             fn: function(ref) {
                               var item = ref.item;
                               return [
                                 _c("v-simple-checkbox", {
                                   attrs: { disabled: "" },
                                   model: {
-                                    value: item.assessment20May,
+                                    value: item.assessmentSemifinals,
                                     callback: function($$v) {
-                                      _vm.$set(item, "assessment20May", $$v);
+                                      _vm.$set(
+                                        item,
+                                        "assessmentSemifinals",
+                                        $$v
+                                      );
                                     },
-                                    expression: "item.assessment20May"
+                                    expression: "item.assessmentSemifinals"
                                   }
                                 })
                               ]
@@ -7300,8 +7407,8 @@ var script$8 = Vue.extend({
                 { text: "Startup Name", value: "startupName" },
                 { text: "Team Track", value: "teamType" },
                 { text: "Business Track", value: "businessTrack" },
-                { text: "Assesment SemiFinals", value: "assesSemiFinals" },
-                { text: "Assesment Finals", value: "assesFinals" },
+                { text: "Assessment SemiFinals", value: "assesSemiFinals" },
+                { text: "Assessment Finals", value: "assesFinals" },
             ],
             teams: [],
         };
@@ -7653,8 +7760,8 @@ var script$8 = Vue.extend({
             try {
                 for (var newTeams_2 = __values(newTeams), newTeams_2_1 = newTeams_2.next(); !newTeams_2_1.done; newTeams_2_1 = newTeams_2.next()) {
                     var team = newTeams_2_1.value;
-                    team.assesSemiFinals = team.productDetails["assessment12Oct"];
-                    team.assesFinals = team.productDetails["assessment20May"];
+                    team.assesSemiFinals = team.productDetails["assessmentFinals"];
+                    team.assesFinals = team.productDetails["assessmentSemifinals"];
                     newArray.push(team);
                 }
             }
@@ -7696,8 +7803,8 @@ var script$8 = Vue.extend({
                             response = _a.sent();
                             product = response.data;
                             if (!product) return [3 /*break*/, 3];
-                            product.productDetails.assessment20May = item.assesFinals;
-                            product.productDetails.assessment12Oct = item.assesSemiFinals;
+                            product.productDetails.assessmentSemifinals = item.assesFinals;
+                            product.productDetails.assessmentFinals = item.assesSemiFinals;
                             return [4 /*yield*/, this.ui.api.post("/api/v1/teams/product/update", { teamId: item.teamId, product: product })];
                         case 2:
                             resp = _a.sent();
@@ -7732,7 +7839,7 @@ var __vue_render__$8 = function() {
   return _c(
     "v-app",
     [
-      _c("v-container", { attrs: { "background-color": "#fcfcfc" } }, [
+      _c("v-container", [
         _c(
           "div",
           { staticClass: "justify-center" },
@@ -7774,10 +7881,7 @@ var __vue_render__$8 = function() {
               [
                 _c(
                   "v-card",
-                  {
-                    staticClass: "mx-auto",
-                    attrs: { flat: "", color: "#fcfcfc" }
-                  },
+                  { staticClass: "mx-auto", attrs: { flat: "" } },
                   [
                     _c("v-data-table", {
                       attrs: {
@@ -8122,7 +8226,7 @@ var __vue_render__$8 = function() {
                           items: _vm.values,
                           "item-text": "text",
                           "item-value": "value",
-                          label: "Assesment Finals"
+                          label: "Assessment Finals"
                         },
                         model: {
                           value: _vm.finalsFilterAssessment,
@@ -8163,7 +8267,7 @@ var __vue_render__$8 = function() {
                           items: _vm.values,
                           "item-text": "text",
                           "item-value": "value",
-                          label: "Assesment SemiFinals"
+                          label: "Assessment SemiFinals"
                         },
                         model: {
                           value: _vm.semifinalsFilterAssessment,

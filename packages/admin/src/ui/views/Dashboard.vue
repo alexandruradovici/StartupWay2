@@ -1,6 +1,6 @@
 <template>
 	<v-app>
-		<v-container background-color="#fcfcfc">
+		<v-container>
 			<div class="justify-center">
 				<v-row class="mb-6" justify="center" no-gutters>
 					<v-row class="justify-center" align="center">
@@ -12,7 +12,7 @@
 							<v-tooltip bottom>
 								<template v-slot:activator="{on, attrs}">
 									<v-btn v-on="on" v-bind="attrs" @click="changeRoute('/assessment')" fab medium right color="#197E81">
-										<v-icon color="#fcfcfc">mdi-chart-box-outline</v-icon>
+										<v-icon color="white" >mdi-chart-box-outline</v-icon>
 									</v-btn>
 								</template>
 								<span>Check Assessments</span>
@@ -21,7 +21,7 @@
 					</v-row>
 				</v-row>
 				<v-row class="mb-6" justify="center" >
-					<v-card class="mx-auto" flat color="#fcfcfc">
+					<v-card class="mx-auto" flat >
 						<v-data-table
 							item-key="startupName"
 							class="elevation-2"
@@ -198,7 +198,7 @@
 														item-text="text"
 														item-value="value"
 														label="Assessment Finals" 
-														v-model="team.assessment20May">
+														v-model="team.assessmentSemifinals">
 													</v-select>
 													<v-select
 														color="primary"
@@ -207,7 +207,7 @@
 														item-text="text"
 														item-value="value"
 														label="Assessment SemiFinals" 
-														v-model="team.assessment12Oct">
+														v-model="team.assessmentFinals">
 													</v-select>
 												</v-card-text>
 												<v-card-actions class="justify-center">
@@ -230,15 +230,15 @@
 								</v-icon>
 							</template>
 							
-							<template v-slot:[`item.assessment12Oct`]="{ item }">
+							<template v-slot:[`item.assessmentFinals`]="{ item }">
 								<v-simple-checkbox
-								v-model="item.assessment12Oct"
+								v-model="item.assessmentFinals"
 								disabled
 								></v-simple-checkbox>
 							</template>
-							<template v-slot:[`item.assessment20May`]="{ item }">
+							<template v-slot:[`item.assessmentSemifinals`]="{ item }">
 								<v-simple-checkbox
-								v-model="item.assessment20May"
+								v-model="item.assessmentSemifinals"
 								disabled
 								></v-simple-checkbox>
 							</template>
@@ -491,8 +491,8 @@ export default Vue.extend({
 				{ text: "Business Track", value: "businessTrack" },
 				{ text: "Startup Name", value: "startupName" },
 				{ text: "Web Page Link", value: "webLink"},
-				{ text: "Assessment Finals", value:"assessment20May"},
-				{ text: "Assessment SemiFinals", value:"assessment12Oct"},
+				{ text: "Assessment Finals", value:"assessmentSemifinals"},
+				{ text: "Assessment SemiFinals", value:"assessmentFinals"},
 				{ text: "Actions", value: "actions", sortable: false },
 				{ text: "Updated Description", value: "updated", sortable: false },
 				{ text: "Last Team Update", value: "updatedAt", sortable: false},
@@ -743,21 +743,21 @@ export default Vue.extend({
 								review.businessTrack.includes(this.businessTracksFilter) &&
 								review.location.includes(this.locationFilter) &&
 								review.workshopNr.includes(this.workshopFilter) &&
-								review.assessment20May === this.finalsFilter &&
-								review.assessment12Oct === this.semifinalsFilter;
+								review.assessmentSemifinals === this.finalsFilter &&
+								review.assessmentFinals === this.semifinalsFilter;
 						}
 						return review.teamTrack.includes(this.teamTypeFilter) &&
 							review.businessTrack.includes(this.businessTracksFilter) &&
 							review.location.includes(this.locationFilter) &&
 							review.workshopNr.includes(this.workshopFilter) &&
-							review.assessment20May === this.finalsFilter;
+							review.assessmentSemifinals === this.finalsFilter;
 					} else {
 						if(this.semifinalsFilter !== null) {
 							return review.teamTrack.includes(this.teamTypeFilter) &&
 								review.businessTrack.includes(this.businessTracksFilter) &&
 								review.location.includes(this.locationFilter) &&
 								review.workshopNr.includes(this.workshopFilter) &&
-								review.assessment12Oct === this.semifinalsFilter;
+								review.assessmentFinals === this.semifinalsFilter;
 						}
 						return  review.teamTrack.includes(this.teamTypeFilter) &&
 							review.businessTrack.includes(this.businessTracksFilter) &&
@@ -824,8 +824,10 @@ export default Vue.extend({
 		},
 		openLink(item:Review):void {
 			let webLink:string = item.webLink;
-			if(!webLink.includes("http://")) {
-				webLink = "http://" + webLink;
+			if(!webLink.includes("https://")) {
+				if(!webLink.includes("http://")) {
+					webLink = "http://" + webLink;
+				}
 			}
 			window.open(webLink, "_blank");
 		},

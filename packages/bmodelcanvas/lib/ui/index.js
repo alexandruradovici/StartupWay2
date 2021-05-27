@@ -192,7 +192,7 @@ var script = Vue.extend({
                     this.canvas = {
                         modelId: v4(),
                         productId: this.productId,
-                        date: new Date(),
+                        date: new Date().toISOString().slice(0, 19).replace('T', ' '),
                         fields: (_a = {},
                             _a["Problem"] = "",
                             _a["Solution"] = "",
@@ -296,7 +296,7 @@ var script = Vue.extend({
                                 _a);
                             canvas = {
                                 modelId: v4(),
-                                date: new Date(),
+                                date: new Date().toISOString().slice(0, 19).replace('T', ' '),
                                 productId: this.productId,
                                 fields: fields
                             };
@@ -466,7 +466,7 @@ var __vue_render__ = function() {
                     "v-card",
                     {
                       staticClass: "justify-center",
-                      attrs: { flat: "", outlined: "", color: "#fcfcfc" }
+                      attrs: { flat: "", outlined: "" }
                     },
                     [
                       _c(
@@ -498,7 +498,7 @@ var __vue_render__ = function() {
                 "v-card",
                 {
                   staticStyle: { margin: "auto", "margin-top": "50px" },
-                  attrs: { flat: "", "max-width": "1000", color: "#fcfcfc" }
+                  attrs: { flat: "", "max-width": "1000" }
                 },
                 [
                   _c("v-divider"),

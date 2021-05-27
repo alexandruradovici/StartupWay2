@@ -6,6 +6,8 @@
 					<h1 v-if="user" style="font-family: Georgia, serif; text-align: center; text-weight: bold, font-size: 20px; margin-top: 70px;"> 
 						Hello {{user.firstName}} {{user.lastName}} and welcome to StartupWay!
 					</h1>
+				</v-row>
+				<v-row justify="center">
 					<h1 v-if="teams.length === 0" style="font-family: Georgia, serif; text-align: center; text-weight: bold, font-size: 20px; margin-top: 20px;">
 						Oops, it seems like you are not enroled in any team, please contact your mentor for more details.
 					</h1>
@@ -18,6 +20,8 @@
 							teams.
 						</div>
 					</h1>
+				</v-row>
+				<v-row justify="center">
 					<h1 v-if="!currentTeam" style="font-family: Georgia, serif; text-align: center; text-weight: bold, font-size: 20px; margin-top: 20px;">
 						Please select your team from the top right corner.
 					</h1>

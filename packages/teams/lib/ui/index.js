@@ -99,9 +99,11 @@ var BusinessTrack;
     BusinessTrack["AGRICULTURE"] = "Agriculture";
     BusinessTrack["CYBERSECURITY"] = "CyberSecurity";
     BusinessTrack["FINTECH"] = "FinTech";
+    BusinessTrack["BLOCKCHAIN"] = "Blockchain";
     BusinessTrack["HL"] = "Health&Lifestyle";
+    BusinessTrack["HEALTH&LIFESTYLE"] = "Health&Lifestyle";
     BusinessTrack["RETAIL"] = "Retail";
-    BusinessTrack["SMARTCITY"] = "SmartCity";
+    BusinessTrack["SMARTCITIES"] = "SmartCities";
     BusinessTrack["SMARTMOBILITY"] = "SmartMobility";
     BusinessTrack["OTHER"] = "Other";
 })(BusinessTrack || (BusinessTrack = {}));
@@ -1699,12 +1701,12 @@ var __vue_render__$1 = function() {
                 "v-card",
                 {
                   staticStyle: { margin: "auto" },
-                  attrs: { flat: "", "max-width": "1000", color: "#fcfcfc" }
+                  attrs: { flat: "", "max-width": "1000" }
                 },
                 [
                   _c(
                     "v-list",
-                    { attrs: { nav: "", dense: "", color: "#fcfcfc" } },
+                    { attrs: { nav: "", dense: "" } },
                     [
                       _vm._l(_vm.users, function(user) {
                         return _c(
@@ -3328,7 +3330,7 @@ var __vue_render__$2 = function() {
                 "v-card",
                 {
                   staticStyle: { margin: "auto" },
-                  attrs: { flat: "", "max-width": "1000", color: "#fcfcfc" }
+                  attrs: { flat: "", "max-width": "1000" }
                 },
                 [
                   _c(
@@ -4035,8 +4037,6 @@ var __vue_render__$2 = function() {
                                                             {
                                                               attrs: {
                                                                 flat: "",
-                                                                color:
-                                                                  "#fcfcfc",
                                                                 rounded: "",
                                                                 elevation: hover
                                                                   ? 16
@@ -4074,7 +4074,7 @@ var __vue_render__$2 = function() {
                                                   ],
                                                   null,
                                                   false,
-                                                  2885599625
+                                                  201896740
                                                 )
                                               }),
                                               _vm._v(" "),
@@ -4170,13 +4170,7 @@ var __vue_render__$2 = function() {
                               _vm.images.length > 0
                                 ? _c(
                                     "v-card",
-                                    {
-                                      attrs: {
-                                        flat: "",
-                                        outlined: "",
-                                        color: "#fcfcfc"
-                                      }
-                                    },
+                                    { attrs: { flat: "", outlined: "" } },
                                     [
                                       _c(
                                         "v-card-title",
@@ -4235,8 +4229,6 @@ var __vue_render__$2 = function() {
                                                                           attrs: {
                                                                             flat:
                                                                               "",
-                                                                            color:
-                                                                              "#fcfcfc",
                                                                             rounded:
                                                                               "",
                                                                             elevation: hover
@@ -4914,12 +4906,12 @@ var __vue_render__$3 = function() {
                 "v-card",
                 {
                   staticStyle: { margin: "auto" },
-                  attrs: { flat: "", width: "800", color: "#fcfcfc" }
+                  attrs: { flat: "", width: "800" }
                 },
                 [
                   _c(
                     "v-list",
-                    { attrs: { nav: "", dense: "", color: "#fcfcfc" } },
+                    { attrs: { nav: "", dense: "" } },
                     _vm._l(_vm.users, function(user) {
                       return _c(
                         "v-list-item",
@@ -5029,7 +5021,7 @@ var __vue_render__$3 = function() {
                     "v-card",
                     {
                       staticStyle: { margin: "auto", "padding-top": "20px" },
-                      attrs: { color: "#fcfcfc", flat: "" }
+                      attrs: { flat: "" }
                     },
                     [
                       _c(
@@ -6734,7 +6726,7 @@ var __vue_render__$5 = function() {
                 "v-card",
                 {
                   staticStyle: { margin: "auto", "margin-top": "50px" },
-                  attrs: { color: "#fcfcfc", flat: "" }
+                  attrs: { flat: "" }
                 },
                 [
                   _c("v-divider"),
@@ -6744,7 +6736,7 @@ var __vue_render__$5 = function() {
                     [
                       _c(
                         "v-list",
-                        { attrs: { nav: "", dense: "", color: "#fcfcfc" } },
+                        { attrs: { nav: "", dense: "" } },
                         [
                           _vm._l(_vm.users, function(user) {
                             return _c(
@@ -8074,8 +8066,8 @@ var script$6 = Vue.extend({
                                 this.link_website = newProduct.productDetails["website"];
                                 this.link_linkedin = newProduct.productDetails["linkedin"];
                                 this.link_facebook = newProduct.productDetails["facebook"];
-                                this.assessment12Oct = newProduct.productDetails["assessment12Oct"];
-                                this.assessment20May = newProduct.productDetails["assessment20May"];
+                                this.assessmentFinals = newProduct.productDetails["assessmentFinals"];
+                                this.assessmentSemifinals = newProduct.productDetails["assessmentSemifinals"];
                                 return [4 /*yield*/, this.ui.api.get("/api/v1/uploadDownload/get/file/product/image/" + newProduct.productId)];
                             case 1:
                                 response = _a.sent();
@@ -8235,8 +8227,8 @@ var script$6 = Vue.extend({
             link_website: "",
             link_linkedin: "",
             link_facebook: "",
-            assessment12Oct: "",
-            assessment20May: "",
+            assessmentFinals: "",
+            assessmentSemifinals: "",
             pending_descr_RO: "",
             pending_descr_ENG: "",
             //File upload
@@ -8369,8 +8361,8 @@ var script$6 = Vue.extend({
                                 website: this.link_website,
                                 linkedin: this.link_linkedin,
                                 facebook: this.link_facebook,
-                                assessment12Oct: this.assessment12Oct,
-                                assessment20May: this.assessment20May
+                                assessmentFinals: this.assessmentFinals,
+                                assessmentSemifinals: this.assessmentSemifinals
                             };
                             if (this.pending_descr_RO === this.product.descriptionRO)
                                 this.pending_descr_RO = "";
@@ -8643,7 +8635,7 @@ var script$6 = Vue.extend({
                             e_6 = _a.sent();
                             console.error(e_6);
                             if (e_6.response.status === 406) {
-                                this.snackOptions.text = "Could not upload the file. Please upload only files in full HD format (min 1920 width and min. 1080 height). If the error persists, please contact technical support: teams@tech-lounge.ro.";
+                                this.snackOptions.text = "Could not upload the file. Please upload only files in full HD format (min 1280 width and min. 720 height). If the error persists, please contact technical support: teams@tech-lounge.ro.";
                                 this.snackOptions.type = SnackBarTypes.ERROR;
                                 this.snackOptions.timeout = 2000;
                                 this.snackbar = true;
@@ -8705,7 +8697,7 @@ var __vue_render__$6 = function() {
                 "v-card",
                 {
                   staticStyle: { margin: "auto", "padding-top": "20px" },
-                  attrs: { flat: "", color: "#fcfcfc" }
+                  attrs: { flat: "" }
                 },
                 [
                   _vm.product
@@ -8870,11 +8862,7 @@ var __vue_render__$6 = function() {
                                 "v-card",
                                 {
                                   staticClass: "justify-center",
-                                  attrs: {
-                                    flat: "",
-                                    outlined: "",
-                                    color: "#fcfcfc"
-                                  }
+                                  attrs: { flat: "", outlined: "" }
                                 },
                                 [
                                   _c(
@@ -8941,11 +8929,7 @@ var __vue_render__$6 = function() {
                                             "v-card",
                                             {
                                               staticClass: "justify-center",
-                                              attrs: {
-                                                flat: "",
-                                                outlined: "",
-                                                color: "#fcfcfc"
-                                              }
+                                              attrs: { flat: "", outlined: "" }
                                             },
                                             [
                                               _vm.pres !== undefined
@@ -9256,11 +9240,7 @@ var __vue_render__$6 = function() {
                                           _c(
                                             "v-card",
                                             {
-                                              attrs: {
-                                                flat: "",
-                                                outlined: "",
-                                                color: "#fcfcfc"
-                                              }
+                                              attrs: { flat: "", outlined: "" }
                                             },
                                             [
                                               _vm.demoVid !== undefined
@@ -9529,8 +9509,7 @@ var __vue_render__$6 = function() {
                                               _c(
                                                 "v-card-text",
                                                 {
-                                                  staticClass: "justify-center",
-                                                  attrs: { color: "#fcfcfc" }
+                                                  staticClass: "justify-center"
                                                 },
                                                 [
                                                   _c("v-file-input", {
@@ -9611,11 +9590,7 @@ var __vue_render__$6 = function() {
                                           _c(
                                             "v-card",
                                             {
-                                              attrs: {
-                                                flat: "",
-                                                outlined: "",
-                                                color: "#fcfcfc"
-                                              }
+                                              attrs: { flat: "", outlined: "" }
                                             },
                                             [
                                               _vm.presVid !== undefined
@@ -9987,7 +9962,6 @@ var __vue_render__$6 = function() {
                                               attrs: {
                                                 flat: "",
                                                 outlined: "",
-                                                color: "#fcfcfc",
                                                 align: "center",
                                                 justify: "center"
                                               }
@@ -10058,8 +10032,6 @@ var __vue_render__$6 = function() {
                                                                                     attrs: {
                                                                                       flat:
                                                                                         "",
-                                                                                      color:
-                                                                                        "#fcfcfc",
                                                                                       rounded:
                                                                                         "",
                                                                                       elevation: hover
@@ -10103,7 +10075,7 @@ var __vue_render__$6 = function() {
                                                                         ],
                                                                         null,
                                                                         false,
-                                                                        2885599625
+                                                                        201896740
                                                                       )
                                                                     }
                                                                   ),
@@ -10430,11 +10402,7 @@ var __vue_render__$6 = function() {
                                           _c(
                                             "v-card",
                                             {
-                                              attrs: {
-                                                outlined: "",
-                                                flat: "",
-                                                color: "#fcfcfc"
-                                              }
+                                              attrs: { outlined: "", flat: "" }
                                             },
                                             [
                                               _vm.images.length > 0
@@ -10513,8 +10481,6 @@ var __vue_render__$6 = function() {
                                                                                               attrs: {
                                                                                                 flat:
                                                                                                   "",
-                                                                                                color:
-                                                                                                  "#fcfcfc",
                                                                                                 rounded:
                                                                                                   "",
                                                                                                 elevation: hover
@@ -10740,11 +10706,7 @@ var __vue_render__$6 = function() {
                                     "v-card",
                                     {
                                       staticClass: "justify-center",
-                                      attrs: {
-                                        flat: "",
-                                        outlined: "",
-                                        color: "#fcfcfc"
-                                      }
+                                      attrs: { flat: "", outlined: "" }
                                     },
                                     [
                                       _c(
@@ -10802,13 +10764,7 @@ var __vue_render__$6 = function() {
                                   Math.floor(_vm.partTotal) < 100
                                     ? _c(
                                         "v-card",
-                                        {
-                                          attrs: {
-                                            flat: "",
-                                            outlined: "",
-                                            color: "#fcfcfc"
-                                          }
-                                        },
+                                        { attrs: { flat: "", outlined: "" } },
                                         [
                                           _c(
                                             "v-progress-linear",
@@ -10842,11 +10798,7 @@ var __vue_render__$6 = function() {
                                         "v-card",
                                         {
                                           staticClass: "justify-center",
-                                          attrs: {
-                                            flat: "",
-                                            outlined: "",
-                                            color: "#fcfcfc"
-                                          }
+                                          attrs: { flat: "", outlined: "" }
                                         },
                                         [
                                           _c(
@@ -11426,7 +11378,7 @@ var __vue_render__$7 = function() {
                 "v-card",
                 {
                   staticStyle: { margin: "auto", "margin-top": "50px" },
-                  attrs: { flat: "", "max-width": "1000", color: "#fcfcfc" }
+                  attrs: { flat: "", "max-width": "1000" }
                 },
                 [
                   _c("v-divider"),
@@ -12007,8 +11959,10 @@ var __vue_render__$8 = function() {
                           )
                         ]
                       )
-                    : _vm._e(),
-                  _vm._v(" "),
+                    : _vm._e()
+                ]),
+                _vm._v(" "),
+                _c("v-row", { attrs: { justify: "center" } }, [
                   _vm.teams.length === 0
                     ? _c(
                         "h1",
@@ -12050,8 +12004,10 @@ var __vue_render__$8 = function() {
                                 _vm._v("\n\t\t\t\t\t\tteams.\n\t\t\t\t\t")
                               ])
                         ]
-                      ),
-                  _vm._v(" "),
+                      )
+                ]),
+                _vm._v(" "),
+                _c("v-row", { attrs: { justify: "center" } }, [
                   !_vm.currentTeam
                     ? _c(
                         "h1",

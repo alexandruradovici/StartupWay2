@@ -179,6 +179,8 @@ var AdminServer = /** @class */ (function () {
             var bT = "";
             if (businessTrack !== undefined) {
                 bT = businessTrack.toUpperCase().replace(/\s+/g, '');
+                if (bT === "Health&Lifestyle")
+                    bT = "HL";
             }
             var tT = "";
             if (teamTrack !== undefined) {
@@ -221,8 +223,8 @@ var AdminServer = /** @class */ (function () {
                     facebook: "",
                     mentorNotes: "",
                     adminNotes: "",
-                    assesmentFinals: "",
-                    assesmentSemifinals: ""
+                    assessmentFinals: "",
+                    assessmentSemifinals: ""
                 },
                 updatedAt: new Date(),
                 lastMentorUpdate: new Date(),
@@ -263,14 +265,14 @@ var AdminServer = /** @class */ (function () {
                 email: email,
                 phone: phone,
                 socialMedia: {
-                    "facebook": facebook,
-                    "linkedin": linkedin
+                    facebook: facebook,
+                    linkedin: linkedin
                 },
                 birthDate: aux,
                 userDetails: {
-                    "faculty": faculty,
-                    "group": group,
-                    "details": "How din you find about Innovation Labs: " + findProgram
+                    faculty: faculty,
+                    group: group,
+                    details: "How din you find about Innovation Labs: " + findProgram
                 },
                 role: role,
                 avatarUu: "",
@@ -349,7 +351,7 @@ var AdminServer = /** @class */ (function () {
         }
     };
     /**
-     * Function that extract information from the database about all teams that have passed 20th may assesment and
+     * Function that extract information from the database about all teams that have passed 20th may assessment and
      * 		all of their uploaded files.
      * @returns {Promise<any[]>} an array of informations about each team
      */
@@ -362,41 +364,80 @@ var AdminServer = /** @class */ (function () {
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 10, , 13]);
+                        _a.trys.push([1, 6, 7, 8]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 8];
+                        if (!conn) return [3 /*break*/, 4];
                         queryOptions = {
                             namedPlaceholders: true,
-                            sql: "SELECT IF(JSON_EXTRACT(productDetails,'$.assessment20May') = \"Yes\",\"DA\",\ Echipa,JSON_EXTRACT(t.teamDetails,'$.mentor') as Mentor,IF((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"pres\")>0,\"DA\",\"NU\") as 'Au prezentare pptx incarcata?',IF((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"image\")>0,(SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"image\"),0) as 'Au poze la \"Product Images\"?',IF((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"demoVid\")>0,\"DA\",\"NU\") as 'Au \"Tehnic Demo Video\" incarcat?', IF((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"presVid\")>0,\"DA\",\"NU\") as 'Au \"Product Presentation Video\" incarcat?',IF((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"logo\")>0,\"DA\",\"NU\") as 'Au \"Logo\" incarcat?',IF((JSON_EXTRACT(p.productDetails,'$.website')=''),'NU','DA') as 'Au link catre pagina web a produsului?',IF((JSON_EXTRACT(p.productDetails,'$.facebook')=''),'NU','DA') as 'Au link catre pagina de facebook a produsului?',DATE_FORMAT(p.lastMentorUpdate, \"%d %M %Y\") as \"Ultima actualizare a descrierii RO\",DATE_FORMAT(p.lastMentorUpdate, \"%d %M %Y\") as \"Ultima actualizare a descrierii ENG\",CONCAT((SELECT count(*) from (SELECT u.avatarUu, t1.teamId,IF(u.avatarUu!='',\"Yes\",\"No\") as has from users u inner join userTeams uT on u.userId = uT.userId inner join teams t1 on t1.teamId = uT.teamId ) as t2 where t2.teamId = t.teamId and t2.has =\"Yes\" ),'|',(SELECT count(*) from (SELECT u.avatarUu, t1.teamId, IF(u.avatarUu!='',\"Yes\",\"No\") as has from users u inner join userTeams uT on u.userId = uT.userId inner join teams t1 on t1.teamId = uT.teamId ) as t2 where t2.teamId = t.teamId)) as \"Au toti membrii echipei poza incarcata?\", IFNULL(DATE_FORMAT(tab.date, '%d %M %Y'),'') as \"Ultima actualizare a Lean Model Canvas\",DATE_FORMAT(p.updatedAt, \"%d %M %Y\") as \"Ultima actualizare\" from teams t inner join products p on t.productId = p.productId and JSON_EXTRACT(productDetails,'$.assessment20May') = \"Yes\" left join (SELECT date, productId from bModelCanvas group by productId) as tab on p.productId = tab.productId;"
+                            sql: "SELECT IF(JSON_EXTRACT(productDetails,'$.assessmentSemifinals') = \"Yes\",\"DA\",\ as Echipa,JSON_EXTRACT(t.teamDetails,'$.mentor') as Mentor,IF((SELECT count(*) from uploadDownload ud where ud.productId = p.productId and fileType=\"pres\")>0,\"DA\",\"NU\") as 'Au prezentare pptx incarcata?',IF((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"image\")>0,(SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"image\"),0) as 'Au poze la \"Product Images\"?',IF((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"demoVid\")>0,\"DA\",\"NU\") as 'Au \"Tehnic Demo Video\" incarcat?', IF((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"presVid\")>0,\"DA\",\"NU\") as 'Au \"Product Presentation Video\" incarcat?',IF((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"logo\")>0,\"DA\",\"NU\") as 'Au \"Logo\" incarcat?',IF((JSON_EXTRACT(p.productDetails,'$.website')=''),'NU','DA') as 'Au link catre pagina web a produsului?',IF((JSON_EXTRACT(p.productDetails,'$.facebook')=''),'NU','DA') as 'Au link catre pagina de facebook a produsului?',DATE_FORMAT(p.lastMentorUpdate, \"%d %M %Y\") as \"Ultima actualizare a descrierii RO\",DATE_FORMAT(p.lastMentorUpdate, \"%d %M %Y\") as \"Ultima actualizare a descrierii ENG\",CONCAT((SELECT count(*) from (SELECT u.avatarUu, t1.teamId,IF(u.avatarUu!='',\"Yes\",\"No\") as has from users u inner join userTeams uT on u.userId = uT.userId inner join teams t1 on t1.teamId = uT.teamId ) as t2 where t2.teamId = t.teamId and t2.has =\"Yes\" ),'|',(SELECT count(*) from (SELECT u.avatarUu, t1.teamId, IF(u.avatarUu!='',\"Yes\",\"No\") as has from users u inner join userTeams uT on u.userId = uT.userId inner join teams t1 on t1.teamId = uT.teamId ) as t2 where t2.teamId = t.teamId)) as \"Au toti membrii echipei poza incarcata?\", IFNULL(DATE_FORMAT(tab.date, '%d %M %Y'),'') as \"Ultima actualizare a Lean Model Canvas\",DATE_FORMAT(p.updatedAt, \"%d %M %Y\") as \"Ultima actualizare\" from teams t inner join products p on t.productId = p.productId and JSON_EXTRACT(productDetails,'$.assessmentSemifinals') = \"Yes\" left join (SELECT date, productId from bModelCanvas group by productId) as tab on p.productId = tab.productId;"
                         };
                         return [4 /*yield*/, conn.query(queryOptions)];
                     case 3:
                         response = _a.sent();
-                        if (!(response && response.length > 0)) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.release()];
-                    case 4:
-                        _a.sent();
-                        return [2 /*return*/, response];
-                    case 5: return [4 /*yield*/, conn.release()];
+                        if (response && response.length > 0) {
+                            return [2 /*return*/, response];
+                        }
+                        else {
+                            return [2 /*return*/, []];
+                        }
+                        return [3 /*break*/, 5];
+                    case 4: return [2 /*return*/, []];
+                    case 5: return [3 /*break*/, 8];
                     case 6:
-                        _a.sent();
-                        return [2 /*return*/, []];
-                    case 7: return [3 /*break*/, 9];
-                    case 8: return [2 /*return*/, []];
-                    case 9: return [3 /*break*/, 13];
-                    case 10:
                         e_1 = _a.sent();
                         console.log("Error in function \"getUDCData()\"|\"admin\"");
                         console.error(e_1);
-                        if (!conn) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.release()];
-                    case 11:
-                        _a.sent();
-                        _a.label = 12;
-                    case 12: return [2 /*return*/, []];
-                    case 13: return [2 /*return*/];
+                        return [2 /*return*/, []];
+                    case 7:
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 8: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    AdminServer.prototype.getCEOData = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var conn, queryOptions, response, e_2;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        conn = null;
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 6, 7, 8]);
+                        return [4 /*yield*/, server_2.getPool().getConnection()];
+                    case 2:
+                        conn = _a.sent();
+                        if (!conn) return [3 /*break*/, 4];
+                        queryOptions = {
+                            sql: 'select teams.location as Location, teams.teamName as "Numele Echipei", products.descriptionRO as "Descriere RO", users.firstName as "Prenume", users.lastName as "Nume", users.email as "Email", users.phone as "Numar de telefon" , products.teamType as "Team Track", products.businessTrack as "Business Track" from users inner join userTeams on users.userId = userTeams.userId inner join teams on teams.teamId = userTeams.teamId inner join products on products.productId = teams.productId  where users.role = "CEO" order by location;'
+                        };
+                        return [4 /*yield*/, conn.query(queryOptions)];
+                    case 3:
+                        response = _a.sent();
+                        if (response && response.length > 0) {
+                            return [2 /*return*/, response];
+                        }
+                        else {
+                            return [2 /*return*/, []];
+                        }
+                        return [3 /*break*/, 5];
+                    case 4: return [2 /*return*/, []];
+                    case 5: return [3 /*break*/, 8];
+                    case 6:
+                        e_2 = _a.sent();
+                        console.log('Error in function "getCEOData()"|"admin"');
+                        console.error(e_2);
+                        return [2 /*return*/, []];
+                    case 7:
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 8: return [2 /*return*/];
                 }
             });
         });
@@ -407,48 +448,44 @@ var AdminServer = /** @class */ (function () {
      */
     AdminServer.prototype.getTeamData = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var conn, queryOptions, response, e_2;
+            var conn, queryOptions, response, e_3;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 10, , 13]);
+                        _a.trys.push([1, 6, 7, 8]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 8];
+                        if (!conn) return [3 /*break*/, 4];
                         queryOptions = {
                             namedPlaceholders: true,
-                            sql: "SELECT t.location as 'oras', t.teamName as 'nume_echipa', p.businessTrack as 'business_track', p.teamType as 'type', p.descriptionRO as 'descriere_RO', p.descriptionEN as 'descriere_ENG' from teams t inner join products p on p.productId = t.productId and JSON_EXTRACT(productDetails,'$.assessment20May') = 'Yes';"
+                            sql: "SELECT t.location as 'oras', t.teamName as 'nume_echipa', p.businessTrack as 'business_track', p.teamType as 'type', p.descriptionRO as 'descriere_RO', p.descriptionEN as 'descriere_ENG' from teams t inner join products p on p.productId = t.productId and JSON_EXTRACT(productDetails,'$.assessmentSemifinals') = true;"
                         };
                         return [4 /*yield*/, conn.query(queryOptions)];
                     case 3:
                         response = _a.sent();
-                        if (!(response && response.length > 0)) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.release()];
-                    case 4:
-                        _a.sent();
-                        return [2 /*return*/, response];
-                    case 5: return [4 /*yield*/, conn.release()];
+                        if (response && response.length > 0) {
+                            return [2 /*return*/, response];
+                        }
+                        else {
+                            return [2 /*return*/, []];
+                        }
+                        return [3 /*break*/, 5];
+                    case 4: return [2 /*return*/, []];
+                    case 5: return [3 /*break*/, 8];
                     case 6:
-                        _a.sent();
-                        return [2 /*return*/, []];
-                    case 7: return [3 /*break*/, 9];
-                    case 8: return [2 /*return*/, []];
-                    case 9: return [3 /*break*/, 13];
-                    case 10:
-                        e_2 = _a.sent();
+                        e_3 = _a.sent();
                         console.log("Error in function \"getTeamData()\"|\"admin\"");
-                        console.error(e_2);
-                        if (!conn) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.release()];
-                    case 11:
-                        _a.sent();
-                        _a.label = 12;
-                    case 12: return [2 /*return*/, []];
-                    case 13: return [2 /*return*/];
+                        console.error(e_3);
+                        return [2 /*return*/, []];
+                    case 7:
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 8: return [2 /*return*/];
                 }
             });
         });
@@ -467,11 +504,11 @@ var AdminServer = /** @class */ (function () {
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 18, , 22]);
+                        _a.trys.push([1, 16, 19, 20]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 16];
+                        if (!conn) return [3 /*break*/, 14];
                         return [4 /*yield*/, conn.beginTransaction()];
                     case 3:
                         _a.sent();
@@ -494,7 +531,7 @@ var AdminServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, { recoveryId: recovery.recoveryId })];
                     case 6:
                         newRecovery = _a.sent();
-                        if (!(newRecovery && newRecovery.length > 0 && newRecovery[0])) return [3 /*break*/, 14];
+                        if (!(newRecovery && newRecovery.length > 0 && newRecovery[0])) return [3 /*break*/, 12];
                         msg = "Hello " + user.firstName + " " + user.lastName + " ,\n\n"
                             + "Here is your activation link, please click here to reset your password.\n"
                             + "		https://teams.innovationlabs.ro/#/recovery/" + newRecovery[0].recoveryLink + "\n"
@@ -509,40 +546,35 @@ var AdminServer = /** @class */ (function () {
                         return [4 /*yield*/, daemon.addNotification(notification)];
                     case 7:
                         newNotification = _a.sent();
-                        if (!newNotification) return [3 /*break*/, 10];
+                        if (!newNotification) return [3 /*break*/, 9];
                         return [4 /*yield*/, conn.commit()];
                     case 8:
                         _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 9:
-                        _a.sent();
-                        return [3 /*break*/, 13];
-                    case 10: return [4 /*yield*/, conn.rollback()];
-                    case 11:
-                        _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 12:
+                        return [3 /*break*/, 11];
+                    case 9: return [4 /*yield*/, conn.rollback()];
+                    case 10:
                         _a.sent();
                         return [2 /*return*/, null];
-                    case 13: return [2 /*return*/, newRecovery[0]];
-                    case 14: throw new Error("Can't add recovery");
-                    case 15: return [3 /*break*/, 17];
-                    case 16: return [2 /*return*/, null];
-                    case 17: return [3 /*break*/, 22];
-                    case 18:
+                    case 11: return [2 /*return*/, newRecovery[0]];
+                    case 12: throw new Error("Can't add recovery");
+                    case 13: return [3 /*break*/, 15];
+                    case 14: return [2 /*return*/, null];
+                    case 15: return [3 /*break*/, 20];
+                    case 16:
                         error_1 = _a.sent();
                         console.log("Error in function \"addRecovery(recovery)\"|\"admin\"");
                         console.error(error_1);
-                        if (!conn) return [3 /*break*/, 21];
+                        if (!conn) return [3 /*break*/, 18];
                         return [4 /*yield*/, conn.rollback()];
+                    case 17:
+                        _a.sent();
+                        _a.label = 18;
+                    case 18: return [2 /*return*/, null];
                     case 19:
-                        _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 20:
-                        _a.sent();
-                        _a.label = 21;
-                    case 21: return [2 /*return*/, null];
-                    case 22: return [2 /*return*/];
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 20: return [2 /*return*/];
                 }
             });
         });
@@ -560,11 +592,11 @@ var AdminServer = /** @class */ (function () {
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 14, , 18]);
+                        _a.trys.push([1, 12, 15, 16]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 12];
+                        if (!conn) return [3 /*break*/, 10];
                         return [4 /*yield*/, conn.beginTransaction()];
                     case 3:
                         _a.sent();
@@ -579,38 +611,33 @@ var AdminServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, { recoveryId: recoveryId })];
                     case 5:
                         response = _a.sent();
-                        if (!(response && response.length === 0)) return [3 /*break*/, 8];
+                        if (!(response && response.length === 0)) return [3 /*break*/, 7];
                         return [4 /*yield*/, conn.commit()];
                     case 6:
                         _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 7:
-                        _a.sent();
                         return [2 /*return*/, true];
-                    case 8: return [4 /*yield*/, conn.rollback()];
-                    case 9:
-                        _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 10:
+                    case 7: return [4 /*yield*/, conn.rollback()];
+                    case 8:
                         _a.sent();
                         return [2 /*return*/, false];
-                    case 11: return [3 /*break*/, 13];
-                    case 12: return [2 /*return*/, false];
-                    case 13: return [3 /*break*/, 18];
-                    case 14:
+                    case 9: return [3 /*break*/, 11];
+                    case 10: return [2 /*return*/, false];
+                    case 11: return [3 /*break*/, 16];
+                    case 12:
                         error_2 = _a.sent();
                         console.log("Error in function \"deleteRecovery(recoveryId)\"|\"admin\"");
                         console.error(error_2);
-                        if (!conn) return [3 /*break*/, 17];
+                        if (!conn) return [3 /*break*/, 14];
                         return [4 /*yield*/, conn.rollback()];
+                    case 13:
+                        _a.sent();
+                        _a.label = 14;
+                    case 14: return [2 /*return*/, false];
                     case 15:
-                        _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 16:
-                        _a.sent();
-                        _a.label = 17;
-                    case 17: return [2 /*return*/, false];
-                    case 18: return [2 /*return*/];
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 16: return [2 /*return*/];
                 }
             });
         });
@@ -629,11 +656,11 @@ var AdminServer = /** @class */ (function () {
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 10, , 13]);
+                        _a.trys.push([1, 6, 7, 8]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 8];
+                        if (!conn) return [3 /*break*/, 4];
                         queryOptions = {
                             namedPlaceholders: true,
                             sql: "SELECT * FROM recoveries WHERE recoveryId=:recoveryId"
@@ -641,29 +668,25 @@ var AdminServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, { recoveryId: recoveryId })];
                     case 3:
                         recovery = _a.sent();
-                        if (!(recovery && recovery.length > 0 && recovery[0])) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.release()];
-                    case 4:
-                        _a.sent();
-                        return [2 /*return*/, recovery[0]];
-                    case 5: return [4 /*yield*/, conn.release()];
+                        if (recovery && recovery.length > 0 && recovery[0]) {
+                            return [2 /*return*/, recovery[0]];
+                        }
+                        else {
+                            return [2 /*return*/, null];
+                        }
+                        return [3 /*break*/, 5];
+                    case 4: return [2 /*return*/, null];
+                    case 5: return [3 /*break*/, 8];
                     case 6:
-                        _a.sent();
-                        return [2 /*return*/, null];
-                    case 7: return [3 /*break*/, 9];
-                    case 8: return [2 /*return*/, null];
-                    case 9: return [3 /*break*/, 13];
-                    case 10:
                         error_3 = _a.sent();
                         console.log("Error in function \"findRecoveryById(id)\"|\"admin\"");
                         console.error(error_3);
-                        if (!conn) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.release()];
-                    case 11:
-                        _a.sent();
-                        _a.label = 12;
-                    case 12: return [2 /*return*/, null];
-                    case 13: return [2 /*return*/];
+                        return [2 /*return*/, null];
+                    case 7:
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 8: return [2 /*return*/];
                 }
             });
         });
@@ -682,11 +705,11 @@ var AdminServer = /** @class */ (function () {
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 10, , 13]);
+                        _a.trys.push([1, 6, 7, 8]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 8];
+                        if (!conn) return [3 /*break*/, 4];
                         queryOptions = {
                             namedPlaceholders: true,
                             sql: "SELECT * FROM recoveries WHERE recoveryLink=:recoveryLink"
@@ -694,29 +717,25 @@ var AdminServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, { recoveryLink: recoveryLink })];
                     case 3:
                         recovery = _a.sent();
-                        if (!(recovery && recovery.length > 0 && recovery[0])) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.release()];
-                    case 4:
-                        _a.sent();
-                        return [2 /*return*/, recovery[0]];
-                    case 5: return [4 /*yield*/, conn.release()];
+                        if (recovery && recovery.length > 0 && recovery[0]) {
+                            return [2 /*return*/, recovery[0]];
+                        }
+                        else {
+                            return [2 /*return*/, null];
+                        }
+                        return [3 /*break*/, 5];
+                    case 4: return [2 /*return*/, null];
+                    case 5: return [3 /*break*/, 8];
                     case 6:
-                        _a.sent();
-                        return [2 /*return*/, null];
-                    case 7: return [3 /*break*/, 9];
-                    case 8: return [2 /*return*/, null];
-                    case 9: return [3 /*break*/, 13];
-                    case 10:
                         error_4 = _a.sent();
                         console.log("Error in function \"findRecoveryByToken(recoveryLink)\"|\"admin\"");
                         console.error(error_4);
-                        if (!conn) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.release()];
-                    case 11:
-                        _a.sent();
-                        _a.label = 12;
-                    case 12: return [2 /*return*/, null];
-                    case 13: return [2 /*return*/];
+                        return [2 /*return*/, null];
+                    case 7:
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 8: return [2 /*return*/];
                 }
             });
         });
@@ -756,12 +775,11 @@ router.post("/createResetEmail", function (req, res) { return __awaiter(void 0, 
             case 1:
                 recovery = _a.sent();
                 if (recovery) {
-                    res.send(recovery);
+                    res.status(200).send(recovery);
                 }
                 else {
                     res.status(401).send({ err: 401, data: null });
                 }
-                res.status(201).send({});
                 return [3 /*break*/, 3];
             case 2:
                 error_5 = _a.sent();
@@ -779,47 +797,44 @@ router.post("/createResetEmail", function (req, res) { return __awaiter(void 0, 
  *
  */
 router.post("/resetPassword", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var token, password, recovery, user, _a, error_6;
-    return __generator(this, function (_b) {
-        switch (_b.label) {
+    var token, password, recovery, user, error_6;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
             case 0:
                 token = req.body.token;
                 password = req.body.password;
-                _b.label = 1;
+                _a.label = 1;
             case 1:
-                _b.trys.push([1, 10, , 11]);
+                _a.trys.push([1, 9, , 10]);
                 return [4 /*yield*/, admin.findRecoveryByToken(token)];
             case 2:
-                recovery = _b.sent();
-                if (!recovery) return [3 /*break*/, 8];
+                recovery = _a.sent();
+                if (!recovery) return [3 /*break*/, 7];
                 return [4 /*yield*/, users.getUserByEmail(recovery.email)];
             case 3:
-                user = _b.sent();
-                if (!user) return [3 /*break*/, 6];
-                _a = user;
-                return [4 /*yield*/, server_3.UsersServer.passwordGenerator(password)];
+                user = _a.sent();
+                if (!user) return [3 /*break*/, 5];
+                user.password = password;
+                return [4 /*yield*/, users.modifyUser(user, true)];
             case 4:
-                _a.password = _b.sent();
-                return [4 /*yield*/, users.modifyUser(user)];
-            case 5:
-                _b.sent();
+                _a.sent();
                 res.status(200).send({ username: user.username });
-                return [3 /*break*/, 7];
-            case 6:
+                return [3 /*break*/, 6];
+            case 5:
                 res.status(401).send({ err: 401, data: null });
-                _b.label = 7;
-            case 7: return [3 /*break*/, 9];
-            case 8:
+                _a.label = 6;
+            case 6: return [3 /*break*/, 8];
+            case 7:
                 res.status(401).send({ err: 401, data: null });
-                _b.label = 9;
-            case 9: return [3 /*break*/, 11];
-            case 10:
-                error_6 = _b.sent();
+                _a.label = 8;
+            case 8: return [3 /*break*/, 10];
+            case 9:
+                error_6 = _a.sent();
                 console.error("Error on route \"/resetPassword\" in \"admin\" router");
                 console.error(error_6);
                 res.status(401).send({ err: 401, data: null });
-                return [3 /*break*/, 11];
-            case 11: return [2 /*return*/];
+                return [3 /*break*/, 10];
+            case 10: return [2 /*return*/];
         }
     });
 }); });
@@ -897,8 +912,8 @@ var authFunct = server_3.getAuthorizationFunction();
 if (authFunct)
     router.use(authFunct);
 router.post("/updateDescriptionCSV", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var encoded, buffer, string, parsed, parsed_1, parsed_1_1, arr, object, team, product, e_3_1, error_9;
-    var e_3, _a;
+    var encoded, buffer, string, parsed, parsed_1, parsed_1_1, arr, object, team, product, e_4_1, error_9;
+    var e_4, _a;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
@@ -955,14 +970,14 @@ router.post("/updateDescriptionCSV", function (req, res) { return __awaiter(void
                 return [3 /*break*/, 2];
             case 14: return [3 /*break*/, 17];
             case 15:
-                e_3_1 = _b.sent();
-                e_3 = { error: e_3_1 };
+                e_4_1 = _b.sent();
+                e_4 = { error: e_4_1 };
                 return [3 /*break*/, 17];
             case 16:
                 try {
                     if (parsed_1_1 && !parsed_1_1.done && (_a = parsed_1.return)) _a.call(parsed_1);
                 }
-                finally { if (e_3) throw e_3.error; }
+                finally { if (e_4) throw e_4.error; }
                 return [7 /*endfinally*/];
             case 17:
                 res.status(200).send({ err: 200, data: true });
@@ -981,8 +996,8 @@ router.post("/updateDescriptionCSV", function (req, res) { return __awaiter(void
  * Route on which information found in a .csv file is being uploaded into the database
  */ // TODO SEE RETURN TYPE
 router.post("/uploadCSV", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var encoded, buffer, string, parsed, obj, parsed_2, parsed_2_1, arr, object, newObj, _a, _b, _i, key, _c, _d, entry, team, mentorEmail, mentor, mentorUsername, password, user_1, msg, notification, user, password, msg, notification, userTeam, role, teamUser, initDate, i, aux, date, userActivity, response, e_4_1, error_10;
-    var e_5, _e, e_4, _f;
+    var encoded, buffer, string, parsed, obj, parsed_2, parsed_2_1, arr, object, newObj, _a, _b, _i, key, _c, _d, entry, team, mentorEmail, mentor, mentorUsername, password, user_1, msg, notification, user, password, msg, notification, userTeam, role, teamUser, initDate, i, aux, date, userActivity, response, e_5_1, error_10;
+    var e_6, _e, e_5, _f;
     return __generator(this, function (_g) {
         switch (_g.label) {
             case 0:
@@ -1004,12 +1019,12 @@ router.post("/uploadCSV", function (req, res) { return __awaiter(void 0, void 0,
                         // WORKAROUND for parsing the csv data. TODO -> Create interface for parsing
                     }
                 }
-                catch (e_5_1) { e_5 = { error: e_5_1 }; }
+                catch (e_6_1) { e_6 = { error: e_6_1 }; }
                 finally {
                     try {
                         if (parsed_2_1 && !parsed_2_1.done && (_e = parsed_2.return)) _e.call(parsed_2);
                     }
-                    finally { if (e_5) throw e_5.error; }
+                    finally { if (e_6) throw e_6.error; }
                 }
                 newObj = _.groupBy(obj, "teamId");
                 _a = [];
@@ -1023,7 +1038,7 @@ router.post("/uploadCSV", function (req, res) { return __awaiter(void 0, void 0,
                 _g.label = 2;
             case 2:
                 _g.trys.push([2, 26, 27, 28]);
-                _c = (e_4 = void 0, __values(newObj[key])), _d = _c.next();
+                _c = (e_5 = void 0, __values(newObj[key])), _d = _c.next();
                 _g.label = 3;
             case 3:
                 if (!!_d.done) return [3 /*break*/, 25];
@@ -1045,7 +1060,7 @@ router.post("/uploadCSV", function (req, res) { return __awaiter(void 0, void 0,
                 if (!(mentorUsername !== "")) return [3 /*break*/, 8];
                 password = admin.randomPassword();
                 return [4 /*yield*/, users.addUser({
-                        // as any -> todo -> discuss if we change to userId: string|null 
+                        // as any -> todo -> discuss if we change to userId: string|null
                         userId: uuid_1.v4(),
                         firstName: mentorUsername,
                         lastName: "",
@@ -1056,7 +1071,7 @@ router.post("/uploadCSV", function (req, res) { return __awaiter(void 0, void 0,
                         socialMedia: {},
                         birthDate: new Date(),
                         userDetails: {
-                            "location": entry.team.teamDetails["location"]
+                            location: entry.team.teamDetails["location"]
                         },
                         role: "Mentor",
                         avatarUu: "",
@@ -1069,7 +1084,7 @@ router.post("/uploadCSV", function (req, res) { return __awaiter(void 0, void 0,
                     + "Here is your new account, please do not disclose these informations to anyone.\n"
                     + "		Username: " + user_1.username + "\n"
                     + "		Password: " + password + "\n"
-                    + "Use these credidentials to login on " + process.env.HOSTNAME + "\n\n"
+                    + "Use these credidentials to login on " + process.env.WEBHOSTNAME + "\n\n"
                     + "Regards, Innovation Labs Team\n";
                 notification = {
                     email: user_1.email,
@@ -1104,7 +1119,7 @@ router.post("/uploadCSV", function (req, res) { return __awaiter(void 0, void 0,
                     + "Here is your new account, please do not disclose these informations to anyone.\n"
                     + "		Username: " + entry.user.username + "\n"
                     + "		Password: " + password + "\n"
-                    + "Use these credidentials to login on " + process.env.HOSTNAME + "\n\n"
+                    + "Use these credidentials to login on " + process.env.WEBHOSTNAME + "\n\n"
                     + "Regards, Innovation Labs Team\n";
                 notification = {
                     email: entry.user.email,
@@ -1116,8 +1131,6 @@ router.post("/uploadCSV", function (req, res) { return __awaiter(void 0, void 0,
                 return [4 /*yield*/, daemon.addNotification(notification)];
             case 13:
                 _g.sent();
-                if (entry.product)
-                    entry.product.mentorId = entry.user.userId;
                 return [4 /*yield*/, users.addUser(entry.user)];
             case 14:
                 user = _g.sent();
@@ -1183,14 +1196,14 @@ router.post("/uploadCSV", function (req, res) { return __awaiter(void 0, void 0,
                 return [3 /*break*/, 3];
             case 25: return [3 /*break*/, 28];
             case 26:
-                e_4_1 = _g.sent();
-                e_4 = { error: e_4_1 };
+                e_5_1 = _g.sent();
+                e_5 = { error: e_5_1 };
                 return [3 /*break*/, 28];
             case 27:
                 try {
                     if (_d && !_d.done && (_f = _c.return)) _f.call(_c);
                 }
-                finally { if (e_4) throw e_4.error; }
+                finally { if (e_5) throw e_5.error; }
                 return [7 /*endfinally*/];
             case 28:
                 _i++;
@@ -1212,8 +1225,8 @@ router.post("/uploadCSV", function (req, res) { return __awaiter(void 0, void 0,
  * Route on which a new user activity is added into the database
  */
 router.post("/newUserActivity", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var userActivities, userActivities_1, userActivities_1_1, activity, response, e_6_1, error_11;
-    var e_6, _a;
+    var userActivities, userActivities_1, userActivities_1_1, activity, response, e_7_1, error_11;
+    var e_7, _a;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
@@ -1242,14 +1255,14 @@ router.post("/newUserActivity", function (req, res) { return __awaiter(void 0, v
                 return [3 /*break*/, 2];
             case 5: return [3 /*break*/, 8];
             case 6:
-                e_6_1 = _b.sent();
-                e_6 = { error: e_6_1 };
+                e_7_1 = _b.sent();
+                e_7 = { error: e_7_1 };
                 return [3 /*break*/, 8];
             case 7:
                 try {
                     if (userActivities_1_1 && !userActivities_1_1.done && (_a = userActivities_1.return)) _a.call(userActivities_1);
                 }
-                finally { if (e_6) throw e_6.error; }
+                finally { if (e_7) throw e_7.error; }
                 return [7 /*endfinally*/];
             case 8: return [3 /*break*/, 10];
             case 9:
@@ -1270,34 +1283,48 @@ router.post("/newUserActivity", function (req, res) { return __awaiter(void 0, v
         }
     });
 }); });
+router.get("/download/ceo/data", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var ceoArr, csv, error_12;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                _a.trys.push([0, 2, , 3]);
+                return [4 /*yield*/, admin.getCEOData()];
+            case 1:
+                ceoArr = _a.sent();
+                csv = Papa.unparse(ceoArr, { quotes: true });
+                if (csv) {
+                    res.send(csv);
+                }
+                else {
+                    console.error('Error on route "/download/ceo/data" in "admin" router');
+                    console.error("No csv unparsed!");
+                    res.status(401).send({ err: 401 });
+                }
+                return [3 /*break*/, 3];
+            case 2:
+                error_12 = _a.sent();
+                console.error('Error on route "/download/ceo/data" in "admin" router');
+                console.error(error_12);
+                res.status(401).send({ err: 401 });
+                return [3 /*break*/, 3];
+            case 3: return [2 /*return*/];
+        }
+    });
+}); });
 /**
  * 	Route on which information about users/uploads/teams is sent to be downloaded
  */
 router.post("/download/udc/data", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var usersString, array, usersString_1, usersString_1_1, row, csv, error_12;
-    var e_7, _a;
-    return __generator(this, function (_b) {
-        switch (_b.label) {
+    var usersArr, csv, error_13;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
             case 0:
-                _b.trys.push([0, 2, , 3]);
+                _a.trys.push([0, 2, , 3]);
                 return [4 /*yield*/, admin.getUDCData()];
             case 1:
-                usersString = _b.sent();
-                array = [];
-                try {
-                    for (usersString_1 = __values(usersString), usersString_1_1 = usersString_1.next(); !usersString_1_1.done; usersString_1_1 = usersString_1.next()) {
-                        row = usersString_1_1.value;
-                        array.push(row);
-                    }
-                }
-                catch (e_7_1) { e_7 = { error: e_7_1 }; }
-                finally {
-                    try {
-                        if (usersString_1_1 && !usersString_1_1.done && (_a = usersString_1.return)) _a.call(usersString_1);
-                    }
-                    finally { if (e_7) throw e_7.error; }
-                }
-                csv = Papa.unparse(array);
+                usersArr = _a.sent();
+                csv = Papa.unparse(usersArr, { quotes: true });
                 if (csv) {
                     res.send(csv);
                 }
@@ -1308,9 +1335,9 @@ router.post("/download/udc/data", function (req, res) { return __awaiter(void 0,
                 }
                 return [3 /*break*/, 3];
             case 2:
-                error_12 = _b.sent();
+                error_13 = _a.sent();
                 console.error("Error on route \"/download/udc/data\" in \"admin\" router");
-                console.error(error_12);
+                console.error(error_13);
                 res.status(401).send({ err: 401, data: null });
                 return [3 /*break*/, 3];
             case 3: return [2 /*return*/];
@@ -1321,7 +1348,7 @@ router.post("/download/udc/data", function (req, res) { return __awaiter(void 0,
  * 	Route on which information about specific teams is sent to be downloaded
  */
 router.post("/download/team/data", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var usersString, array, usersString_2, usersString_2_1, row, csv, error_13;
+    var usersString, array, usersString_1, usersString_1_1, row, csv, error_14;
     var e_8, _a;
     return __generator(this, function (_b) {
         switch (_b.label) {
@@ -1332,19 +1359,19 @@ router.post("/download/team/data", function (req, res) { return __awaiter(void 0
                 usersString = _b.sent();
                 array = [];
                 try {
-                    for (usersString_2 = __values(usersString), usersString_2_1 = usersString_2.next(); !usersString_2_1.done; usersString_2_1 = usersString_2.next()) {
-                        row = usersString_2_1.value;
+                    for (usersString_1 = __values(usersString), usersString_1_1 = usersString_1.next(); !usersString_1_1.done; usersString_1_1 = usersString_1.next()) {
+                        row = usersString_1_1.value;
                         array.push(row);
                     }
                 }
                 catch (e_8_1) { e_8 = { error: e_8_1 }; }
                 finally {
                     try {
-                        if (usersString_2_1 && !usersString_2_1.done && (_a = usersString_2.return)) _a.call(usersString_2);
+                        if (usersString_1_1 && !usersString_1_1.done && (_a = usersString_1.return)) _a.call(usersString_1);
                     }
                     finally { if (e_8) throw e_8.error; }
                 }
-                csv = Papa.unparse(array);
+                csv = Papa.unparse(array, { quotes: true });
                 if (csv) {
                     res.send(csv);
                 }
@@ -1355,9 +1382,9 @@ router.post("/download/team/data", function (req, res) { return __awaiter(void 0
                 }
                 return [3 /*break*/, 3];
             case 2:
-                error_13 = _b.sent();
+                error_14 = _b.sent();
                 console.error("Error on route \"/download/team/data\" in \"admin\" router");
-                console.error(error_13);
+                console.error(error_14);
                 res.status(401).send({ err: 401, data: null });
                 return [3 /*break*/, 3];
             case 3: return [2 /*return*/];
@@ -1368,7 +1395,7 @@ router.post("/download/team/data", function (req, res) { return __awaiter(void 0
  * 	Route on which we get all the users from the database based on a specified location
  */
 router.get("/users/:location", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var teamsArray, users_1, teamsArray_1, teamsArray_1_1, team, auxUsers, e_9_1, error_14;
+    var teamsArray, users_1, teamsArray_1, teamsArray_1_1, team, auxUsers, e_9_1, error_15;
     var e_9, _a;
     return __generator(this, function (_b) {
         switch (_b.label) {
@@ -1426,9 +1453,9 @@ router.get("/users/:location", function (req, res) { return __awaiter(void 0, vo
                 }
                 return [3 /*break*/, 15];
             case 14:
-                error_14 = _b.sent();
+                error_15 = _b.sent();
                 console.error("Error on route \"/users/:" + req.params.location + "\" in \"admin\" router");
-                console.error(error_14);
+                console.error(error_15);
                 res.status(401).send({ err: 401, data: [] });
                 return [3 /*break*/, 15];
             case 15: return [2 /*return*/];
@@ -1439,7 +1466,7 @@ router.get("/users/:location", function (req, res) { return __awaiter(void 0, vo
  * 	Route on which we get all the users from the database
  */
 router.get("/users", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var teamsArray, users_3, teamsArray_2, teamsArray_2_1, team, auxUsers, e_10_1, users_2, users_2_1, user, error_15;
+    var teamsArray, users_3, teamsArray_2, teamsArray_2_1, team, auxUsers, e_10_1, users_2, users_2_1, user, error_16;
     var e_10, _a, e_11, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
@@ -1501,9 +1528,9 @@ router.get("/users", function (req, res) { return __awaiter(void 0, void 0, void
                 }
                 return [3 /*break*/, 11];
             case 10:
-                error_15 = _c.sent();
+                error_16 = _c.sent();
                 console.error("Error on route \"/users/\" in \"admin\" router");
-                console.error(error_15);
+                console.error(error_16);
                 res.status(401).send({ err: 401, data: [] });
                 return [3 /*break*/, 11];
             case 11: return [2 /*return*/];
@@ -1514,7 +1541,7 @@ router.get("/users", function (req, res) { return __awaiter(void 0, void 0, void
  * 	Route on which we get all the teams from the database based on a specified location
  */
 router.get("/teams/:location", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var teamsArray, teamsArray_3, teamsArray_3_1, team, error_16;
+    var teamsArray, teamsArray_3, teamsArray_3_1, team, error_17;
     var e_12, _a;
     return __generator(this, function (_b) {
         switch (_b.label) {
@@ -1553,9 +1580,9 @@ router.get("/teams/:location", function (req, res) { return __awaiter(void 0, vo
                 }
                 return [3 /*break*/, 6];
             case 5:
-                error_16 = _b.sent();
+                error_17 = _b.sent();
                 console.error("Error on route \"/teams/:" + req.params.location + "\" in \"admin\" router");
-                console.error(error_16);
+                console.error(error_17);
                 res.status(401).send({ err: 401, data: [] });
                 return [3 /*break*/, 6];
             case 6: return [2 /*return*/];
@@ -1566,7 +1593,7 @@ router.get("/teams/:location", function (req, res) { return __awaiter(void 0, vo
  * 	Route on which we get all the teams from the database
  */
 router.get("/teams", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var teamsArray, error_17;
+    var teamsArray, error_18;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -1582,9 +1609,9 @@ router.get("/teams", function (req, res) { return __awaiter(void 0, void 0, void
                 }
                 return [3 /*break*/, 3];
             case 2:
-                error_17 = _a.sent();
+                error_18 = _a.sent();
                 console.error("Error on route \"/teams/\" in \"admin\" router");
-                console.error(error_17);
+                console.error(error_18);
                 res.status(401).send({ err: 401, data: [] });
                 return [3 /*break*/, 3];
             case 3: return [2 /*return*/];
@@ -1595,7 +1622,7 @@ router.get("/teams", function (req, res) { return __awaiter(void 0, void 0, void
  * 	Route on which we get all the team reviews based on the type of user requesting them
  */
 router.post("/teams/review", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var type, location, teamsArray, reviews, teamsArray_4, teamsArray_4_1, team, mentor, product, review, assesFinals, assesSemifinals, e_13_1, error_18;
+    var type, location, teamsArray, reviews, teamsArray_4, teamsArray_4_1, team, mentor, product, review, assesFinals, assesSemifinals, e_13_1, error_19;
     var e_13, _a;
     return __generator(this, function (_b) {
         switch (_b.label) {
@@ -1641,11 +1668,11 @@ router.post("/teams/review", function (req, res) { return __awaiter(void 0, void
                 if (mentor && product) {
                     assesFinals = false;
                     assesSemifinals = false;
-                    if (product.assessment20May !== undefined) {
-                        assesFinals = product.assessment20May;
+                    if (product.assessmentSemifinals !== undefined) {
+                        assesFinals = product.assessmentSemifinals;
                     }
-                    if (product.assessment12Oct !== undefined) {
-                        assesSemifinals = product.assessment12Oct;
+                    if (product.assessmentFinals !== undefined) {
+                        assesSemifinals = product.assessmentFinals;
                     }
                     review = {
                         location: team.location,
@@ -1659,8 +1686,8 @@ router.post("/teams/review", function (req, res) { return __awaiter(void 0, void
                         teamId: team.teamId,
                         mentorNotes: product.mentorNotes,
                         adminNotes: product.adminNotes,
-                        assessment20May: assesFinals,
-                        assessment12Oct: assesSemifinals,
+                        assessmentSemifinals: assesFinals,
+                        assessmentFinals: assesSemifinals,
                         updatedAt: admin.formatDate(team.updatedAt),
                         lastMentorUpdate: admin.formatDate(team.lastMentorUpdate)
                     };
@@ -1696,9 +1723,9 @@ router.post("/teams/review", function (req, res) { return __awaiter(void 0, void
                 }
                 return [3 /*break*/, 17];
             case 16:
-                error_18 = _b.sent();
+                error_19 = _b.sent();
                 console.error("Error on route \"/teams/review\" in \"admin\" router");
-                console.error(error_18);
+                console.error(error_19);
                 res.status(401).send({ err: 401, data: [] });
                 return [3 /*break*/, 17];
             case 17: return [2 /*return*/];
@@ -1709,7 +1736,7 @@ router.post("/teams/review", function (req, res) { return __awaiter(void 0, void
  * Route on which we request the update of selected reviews
  */
 router.post("/teams/review/update", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var revRes, reviews, type, reviews_1, reviews_1_1, review, product, team, newTeam, prodRes, e_14_1, error_19;
+    var revRes, reviews, type, reviews_1, reviews_1_1, review, product, team, newTeam, prodRes, e_14_1, error_20;
     var e_14, _a;
     return __generator(this, function (_b) {
         switch (_b.label) {
@@ -1760,8 +1787,8 @@ router.post("/teams/review/update", function (req, res) { return __awaiter(void 
                 product.descriptionEN = review.description;
                 product.productDetails = JSON.parse(product.productDetails);
                 product.productDetails["website"] = review.webLink;
-                product.productDetails["assessment20May"] = review.assessment20May;
-                product.productDetails["assessment12Oct"] = review.assessment12Oct;
+                product.productDetails["assessmentSemifinals"] = review.assessmentSemifinals;
+                product.productDetails["assessmentFinals"] = review.assessmentFinals;
                 product.lastMentorUpdate = new Date(review.lastMentorUpdate);
                 product.updatedAt = new Date(review.updatedAt);
                 return [4 /*yield*/, teams.updateProduct(product)];
@@ -1796,9 +1823,9 @@ router.post("/teams/review/update", function (req, res) { return __awaiter(void 
                 }
                 return [3 /*break*/, 14];
             case 13:
-                error_19 = _b.sent();
+                error_20 = _b.sent();
                 console.error("Error on route \"/teams/review/update\" in \"admin\" router");
-                console.error(error_19);
+                console.error(error_20);
                 res.status(401).send({ err: 401, data: [] });
                 return [3 /*break*/, 14];
             case 14: return [2 /*return*/];
@@ -1809,7 +1836,7 @@ router.post("/teams/review/update", function (req, res) { return __awaiter(void 
  * Route on which we request the change of role for a selected user
  */
 router.post("/changeRole", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var user, userTeam, error_20;
+    var user, userTeam, error_21;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -1842,9 +1869,9 @@ router.post("/changeRole", function (req, res) { return __awaiter(void 0, void 0
                 res.status(200).send(userTeam);
                 return [3 /*break*/, 9];
             case 8:
-                error_20 = _a.sent();
+                error_21 = _a.sent();
                 console.error("Error on route \"/changeRole\" in \"admin\" router");
-                console.error(error_20);
+                console.error(error_21);
                 res.status(500).send({ err: 500, data: null });
                 return [3 /*break*/, 9];
             case 9: return [2 /*return*/];
@@ -1940,7 +1967,7 @@ router.post("/request/user", function (req, res) { return __awaiter(void 0, void
     });
 }); });
 router.post("/add/user", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var user, option, msg, notification, newUser, teamId, team, userTeam, role, initDate, teamUser, i, aux, date, userActivity, error_21;
+    var user, option, msg, notification, newUser, teamId, team, userTeam, role, initDate, teamUser, i, aux, date, userActivity, error_22;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -1952,7 +1979,7 @@ router.post("/add/user", function (req, res) { return __awaiter(void 0, void 0, 
                     + "Here is your new account, please do not disclose these informations to anyone.\n"
                     + "		Username: " + user.username + "\n"
                     + "		Password: " + user.password + "\n"
-                    + "Use these credidentials to login on " + process.env.HOSTNAME + "\n\n"
+                    + "Use these credidentials to login on " + process.env.WEBHOSTNAME + "\n\n"
                     + "Regards, Innovation Labs Team\n";
                 notification = {
                     email: user.email,
@@ -2029,8 +2056,8 @@ router.post("/add/user", function (req, res) { return __awaiter(void 0, void 0, 
                 res.status(201).send(false);
                 return [3 /*break*/, 16];
             case 15:
-                error_21 = _a.sent();
-                console.error(error_21);
+                error_22 = _a.sent();
+                console.error(error_22);
                 res.status(500).send({ err: 500, data: false });
                 return [3 /*break*/, 16];
             case 16: return [2 /*return*/];
@@ -2049,7 +2076,7 @@ router.post("/update/user", function (req, res) { return __awaiter(void 0, void 
                     + "Here is your new password, please do not disclose these informations to anyone.\n"
                     + "		Username: " + user.username + "\n"
                     + "		Password: " + user.password + "\n"
-                    + "Use these credidentials to login on " + process.env.HOSTNAME + "\n\n"
+                    + "Use these credidentials to login on " + process.env.WEBHOSTNAME + "\n\n"
                     + "Regards, Innovation Labs Team\n";
                 notification = {
                     email: user.email,

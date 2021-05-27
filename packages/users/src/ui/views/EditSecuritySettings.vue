@@ -2,7 +2,7 @@
 	<v-app>
 		<v-container v-if="!loadingPage">
 			<v-form v-model="valid" lazy-validation>
-				<v-card flat style="margin: auto; padding-top: 20px;" max-width="900" color="#fcfcfc">
+				<v-card flat style="margin: auto; padding-top: 20px;" max-width="900" >
 					<v-card-title class="justify-center">
 							
 						<v-list-item-avatar size="60">

@@ -26,11 +26,9 @@ export class WorkshopServer {
 				const response:Workshop[] = await conn.query(queryOptions,{workshopId:workshopParam.workshopId});
 				if(response && response.length > 0 && response[0]) {
 					await conn.commit();
-					await conn.release();
 					return response[0];
 				} else {
 					await conn.rollback();
-					await conn.release();
 					return null;
 				}
 			} else {
@@ -40,9 +38,11 @@ export class WorkshopServer {
 			console.error(error);
 			if(conn) {
 				await conn.rollback();
-				await conn.release();
 			}
 			return null;
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 
@@ -61,11 +61,9 @@ export class WorkshopServer {
 				const response:WorkshopInstances[] = await conn.query(queryOptions,{workshopInstanceId:workshopInstance.workshopInstanceId});
 				if(response && response.length > 0 && response[0]) {
 					await conn.commit();
-					await conn.release();
 					return response[0];
 				} else {
 					await conn.rollback();
-					await conn.release();
 					return null;
 				}
 			} else {
@@ -75,9 +73,11 @@ export class WorkshopServer {
 			console.error(error);
 			if(conn) {
 				await conn.rollback();
-				await conn.release();
 			}
 			return null;
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 
@@ -96,11 +96,9 @@ export class WorkshopServer {
 				const response:WorkshopAttendances[] = await conn.query(queryOptions,{attendanceId:workshopAttendance.attendanceId});
 				if(response && response.length > 0 && response[0]) {
 					await conn.commit();
-					await conn.release();
 					return response[0];
 				} else {
 					await conn.rollback();
-					await conn.release();
 					return null;
 				}
 			} else {
@@ -110,9 +108,11 @@ export class WorkshopServer {
 			console.error(error);
 			if(conn) {
 				await conn.rollback();
-				await conn.release();
 			}
 			return null;
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 
@@ -131,11 +131,9 @@ export class WorkshopServer {
 				const response:{deleted_id:string}[] = await conn.query(queryOptions,{attendanceId});
 				if(response && response.length === 0) {
 					await conn.commit();
-					await conn.release(); 
 					return true;
 				} else {
 					await conn.rollback();
-					await conn.release();
 					return false;
 				}
 			} else {
@@ -145,9 +143,11 @@ export class WorkshopServer {
 			console.error(error);
 			if(conn) {
 				await conn.rollback();
-				await conn.release();
 			}
 			return false;
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 
@@ -161,10 +161,8 @@ export class WorkshopServer {
 				}
 				const workshops:Workshop[] = await conn.query(queryOptions) as Workshop[];
 				if(workshops && workshops.length > 0) {
-					await conn.release();
 					return workshops;
 				} else {
-					await conn.release();
 					return [];
 				}
 			} else {
@@ -172,9 +170,10 @@ export class WorkshopServer {
 			}
 		} catch (error) {
 			console.error(error);
-			if(conn)
-				await conn.release();
 			return [];
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 
@@ -188,10 +187,8 @@ export class WorkshopServer {
 				}
 				const workshops:WorkshopInstances[] = await conn.query(queryOptions,{teamIds}) as WorkshopInstances[];
 				if(workshops && workshops.length > 0) {
-					await conn.release();
 					return workshops;
 				} else {
-					await conn.release();
 					return [];
 				}
 			} else {
@@ -199,9 +196,10 @@ export class WorkshopServer {
 			}
 		} catch (error) {
 			console.error(error);
-			if(conn)
-				await conn.release();
 			return [];
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 
@@ -215,10 +213,8 @@ export class WorkshopServer {
 				}
 				const workshopInstances:WorkshopInstances[] = await conn.query(queryOptions,{workshopId}) as WorkshopInstances[];
 				if(workshopInstances && workshopInstances.length > 0) {
-					await conn.release();
 					return workshopInstances;
 				} else {
-					await conn.release();
 					return [];
 				}
 			} else {
@@ -226,9 +222,10 @@ export class WorkshopServer {
 			}
 		} catch (error) {
 			console.error(error);
-			if(conn)
-				await conn.release();
 			return [];
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 
@@ -242,10 +239,8 @@ export class WorkshopServer {
 				}
 				const workshopAttendances:WorkshopAttendances[] = await conn.query(queryOptions) as WorkshopAttendances[];
 				if(workshopAttendances && workshopAttendances.length > 0) {
-					await conn.release();
 					return workshopAttendances;
 				} else {
-					await conn.release();
 					return [];
 				}
 			} else {
@@ -253,9 +248,10 @@ export class WorkshopServer {
 			}
 		} catch (error) {
 			console.error(error);
-			if(conn)
-				await conn.release();
 			return [];
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 
@@ -269,10 +265,8 @@ export class WorkshopServer {
 				}
 				const workshopInstances:(WorkshopInstances & WorkshopAttendances)[] = await conn.query(queryOptions,{workshopId});
 				if(workshopInstances && workshopInstances.length > 0) {
-					await conn.release();
 					return workshopInstances;
 				} else {
-					await conn.release();
 					return [];
 				}
 			} else {
@@ -280,9 +274,10 @@ export class WorkshopServer {
 			}
 		} catch (error) {
 			console.error(error);
-			if(conn)
-				await conn.release();
 			return [];
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 

@@ -3,7 +3,6 @@ export * from "../common";
 import { RouteConfig } from "vue-router";
 import { UI } from '@startupway/main/lib/ui';
 import { WorkspaceUI, ToolbarButtonPosition } from '@startupway/workspace/lib/ui';
-
 import Admin from "./views/Admin.vue";
 import UsersEdit from "./views/UsersEdit.vue";
 import TeamsEdit from "./views/TeamsEdit.vue";
