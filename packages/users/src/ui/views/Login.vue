@@ -1,80 +1,80 @@
 <template>
-	<v-main style="background-color: rgba(25, 126, 129, 0.1)">
-			<v-container fluid fill-height>
-				<v-layout align-center justify-center> 
-					<v-flex xs12 sm8 md4>
-						<v-card class="elevation-12">
-							<v-toolbar color="primary" dark flat height="170px" style="padding">
-								<v-img contain :src="loginImage" max-height="170"></v-img>								 								
-							</v-toolbar>
-							<v-card-text style="margin-top: 50px;">
-								<v-form>
-									<v-text-field
-										id="login"
-										v-model="login"
-										label="Username"
-										name="login"
-										type="text"
-										rounded
-										outlined
-										color="primary"
-										prepend-icon="mdi-account-circle mdi-36px"
-										@keyup.enter="loginFunction()"
-									></v-text-field>
+	<v-main>
+		<v-container fluid fill-height>
+			<v-layout align-center justify-center> 
+				<v-flex xs12 sm8 md4>
+					<v-card class="elevation-12">
+						<v-toolbar color="primary" dark flat height="170px" style="padding">
+							<v-img contain :src="loginImage" max-height="170"></v-img>								 								
+						</v-toolbar>
+						<v-card-text style="margin-top: 50px;">
+							<v-form>
+								<v-text-field
+									id="login"
+									v-model="login"
+									label="Username"
+									name="login"
+									type="text"
+									rounded
+									outlined
+									color="primary"
+									prepend-icon="mdi-account-circle mdi-36px"
+									@keyup.enter="loginFunction()"
+								></v-text-field>
 
-									<v-text-field
-										id="password"
-										v-model="pass"
-										label="Password"
-										name="password"
-										type="password"
-										rounded
-										outlined
-										color="primary"
-										prepend-icon="mdi-key-variant mdi-36px"
-										@keyup.enter="loginFunction()"
-									></v-text-field>
-								</v-form>
-							</v-card-text>
-							<v-card-actions class="justify-center">
-								<v-col class="justify-center">
-									<v-row class="justify-center">
-										<v-btn rounded height="40" width="300" color="primary" @click="loginFunction()">Login</v-btn>
-									</v-row>
-									<v-row class="justify-center">
-										<v-btn color="primary" text @click="dialog=true" style="margin-top: 30px;">Forgot Password?</v-btn>
-									</v-row>
-								</v-col>
-								
-							</v-card-actions>
-						</v-card>
-					</v-flex>
-				</v-layout>
-				<v-dialog width="450" v-model="dialog" persistent>
-					<v-card width="450" flat>
-						<v-card-title class="justify-center" style="font-family: Georgia, serif; margin: auto;">
-							Password Recovery
-						</v-card-title>
-						<v-divider></v-divider>
-						<v-card-text v-if="!sent" style="margin-top: 20px;">
-							An email with the reset link has been sent to your account
+								<v-text-field
+									id="password"
+									v-model="pass"
+									label="Password"
+									name="password"
+									type="password"
+									rounded
+									outlined
+									color="primary"
+									prepend-icon="mdi-key-variant mdi-36px"
+									@keyup.enter="loginFunction()"
+								></v-text-field>
+							</v-form>
 						</v-card-text>
-						<v-card-text v-else style="margin-top: 20px;">
-							Please enter your email
-							<v-spacer></v-spacer>
-							<v-text-field v-model="email" placeholder="Email"></v-text-field>
-							<vue-recaptcha @verify="validate" :sitekey="aKey" :loadRecaptchaScript="true"></vue-recaptcha>
-						</v-card-text>
-						<v-card-actions>
-							<v-btn v-if="sent" :disabled="verified" @click="resetPassword()">Reset Password</v-btn>
-							<v-spacer></v-spacer>
-							<v-btn color="primary" @click="dialog=false, sent=true">Close</v-btn>
+						<v-card-actions class="justify-center">
+							<v-col class="justify-center">
+								<v-row class="justify-center">
+									<v-btn rounded height="40" width="300" color="primary" @click="loginFunction()">Login</v-btn>
+								</v-row>
+								<v-row class="justify-center">
+									<v-btn color="primary" text @click="dialog=true" style="margin-top: 30px;">Forgot Password?</v-btn>
+								</v-row>
+							</v-col>
+							
 						</v-card-actions>
 					</v-card>
-				</v-dialog>
-			</v-container>
-			<SnackBar :options="snackOptions" :snackbar="snackbar" @update-prop="update"></SnackBar>
-		</v-main>
+				</v-flex>
+			</v-layout>
+			<v-dialog width="450" v-model="dialog" persistent>
+				<v-card width="450" flat>
+					<v-card-title class="justify-center" style="font-family: Georgia, serif; margin: auto;">
+						Password Recovery
+					</v-card-title>
+					<v-divider></v-divider>
+					<v-card-text v-if="!sent" style="margin-top: 20px;">
+						An email with the reset link has been sent to your account
+					</v-card-text>
+					<v-card-text v-else style="margin-top: 20px;">
+						Please enter your email
+						<v-spacer></v-spacer>
+						<v-text-field v-model="email" placeholder="Email"></v-text-field>
+						<vue-recaptcha @verify="validate" :sitekey="aKey" :loadRecaptchaScript="true"></vue-recaptcha>
+					</v-card-text>
+					<v-card-actions>
+						<v-btn v-if="sent" :disabled="verified" @click="resetPassword()">Reset Password</v-btn>
+						<v-spacer></v-spacer>
+						<v-btn color="primary" @click="dialog=false, sent=true">Close</v-btn>
+					</v-card-actions>
+				</v-card>
+			</v-dialog>
+		</v-container>
+		<SnackBar :options="snackOptions" :snackbar="snackbar" @update-prop="update"></SnackBar>
+	</v-main>
 </template>
 
 <script lang="ts">
@@ -84,12 +84,17 @@ import { UI } from '@startupway/main/lib/ui';
 import { User } from "../../common";
 import { SnackBarOptions, SnackBarTypes } from '@startupway/menu/lib/ui';
 import { mapGetters } from "vuex";
+import VueRecaptcha from 'vue-recaptcha';
 export default Vue.extend({
 	name: "Login",
 	// components: {
 	// 	"SnackBar": SnackBar
 	// },
+	components: {
+		VueRecaptcha
+	},
 	mounted() {
+		console.log(`${VueRecaptcha.name} Loaded`);
 		// this.ui = UI.getInstance();
 	},
 	data() {
@@ -160,9 +165,9 @@ export default Vue.extend({
 		
 		async resetPassword():Promise<void> {
 			try {
-				let response = await this.ui.api.get<{accept:string}>("/api/v1/verify/"+this.email);
+				let response = await this.ui.api.get<{accept:string}>("/api/v1/users/verify/"+this.email);
 				if(response.data.accept = "Yes") {
-					await this.ui.api.post("/api/v1/createResetEmail", {email:this.email});
+					await this.ui.api.post("/api/v1/admin/createResetEmail", {email:this.email});
 					this.verified = false;
 					this.sent=false;
 				}

@@ -39,3 +39,12 @@ npm run build-ui
 npm run build
 ```
 
+### build and deploy
+### Windows
+.\docker_build.ps1 startupway-production-image 2.2.8 startupway-service startupway-production
+### Linux
+TODO - add shell script
+
+### Requirements
+AWS lightsail package
+docker
