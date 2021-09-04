@@ -1,7 +1,8 @@
 import Vue, { VueConstructor, VNode } from "vue";
 import VueRouter, { RouteConfig } from "vue-router";
 import Vuex, { Module, StoreOptions, Store } from "vuex";
-import Vuetify, { UserVuetifyPreset } from "vuetify";
+import { UserVuetifyPreset } from "vuetify";
+import Vuetify from "vuetify/lib/framework";
 import 'vuetify/dist/vuetify.min.css';
 import axios, {AxiosInstance} from "axios";
 // import '@mdi/font/css/materialdesignicons.css';
@@ -50,18 +51,18 @@ export class UI {
 		};
 		this.store = new Store(storeData);
 
-		const vuetify = new Vuetify(this.vuetifyOptions);
-
 		Vue.use(VueRouter);
 		Vue.use(Vuetify, {
 			font: 'mdi',
 			iconfont: 'mdi'
 		});
+
+		const vuetify = new Vuetify(this.vuetifyOptions);
 		const v = new Vue ({
 			el: '#app',
-			vuetify,
-			store:this.store,
+			store: this.store,
 			router: this.router,
+			vuetify,
 			render (render):VNode {
 				return render(Application);
 			}

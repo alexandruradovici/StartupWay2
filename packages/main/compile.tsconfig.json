@@ -1,13 +1,14 @@
 {
-  "extends": "../../configs/base.tsconfig",
-  "compilerOptions": {
-    "composite": true,
-    "rootDir": "src",
-    "outDir": "lib",
-    "baseUrl": ".",
-    "esModuleInterop": true
-  },
-  "include": [
-    "src/server", "src/common"
-  ]
+	"extends": "../../configs/base.tsconfig",
+	"compilerOptions": {
+		"composite": true,
+		"rootDir": "src",
+		"outDir": "lib",
+		"baseUrl": ".",
+		"esModuleInterop": true
+	},
+	"include": [
+		"src/server",
+		"src/common"
+	]
 }

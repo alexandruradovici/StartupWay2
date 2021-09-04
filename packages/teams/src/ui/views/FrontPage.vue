@@ -22,6 +22,11 @@
 					</h1>
 				</v-row>
 				<v-row justify="center">
+					<h1 style="font-family: Georgia, serif; text-align: center; text-weight: bold, font-size: 20px; margin-top: 20px;">
+						You can find a document of how to use the platform at the following link: <a target="_blank" href="https://docs.google.com/document/u/1/d/e/2PACX-1vTMWy4cQEquNi_mP4DQWl1VzzdCdtr35xdUZOBnyIpbyXxmKXEjMK5wgp7GPKp4_vXuLvyHQnOxqVd3/pub">User Guide</a>
+					</h1>
+				</v-row>
+				<v-row justify="center">
 					<h1 v-if="!currentTeam" style="font-family: Georgia, serif; text-align: center; text-weight: bold, font-size: 20px; margin-top: 20px;">
 						Please select your team from the top right corner.
 					</h1>
