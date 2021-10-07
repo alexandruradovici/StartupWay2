@@ -7,7 +7,7 @@ export declare class UsersServer {
     getAllUserTeams(): Promise<User[]>;
     deleteUser(user: User): Promise<boolean>;
     createSession(username: string, password: string): Promise<Session | null>;
-    modifyUser(user: User, changedPass?: string): Promise<boolean>;
+    modifyUser(user: User, changedPass?: boolean): Promise<boolean>;
     getUserByUsername(username: string): Promise<User | null>;
     getUserByEmail(email: string): Promise<User | null>;
     getUserById(userId: string): Promise<User | null>;

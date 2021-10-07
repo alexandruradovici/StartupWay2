@@ -48,11 +48,22 @@ export declare class AdminServer {
      */
     formatDate(date: Date): string;
     /**
-     * Function that extract information from the database about all teams that have passed 20th may assesment and
+     * Function that extract information from the database about all teams that have passed 20th may assessment and
      * 		all of their uploaded files.
      * @returns {Promise<any[]>} an array of informations about each team
      */
     getUDCData(): Promise<any[]>;
+    getCEOData(): Promise<{
+        Location: string;
+        "Numele Echipei": string;
+        "Descriere RO": string;
+        Prenume: string;
+        Nume: string;
+        Email: string;
+        "Numar de telefon": string;
+        "Team Track": string;
+        "Business Track": string;
+    }[]>;
     /**
      * Function that extract information from the database about all teams and their descriptions
      * @returns {Promise<any[]>} an array of informations about each team

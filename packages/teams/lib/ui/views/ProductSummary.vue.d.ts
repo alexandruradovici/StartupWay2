@@ -28,8 +28,8 @@ declare const _default: import("vue/types/vue").ExtendedVue<Vue, {
     link_website: string;
     link_linkedin: string;
     link_facebook: string;
-    assessment12Oct: string;
-    assessment20May: string;
+    assessmentFinals: string;
+    assessmentSemifinals: string;
     pending_descr_RO: string;
     pending_descr_ENG: string;
     rulesPres: ((value: File) => true | "File size should be less than 300mb!")[];

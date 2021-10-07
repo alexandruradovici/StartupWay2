@@ -9,6 +9,7 @@ export declare class TeamsServer {
     getUserTeams(userId: string): Promise<(Team & UserTeams)[]>;
     getTeams(): Promise<(Team & Product)[]>;
     getTeamsByLocation(location: string): Promise<(Team & Product)[]>;
+    getTeamsByLocationBtFinals(location: string, businessTrack: string, semifinals: boolean, finals: boolean): Promise<(Team & Product)[]>;
     getTeamById(teamId: string): Promise<Team | null>;
     getTeamByProductId(productId: string): Promise<Team | null>;
     getTeamsByIdList(list: string[]): Promise<Team[]>;

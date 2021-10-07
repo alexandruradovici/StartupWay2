@@ -14,7 +14,9 @@ export declare class UploadDownloadServer {
     getS3Object(uuid: string): Promise<string>;
     getS3Url(uuid: string, userId?: string): Promise<string>;
     deleteS3File(uuid: string): Promise<Boolean>;
+    generateCustomZip(linkUuid: string, city: string, businessTrack: string, semiFianals: boolean, finals: boolean): Promise<void>;
     generateZip(type: string, date: string, linkUuid: string, option?: string, city?: string, team?: string | string[]): Promise<void>;
+    checkCustomZip(city: string, businessTrack: string, workshopNo: string, semifinals: boolean, finals: boolean): Promise<void>;
     checkZip(type: string, date: string, option?: string, city?: string, team?: string | string[]): Promise<void>;
     getZip(type: string, date: string, option?: string, city?: string, team?: string | string[]): Promise<string>;
     static getInstance(): UploadDownloadServer;

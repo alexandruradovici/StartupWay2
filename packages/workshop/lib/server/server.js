@@ -69,11 +69,11 @@ var WorkshopServer = /** @class */ (function () {
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 14, , 18]);
+                        _a.trys.push([1, 12, 15, 16]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 12];
+                        if (!conn) return [3 /*break*/, 10];
                         return [4 /*yield*/, conn.beginTransaction()];
                     case 3:
                         _a.sent();
@@ -88,37 +88,32 @@ var WorkshopServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, { workshopId: workshopParam.workshopId })];
                     case 5:
                         response = _a.sent();
-                        if (!(response && response.length > 0 && response[0])) return [3 /*break*/, 8];
+                        if (!(response && response.length > 0 && response[0])) return [3 /*break*/, 7];
                         return [4 /*yield*/, conn.commit()];
                     case 6:
                         _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 7:
-                        _a.sent();
                         return [2 /*return*/, response[0]];
-                    case 8: return [4 /*yield*/, conn.rollback()];
-                    case 9:
-                        _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 10:
+                    case 7: return [4 /*yield*/, conn.rollback()];
+                    case 8:
                         _a.sent();
                         return [2 /*return*/, null];
-                    case 11: return [3 /*break*/, 13];
-                    case 12: return [2 /*return*/, null];
-                    case 13: return [3 /*break*/, 18];
-                    case 14:
+                    case 9: return [3 /*break*/, 11];
+                    case 10: return [2 /*return*/, null];
+                    case 11: return [3 /*break*/, 16];
+                    case 12:
                         error_1 = _a.sent();
                         console.error(error_1);
-                        if (!conn) return [3 /*break*/, 17];
+                        if (!conn) return [3 /*break*/, 14];
                         return [4 /*yield*/, conn.rollback()];
+                    case 13:
+                        _a.sent();
+                        _a.label = 14;
+                    case 14: return [2 /*return*/, null];
                     case 15:
-                        _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 16:
-                        _a.sent();
-                        _a.label = 17;
-                    case 17: return [2 /*return*/, null];
-                    case 18: return [2 /*return*/];
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 16: return [2 /*return*/];
                 }
             });
         });
@@ -132,11 +127,11 @@ var WorkshopServer = /** @class */ (function () {
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 14, , 18]);
+                        _a.trys.push([1, 12, 15, 16]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 12];
+                        if (!conn) return [3 /*break*/, 10];
                         return [4 /*yield*/, conn.beginTransaction()];
                     case 3:
                         _a.sent();
@@ -151,37 +146,32 @@ var WorkshopServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, { workshopInstanceId: workshopInstance.workshopInstanceId })];
                     case 5:
                         response = _a.sent();
-                        if (!(response && response.length > 0 && response[0])) return [3 /*break*/, 8];
+                        if (!(response && response.length > 0 && response[0])) return [3 /*break*/, 7];
                         return [4 /*yield*/, conn.commit()];
                     case 6:
                         _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 7:
-                        _a.sent();
                         return [2 /*return*/, response[0]];
-                    case 8: return [4 /*yield*/, conn.rollback()];
-                    case 9:
-                        _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 10:
+                    case 7: return [4 /*yield*/, conn.rollback()];
+                    case 8:
                         _a.sent();
                         return [2 /*return*/, null];
-                    case 11: return [3 /*break*/, 13];
-                    case 12: return [2 /*return*/, null];
-                    case 13: return [3 /*break*/, 18];
-                    case 14:
+                    case 9: return [3 /*break*/, 11];
+                    case 10: return [2 /*return*/, null];
+                    case 11: return [3 /*break*/, 16];
+                    case 12:
                         error_2 = _a.sent();
                         console.error(error_2);
-                        if (!conn) return [3 /*break*/, 17];
+                        if (!conn) return [3 /*break*/, 14];
                         return [4 /*yield*/, conn.rollback()];
+                    case 13:
+                        _a.sent();
+                        _a.label = 14;
+                    case 14: return [2 /*return*/, null];
                     case 15:
-                        _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 16:
-                        _a.sent();
-                        _a.label = 17;
-                    case 17: return [2 /*return*/, null];
-                    case 18: return [2 /*return*/];
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 16: return [2 /*return*/];
                 }
             });
         });
@@ -195,11 +185,11 @@ var WorkshopServer = /** @class */ (function () {
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 14, , 18]);
+                        _a.trys.push([1, 12, 15, 16]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 12];
+                        if (!conn) return [3 /*break*/, 10];
                         return [4 /*yield*/, conn.beginTransaction()];
                     case 3:
                         _a.sent();
@@ -214,37 +204,32 @@ var WorkshopServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, { attendanceId: workshopAttendance.attendanceId })];
                     case 5:
                         response = _a.sent();
-                        if (!(response && response.length > 0 && response[0])) return [3 /*break*/, 8];
+                        if (!(response && response.length > 0 && response[0])) return [3 /*break*/, 7];
                         return [4 /*yield*/, conn.commit()];
                     case 6:
                         _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 7:
-                        _a.sent();
                         return [2 /*return*/, response[0]];
-                    case 8: return [4 /*yield*/, conn.rollback()];
-                    case 9:
-                        _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 10:
+                    case 7: return [4 /*yield*/, conn.rollback()];
+                    case 8:
                         _a.sent();
                         return [2 /*return*/, null];
-                    case 11: return [3 /*break*/, 13];
-                    case 12: return [2 /*return*/, null];
-                    case 13: return [3 /*break*/, 18];
-                    case 14:
+                    case 9: return [3 /*break*/, 11];
+                    case 10: return [2 /*return*/, null];
+                    case 11: return [3 /*break*/, 16];
+                    case 12:
                         error_3 = _a.sent();
                         console.error(error_3);
-                        if (!conn) return [3 /*break*/, 17];
+                        if (!conn) return [3 /*break*/, 14];
                         return [4 /*yield*/, conn.rollback()];
+                    case 13:
+                        _a.sent();
+                        _a.label = 14;
+                    case 14: return [2 /*return*/, null];
                     case 15:
-                        _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 16:
-                        _a.sent();
-                        _a.label = 17;
-                    case 17: return [2 /*return*/, null];
-                    case 18: return [2 /*return*/];
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 16: return [2 /*return*/];
                 }
             });
         });
@@ -258,11 +243,11 @@ var WorkshopServer = /** @class */ (function () {
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 14, , 18]);
+                        _a.trys.push([1, 12, 15, 16]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 12];
+                        if (!conn) return [3 /*break*/, 10];
                         return [4 /*yield*/, conn.beginTransaction()];
                     case 3:
                         _a.sent();
@@ -277,37 +262,32 @@ var WorkshopServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, { attendanceId: attendanceId })];
                     case 5:
                         response = _a.sent();
-                        if (!(response && response.length === 0)) return [3 /*break*/, 8];
+                        if (!(response && response.length === 0)) return [3 /*break*/, 7];
                         return [4 /*yield*/, conn.commit()];
                     case 6:
                         _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 7:
-                        _a.sent();
                         return [2 /*return*/, true];
-                    case 8: return [4 /*yield*/, conn.rollback()];
-                    case 9:
-                        _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 10:
+                    case 7: return [4 /*yield*/, conn.rollback()];
+                    case 8:
                         _a.sent();
                         return [2 /*return*/, false];
-                    case 11: return [3 /*break*/, 13];
-                    case 12: return [2 /*return*/, false];
-                    case 13: return [3 /*break*/, 18];
-                    case 14:
+                    case 9: return [3 /*break*/, 11];
+                    case 10: return [2 /*return*/, false];
+                    case 11: return [3 /*break*/, 16];
+                    case 12:
                         error_4 = _a.sent();
                         console.error(error_4);
-                        if (!conn) return [3 /*break*/, 17];
+                        if (!conn) return [3 /*break*/, 14];
                         return [4 /*yield*/, conn.rollback()];
+                    case 13:
+                        _a.sent();
+                        _a.label = 14;
+                    case 14: return [2 /*return*/, false];
                     case 15:
-                        _a.sent();
-                        return [4 /*yield*/, conn.release()];
-                    case 16:
-                        _a.sent();
-                        _a.label = 17;
-                    case 17: return [2 /*return*/, false];
-                    case 18: return [2 /*return*/];
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 16: return [2 /*return*/];
                 }
             });
         });
@@ -321,39 +301,35 @@ var WorkshopServer = /** @class */ (function () {
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 10, , 13]);
+                        _a.trys.push([1, 6, 7, 8]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 8];
+                        if (!conn) return [3 /*break*/, 4];
                         queryOptions = {
                             sql: "SELECT workshops.* FROM workshops"
                         };
                         return [4 /*yield*/, conn.query(queryOptions)];
                     case 3:
                         workshops = _a.sent();
-                        if (!(workshops && workshops.length > 0)) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.release()];
-                    case 4:
-                        _a.sent();
-                        return [2 /*return*/, workshops];
-                    case 5: return [4 /*yield*/, conn.release()];
+                        if (workshops && workshops.length > 0) {
+                            return [2 /*return*/, workshops];
+                        }
+                        else {
+                            return [2 /*return*/, []];
+                        }
+                        return [3 /*break*/, 5];
+                    case 4: return [2 /*return*/, []];
+                    case 5: return [3 /*break*/, 8];
                     case 6:
-                        _a.sent();
-                        return [2 /*return*/, []];
-                    case 7: return [3 /*break*/, 9];
-                    case 8: return [2 /*return*/, []];
-                    case 9: return [3 /*break*/, 13];
-                    case 10:
                         error_5 = _a.sent();
                         console.error(error_5);
-                        if (!conn) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.release()];
-                    case 11:
-                        _a.sent();
-                        _a.label = 12;
-                    case 12: return [2 /*return*/, []];
-                    case 13: return [2 /*return*/];
+                        return [2 /*return*/, []];
+                    case 7:
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 8: return [2 /*return*/];
                 }
             });
         });
@@ -367,39 +343,35 @@ var WorkshopServer = /** @class */ (function () {
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 10, , 13]);
+                        _a.trys.push([1, 6, 7, 8]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 8];
+                        if (!conn) return [3 /*break*/, 4];
                         queryOptions = {
                             sql: "SELECT workshopInstances.* FROM workshopInstances WHERE workshopInstances.teamId IN (:teamIds)"
                         };
                         return [4 /*yield*/, conn.query(queryOptions, { teamIds: teamIds })];
                     case 3:
                         workshops = _a.sent();
-                        if (!(workshops && workshops.length > 0)) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.release()];
-                    case 4:
-                        _a.sent();
-                        return [2 /*return*/, workshops];
-                    case 5: return [4 /*yield*/, conn.release()];
+                        if (workshops && workshops.length > 0) {
+                            return [2 /*return*/, workshops];
+                        }
+                        else {
+                            return [2 /*return*/, []];
+                        }
+                        return [3 /*break*/, 5];
+                    case 4: return [2 /*return*/, []];
+                    case 5: return [3 /*break*/, 8];
                     case 6:
-                        _a.sent();
-                        return [2 /*return*/, []];
-                    case 7: return [3 /*break*/, 9];
-                    case 8: return [2 /*return*/, []];
-                    case 9: return [3 /*break*/, 13];
-                    case 10:
                         error_6 = _a.sent();
                         console.error(error_6);
-                        if (!conn) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.release()];
-                    case 11:
-                        _a.sent();
-                        _a.label = 12;
-                    case 12: return [2 /*return*/, []];
-                    case 13: return [2 /*return*/];
+                        return [2 /*return*/, []];
+                    case 7:
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 8: return [2 /*return*/];
                 }
             });
         });
@@ -413,39 +385,35 @@ var WorkshopServer = /** @class */ (function () {
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 10, , 13]);
+                        _a.trys.push([1, 6, 7, 8]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 8];
+                        if (!conn) return [3 /*break*/, 4];
                         queryOptions = {
                             sql: "SELECT workshopInstances.* FROM workshopInstances WHERE workshopInstances.workshopId=:workshopId"
                         };
                         return [4 /*yield*/, conn.query(queryOptions, { workshopId: workshopId })];
                     case 3:
                         workshopInstances = _a.sent();
-                        if (!(workshopInstances && workshopInstances.length > 0)) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.release()];
-                    case 4:
-                        _a.sent();
-                        return [2 /*return*/, workshopInstances];
-                    case 5: return [4 /*yield*/, conn.release()];
+                        if (workshopInstances && workshopInstances.length > 0) {
+                            return [2 /*return*/, workshopInstances];
+                        }
+                        else {
+                            return [2 /*return*/, []];
+                        }
+                        return [3 /*break*/, 5];
+                    case 4: return [2 /*return*/, []];
+                    case 5: return [3 /*break*/, 8];
                     case 6:
-                        _a.sent();
-                        return [2 /*return*/, []];
-                    case 7: return [3 /*break*/, 9];
-                    case 8: return [2 /*return*/, []];
-                    case 9: return [3 /*break*/, 13];
-                    case 10:
                         error_7 = _a.sent();
                         console.error(error_7);
-                        if (!conn) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.release()];
-                    case 11:
-                        _a.sent();
-                        _a.label = 12;
-                    case 12: return [2 /*return*/, []];
-                    case 13: return [2 /*return*/];
+                        return [2 /*return*/, []];
+                    case 7:
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 8: return [2 /*return*/];
                 }
             });
         });
@@ -459,39 +427,35 @@ var WorkshopServer = /** @class */ (function () {
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 10, , 13]);
+                        _a.trys.push([1, 6, 7, 8]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 8];
+                        if (!conn) return [3 /*break*/, 4];
                         queryOptions = {
                             sql: "SELECT workshopAttendances.* FROM workshopAttendances"
                         };
                         return [4 /*yield*/, conn.query(queryOptions)];
                     case 3:
                         workshopAttendances = _a.sent();
-                        if (!(workshopAttendances && workshopAttendances.length > 0)) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.release()];
-                    case 4:
-                        _a.sent();
-                        return [2 /*return*/, workshopAttendances];
-                    case 5: return [4 /*yield*/, conn.release()];
+                        if (workshopAttendances && workshopAttendances.length > 0) {
+                            return [2 /*return*/, workshopAttendances];
+                        }
+                        else {
+                            return [2 /*return*/, []];
+                        }
+                        return [3 /*break*/, 5];
+                    case 4: return [2 /*return*/, []];
+                    case 5: return [3 /*break*/, 8];
                     case 6:
-                        _a.sent();
-                        return [2 /*return*/, []];
-                    case 7: return [3 /*break*/, 9];
-                    case 8: return [2 /*return*/, []];
-                    case 9: return [3 /*break*/, 13];
-                    case 10:
                         error_8 = _a.sent();
                         console.error(error_8);
-                        if (!conn) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.release()];
-                    case 11:
-                        _a.sent();
-                        _a.label = 12;
-                    case 12: return [2 /*return*/, []];
-                    case 13: return [2 /*return*/];
+                        return [2 /*return*/, []];
+                    case 7:
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 8: return [2 /*return*/];
                 }
             });
         });
@@ -505,39 +469,35 @@ var WorkshopServer = /** @class */ (function () {
                         conn = null;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 10, , 13]);
+                        _a.trys.push([1, 6, 7, 8]);
                         return [4 /*yield*/, server_2.getPool().getConnection()];
                     case 2:
                         conn = _a.sent();
-                        if (!conn) return [3 /*break*/, 8];
+                        if (!conn) return [3 /*break*/, 4];
                         queryOptions = {
                             sql: "SELECT workshopInstances.*, workshopAttendances.* FROM workshopInstances INNER JOIN ON workshopAttendances.workshopInstanceId=workshopInstances.workshopInstanceId WHERE workshopInstances.workshopId=:workshopId"
                         };
                         return [4 /*yield*/, conn.query(queryOptions, { workshopId: workshopId })];
                     case 3:
                         workshopInstances = _a.sent();
-                        if (!(workshopInstances && workshopInstances.length > 0)) return [3 /*break*/, 5];
-                        return [4 /*yield*/, conn.release()];
-                    case 4:
-                        _a.sent();
-                        return [2 /*return*/, workshopInstances];
-                    case 5: return [4 /*yield*/, conn.release()];
+                        if (workshopInstances && workshopInstances.length > 0) {
+                            return [2 /*return*/, workshopInstances];
+                        }
+                        else {
+                            return [2 /*return*/, []];
+                        }
+                        return [3 /*break*/, 5];
+                    case 4: return [2 /*return*/, []];
+                    case 5: return [3 /*break*/, 8];
                     case 6:
-                        _a.sent();
-                        return [2 /*return*/, []];
-                    case 7: return [3 /*break*/, 9];
-                    case 8: return [2 /*return*/, []];
-                    case 9: return [3 /*break*/, 13];
-                    case 10:
                         error_9 = _a.sent();
                         console.error(error_9);
-                        if (!conn) return [3 /*break*/, 12];
-                        return [4 /*yield*/, conn.release()];
-                    case 11:
-                        _a.sent();
-                        _a.label = 12;
-                    case 12: return [2 /*return*/, []];
-                    case 13: return [2 /*return*/];
+                        return [2 /*return*/, []];
+                    case 7:
+                        if (conn)
+                            conn.release();
+                        return [7 /*endfinally*/];
+                    case 8: return [2 /*return*/];
                 }
             });
         });

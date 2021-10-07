@@ -14,6 +14,7 @@
       "noEmit": true,
       "baseUrl": ".",
       "module": "es2015",
+	  "types": ["vuetify"],
       "paths": {
         "@startupway/database/*": [
             "packages/database/*"
