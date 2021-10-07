@@ -85,8 +85,7 @@ export default Vue.extend({
 					this.toBase64Import(newFile);
 				} else {
 					this.base64EncodeImport = '';
-				}
-				console.log(this.base64EncodeImport);		
+				}		
 			}
 		},
 		fileUpdate: {
@@ -157,3 +156,7 @@ export default Vue.extend({
 	}
 });
 </script>
+
+<style lang="less">
+// @import "../style/vendor.less";
+</style>

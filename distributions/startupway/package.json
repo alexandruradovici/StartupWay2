@@ -29,6 +29,7 @@
 	},
 	"devDependencies": {
 		"@types/express": "^4.17.9",
+		"@mdi/font": "^5.9.55",
 		"css-loader": "^5.0.1",
 		"html-webpack-plugin": "^4.5.1",
 		"rollup": "^2.36.1",

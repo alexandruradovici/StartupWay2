@@ -397,4 +397,5 @@ export default Vue.extend({
 </script>
 
 <style lang="less">
+// @import "../style/vendor.less";
 </style>

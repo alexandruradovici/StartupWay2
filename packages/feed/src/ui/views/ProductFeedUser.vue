@@ -2,7 +2,7 @@
 	<div>
 		<v-container v-if="!loadingPage" class="content" width="1000">
 			<v-container>
-				<v-card flat outlined color="#fcfcfc" class="justify-center">
+				<v-card flat outlined  class="justify-center">
 					<v-card-text class="justify-center">
 						<v-row align="center" justify="center">
 							<strong color="accent">Note: You can update the newsfeed 4 times a day</strong>
@@ -10,7 +10,7 @@
 					</v-card-text>
 				</v-card>
 			</v-container>
-			<v-card flat style="margin: auto; margin-top: 20px;"  max-width="1000" color="#fcfcfc">
+			<v-card flat style="margin: auto; margin-top: 20px;"  max-width="1000" >
 				<v-divider></v-divider>
 				<div align="center" style="margin-top: 20px; margin-bottom: 20px;">Please select the type of update you would like to publish.</div>
 				<v-container pr-7 pl-7 fluid>

@@ -46,7 +46,11 @@
 			>
 			</component>
 		</v-app-bar>
+<<<<<<< HEAD
 		<v-main background-color="#ffffff" style="overflow-y: auto">
+=======
+		<v-main>
+>>>>>>> 35cc021fa611c0ae7f844bd4d43310f77554b955
 			<router-view ></router-view>
 		</v-main>
 	</v-app>

@@ -10,6 +10,13 @@
     font-variant: normal;
     text-transform: uppercase;
 }
+
+.contained {
+	margin-left: 100px;
+	margin-right: 100px;
+	padding-top: 20px;
+}
+
 .v-list-item__title {
     font-size: 16px;
     font-weight: 900;
@@ -41,6 +48,3 @@
     border: 1px solid whitesmoke;
     color: #197E81;
 }
-/* .navigation {
-    width: 300px;
-} */

@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<v-container v-if="!loadingPage">
-			<v-card flat style="margin: auto; margin-top: 50px;" max-width="1000" color="#fcfcfc">
+			<v-card flat style="margin: auto; margin-top: 50px;" max-width="1000" >
 				<v-divider></v-divider>
 				<v-card-text style="margin-top: 20px;">
 					<div>

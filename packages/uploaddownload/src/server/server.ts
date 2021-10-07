@@ -71,17 +71,22 @@ export class UploadDownloadServer {
 						}
 					}
 				}
-				await conn.release();
 				return true;
 			} else {
 				return false;
 			}
 		} catch (e) {
 			console.error(e);
+<<<<<<< HEAD
 			if (conn) {
 				await conn.release();
 			}
+=======
+>>>>>>> 35cc021fa611c0ae7f844bd4d43310f77554b955
 			return false;
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 	async addLink(
@@ -109,11 +114,9 @@ export class UploadDownloadServer {
 				);
 				if (response && response.length > 0 && response[0]) {
 					await conn.commit();
-					await conn.release();
 					return response[0];
 				} else {
 					await conn.rollback();
-					await conn.release();
 					return null;
 				}
 			} else {
@@ -123,9 +126,11 @@ export class UploadDownloadServer {
 			console.error(e);
 			if (conn) {
 				await conn.rollback();
-				await conn.release();
 			}
 			return null;
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 	async deleteLink(uuid: string): Promise<Boolean> {
@@ -146,11 +151,9 @@ export class UploadDownloadServer {
 				}[] = await conn.query(queryOptions, { uuid });
 				if (response && response.length === 0) {
 					await conn.commit();
-					await conn.release();
 					return true;
 				} else {
 					await conn.rollback();
-					await conn.release();
 					return false;
 				}
 			} else {
@@ -160,9 +163,11 @@ export class UploadDownloadServer {
 			console.error(error);
 			if (conn) {
 				await conn.rollback();
-				await conn.release();
 			}
 			return false;
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 	async getLinkByUuid(uuid: string): Promise<UploadDownloadLink | null> {
@@ -174,6 +179,7 @@ export class UploadDownloadServer {
 					namedPlaceholders: true,
 					sql: "SELECT * FROM uploadDownload WHERE uuid=:uuid"
 				};
+<<<<<<< HEAD
 				const uploadDownloadLink: UploadDownloadLink[] = (await conn.query(
 					queryOptions,
 					{ uuid }
@@ -184,9 +190,12 @@ export class UploadDownloadServer {
 					uploadDownloadLink[0]
 				) {
 					await conn.release();
+=======
+				const uploadDownloadLink:UploadDownloadLink[] = await conn.query(queryOptions,{uuid}) as UploadDownloadLink[];
+				if(uploadDownloadLink && uploadDownloadLink.length > 0 && uploadDownloadLink[0]) {
+>>>>>>> 35cc021fa611c0ae7f844bd4d43310f77554b955
 					return uploadDownloadLink[0];
 				} else {
-					await conn.release();
 					return null;
 				}
 			} else {
@@ -194,10 +203,16 @@ export class UploadDownloadServer {
 			}
 		} catch (error) {
 			console.error(error);
+<<<<<<< HEAD
 			if (conn) {
 				await conn.release();
 			}
+=======
+>>>>>>> 35cc021fa611c0ae7f844bd4d43310f77554b955
 			return null;
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 
@@ -214,15 +229,19 @@ export class UploadDownloadServer {
 					sql:
 						"SELECT * FROM uploadDownload WHERE productId=:productId AND fileType=:fileType"
 				};
+<<<<<<< HEAD
 				const uploadDownloadLinks: UploadDownloadLink[] = (await conn.query(
 					queryOptions,
 					{ productId, fileType }
 				)) as UploadDownloadLink[];
 				if (uploadDownloadLinks && uploadDownloadLinks.length > 0) {
 					await conn.release();
+=======
+				const uploadDownloadLinks:UploadDownloadLink[] = await conn.query(queryOptions,{productId,fileType}) as UploadDownloadLink[];
+				if(uploadDownloadLinks && uploadDownloadLinks.length > 0) {
+>>>>>>> 35cc021fa611c0ae7f844bd4d43310f77554b955
 					return uploadDownloadLinks;
 				} else {
-					await conn.release();
 					return [];
 				}
 			} else {
@@ -230,10 +249,16 @@ export class UploadDownloadServer {
 			}
 		} catch (error) {
 			console.error(error);
+<<<<<<< HEAD
 			if (conn) {
 				await conn.release();
 			}
+=======
+>>>>>>> 35cc021fa611c0ae7f844bd4d43310f77554b955
 			return [];
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 
@@ -257,6 +282,7 @@ export class UploadDownloadServer {
 					links = await conn.query(queryOptions, { productId });
 				} else if (date === "may") {
 					// queryOptions.nestTables="_";
+<<<<<<< HEAD
 					queryOptions.sql =
 						"SELECT uploadDownload.* products.* FROM uploadDownload INNER JOIN products ON products.productId = uploadDownload.productId AND JSON_EXTRACT(productDetails,'$.assessment20May') = 'Yes' WHERE uploadDownload.productId=:productId ";
 					links = await conn.query(queryOptions, { productId });
@@ -272,6 +298,20 @@ export class UploadDownloadServer {
 					return links;
 				} else {
 					await conn.release();
+=======
+					queryOptions.sql = "SELECT uploadDownload.* products.* FROM uploadDownload INNER JOIN products ON products.productId = uploadDownload.productId AND JSON_EXTRACT(productDetails,'$.assessmentSemifinals') = true WHERE uploadDownload.productId=:productId ";
+					links = await conn.query(queryOptions,{productId});
+				} else if(date === "oct") {
+					// queryOptions.nestTables="_";
+					queryOptions.sql =
+						"SELECT uploadDownload.* products.* FROM uploadDownload INNER JOIN products ON products.productId = uploadDownload.productId AND JSON_EXTRACT(productDetails,'$.assessmentSemifinals') = true AND JSON_EXTRACT(productDetails,'$.assessmentFinals') = true WHERE uploadDownload.productId=:productId ";
+					links = await conn.query(queryOptions,{productId});
+				}
+
+				if(links) {
+					return links;
+				} else {
+>>>>>>> 35cc021fa611c0ae7f844bd4d43310f77554b955
 					return [];
 				}
 			} else {
@@ -279,10 +319,16 @@ export class UploadDownloadServer {
 			}
 		} catch (e) {
 			console.error(e);
+<<<<<<< HEAD
 			if (conn) {
 				await conn.release();
 			}
+=======
+>>>>>>> 35cc021fa611c0ae7f844bd4d43310f77554b955
 			return [];
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 
@@ -298,6 +344,7 @@ export class UploadDownloadServer {
 					namedPlaceholders: true,
 					sql: ""
 				};
+<<<<<<< HEAD
 				let links: UploadDownloadLink[] = [];
 
 				if (date === "none") {
@@ -316,9 +363,25 @@ export class UploadDownloadServer {
 
 				if (links) {
 					await conn.release();
+=======
+				let links:UploadDownloadLink[] = [];
+	
+				if(date === "none") {
+					queryOptions.sql = "SELECT uploadDownload.uuid, uploadDownload.fileType, uploadDownload.extension, uploadDownload.uploadTime, products.* FROM uploadDownload INNER JOIN products ON products.productId=uploadDownload.productId WHERE uploadDownload.fileType=:fileType";
+					links = await conn.query(queryOptions,{fileType});
+				} else if(date === "may") {
+					queryOptions.sql = "SELECT uploadDownload.uuid, uploadDownload.fileType, uploadDownload.extension, uploadDownload.uploadTime, products.* FROM uploadDownload INNER JOIN products ON products.productId=uploadDownload.productId AND JSON_EXTRACT(productDetails,'$.assessmentSemifinals') = true WHERE uploadDownload.fileType=:fileType";
+					links = await conn.query(queryOptions,{fileType});
+				} else if(date === "oct") {
+					queryOptions.sql =
+						"SELECT uploadDownload.uuid, uploadDownload.fileType, uploadDownload.extension, uploadDownload.uploadTime, products.* FROM uploadDownload INNER JOIN products ON products.productId=uploadDownload.productId AND JSON_EXTRACT(productDetails,'$.assessmentSemifinals') = true AND JSON_EXTRACT(productDetails,'$.assessmentFinals') = true WHERE uploadDownload.fileType=:fileType";
+					links = await conn.query(queryOptions,{fileType});
+				}
+			
+				if(links) {
+>>>>>>> 35cc021fa611c0ae7f844bd4d43310f77554b955
 					return links;
 				} else {
-					await conn.release();
 					return [];
 				}
 			} else {
@@ -326,10 +389,16 @@ export class UploadDownloadServer {
 			}
 		} catch (e) {
 			console.error(e);
+<<<<<<< HEAD
 			if (conn) {
 				await conn.release();
 			}
+=======
+>>>>>>> 35cc021fa611c0ae7f844bd4d43310f77554b955
 			return [];
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 
@@ -551,7 +620,61 @@ export class UploadDownloadServer {
 			return false;
 		}
 	}
+	async generateCustomZip(linkUuid:string, city:string, businessTrack:string, semiFianals:boolean, finals:boolean) {
+		try {
+			UploadDownloadServer.zips[linkUuid] = new jszip();
+			let zip = UploadDownloadServer.zips[linkUuid];
+			if (city) {
+				const products = await teams.getTeamsByLocationBtFinals(city, businessTrack, semiFianals, finals);
+				for (const product of products) {
+					const prId = product.productId;
+					const links = await uploadDownload.getLinksByProductId(
+						prId,
+						"none"
+					);
+					const users = await teams.getUsersByTeamId(product.teamId);
+					if (users.length !== 0) {
+						for (const user of users) {
+							if (user)
+								if (
+									user.avatarUu !== "" &&
+									user.avatarUu !== null
+								) {
+									const obj: string = await uploadDownload.getS3Object(
+										user.avatarUu
+									);
+									let name =
+										product.teamName +
+										"/UserImages/" +
+										product.location +
+										"_" +
+										product.teamName +
+										"_profile_photo_" +
+										user.firstName +
+										"_" +
+										user.lastName +
+										".png";
+									if (obj !== "" && zip) {
+										zip.file(name, obj, { base64: true });
+									} else {
+										console.error("No obj GETS3OBJ");
+									}
+								}
+						}
+					}
+					if (links.length !== 0 && zip) {
+						zip.folder(product.teamName);
+						zip.folder(product.teamName + "/Videos");
+						zip.folder(product.teamName + "/Images");
+						zip.folder(product.teamName + "/PowerPoint");
+						for (const link of links) {
+							if (prId !== "" && product !== undefined) {
+								const date = uploadDownload.formatDate(
+									link.uploadTime
+								);
+								let name = "";
 
+<<<<<<< HEAD
 	async generateZip(
 		type: string,
 		date: string,
@@ -560,6 +683,166 @@ export class UploadDownloadServer {
 		city?: string,
 		team?: string | string[]
 	) {
+=======
+								if (link.fileType === "demoVid") {
+									name =
+										product.teamName +
+										"/Videos/" +
+										product.location +
+										"_" +
+										product.teamName +
+										"_tehnic_demo_video_" +
+										date +
+										"." +
+										link.extension;
+								} else if (link.fileType === "presVid") {
+									name =
+										product.teamName +
+										"/Videos/" +
+										product.location +
+										"_" +
+										product.teamName +
+										"_products_presentation_video_" +
+										date +
+										"." +
+										link.extension;
+								} else if (link.fileType === "pres") {
+									name =
+										product.teamName +
+										"/PowerPoint/" +
+										product.location +
+										"_" +
+										product.teamName +
+										"_powerpoint_presentation_" +
+										date +
+										"." +
+										link.extension;
+								} else if (link.fileType === "image") {
+									name =
+										product.teamName +
+										"/Images/" +
+										product.location +
+										"_" +
+										product.teamName +
+										"_products_image_" +
+										link.uuid[0] +
+										link.uuid[1] +
+										link.uuid[2] +
+										"_" +
+										date +
+										"." +
+										link.extension;
+								} else if (link.fileType === "logo") {
+									name =
+										product.teamName +
+										"/Images/" +
+										product.location +
+										"_" +
+										product.teamName +
+										"_logo_" +
+										date +
+										"." +
+										link.extension;
+								} else {
+									console.error("Unidentified link");
+								}
+								const obj: string = await uploadDownload.getS3Object(
+									link.uuid
+								);
+								if (obj !== "") {
+									zip.file(name, obj, { base64: true });
+								} else {
+									console.error("No obj GETS3OBJ");
+								}
+							} else {
+								console.error("No Product");
+							}
+						}
+					}
+				}
+			}
+			const uuid = uiidv4();
+			if (zip !== null) {
+				if (Object.keys(zip.files).length === 0) {
+					await fs.writeFile(
+						path.join("/tmp", "NO_FILE.txt"),
+						"NO_FILE"
+					);
+					const link: UploadDownloadLink = {
+						uuid: linkUuid,
+						productId: "7051998",
+						fileType: linkUuid + "_zip",
+						extension: ".txt",
+						uploadTime: new Date()
+					};
+					const tmpPath = path.join("/tmp", "NO_FILE.txt");
+					const upload = await uploadDownload.addS3File(
+						link.uuid,
+						tmpPath,
+						"path"
+					);
+					if (upload) {
+						console.log("Uploaded file");
+						await uploadDownload.addLink(link);
+						await fs.remove(tmpPath);
+					} else {
+						await fs.remove(tmpPath);
+						console.error("Didn't upload ADDS3File");
+					}
+				} else {
+					zip.generateNodeStream({
+						type: "nodebuffer",
+						streamFiles: true
+					})
+						.pipe(
+							fs.createWriteStream(
+								path.join("/tmp", uuid + ".zip")
+							)
+						)
+						.on("finish", async () => {
+							console.log("Finished writing zip");
+							console.log("Trying to send zip");
+							const link: UploadDownloadLink = {
+								uuid: linkUuid,
+								productId: "7051998",
+								fileType: linkUuid + "_zip",
+								extension: ".zip",
+								uploadTime: new Date()
+							};
+							if (link.uuid !== "") {
+								let upload: Boolean = false;
+								const tmpFile = path.join(
+									"/tmp",
+									uuid + ".zip"
+								);
+								upload = await uploadDownload.addS3File(
+									link.uuid,
+									tmpFile,
+									"path"
+								);
+								if (upload) {
+									console.log("Uploaded file");
+									await uploadDownload.addLink(link);
+									await fs.remove(tmpFile);
+								} else {
+									await fs.remove(tmpFile);
+									console.error("Didn't upload ADDS3File");
+								}
+							} else {
+								console.error("Didn't create link ADDLINK");
+							}
+						});
+				}
+			} else {
+				console.log("No archive");
+			}
+			zip = null;
+		} catch (e) {
+			console.error(e);
+		}
+	}
+	async generateZip(type:string,date:string,linkUuid:string, option?:string,city?:string,team?:string|string[]) {
+>>>>>>> 35cc021fa611c0ae7f844bd4d43310f77554b955
 		try {
 			UploadDownloadServer.zips[linkUuid] = new jszip();
 			let zip = UploadDownloadServer.zips[linkUuid];
@@ -1238,6 +1521,7 @@ export class UploadDownloadServer {
 			console.error(e);
 		}
 	}
+<<<<<<< HEAD
 	async checkZip(
 		type: string,
 		date: string,
@@ -1250,8 +1534,48 @@ export class UploadDownloadServer {
 			if (link) null;
 			let uuid = "";
 			if (type === "all") {
+=======
+	async checkCustomZip(city:string, businessTrack:string, workshopNo:string, semifinals:boolean, finals:boolean):Promise<void> {
+		try {
+			let uuid = city+"_uploads_arhive_"+businessTrack +"_"+workshopNo;
+			const tsf = semifinals? "t":"f";
+			const tf = finals? "t":"f";
+			uuid = uuid+"_"+tsf+tf; 
+
+			
+			let link:UploadDownloadLink | null = await uploadDownload.getLinkByUuid(uuid);
+			let truthful = false;
+			if(link) {
+				const oldDate = new Date(link.uploadTime).getTime();
+				const newDate = new Date().getTime();
+				truthful = (newDate - oldDate >= 86400000);
+			} else {
+				truthful = true;
+			}
+			if(truthful) {
+				if(UploadDownloadServer.zips[uuid] === null) {
+					await uploadDownload.generateCustomZip(uuid, city, businessTrack, semifinals, finals);
+					return;
+				} else if(UploadDownloadServer.zips[uuid] === undefined) {
+					UploadDownloadServer.zips[uuid] = null;
+					await uploadDownload.generateCustomZip(uuid, city, businessTrack, semifinals, finals);
+					return;
+				}
+			}
+		} catch (e) {
+			console.error(e);
+			return;
+		}
+	}
+	async checkZip(type:string, date:string, option?:string, city?:string,team?:string|string[]):Promise<void> {
+		try {
+			let link:UploadDownloadLink | null = null;
+			let uuid = '';
+			if(type === "all") {
+>>>>>>> 35cc021fa611c0ae7f844bd4d43310f77554b955
 				uuid = "all_uploads_arhive_" + date;
 				link = await uploadDownload.getLinkByUuid(uuid);
+				console.log(link);
 			} else {
 				if (city) {
 					uuid = city + "_uploads_arhive_" + date;
@@ -1270,6 +1594,7 @@ export class UploadDownloadServer {
 					link = await uploadDownload.getLinkByUuid(uuid);
 				}
 			}
+<<<<<<< HEAD
 			if (link) {
 				const oldDate = new Date(link.uploadTime).getTime();
 				const newDate = new Date().getTime();
@@ -1296,6 +1621,24 @@ export class UploadDownloadServer {
 						);
 						return;
 					}
+=======
+			let truthful = false;
+			if(link) {
+				const oldDate = new Date(link.uploadTime).getTime();
+				const newDate = new Date().getTime();
+				truthful = (newDate - oldDate >= 86400000);
+			} else {
+				truthful = true;
+			}
+			if(truthful) {
+				if(UploadDownloadServer.zips[uuid] === null) {
+					await uploadDownload.generateZip(type,date,uuid,option,city,team);
+					return;
+				} else if(UploadDownloadServer.zips[uuid] === undefined) {
+					UploadDownloadServer.zips[uuid] = null;
+					await uploadDownload.generateZip(type,date,uuid,option,city,team);
+					return;
+>>>>>>> 35cc021fa611c0ae7f844bd4d43310f77554b955
 				}
 			}
 		} catch (e) {
@@ -1352,7 +1695,12 @@ export class UploadDownloadServer {
 					else return "ERROR";
 				}
 			} else {
+<<<<<<< HEAD
 				return "NOT_DONE";
+=======
+				console.log("else");
+				return "NOT_DONE"
+>>>>>>> 35cc021fa611c0ae7f844bd4d43310f77554b955
 			}
 		} catch (e) {
 			console.error(e);
@@ -1597,7 +1945,35 @@ router.get(
 			res.status(500).send({ err: 500, data: null });
 		}
 	}
+<<<<<<< HEAD
 );
+=======
+});
+router.post("/download/zip/:city", async(req:ApiRequest<{businessTrack:string,workshopNo:string,semiFinals:boolean,finals:boolean}>, res:ApiResponse<string | null>) => {
+	try {
+		const city = req.params.city;
+		const businessTrack = req.body.businessTrack;
+		const workshopNo = req.body.workshopNo;
+		/*either string (city) or number (productId) or nothing ('')*/
+		const semiFinals = req.body.semiFinals;
+		const finals = req.body.finals;
+		res.status(200).send('OK');
+		await uploadDownload.checkCustomZip(city, businessTrack, workshopNo, semiFinals, finals);
+	} catch (e) {
+		console.error(e);
+		res.status(500).send({err:500,data:null});
+	}
+});
+router.post("/download/zip/", async(req:ApiRequest<{type:string,date:string,city:string,team:string|string[],option:string}>, res:ApiResponse<string | null>) => {
+	try {
+		const type = req.body.type;
+		const date = req.body.date;
+		/*either string (city) or number (productId) or nothing ('')*/
+		const team = req.body.team;
+		const city = req.body.city;
+		const option:string = req.body.option;
+		res.status(200).send('OK');
+>>>>>>> 35cc021fa611c0ae7f844bd4d43310f77554b955
 
 router.post(
 	"/download/zip/",
@@ -1620,10 +1996,29 @@ router.post(
 			const option: string = req.body.option;
 			res.status(200).send("OK");
 
+<<<<<<< HEAD
 			await uploadDownload.checkZip(type, date, option, city, team);
 		} catch (e) {
 			console.error(e);
 			res.status(500).send({ err: 500, data: null });
+=======
+router.post("/check/zip/status/", async(req:ApiRequest<{type:string,date:string,city:string,team:string|string[],option:string}>, res:ApiResponse<string | null>) => {
+	try {
+		const type = req.body.type;
+		const date = req.body.date;
+		/*either string (city) or number (productId) or nothing ('')*/
+		const city = req.body.city;
+		const team = req.body.team;
+		const option:string = req.body.option;
+		const response = await uploadDownload.getZip(type,date,option,city,team);
+		console.log(response);
+		if(response === "NOT_DONE") {
+			res.status(204).send(response);
+		} else if(response === "ERROR") {
+			res.status(500).send({err:500,data:null});
+		} else {
+			res.status(200).send(response);
+>>>>>>> 35cc021fa611c0ae7f844bd4d43310f77554b955
 		}
 	}
 );
@@ -2243,6 +2638,7 @@ router.post(
 				if (!checkDir) {
 					await fs.mkdir("./tmp");
 				}
+<<<<<<< HEAD
 				await fs.appendFile(path.join("./tmp", fileName), data);
 				res.status(202).send(true);
 			} else {
@@ -2276,6 +2672,30 @@ router.post(
 									width = await metadata.streams[2].width;
 									height = await metadata.streams[2].height;
 								}
+=======
+				try { 
+					// as any because no ffmpeg types
+					await ffmpeg(filePath).ffprobe(async function(err: any, metadata: any){
+						width = await metadata.streams[0].width;
+						height = await metadata.streams[0].height;
+						if(width === undefined || height === undefined) {
+							width = await metadata.streams[1].width;
+							height = await metadata.streams[1].height;
+							if(width === undefined || height === undefined) {
+								width = await metadata.streams[2].width;
+								height = await metadata.streams[2].height;
+							}
+						}
+						console.log(width);
+						console.log(height);
+						if((width !== 0 && width >= 1280) && ( height !== 0 && height >= 720)) {
+							const link:UploadDownloadLink = {
+								uuid:"",
+								productId:productId,
+								fileType:fileType,
+								extension:req.body.ext,
+								uploadTime: new Date()
+>>>>>>> 35cc021fa611c0ae7f844bd4d43310f77554b955
 							}
 							if (
 								width !== 0 &&

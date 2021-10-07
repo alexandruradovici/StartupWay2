@@ -111,11 +111,9 @@ export class FeedServer {
 				const response:{deleted_id:string}[] = await conn.query(queryOptions,{feedId:feedParam.feedId});
 				if (response && response.length === 0) {
 					await conn.commit();
-					await conn.release();
 					return true;
 				} else {
 					await conn.rollback();
-					await conn.release();
 					return false;
 				}
 			} else {
@@ -125,9 +123,11 @@ export class FeedServer {
 			console.error(e);
 			if (conn) {
 				await conn.rollback();
-				await conn.release();
 			}
 			return false;
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 
@@ -145,7 +145,6 @@ export class FeedServer {
 					await conn.release();
 					return feeds;
 				} else {
-					await conn.release();
 					return []
 				}
 			} else {
@@ -156,6 +155,9 @@ export class FeedServer {
 			if (conn)
 				await conn.release();
 			return [];
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 

@@ -1,7 +1,7 @@
 <template>
 	<div>							
 		<v-container pr-7 pl-7 v-if="!loadingPage">
-			<v-card flat style="margin: auto; padding-top: 20px;" color="#fcfcfc">
+			<v-card flat style="margin: auto; padding-top: 20px;" >
 				<v-form v-model="productValid" lazy-validation v-if="product">
 					<v-divider></v-divider>
 					<div class="details">Startup name</div>
@@ -67,7 +67,7 @@
 					<v-divider></v-divider>
 					
 					<v-container>
-						<v-card flat outlined color="#fcfcfc" class="justify-center">
+						<v-card flat outlined  class="justify-center">
 							<v-card-text class="justify-center">
 								<v-row align="center" justify="center">
 									<strong color="accent">Note: Maximum image/video resolution is 8K UHD</strong>
@@ -78,7 +78,7 @@
 					<v-container v-if="!loadingUpload">
 						<v-row no-gutters style="margin-top: 20px; margin-bottom: 20px;">
 							<v-col cols="12" sm="12" md="6" lg="4" xl="4">
-								<v-card flat outlined class="justify-center" color="#fcfcfc">
+								<v-card flat outlined class="justify-center" >
 									<div v-if="pres !== undefined">
 										<v-card-title class="justify-center">Power Point Presentation</v-card-title>
 										<v-divider></v-divider>
@@ -123,7 +123,7 @@
 								</v-card>
 							</v-col>
 							<v-col cols="12" sm="12" md="6" lg="4" xl="4">
-								<v-card flat outlined color="#fcfcfc">
+								<v-card flat outlined >
 									<div v-if="demoVid !== undefined">
 										<v-card-title class="justify-center">
 											Tehnic Demo Video
@@ -158,7 +158,7 @@
 											</v-card>
 										</v-card-text>
 									</div>
-									<v-card-text class="justify-center" color="#fcfcfc">
+									<v-card-text class="justify-center" >
 										<v-file-input 
 											type="file" 
 											v-model="demoVidFile" 
@@ -178,7 +178,7 @@
 								</v-card>
 							</v-col>
 							<v-col cols="12" sm="12" md="6" lg="4" xl="4">
-								<v-card flat outlined color="#fcfcfc">
+								<v-card flat outlined >
 									<div v-if="presVid !== undefined">
 										<v-card-title class="justify-center">Product Presentation Video</v-card-title>
 										<v-divider></v-divider>
@@ -236,7 +236,7 @@
 						
 						<v-row align="center" justify="center" no-gutters style="margin-top: 20px; margin-bottom: 20px;">
 							<v-col cols="12" sm="12" md="8" lg="8" xl="8">
-								<v-card flat outlined color="#fcfcfc" align="center" justify="center">
+								<v-card flat outlined  align="center" justify="center">
 									<div v-if="logo !== undefined" >
 										<v-card-title align="center" justify="center">Product Logo</v-card-title>
 										<v-divider></v-divider>
@@ -244,7 +244,7 @@
 											<div style="max-width: 200px;">
 												<v-card outlined flat >
 													<v-hover v-slot:default="{ hover }" >
-														<v-card flat color="#fcfcfc" @click="extendImage(logo.data)"  rounded :elevation="hover ? 16 : 0">
+														<v-card flat  @click="extendImage(logo.data)"  rounded :elevation="hover ? 16 : 0">
 															<v-img :src="logo.data" max-width="200" max-height="200"  ></v-img>
 														</v-card>
 													</v-hover>
@@ -298,7 +298,7 @@
 						
 						<v-row align="center" justify="center" no-gutters style="margin-top: 20px; margin-bottom: 20px;">
 							<v-col cols="12" sm="12" md="8" lg="10" xl="10">
-								<v-card outlined flat color="#fcfcfc">
+								<v-card outlined flat >
 									<div v-if="images.length > 0">
 										<v-card-title class="justify-center">Product Images</v-card-title>
 										<v-card-text>
@@ -307,7 +307,7 @@
 													<div style="max-width: 200px;">
 														<v-card outlined flat>
 															<v-hover v-slot:default="{ hover }">
-																<v-card style="max-width: 200px;"  flat color="#fcfcfc" @click="extendImage(image.data)" rounded :elevation="hover ? 16 : 0">
+																<v-card style="max-width: 200px;"  flat  @click="extendImage(image.data)" rounded :elevation="hover ? 16 : 0">
 																	<v-img class="align-end" :src="image.data" max-width="200" max-height="200"></v-img>
 																</v-card>
 															</v-hover>
@@ -349,7 +349,7 @@
 						</v-row>
 					</v-container>
 					<v-container v-else>
-						<v-card flat outlined color="#fcfcfc" class="justify-center">
+						<v-card flat outlined  class="justify-center">
 							<v-card-text class="justify-center">
 								<v-row align="center" justify="center">
 									<strong color="accent">Your upload is being processed, this might take a few minutes.</strong>
@@ -359,7 +359,7 @@
 								</v-row>
 							</v-card-text>
 						</v-card>
-						<v-card flat outlined color="#fcfcfc" v-if=" Math.floor(partTotal) < 100">
+						<v-card flat outlined  v-if=" Math.floor(partTotal) < 100">
 							<v-progress-linear 
 								v-model="partTotal"
 								height="25"
@@ -368,7 +368,7 @@
 								<strong>{{ Math.floor(partTotal) }}%</strong>
 							</v-progress-linear>
 						</v-card>
-						<v-card class="justify-center" flat outlined color="#fcfcfc" v-else>
+						<v-card class="justify-center" flat outlined  v-else>
 							<v-card-text class="justify-center">
 								<v-row align="center" justify="center">
 									<v-progress-circular
@@ -528,8 +528,8 @@ export default Vue.extend({
 					this.link_website = newProduct.productDetails["website"];
 					this.link_linkedin = newProduct.productDetails["linkedin"];
 					this.link_facebook = newProduct.productDetails["facebook"];
-					this.assessment12Oct = newProduct.productDetails["assessment12Oct"];
-					this.assessment20May = newProduct.productDetails["assessment20May"];
+					this.assessmentFinals = newProduct.productDetails["assessmentFinals"];
+					this.assessmentSemifinals = newProduct.productDetails["assessmentSemifinals"];
 
 					let response = await this.ui.api.get<{data:string,type:string,ext:string,uuid:string}[] | null>("/api/v1/uploadDownload/get/file/product/image/"+ newProduct.productId);
 
@@ -668,8 +668,8 @@ export default Vue.extend({
 			link_website: "" as string,
 			link_linkedin: "" as string,
 			link_facebook: "" as string,
-			assessment12Oct: "" as string,
-			assessment20May: "" as string,
+			assessmentFinals: "" as string,
+			assessmentSemifinals: "" as string,
 			pending_descr_RO: "" as string,
 			pending_descr_ENG: "" as string,
 			//File upload
@@ -778,8 +778,8 @@ export default Vue.extend({
 				website: this.link_website,
 				linkedin: this.link_linkedin,
 				facebook: this.link_facebook,
-				assessment12Oct:this.assessment12Oct,
-				assessment20May:this.assessment20May
+				assessmentFinals:this.assessmentFinals,
+				assessmentSemifinals:this.assessmentSemifinals
 			};
 			if (this.pending_descr_RO === this.product.descriptionRO)
 				this.pending_descr_RO = "";
@@ -827,7 +827,7 @@ export default Vue.extend({
 					// 	if (ret) {
 					// 		continue;
 					// 	} else {
-					// 		this.snackOptions.text = "Could not upload the file: " + file.name + ", please try make sure the image has a resolution of at least 1920x1080 pixels. If the error persists, please contact technical support: teams@tech-lounge.ro";
+					// 		this.snackOptions.text = "Could not upload the file: " + file.name + ", please try make sure the image has a resolution of at least 1920x720 pixels. If the error persists, please contact technical support: teams@tech-lounge.ro";
 					// 		this.snackOptions.type = SnackBarTypes.ERROR;
 					// 		this.snackOptions.timeout = 2000;
 					// 		this.snackbar = true;

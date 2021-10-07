@@ -277,9 +277,11 @@ async function emailDaemon():Promise<void> {
 			console.error(error);
 			if (conn) {
 				await conn.rollback();
-				await conn.release();
 			}
 			console.error("Daemon Failed");
+		} finally {
+			if(conn)
+				conn.release();
 		}
 }
 emailDaemon();

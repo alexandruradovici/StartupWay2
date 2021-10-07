@@ -15,9 +15,10 @@ export class BModelCanvasServer {
 			conn = await getPool().getConnection();
 			if (conn) {
 				conn.beginTransaction();
-				let queryOptions:QueryOptions = {
-					namedPlaceholders:true,
-					sql: "SELECT bModelCanvas.* FROM bModelCanvas WHERE bModelCanvas.productId=:productId AND DATE(bModelCanvas.date)=DATE(NOW())"
+				let queryOptions: QueryOptions = {
+					namedPlaceholders: true,
+					sql:
+						"SELECT bModelCanvas.* FROM bModelCanvas WHERE bModelCanvas.productId=:productId AND DATEDIFF(DATE(NOW()),DATE(bModelCanvas.date)) < 1 ORDER BY bModelCanvas.date"
 				};
 				const values = {
 					productId:canvas.productId
@@ -38,11 +39,9 @@ export class BModelCanvasServer {
 					const canvasResult:BModelCanvas[] = await conn.query(queryOptions,updateValues);
 					if (canvasResult && canvasResult.length > 0 && canvasResult[0]) {
 						await conn.commit();
-						await conn.release();
 						return canvasResult[0];
 					} else {
 						await conn.rollback();
-						await conn.release();
 						return null;
 					}
 				} else {
@@ -55,11 +54,9 @@ export class BModelCanvasServer {
 					const result:BModelCanvas[] = await conn.query(queryOptions,{modelId:canvas.modelId});
 					if (result && result.length > 0 && result[0]) {
 						await conn.commit();
-						await conn.release();
 						return result[0];
 					} else {
 						await conn.rollback();
-						await conn.release();
 						return null;
 					}
 				}
@@ -70,9 +67,11 @@ export class BModelCanvasServer {
 			console.error(error);
 			if (conn) {
 				await conn.rollback();
-				await conn.release();
 			}
 			return null;
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 
@@ -93,7 +92,6 @@ export class BModelCanvasServer {
 					await conn.release();
 					return canvases;
 				} else {
-					await conn.release();
 					return [];
 				}
 			} else {
@@ -104,6 +102,9 @@ export class BModelCanvasServer {
 			if (conn)
 				await conn.release();
 			return [];
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 

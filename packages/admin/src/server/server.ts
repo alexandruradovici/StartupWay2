@@ -96,6 +96,8 @@ export class AdminServer {
 			let bT:string = "";
 			if (businessTrack !== undefined) {
 				bT = (businessTrack as string).toUpperCase().replace(/\s+/g, '');
+				if(bT === "Health&Lifestyle")
+					bT = "HL";
 			}
 			let tT = "";
 			if (teamTrack !== undefined) {
@@ -138,8 +140,8 @@ export class AdminServer {
 					facebook: "",
 					mentorNotes: "",
 					adminNotes: "",
-					assesmentFinals: "",
-					assesmentSemifinals: ""
+					assessmentFinals: "",
+					assessmentSemifinals: ""
 				},
 				updatedAt:new Date(),
 				lastMentorUpdate:new Date(),
@@ -167,7 +169,7 @@ export class AdminServer {
 			if (email !== undefined)
 				username = (email as string).split("@")[0].toLowerCase();
 
-			let aux = new Date(); // .toISOString().split('T')[0];
+			let aux = new Date();// .toISOString().split('T')[0];
 
 			try {
 				if (birthDate !== undefined)
@@ -177,27 +179,28 @@ export class AdminServer {
 			}
 			const userId = uiidv4();
 			parsedCSV.user = {
-				userId:userId,
-				firstName:(firstName as string),
-				lastName:(lastName as string),
-				username:username,
-				password:"",
-				email:(email as string),
-				phone:(phone as string),
-				socialMedia:{
-					"facebook":(facebook as string),
-					"linkedin":(linkedin as string)
+				userId: userId,
+				firstName: firstName as string,
+				lastName: lastName as string,
+				username: username,
+				password: "",
+				email: email as string,
+				phone: phone as string,
+				socialMedia: {
+					facebook: facebook as string,
+					linkedin: linkedin as string
 				},
-				birthDate:aux,
-				userDetails:{
-					"faculty":faculty,
-					"group":group,
-					"details":"How din you find about Innovation Labs: " +findProgram
+				birthDate: aux,
+				userDetails: {
+					faculty: faculty,
+					group: group,
+					details:
+						"How din you find about Innovation Labs: " + findProgram
 				},
-				role:(role as string),
-				avatarUu:"",
-				lastLogin:new Date()
-			}
+				role: role as string,
+				avatarUu: "",
+				lastLogin: new Date()
+			};
 			return parsedCSV;
 		} catch (error) {
 			console.error("Error in function \"_parseCSVData(...array of params)\"|\"admin\" ")
@@ -270,7 +273,7 @@ export class AdminServer {
 	}
 
 	/**
-	 * Function that extract information from the database about all teams that have passed 20th may assesment and 
+	 * Function that extract information from the database about all teams that have passed 20th may assessment and 
 	 * 		all of their uploaded files. 
 	 * @returns {Promise<any[]>} an array of informations about each team
 	 */
@@ -288,7 +291,6 @@ export class AdminServer {
 					await conn.release();
 					return response
 				} else {
-					await conn.release();
 					return [];
 				}
 			} else {
@@ -300,6 +302,8 @@ export class AdminServer {
 			if (conn)
 				await conn.release();
 			return [];
+		} finally {
+			if (conn) conn.release();
 		}
 	}
 	
@@ -314,7 +318,7 @@ export class AdminServer {
 			if (conn) {
 				const queryOptions:QueryOptions = {
 					namedPlaceholders:true,
-					sql:"SELECT t.location as 'oras', t.teamName as 'nume_echipa', p.businessTrack as 'business_track', p.teamType as 'type', p.descriptionRO as 'descriere_RO', p.descriptionEN as 'descriere_ENG' from teams t inner join products p on p.productId = t.productId and JSON_EXTRACT(productDetails,'$.assessment20May') = 'Yes';"
+					sql:"SELECT t.location as 'oras', t.teamName as 'nume_echipa', p.businessTrack as 'business_track', p.teamType as 'type', p.descriptionRO as 'descriere_RO', p.descriptionEN as 'descriere_ENG' from teams t inner join products p on p.productId = t.productId and JSON_EXTRACT(productDetails,'$.assessmentSemifinals') = true;"
 	
 				}
 				const response:any[] = await conn.query(queryOptions);
@@ -322,7 +326,6 @@ export class AdminServer {
 					await conn.release();
 					return response
 				} else {
-					await conn.release();
 					return [];
 				}
 			} else {
@@ -334,6 +337,9 @@ export class AdminServer {
 			if (conn)
 				await conn.release();
 			return [];
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 
@@ -366,20 +372,18 @@ export class AdminServer {
 					+ "Here is your activation link, please click here to reset your password.\n" 
 					+ "		https://teams.innovationlabs.ro/#/recovery/"+newRecovery[0].recoveryLink + "\n"
 					+ "Regards, Innovation Labs Team\n" ;
-					const notification:SWNotify = {
-						email:user.email,
-						notifyType:NotificationType.EMAIL,
-						msgType:MessageType.RESETPASS,
-						text:msg,
-						date:new Date()
-					}
+					const notification: SWNotify = {
+						email: user.email,
+						notifyType: NotificationType.EMAIL,
+						msgType: MessageType.RESETPASS,
+						text: msg,
+						date: new Date()
+					};
 					const newNotification:SWNotify | null = await daemon.addNotification(notification);
 					if (newNotification) {
 						await conn.commit();
-						await conn.release();
 					} else {
 						await conn.rollback();
-						await conn.release();
 						return null;
 					}
 					return newRecovery[0];
@@ -393,9 +397,11 @@ export class AdminServer {
 			console.error(error);
 			if (conn) {
 				await conn.rollback();
-				await conn.release();
 			}
 			return null;
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 
@@ -419,11 +425,9 @@ export class AdminServer {
 				const response:{deleted_id:string}[] = await conn.query(queryOptions, {recoveryId});
 				if (response && response.length === 0) {
 					await conn.commit();
-					await conn.release();
 					return true;
 				} else {
 					await conn.rollback();
-					await conn.release();
 					return false;
 				}
 			} else {
@@ -434,9 +438,11 @@ export class AdminServer {
 			console.error(error);
 			if (conn) {
 				await conn.rollback();
-				await conn.release();
 			}
 			return false;
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 
@@ -456,10 +462,8 @@ export class AdminServer {
 				}
 				const recovery:Recovery[] = await conn.query(queryOptions,{recoveryId});
 				if (recovery && recovery.length > 0 && recovery[0]) {
-					await conn.release();
 					return recovery[0];
 				} else {
-					await conn.release();
 					return null;
 				}
 
@@ -472,6 +476,9 @@ export class AdminServer {
 			if (conn)
 				await conn.release();
 			return null;
+		} finally {
+			if(conn)
+				conn.release();
 		}
 	}
 
@@ -491,10 +498,8 @@ export class AdminServer {
 				}
 				const recovery:Recovery[] = await conn.query(queryOptions,{recoveryLink});
 				if (recovery && recovery.length > 0 && recovery[0]) {
-					await conn.release();
 					return recovery[0];
 				} else {
-					await conn.release();
 					return null;
 				}
 			} else {
@@ -506,6 +511,9 @@ export class AdminServer {
 			if (conn)
 				await conn.release();
 			return null;
+		} finally {
+			if(conn)
+				conn.release();
 		}
 
 	}
@@ -548,7 +556,6 @@ router.post("/createResetEmail", async (req:ApiRequest<{email:string}>,res:ApiRe
 		} else {
 			res.status(401).send({err:401, data:null});
 		}
-		res.status(201).send({});
 	} catch (error) {
 		console.error("Error on route \"/createResetEmail\" in \"admin\" router");
 		console.error(error);	
@@ -736,38 +743,38 @@ router.post("/uploadCSV", async(req:ApiRequest<{encode:string}>,res:ApiResponse<
 						entry.product.mentorId = mentor.userId;
 					} else if (mentorUsername !== "") {
 						const password = admin.randomPassword();
-						let user:User | null = await users.addUser({
-							// as any -> todo -> discuss if we change to userId: string|null 
-							userId:uiidv4(),
+						let user: User | null = await users.addUser({
+							// as any -> todo -> discuss if we change to userId: string|null
+							userId: uiidv4(),
 							firstName: mentorUsername,
 							lastName: "",
-							username: mentorUsername, 
-							password: password, 
+							username: mentorUsername,
+							password: password,
 							email: mentorEmail,
 							phone: "",
-							socialMedia: {}, 
-							birthDate: new Date(), 
+							socialMedia: {},
+							birthDate: new Date(),
 							userDetails: {
-								"location":entry.team.teamDetails["location"]
+								location: entry.team.teamDetails["location"]
 							},
 							role: "Mentor",
-							avatarUu:"",
-							lastLogin:new Date()
+							avatarUu: "",
+							lastLogin: new Date()
 						});
 						if (user) {
 							const msg:string = "Hello " + user.firstName + " " + user.lastName +" ,\n\n" 
 								+ "Here is your new account, please do not disclose these informations to anyone.\n" 
 								+ "		Username: " +user.username + "\n"
 								+ "		Password: " +password + "\n" 
-								+ "Use these credidentials to login on "+ process.env.HOSTNAME +"\n\n"
+								+ "Use these credidentials to login on "+ process.env.WEBHOSTNAME +"\n\n"
 								+ "Regards, Innovation Labs Team\n";
-							const notification:SWNotify = {
-								email:user.email,
-								notifyType:NotificationType.EMAIL,
-								msgType:MessageType.WELCOME,
-								text:msg,
-								date:new Date()
-							}
+							const notification: SWNotify = {
+								email: user.email,
+								notifyType: NotificationType.EMAIL,
+								msgType: MessageType.WELCOME,
+								text: msg,
+								date: new Date()
+							};
 							await daemon.addNotification(notification);
 							entry.product.mentorId = user.userId;
 						}
@@ -787,15 +794,15 @@ router.post("/uploadCSV", async(req:ApiRequest<{encode:string}>,res:ApiResponse<
 							+ "Here is your new account, please do not disclose these informations to anyone.\n" 
 							+ "		Username: " +entry.user.username + "\n"
 							+ "		Password: " +password + "\n" 
-							+ "Use these credidentials to login on "+ process.env.HOSTNAME +"\n\n"
+							+ "Use these credidentials to login on "+ process.env.WEBHOSTNAME +"\n\n"
 							+ "Regards, Innovation Labs Team\n";
-						const notification:SWNotify = {
-							email:entry.user.email,
-							notifyType:NotificationType.EMAIL,
-							msgType:MessageType.WELCOME,
-							text:msg,
-							date:new Date()
-						}
+						const notification: SWNotify = {
+							email: entry.user.email,
+							notifyType: NotificationType.EMAIL,
+							msgType: MessageType.WELCOME,
+							text: msg,
+							date: new Date()
+						};
 						await daemon.addNotification(notification);
 						if (entry.product)
 							entry.product.mentorId = entry.user.userId;
@@ -883,7 +890,25 @@ router.post("/newUserActivity", async (req:ApiRequest<UserActivity[]>,res:ApiRes
 	}
 	res.status(200).send(true);
 });
-
+router.get("/download/ceo/data", async (req, res) => {
+	try {
+		let ceoArr = await admin.getCEOData();
+		let csv = Papa.unparse(ceoArr, { quotes: true });
+		if (csv) {
+			res.send(csv);
+		} else {
+			console.error(
+				'Error on route "/download/ceo/data" in "admin" router'
+			);
+			console.error("No csv unparsed!");
+			res.status(401).send({ err: 401 });
+		}
+	} catch (error) {
+		console.error('Error on route "/download/ceo/data" in "admin" router');
+		console.error(error);
+		res.status(401).send({ err: 401 });
+	}
+});
 /**
  * 	Route on which information about users/uploads/teams is sent to be downloaded 
  */
@@ -1091,8 +1116,8 @@ router.post("/teams/review", async (req:ApiRequest<{type:string,location:string,
 					productId: team.productId,
 					mentorNotes:product.mentorNotes,
 					adminNotes:product.adminNotes,
-					assessment20May:assesFinals,
-					assessment12Oct:assesSemifinals,
+					assessmentSemifinals:assesFinals,
+					assessmentFinals:assesSemifinals,
 					updatedAt: admin.formatDate(team.updatedAt),
 					lastMentorUpdate: admin.formatDate(team.lastMentorUpdate)
 				}
@@ -1157,8 +1182,8 @@ router.post("/teams/review/update", async (req:ApiRequest<{reviews:Review[],type
 				product.descriptionEN = review.description;
 				product.productDetails = JSON.parse((product.productDetails as any) as string);
 				product.productDetails["website"] = review.webLink;
-				product.productDetails["assessment20May"] = review.assessment20May;
-				product.productDetails["assessment12Oct"] = review.assessment12Oct;
+				product.productDetails["assessmentSemifinals"] = review.assessmentSemifinals;
+				product.productDetails["assessmentFinals"] = review.assessmentFinals;
 				product.lastMentorUpdate = new Date(review.lastMentorUpdate);
 				product.updatedAt = new Date(review.updatedAt);
 				const prodRes:(Product | null) = await teams.updateProduct(product);
@@ -1266,13 +1291,13 @@ router.post("/request/user", async (req:ApiRequest<{from:string,email:string,fir
 			+ "		Team: " + team.teamName + "\n" 
 			+ "		Location: " + team.location + "\n"
 			+ "		Mentor: " + mentor.email + "\n"
-		const notification:SWNotify = {
-			email:"marius.andrei.aluculesei@gmail.com",
-			notifyType:NotificationType.EMAIL,
-			msgType:MessageType.REQUESTUSER,
-			text:msg,
-			date:new Date()
-		}
+		const notification: SWNotify = {
+			email: "marius.andrei.aluculesei@gmail.com",
+			notifyType: NotificationType.EMAIL,
+			msgType: MessageType.REQUESTUSER,
+			text: msg,
+			date: new Date()
+		};
 		await daemon.addNotification(notification);
 		res.status(200).send(true);
 	} else {
@@ -1288,15 +1313,15 @@ router.post("/add/user", async (req:ApiRequest<{user:User,option:string,teamId:s
 			+ "Here is your new account, please do not disclose these informations to anyone.\n" 
 			+ "		Username: " +user.username + "\n"
 			+ "		Password: " +user.password + "\n" 
-			+ "Use these credidentials to login on "+ process.env.HOSTNAME +"\n\n"
+			+ "Use these credidentials to login on "+ process.env.WEBHOSTNAME +"\n\n"
 			+ "Regards, Innovation Labs Team\n" 
-		const notification:SWNotify = {
-			email:user.email,
-			notifyType:NotificationType.EMAIL,
-			msgType:MessageType.WELCOME,
-			text:msg,
-			date:new Date()
-		}
+		const notification: SWNotify = {
+			email: user.email,
+			notifyType: NotificationType.EMAIL,
+			msgType: MessageType.WELCOME,
+			text: msg,
+			date: new Date()
+		};
 		await daemon.addNotification(notification);
 		if (user) {
 			let newUser = await users.addUser((user as User));
@@ -1358,15 +1383,15 @@ router.post("/update/user", async (req:ApiRequest<{user:User,changedPass:boolean
 			+ "Here is your new password, please do not disclose these informations to anyone.\n" 
 			+ "		Username: " +user.username + "\n"
 			+ "		Password: " +user.password + "\n" 
-			+ "Use these credidentials to login on "+ process.env.HOSTNAME +"\n\n"
+			+ "Use these credidentials to login on "+ process.env.WEBHOSTNAME +"\n\n"
 			+ "Regards, Innovation Labs Team\n"
-		const notification:SWNotify = {
-			email:user.email,
-			notifyType:NotificationType.EMAIL,
-			msgType:MessageType.WELCOME,
-			text:msg,
-			date:new Date()
-		}
+		const notification: SWNotify = {
+			email: user.email,
+			notifyType: NotificationType.EMAIL,
+			msgType: MessageType.WELCOME,
+			text: msg,
+			date: new Date()
+		};
 		await daemon.addNotification(notification);
 		user.password = UsersServer.passwordGenerator(user.password);
 	}

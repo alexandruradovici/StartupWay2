@@ -37,7 +37,7 @@
 							<v-select
 								v-model="teamDate"
 								:items="dates"
-								label="Select type of exports for teams"
+								label="Select which teams to export"
 								item-text="text"
 								item-value="value"
 								hint="Please make sure to select a value"
@@ -63,31 +63,26 @@
 						<v-row>
 						<v-card-title class="justify-center" style=" font-weight: bold;">City Teams</v-card-title>
 							<v-row>
-								<v-col>
-									<v-select
-										v-model="city"
-										:items="cities"
-										label="Select the city you wish to export"
-										item-text="text"
-										item-value="value"
-										hint="Please make sure to select a value"
-										persistent-hint
-									></v-select>
-								</v-col>
-								<v-col>
-									<v-select
-										v-model="cityDate"
-										:items="dates"
-										label="Select type of exports for city teams"
-										item-text="text"
-										item-value="value"
-										hint="Please make sure to select a value"
-										persistent-hint
-									></v-select>
-								</v-col>
+								<v-select
+									v-model="city"
+									:items="cities"
+									label="Select the city you wish to export"
+									item-text="text"
+									item-value="value"
+									hint="Please make sure to select a value"
+									persistent-hint
+								></v-select>
 							</v-row>
 							<v-row>
-								<v-btn :disabled="city==='' || cityDate === ''" rounded color="primary" @click="exportTeamZip('city')">Download city teams zip</v-btn>
+								<v-select
+									v-model="cityDate"
+									:items="dates"
+									label="Select type of exports for city teams"
+									item-text="text"
+									item-value="value"
+									hint="Please make sure to select a value"
+									persistent-hint
+								></v-select>
 							</v-row>
 						</v-row>
 					</v-col>
@@ -144,7 +139,7 @@
 				</v-row>
 			</v-container>
 			<v-container v-show="loadingPage">
-				<v-card flat outlined color="#fcfcfc" class="justify-center">
+				<v-card flat outlined  class="justify-center">
 					<v-card-text class="justify-center">
 						<v-row align="center" justify="center">
 							<strong color="accent">Your download is being processed, this might take a few minutes.</strong>
@@ -176,17 +171,17 @@ import { User } from "@startupway/users/lib/ui";
 import { Team } from "@startupway/teams/lib/ui"; 
 import { SnackBarOptions, SnackBarTypes } from "@startupway/menu/lib/ui";
 import { UI } from "@startupway/main/lib/ui";
+import "../style/style.css";
 export default Vue.extend({
 	name: "ExportView",
 	async mounted() {
-		
+
 	},
 	data() {
 		return {
 			ui: UI.getInstance(),
-			preset:'',
-			presetTeams:[] as {text:string,value:number[]}[],
 			city:'',
+			cityExp:'',
 			cities:[
 				"Bucharest",
 				"Cluj",
@@ -194,9 +189,68 @@ export default Vue.extend({
 				"Sibiu",
 				"Timisoara"
 			],
+			workshopNo: '',
+			days: [
+				{
+					value:'Mon',
+					text:'Monday'
+				},
+				{
+					value:'Tue',
+					text:'Tuesday'
+				},
+				{
+					value:'Wed',
+					text:'Wednesday'
+				},
+				{
+					value:'Thu',
+					text:'Thursday'
+				},
+				{
+					value:'Fri',
+					text:'Friday'
+				}
+			],
+			businessTrack: '',
+			businessTracks: [
+				"Agriculture",
+				"CyberSecurity",
+				"FinTech",
+				"Health&Lifestyle",
+				"Retail",
+				"SmartCity",
+				"SmartMobility",
+				"Other"
+			],
+			semiFinals: false,
+			finals: false,
 			teamDate:'',
 			cityDate:'',
 			date:'',
+			exportType:'',
+			exportTypes:[
+				{
+					text:'PowerPoint Presentation',
+					value:'pres'
+				},
+				{
+					text:'Presentation Video',
+					value:'presVid'
+				},
+				{
+					text:'Tehnic Demo Video',
+					value:'demoVid'
+				},
+				{
+					text:'Images',
+					value:'image'
+				},
+				{
+					text:'Logo Image',
+					value:'logo'
+				}
+			],
 			dates:[
 				{
 					text:'All Teams',
@@ -289,6 +343,20 @@ export default Vue.extend({
 		update(prop:boolean):void {
 			this.snackbar = prop;
 		},
+		async exportCEO() {
+			try {
+				let response = await this.ui.api.get("/api/v1/admin/download/ceo/data");	
+				if(response) {
+					let hiddenElement = document.createElement('a');
+					hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(response.data);
+					hiddenElement.target = '_blank';
+					hiddenElement.download = 'Export.csv';
+					hiddenElement.click();
+				};
+			} catch (e) {
+				console.error(e);
+			}
+		},
 		async exportTeamZip(type:string,option?:string):Promise<void> {
 			try {
 				this.loadingPage = true;
@@ -297,13 +365,15 @@ export default Vue.extend({
 					body = {
 						type:type,
 						date:this.teamDate,
-						cityOrTeam:''
+						city:null,
+						team:null
 					};
 				else if (type === 'team')
 					body = {
 						type:type,
 						date:'none',
-						cityOrTeam:this.team
+						city:null,
+						team:this.team
 					}
 				else if (type === 'city')
 					body = {
@@ -363,6 +433,7 @@ export default Vue.extend({
 								}
 								if (!this.toStop)
 									setTimeout(statusFunction,1000);
+								}
 							}
 						} catch (error) {
 							if (error.response.status === 401 || error.response.status === 502) {
@@ -390,7 +461,7 @@ export default Vue.extend({
 				console.error(e);
 			}
 		},
-		async exportZip(type:string) {
+		async exportCertainZip(type:string) {
 			try {
 				this.loadingPage = true;
 				const response = await this.ui.api.get<string | null>("/api/v1/uploadDownload/download/zip/" + type + "/" + this.date);
@@ -440,6 +511,7 @@ export default Vue.extend({
 			} catch (e) {
 				console.error(e);
 			}
+			this.loadingPage = false;
 		},
 		openUrl(url:string):void {
 			try {
@@ -453,3 +525,15 @@ export default Vue.extend({
 	}
 });
 </script>
+
+<style lang="less">
+.contained .v-col .v-card {
+	min-height: 10%;
+	background-color: red;
+	height: clamp(10%,248px,50%);
+}
+.export-grid {
+	display: grid;
+	grid-template-columns: 5fr 5fr 5fr;
+}
+</style>

@@ -13,7 +13,7 @@
 					</v-col>
 				</v-row>
 				<v-row class="mb-6" justify="center" >
-					<v-card class="mx-auto" flat color="#fcfcfc">
+					<v-card class="mx-auto" flat>
 						<v-data-table
 							item-key="startupName"
 							:headers="headers"
@@ -105,7 +105,7 @@
 						<v-icon v-else>mdi-flag-checkered</v-icon>
 					</v-list-item-icon>
 					<v-list-item-content>
-						<v-select v-model="finalsFilterAssessment" :items="values" item-text="text" item-value="value" label="Assesment Finals">
+						<v-select v-model="finalsFilterAssessment" :items="values" item-text="text" item-value="value" label="Assessment Finals">
 						</v-select>
 					</v-list-item-content>
 				</v-list-item>
@@ -115,7 +115,7 @@
 						<v-icon v-else>mdi-flag</v-icon>
 					</v-list-item-icon>
 					<v-list-item-content>
-						<v-select v-model="semifinalsFilterAssessment" :items="values" item-text="text" item-value="value" label="Assesment SemiFinals">
+						<v-select v-model="semifinalsFilterAssessment" :items="values" item-text="text" item-value="value" label="Assessment SemiFinals">
 						</v-select>
 					</v-list-item-content>
 				</v-list-item>
@@ -223,8 +223,8 @@ export default Vue.extend({
 				{ text: "Startup Name", value: "startupName" },
 				{ text: "Team Track", value: "teamType" },
 				{ text: "Business Track", value: "businessTrack" },
-				{ text: "Assesment SemiFinals", value:"assesSemiFinals"},
-				{ text: "Assesment Finals", value:"assesFinals"},
+				{ text: "Assessment SemiFinals", value:"assesSemiFinals"},
+				{ text: "Assessment Finals", value:"assesFinals"},
 				// { text: "Actions", value: "actions", sortable: false }
 			],
 			teams: [] as (Team & Product & {assesFinals:boolean,assesSemiFinals:boolean})[],
@@ -489,8 +489,8 @@ export default Vue.extend({
 		modifyTeams(newTeams:(Team & Product & {assesFinals:boolean,assesSemiFinals:boolean})[]):(Team & Product & {assesFinals:boolean,assesSemiFinals:boolean})[] {
 			let newArray:(Team & Product & {assesFinals:boolean,assesSemiFinals:boolean})[]=[];
 			for(let team of newTeams) {
-				team.assesSemiFinals = team.productDetails["assessment12Oct"];
-				team.assesFinals = team.productDetails["assessment20May"];
+				team.assesSemiFinals = team.productDetails["assessmentFinals"];
+				team.assesFinals = team.productDetails["assessmentSemifinals"];
 				newArray.push(team);
 			}
 			newArray = newArray.sort(function(a, b) {
