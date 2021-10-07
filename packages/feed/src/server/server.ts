@@ -13,7 +13,7 @@ export class FeedServer {
 		let conn:PoolConnection | null = null
 		try {
 			conn = await getPool().getConnection();
-			if(conn) {
+			if (conn) {
 				conn.beginTransaction();
 				const queryOptions:QueryOptions = {
 					namedPlaceholders:true,
@@ -23,8 +23,8 @@ export class FeedServer {
 					teamId: feedParam.teamId
 				}
 				const feeds: Feed[] = await conn.query(queryOptions,values);
-				if(feeds) {
-					if(feeds.length > 3) {
+				if (feeds) {
+					if (feeds.length > 3) {
 						await conn.commit();
 						await conn.release();
 						return null;
@@ -33,7 +33,7 @@ export class FeedServer {
 						await conn.query(queryOptions,feedParam);
 						queryOptions.sql = "SELECT feedId, teamId, feedType, text, date FROM feeds WHERE feedId=:feedId";
 						const resp: Feed[] = await conn.query(queryOptions,{feedId:feedParam.feedId});
-						if(resp && resp.length > 0 && resp[0]) {
+						if (resp && resp.length > 0 && resp[0]) {
 							await conn.commit();
 							await conn.release();
 							return resp[0];
@@ -53,7 +53,7 @@ export class FeedServer {
 			}
 		} catch (e) {
 			console.error(e);
-			if(conn) {
+			if (conn) {
 				await conn.rollback();
 				await conn.release();
 			}
@@ -65,7 +65,7 @@ export class FeedServer {
 		let conn:PoolConnection | null = null
 		try {
 			conn = await getPool().getConnection();
-			if(conn) {
+			if (conn) {
 				conn.beginTransaction();
 				let queryOptions:QueryOptions = {
 					namedPlaceholders:true,
@@ -74,7 +74,7 @@ export class FeedServer {
 				await conn.query(queryOptions,feedParam);
 				queryOptions.sql = "SELECT feedId, teamId, feedType, text, date FROM feeds WHERE feedId=:feedId";
 				const resp:Feed[] = await conn.query(queryOptions,feedParam);
-				if(resp && resp.length > 0 && resp[0]) {
+				if (resp && resp.length > 0 && resp[0]) {
 					await conn.commit();
 					await conn.release();
 					return resp[0];
@@ -88,7 +88,7 @@ export class FeedServer {
 			}
 		} catch (e) {
 			console.error(e);
-			if(conn) {
+			if (conn) {
 				await conn.rollback();
 				await conn.release();
 			}
@@ -100,7 +100,7 @@ export class FeedServer {
 		let conn:PoolConnection | null = null
 		try {
 			conn = await getPool().getConnection();
-			if(conn) {
+			if (conn) {
 				conn.beginTransaction();
 				const queryOptions:QueryOptions = {
 					namedPlaceholders:true,
@@ -109,7 +109,7 @@ export class FeedServer {
 				await conn.query(queryOptions,{feedId:feedParam.feedId});
 				queryOptions.sql = "SELECT feedId as deleted_id FROM feeds where feedId=:feedId";
 				const response:{deleted_id:string}[] = await conn.query(queryOptions,{feedId:feedParam.feedId});
-				if(response && response.length === 0) {
+				if (response && response.length === 0) {
 					await conn.commit();
 					await conn.release();
 					return true;
@@ -123,7 +123,7 @@ export class FeedServer {
 			}
 		} catch (e) {
 			console.error(e);
-			if(conn) {
+			if (conn) {
 				await conn.rollback();
 				await conn.release();
 			}
@@ -135,13 +135,13 @@ export class FeedServer {
 		let conn:PoolConnection | null = null
 		try {
 			conn = await getPool().getConnection();
-			if(conn) {
+			if (conn) {
 				const queryOptions:QueryOptions = {
 					namedPlaceholders:true,
 					sql:"SELECT feeds.* FROM feeds WHERE feeds.teamId=:teamId ORDER BY feeds.date",
 				}
 				const feeds: Feed[] = await conn.query(queryOptions,{teamId});
-				if(feeds && feeds.length > 0) {
+				if (feeds && feeds.length > 0) {
 					await conn.release();
 					return feeds;
 				} else {
@@ -153,7 +153,7 @@ export class FeedServer {
 			}
 		} catch (e) {
 			console.error(e);
-			if(conn)
+			if (conn)
 				await conn.release();
 			return [];
 		}
@@ -177,7 +177,7 @@ router.use((req, res, next) => {
 });
 
 const authFunct = getAuthorizationFunction();
-if(authFunct)
+if (authFunct)
 	router.use(authFunct);
 	// Bypass params dictionary and send authorization Function
 	
@@ -210,7 +210,7 @@ router.post("/add", async (req:ApiRequest<Feed>, res:ApiResponse<Feed | null>) =
 router.post("/update", async(req:ApiRequest<Feed>, res:ApiResponse<Feed | null>) =>{
 	try {
 		const feedResp: Feed | null = await feed.updateFeed(req.body);
-		if(feedResp)
+		if (feedResp)
 			res.status(200).send(feedResp);
 		else
 			res.status(204).send(null);
@@ -222,9 +222,9 @@ router.post("/update", async(req:ApiRequest<Feed>, res:ApiResponse<Feed | null>)
 router.post("/delete", async(req:ApiRequest<Feed>, res:ApiResponse<boolean>) => {
 	try {
 		const toRemove = req.body;
-		if(toRemove) {
+		if (toRemove) {
 			const resp = await feed.deleteFeed(toRemove);
-			if(resp)
+			if (resp)
 				res.status(200).send(true);
 			else
 				res.status(204).send(false);

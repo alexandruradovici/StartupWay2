@@ -1,12 +1,13 @@
 import Vue from "vue";
-import { UI } from '@startupway/main/lib/ui';
+import { UI } from "@startupway/main/lib/ui";
 import { SnackBarOptions, SimpleMenuOptions } from "@startupway/menu/lib/ui";
-declare const _default: import("vue/types/vue").ExtendedVue<Vue, {
+interface UserMenu {
     ui: UI;
     options: SimpleMenuOptions;
     snackOptions: SnackBarOptions;
     snackbar: boolean;
-}, {
+}
+declare const _default: import("vue/types/vue").ExtendedVue<Vue, UserMenu, {
     click(id: string): Promise<void>;
     update(prop: boolean): void;
 }, {

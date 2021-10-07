@@ -1,145 +1,147 @@
 <template>
-	<v-app>
-		<v-container>
-			<v-card flat style="margin-left: auto; margin-right: auto; padding-top: 20px; background-color: #fcfcfc;">
-				<v-card-title class="justify-center" style="font-family: Georgia, serif; font-weight: bold;">
-					Manage Users
-				</v-card-title>
-				<v-divider></v-divider>
-				<v-card-text>
-					<v-row>
-						<v-col cols="11" align="center">
-							<v-text-field
-								style="flex: 0 1 auto;"
-								v-model="search"
-								append-icon="mdi-magnify"
-								label="Search"
-								single-line
-								hide-details								
-							></v-text-field>
-						</v-col>
-						<v-col cols="1">
-							<v-tooltip v-model="show" top>
-								<template v-slot:activator="{ on }">
-								<v-btn icon v-on="on" @click="openDialog(item)">
-									<v-icon large color="primary">mdi-plus</v-icon>
-								</v-btn>
-								</template>
-								<span>Add new user</span>
-							</v-tooltip> 
-						</v-col>
-					</v-row>
-					
-					<v-data-table item-key="email" :headers="headers" :items="allUsers" :search="search" :loading="allUsers.length <= 0" loading-text="Loading users">
-						<template v-slot:top>
-							<div>
-								
-								<v-dialog persistent v-model="dialog" max-width="500px">
-									<!-- <template v-slot:activator="{ on }">
-										<v-btn color="primary" dark v-on="on">Add User</v-btn>
-									</template> -->
-									<v-card>
-										<v-card-title v-if="item.userId === 0" class="justify-center" style="font-family: Georgia, serif;">Add New User</v-card-title>
-										<v-card-title v-else class="justify-center" style="font-family: Georgia, serif;">Edit User</v-card-title>
-										<v-divider></v-divider>
-										<v-card-text>
-											<v-text-field v-model="item.firstName" color="primary" label="First Name" prepend-icon="mdi-account"></v-text-field>
-											<v-text-field v-model="item.lastName" color="primary" label="Last Name" prepend-icon="mdi-account"></v-text-field>
-											<v-text-field v-model="item.email" color="primary" label="Email" prepend-icon="mdi-email"></v-text-field>
-											<v-text-field v-model="item.phone" color="primary" label="Phone" prepend-icon="mdi-phone"></v-text-field>
-											<v-text-field v-model="item.username" color="primary" label="Username" prepend-icon="mdi-account-badge"></v-text-field>
-											
-											<v-menu
-												v-if="item.userId !== 0"
-												ref="dateMenu"
-												v-model="dateMenu"
-												:close-on-content-click="false"
-												:return-value.sync="date"
-												transition="scale-transition"
-												offset-y
-												max-width="290px"
-												min-width="290px"
+	<v-container>
+		<v-card flat style="margin-left: auto; margin-right: auto; padding-top: 20px; background-color: #fcfcfc;">
+			<v-card-title class="justify-center" style=" font-weight: bold;">
+				Manage Users
+			</v-card-title>
+			<v-divider></v-divider>
+			<v-card-text>
+				<v-row>
+					<v-col cols="11" align="center">
+						<v-text-field
+							style="flex: 0 1 auto;"
+							v-model="search"
+							append-icon="mdi-magnify"
+							label="Search"
+							single-line
+							hide-details								
+						></v-text-field>
+					</v-col>
+					<v-col cols="1">
+						<v-tooltip v-model="show" top>
+							<template v-slot:activator="{ on }">
+							<v-btn icon v-on="on" @click="openDialog(item)">
+								<v-icon large color="primary">mdi-plus</v-icon>
+							</v-btn>
+							</template>
+							<span>Add new user</span>
+						</v-tooltip> 
+					</v-col>
+				</v-row>
+				
+				<v-data-table item-key="email" :headers="headers" :items="allUsers" :search="search" :loading="allUsers.length <= 0" loading-text="Loading users">
+					<template v-slot:top>
+						<div>
+							
+							<v-dialog persistent v-model="dialog" max-width="500px">
+								<!-- <template v-slot:activator="{ on }">
+									<v-btn color="primary" dark v-on="on">Add User</v-btn>
+								</template> -->
+								<v-card>
+									<v-card-title v-if="item.userId === 0" class="justify-center" style="">Add New User</v-card-title>
+									<v-card-title v-else class="justify-center" style="">Edit User</v-card-title>
+									<v-divider></v-divider>
+									<v-card-text>
+										<v-text-field v-model="item.firstName" color="primary" label="First Name" prepend-icon="mdi-account"></v-text-field>
+										<v-text-field v-model="item.lastName" color="primary" label="Last Name" prepend-icon="mdi-account"></v-text-field>
+										<v-text-field v-model="item.email" color="primary" label="Email" prepend-icon="mdi-email"></v-text-field>
+										<v-text-field v-model="item.phone" color="primary" label="Phone" prepend-icon="mdi-phone"></v-text-field>
+										<v-text-field v-model="item.username" color="primary" label="Username" prepend-icon="mdi-account-badge"></v-text-field>
+										
+										<v-menu
+											v-if="item.userId !== 0"
+											ref="dateMenu"
+											v-model="dateMenu"
+											:close-on-content-click="false"
+											:return-value.sync="date"
+											transition="scale-transition"
+											offset-y
+											max-width="290px"
+											min-width="290px"
+										>
+											<template v-slot:activator="{ on }">
+												<v-text-field
+													v-model="item.birthDate"
+													label="Birthdate"
+													persistent-hint
+													prepend-icon="mdi-calendar"
+													v-on="on"
+												></v-text-field>
+											</template>
+											<v-date-picker
+												v-model="item.birthDate"
+												no-title
+												scrollable
 											>
-												<template v-slot:activator="{ on }">
-													<v-text-field
-														v-model="item.birthDate"
-														label="Birthdate"
-														persistent-hint
-														prepend-icon="mdi-event"
-														v-on="on"
-													></v-text-field>
-												</template>
-												<v-date-picker v-model="item.birthDate" no-title>
-													<v-spacer></v-spacer>
-													<v-btn text color="primary" @click="dateMenu = false">Cancel</v-btn>
-													<v-btn text color="primary" @click="$refs.dateMenu.save(date)"
-														>OK</v-btn
-													>
-												</v-date-picker>
-											</v-menu>
-											<v-text-field
-												v-if="item.userId !== 0"
-												v-model="item.socialMedia.facebook"
-												label="Facebook Link"
-												optional
-												color="primary"
-												prepend-icon="mdi-facebook"
-											></v-text-field>
-											<v-text-field
-												v-if="item.userId !== 0"
-												v-model="item.socialMedia.linkedin"
-												label="Linkedin Link"
-												optional
-												color="primary"
-												prepend-icon="mdi-linkedin"
-											></v-text-field>
-											<v-text-field
-												v-if="item.userId !== 0"
-												v-model="item.socialMedia.webpage"
-												label="Webpage Link"
-												optional
-												color="primary"
-												prepend-icon="mdi-web"
-											></v-text-field>
-											<v-textarea 
-												v-model="item.details" 
-												label="User Details" 
-												optional
-												color="primary"
-												prepend-icon="mdi-information-outline"
-												rows="2"
-											></v-textarea>
-											<v-select 
-												v-if="item.userId !== 0" 
-												v-model="item.role" 
-												:items="roles" 
-												label="Role" 
-												optional
-												color="primary"
-												prepend-icon="mdi-account-card-details-outline"
-											></v-select>
-									
-											<!-- <v-text-field v-model="item.role" label="Role" optional></v-text-field> -->
-										</v-card-text>
-										<v-card-actions class="justify-center">
-											<v-btn rounded v-if="item.userId !== 0" color="primary" @click="editUser()">Edit User</v-btn>
-											<v-btn v-else color="primary" rounded @click="addUser()">Add User</v-btn>
-											<v-btn color="primary" text @click="exitDialog()">Exit</v-btn>
-										</v-card-actions>
-									</v-card>
-								</v-dialog>
-							</div>
-						</template>
-						<template v-slot:action="{ item }">
-							<v-icon small @click="openDialog(item)">
-								mdi-pencil
-							</v-icon>
-						</template>
-					</v-data-table>
-				</v-card-text>
-			</v-card>
-		</v-container>
-	</v-app>
+												<v-spacer></v-spacer>
+												<v-btn text color="primary" @click="dateMenu = false">Cancel</v-btn>
+												<v-btn text color="primary" @click="$refs.dateMenu.save(date)"
+													>OK</v-btn
+												>
+											</v-date-picker>
+										</v-menu>
+										<v-text-field
+											v-if="item.userId !== 0"
+											v-model="item.socialMedia.facebook"
+											label="Facebook Link"
+											optional
+											color="primary"
+											prepend-icon="mdi-facebook"
+										></v-text-field>
+										<v-text-field
+											v-if="item.userId !== 0"
+											v-model="item.socialMedia.linkedin"
+											label="Linkedin Link"
+											optional
+											color="primary"
+											prepend-icon="mdi-linkedin"
+										></v-text-field>
+										<v-text-field
+											v-if="item.userId !== 0"
+											v-model="item.socialMedia.webpage"
+											label="Webpage Link"
+											optional
+											color="primary"
+											prepend-icon="mdi-web"
+										></v-text-field>
+										<v-textarea 
+											v-model="item.details" 
+											label="User Details" 
+											optional
+											color="primary"
+											prepend-icon="mdi-information-outline"
+											rows="2"
+										></v-textarea>
+										<v-select 
+											v-if="item.userId !== 0" 
+											v-model="item.role" 
+											:items="roles" 
+											label="Role" 
+											optional
+											color="primary"
+											prepend-icon="mdi-account-card-details-outline"
+										></v-select>
+								
+										<!-- <v-text-field v-model="item.role" label="Role" optional></v-text-field> -->
+									</v-card-text>
+									<v-card-actions class="justify-center">
+										<v-btn rounded v-if="item.userId !== 0" color="primary" @click="editUser()">Edit User</v-btn>
+										<v-btn v-else color="primary" rounded @click="addUser()">Add User</v-btn>
+										<v-btn color="primary" text @click="exitDialog()">Exit</v-btn>
+									</v-card-actions>
+								</v-card>
+							</v-dialog>
+						</div>
+					</template>
+					<template v-slot:action="{ item }">
+						<v-icon small @click="openDialog(item)">
+							mdi-pencil
+						</v-icon>
+					</template>
+				</v-data-table>
+			</v-card-text>
+		</v-card>
+	</v-container>
 </template>
 
 <script lang="ts">
@@ -249,10 +251,10 @@ export default Vue.extend({
 					(user as (User&UserTeams | User) & {faculty:string,group:string}).group = "";
 				}
 				// const session = await this.ui.application.api.get("/api/v1/lastLogin/" + user.userId);
-				// if(session) {
+				// if (session) {
 				// 	user.createdAt = this.formatDate(session.data.lastLogin);
 				// }
-				// if(user.avatarUu !== "" && user.avatarUu !== undefined && user.avatarUu !== null){
+				// if (user.avatarUu !== "" && user.avatarUu !== undefined && user.avatarUu !== null){
 				// 	user.image = await this.getUserImage(user.avatarUu, user.UserTeams_userId);
 				// } else {
 				// 	user.image = ""
@@ -343,7 +345,7 @@ export default Vue.extend({
 					newUser:newUser,
 					changedPass:bolean	
 				});
-				if(response) {
+				if (response) {
 					this.item= {
 						userId: "",
 						userProductId:"",

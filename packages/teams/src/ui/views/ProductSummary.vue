@@ -1,5 +1,5 @@
 <template>
-	<v-app id="app">							
+	<div>							
 		<v-container pr-7 pl-7 v-if="!loadingPage">
 			<v-card flat style="margin: auto; padding-top: 20px;" color="#fcfcfc">
 				<v-form v-model="productValid" lazy-validation v-if="product">
@@ -440,7 +440,7 @@
 					</v-layout>
 				</v-form>
 			</v-card>
-			<SnackBar :options="snackOptions" :snackbar="snackbar" @update-prop="update"></SnackBar>
+			<SnackBar :options="snackOptions" v-if="snackbar" @update-snackbar="update"></SnackBar>
 			<v-dialog v-model="extendDialog" max-width="900">
 				<v-card flat max-width="900">
 					<v-img :src="extendedImage"></v-img>
@@ -461,7 +461,7 @@
 				</v-col>
 			</v-row>
 		</v-container>
-	</v-app>
+	</div>
 </template>
 
 <script lang="ts">
@@ -493,7 +493,7 @@ export default Vue.extend({
 			async handler(newTeam: Team):Promise<void> {
 				this.teamId = newTeam.teamId;
 				if (this.teamId === "") {
-					if(this.$route.path!=="/workspace")
+					if (this.$route.path!=="/workspace")
 						this.$router.push("/workspace");
 				} else {
 					try {
@@ -507,13 +507,13 @@ export default Vue.extend({
 		product: {
 			immediate: false,
 			async handler(newProduct: Product):Promise<void> {
-				if(newProduct.productId !== undefined && newProduct.productId !== "") {
+				if (newProduct.productId !== undefined && newProduct.productId !== "") {
 					this.productId = newProduct.productId;
-					if(newProduct.pendingDescriptionRO === "")
+					if (newProduct.pendingDescriptionRO === "")
 						this.pending_descr_RO = newProduct.descriptionRO;
 					else
 						this.pending_descr_RO = newProduct.pendingDescriptionRO
-					if(newProduct.pendingDescriptionEN === "")
+					if (newProduct.pendingDescriptionEN === "")
 						this.pending_descr_ENG = newProduct.descriptionEN;
 					else
 						this.pending_descr_ENG = newProduct.pendingDescriptionEN;
@@ -533,23 +533,23 @@ export default Vue.extend({
 
 					let response = await this.ui.api.get<{data:string,type:string,ext:string,uuid:string}[] | null>("/api/v1/uploadDownload/get/file/product/image/"+ newProduct.productId);
 
-					if(response.data) {
+					if (response.data) {
 						this.images = response.data;
 					}
 					response = await this.ui.api.get<{data:string,type:string,ext:string,uuid:string}[] | null>("/api/v1/uploadDownload/get/file/product/logo/"+ newProduct.productId);
-					if(response.data) {
+					if (response.data) {
 						this.logo = response.data[0];
 					}
 					response = await this.ui.api.get<{data:string,type:string,ext:string,uuid:string}[] | null>("/api/v1/uploadDownload/get/file/product/demoVid/"+ newProduct.productId);
-					if(response.data) {
+					if (response.data) {
 						this.demoVid = response.data[0];
 					}
 					response = await this.ui.api.get<{data:string,type:string,ext:string,uuid:string}[] | null>("/api/v1/uploadDownload/get/file/product/presVid/"+ newProduct.productId);
-					if(response.data) {
+					if (response.data) {
 						this.presVid = response.data[0];
 					}
 					response = await this.ui.api.get<{data:string,type:string,ext:string,uuid:string}[] | null>("/api/v1/uploadDownload/get/file/product/pres/"+ newProduct.productId);
-					if(response.data) {
+					if (response.data) {
 						this.pres = response.data[0];
 					}
 				}
@@ -559,8 +559,8 @@ export default Vue.extend({
 		presFile: {
 			immediate:false,
 			handler(newFile):void {
-				if(newFile!== undefined && newFile !== null){
-					if(newFile.size < 314572800) {
+				if (newFile!== undefined && newFile !== null){
+					if (newFile.size < 314572800) {
 						this.validPres = true;
 					} else this.validPres = false;
 				} else {
@@ -571,8 +571,8 @@ export default Vue.extend({
 		presVidFile: {
 			immediate:false,
 			handler(newFile):void {
-				if(newFile!== undefined && newFile !== null){
-					if(newFile.size < 314572800) {
+				if (newFile!== undefined && newFile !== null){
+					if (newFile.size < 314572800) {
 						this.validPresVid = true;
 					} else 
 					this.validPresVid = false;
@@ -584,8 +584,8 @@ export default Vue.extend({
 		demoVidFile: {
 			immediate:false,
 			handler(newFile):void {
-				if(newFile!== undefined && newFile !== null){
-					if(newFile.size < 314572800) {
+				if (newFile!== undefined && newFile !== null){
+					if (newFile.size < 314572800) {
 						this.validDemoVid = true;
 					} else 
 					this.validDemoVid = false;
@@ -597,8 +597,8 @@ export default Vue.extend({
 		logoFile: {
 			immediate:false,
 			handler(newFile):void {
-				if(newFile!== undefined && newFile !== null){
-					if(newFile.size < 314572800) {
+				if (newFile!== undefined && newFile !== null){
+					if (newFile.size < 314572800) {
 						this.validLogo = true;
 					} else 
 						this.validLogo = false;
@@ -610,10 +610,10 @@ export default Vue.extend({
 		imgFiles: {
 			immediate:false,
 			handler(newFiles):void {
-				if(newFiles !== undefined && newFiles !== null) {
-				//if(newFiles.length > 0 && newFiles.length < 10){
+				if (newFiles !== undefined && newFiles !== null) {
+				//if (newFiles.length > 0 && newFiles.length < 10){
 					//for(const file of newFiles) {
-						if(newFiles.size < 314572800) {
+						if (newFiles.size < 314572800) {
 							this.validFiles = true;
 						} else {
 							this.validFiles = false;
@@ -650,7 +650,7 @@ export default Vue.extend({
 			//Product settings
 			startupRules: [
 				(value: string) => {
-					if(value && value.length > 0) 
+					if (value && value.length > 0) 
 						return true;
 					else
 						return "Team needs a name";
@@ -745,29 +745,29 @@ export default Vue.extend({
 		},
 		async refreshLoads():Promise<void>{
 			let response = await this.ui.api.get<{data:string,type:string,ext:string,uuid:string}[] | null>("/api/v1/uploadDownload/get/file/product/image/"+ this.productId);
-			if(response.data) {
+			if (response.data) {
 				this.images = response.data;
 			}
 			response = await this.ui.api.get<{data:string,type:string,ext:string,uuid:string}[] | null>("/api/v1/uploadDownload/get/file/product/logo/"+ this.productId);
-			if(response.data) {
+			if (response.data) {
 				this.logo = response.data[0];
 			}
 			response = await this.ui.api.get<{data:string,type:string,ext:string,uuid:string}[] | null>("/api/v1/uploadDownload/get/file/product/demoVid/"+ this.productId);
-			if(response.data) {
+			if (response.data) {
 				this.demoVid = response.data[0];
 			}
 			response = await this.ui.api.get<{data:string,type:string,ext:string,uuid:string}[] | null>("/api/v1/uploadDownload/get/file/product/presVid/"+ this.productId);
-			if(response.data) {
+			if (response.data) {
 				this.presVid = response.data[0];
 			}
 			response = await this.ui.api.get<{data:string,type:string,ext:string,uuid:string}[] | null>("/api/v1/uploadDownload/get/file/product/pres/"+ this.productId);
-			if(response.data) {
+			if (response.data) {
 				this.pres = response.data[0];
 			}
 		},
 		formatDate(date: Date):string {
 			const time  = (new Date(date)).toTimeString().split(" ");
-			if(new Date(date).toString() === "Invalid Date")
+			if (new Date(date).toString() === "Invalid Date")
 				return "";
 			else
 				return (new Date(date)).toDateString() + " " + time[0];
@@ -781,9 +781,9 @@ export default Vue.extend({
 				assessment12Oct:this.assessment12Oct,
 				assessment20May:this.assessment20May
 			};
-			if(this.pending_descr_RO === this.product.descriptionRO)
+			if (this.pending_descr_RO === this.product.descriptionRO)
 				this.pending_descr_RO = "";
-			if(this.pending_descr_ENG === this.product.descriptionEN)
+			if (this.pending_descr_ENG === this.product.descriptionEN)
 				this.pending_descr_ENG = "";
 				const product:Product = {
 					productId: this.productId,
@@ -812,19 +812,19 @@ export default Vue.extend({
 		},
 		async upload(type:string):Promise<void> {
 			try {
-				if(type === "logo" && this.logoFile)
+				if (type === "logo" && this.logoFile)
 					await this.parseFile(this.logoFile,"logo",0);
-				else if(type === "presVid" && this.presVidFile) 
+				else if (type === "presVid" && this.presVidFile) 
 					await this.parseFile(this.presVidFile,"presVid",0);
-				else if(type === "demoVid" && this.demoVidFile) 
+				else if (type === "demoVid" && this.demoVidFile) 
 					await this.parseFile(this.demoVidFile,"demoVid",0);
-				else if(type === "pres" && this.presFile) 
+				else if (type === "pres" && this.presFile) 
 					await this.parseFile(this.presFile,"pres",0);
-				else if(type === "files" && this.imgFiles) {
+				else if (type === "files" && this.imgFiles) {
 					await this.parseFile(this.imgFiles,"image",0);
 					// for(const file of this.imgFiles) {
 					// 	const ret = await this.parseFile(file,"image",0);
-					// 	if(ret) {
+					// 	if (ret) {
 					// 		continue;
 					// 	} else {
 					// 		this.snackOptions.text = "Could not upload the file: " + file.name + ", please try make sure the image has a resolution of at least 1920x1080 pixels. If the error persists, please contact technical support: teams@tech-lounge.ro";
@@ -849,7 +849,7 @@ export default Vue.extend({
 		async deleteObj(uuid:string):Promise<void> {
 			try {
 				const response = await this.ui.api.post<boolean>("/api/v1/uploadDownload/delete/file", {uuid:uuid});
-				if(response.status === 200) {
+				if (response.status === 200) {
 					this.snackOptions.text = "Delete Successful";
 					this.snackOptions.type = SnackBarTypes.SUCCESS;
 					this.snackOptions.timeout = 2000;
@@ -869,7 +869,7 @@ export default Vue.extend({
 		async download(uuid:string):Promise<void> {
 			try {
 				const response = await this.ui.api.get<string | null>("/api/v1/uploadDownload/download/file/"+uuid);
-				if(response.data) {
+				if (response.data) {
 					const url = response.data;
 					window.open(url, '_blank');
 				} else {
@@ -885,22 +885,22 @@ export default Vue.extend({
 				this.loadingUpload = true;
 				const fileSize   = file.size;
 				const chunkSize  = 1000000  ; // bytes
-				if(this.partTotal === "") {
+				if (this.partTotal === "") {
 					this.partTotal = 0;
 					this.parts = fileSize/chunkSize;
 					this.increment = (100 * chunkSize)/fileSize;
 				}
 				const reader = new FileReader();
 				let blob:Blob | null = null;
-				if(this.uuidTemp === "") {
+				if (this.uuidTemp === "") {
 					this.uuidTemp = uiidv4() + "." + file.name.split('.').pop();
 				}
-				if(offset < fileSize)
+				if (offset < fileSize)
 					blob = file.slice(offset, chunkSize + offset);
-				if(blob) {
+				if (blob) {
 					reader.readAsDataURL(blob);
 					reader.onload = async () => {
-						if(reader.result) {
+						if (reader.result) {
 							const result:string[] = reader.result.toString().split(",");
 							this.ui.api.post<boolean>("/api/v1/uploadDownload/upload/file/chunk", {
 								finish:false,
@@ -937,17 +937,17 @@ export default Vue.extend({
 						fileType:type,
 						ext:file.name.split('.').pop()
 					});
-					if(response.status === 200) {
+					if (response.status === 200) {
 						this.snackOptions.text = "Upload Successful";
 						this.snackOptions.type = SnackBarTypes.SUCCESS;
 						this.snackOptions.timeout = 2000;
-						if(type === "presVid") {
+						if (type === "presVid") {
 							this.presVidFile = undefined;
-						} else if(type === "demoVid") {
+						} else if (type === "demoVid") {
 							this.demoVidFile = undefined;
-						} else if(type === "pres") {
+						} else if (type === "pres") {
 							this.presFile = undefined;
-						} else if(type === "logo") {
+						} else if (type === "logo") {
 							this.logoFile = undefined;
 						}
 						this.snackbar = true;
@@ -971,7 +971,7 @@ export default Vue.extend({
 				}
 			} catch (e) {
 				console.error(e);
-				if( e.response.status === 406) {
+				if ( e.response.status === 406) {
 					this.snackOptions.text = "Could not upload the file. Please upload only files in full HD format (min 1920 width and min. 1080 height). If the error persists, please contact technical support: teams@tech-lounge.ro.";
 					this.snackOptions.type = SnackBarTypes.ERROR;
 					this.snackOptions.timeout = 2000;
@@ -981,7 +981,7 @@ export default Vue.extend({
 					this.partTotal = "";
 					this.parts = 0;
 					this.increment = 0;
-				} else if(e.response.status === 405) {
+				} else if (e.response.status === 405) {
 					this.snackOptions.text = "Could not upload the file. There was something wrong with the file format. If the error persists, please contact technical support: teams@tech-lounge.ro.";
 					this.snackOptions.type = SnackBarTypes.ERROR;
 					this.snackOptions.timeout = 2000;

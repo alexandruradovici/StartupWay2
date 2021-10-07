@@ -13,7 +13,7 @@ export class BModelCanvasServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if(conn) {
+			if (conn) {
 				conn.beginTransaction();
 				let queryOptions:QueryOptions = {
 					namedPlaceholders:true,
@@ -23,7 +23,7 @@ export class BModelCanvasServer {
 					productId:canvas.productId
 				};
 				const canvases:BModelCanvas[] =  await conn.query(queryOptions, values);
-				if(canvases && canvases.length > 0 && canvases[0]) {
+				if (canvases && canvases.length > 0 && canvases[0]) {
 					queryOptions = {
 						namedPlaceholders:true,
 						sql: "UPDATE bModelCanvas SET bModelCanvas.fields=:fields, bModelCanvas.date=:date WHERE bModelCanvas.modelId=:modelId"
@@ -36,7 +36,7 @@ export class BModelCanvasServer {
 					await conn.query(queryOptions,updateValues);
 					queryOptions.sql = "SELECT modelId,productId,date,fields from bModelCanvas WHERE bModelCanvas.modelId=:modelId"
 					const canvasResult:BModelCanvas[] = await conn.query(queryOptions,updateValues);
-					if(canvasResult && canvasResult.length > 0 && canvasResult[0]) {
+					if (canvasResult && canvasResult.length > 0 && canvasResult[0]) {
 						await conn.commit();
 						await conn.release();
 						return canvasResult[0];
@@ -53,7 +53,7 @@ export class BModelCanvasServer {
 					await conn.query(queryOptions,canvas);
 					queryOptions.sql="SELECT modelId,productId,date,fields FROM bModelCanvas WHERE modelId=:modelId"
 					const result:BModelCanvas[] = await conn.query(queryOptions,{modelId:canvas.modelId});
-					if(result && result.length > 0 && result[0]) {
+					if (result && result.length > 0 && result[0]) {
 						await conn.commit();
 						await conn.release();
 						return result[0];
@@ -68,7 +68,7 @@ export class BModelCanvasServer {
 			}
 		} catch (error) {
 			console.error(error);
-			if(conn) {
+			if (conn) {
 				await conn.rollback();
 				await conn.release();
 			}
@@ -80,7 +80,7 @@ export class BModelCanvasServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if(conn) {
+			if (conn) {
 				const queryOptions:QueryOptions = {
 					namedPlaceholders:true,
 					sql: "SELECT bModelCanvas.* FROM bModelCanvas INNER JOIN teams ON teams.productId=bModelCanvas.productId AND teams.teamId=:tId"
@@ -89,7 +89,7 @@ export class BModelCanvasServer {
 					tId:teamId
 				}
 				const canvases:BModelCanvas[] =  await conn.query(queryOptions, values);
-				if(canvases && canvases.length > 0) {
+				if (canvases && canvases.length > 0) {
 					await conn.release();
 					return canvases;
 				} else {
@@ -101,7 +101,7 @@ export class BModelCanvasServer {
 			}
 		} catch (error) {
 			console.error(error);
-			if(conn)
+			if (conn)
 				await conn.release();
 			return [];
 		}
@@ -135,14 +135,14 @@ const bModelCanvasServer = BModelCanvasServer.getInstance();
 const router = Router ();
 const authFunct = getAuthorizationFunction();
 
-if(authFunct)
+if (authFunct)
 	router.use(authFunct);
 
 
 router.get("/:teamId", async(req:ApiRequest<undefined>,res:ApiResponse<BModelCanvas[]>) => {
 	try {
 		const result = await bModelCanvasServer.getCanvasesForTeam(req.params.teamId);
-		if(result) {
+		if (result) {
 			for(let res of result) {
 				res.fields = JSON.parse((res.fields as any) as string);
 			}
@@ -158,7 +158,7 @@ router.get("/:teamId", async(req:ApiRequest<undefined>,res:ApiResponse<BModelCan
 router.post("/:teamId", async(req:ApiRequest<BModelCanvas>,res:ApiResponse<BModelCanvas|null>) => {
 	try{
 		const newCanvas = await bModelCanvasServer.addCanvas(req.body);
-		if(newCanvas)
+		if (newCanvas)
 			res.send(newCanvas);
 		else
 			res.status(401).send({err:401, data:null});
@@ -170,7 +170,7 @@ router.post("/:teamId", async(req:ApiRequest<BModelCanvas>,res:ApiResponse<BMode
 router.post("/update:teamId", async(req:ApiRequest<BModelCanvas>,res:ApiResponse<BModelCanvas|null>) => {
 	try{
 		const newCanvas = req.body;
-		if(newCanvas)
+		if (newCanvas)
 			res.send(newCanvas);
 		else
 			res.status(401).send({err:401, data:null});

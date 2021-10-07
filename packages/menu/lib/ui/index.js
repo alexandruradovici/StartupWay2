@@ -17,6 +17,16 @@ var SnackBarTypes;
     SnackBarTypes["INFO"] = "info";
     SnackBarTypes["SUCCESS"] = "success";
 })(SnackBarTypes || (SnackBarTypes = {}));
+var SnackBarHorizontal;
+(function (SnackBarHorizontal) {
+    SnackBarHorizontal["LEFT"] = "left";
+    SnackBarHorizontal["RIGHT"] = "right";
+})(SnackBarHorizontal || (SnackBarHorizontal = {}));
+var SnackBarVertical;
+(function (SnackBarVertical) {
+    SnackBarVertical["TOP"] = "top";
+    SnackBarVertical["BOTTOM"] = "bottom";
+})(SnackBarVertical || (SnackBarVertical = {}));
 
 var script = Vue.extend({
     name: "SimpleMenu",
@@ -307,6 +317,47 @@ __vue_render__._withStripped = true;
 
 var script$1 = Vue.extend({
     name: "SnackBar",
+    watch: {
+        snackbar: function () {
+            var _this = this;
+            if (this.snackbar) {
+                var timeout = (this.options.timeout && this.options.timeout !== -1 ? this.options.timeout : 3000);
+                setTimeout(function () {
+                    _this.$emit("update-snackbar", false);
+                }, timeout);
+            }
+        },
+        options: {
+            immediate: true,
+            deep: true,
+            handler: function () {
+                console.log("options changed");
+                console.log(this.options);
+                switch (this.options.horizontal) {
+                    case SnackBarHorizontal.LEFT:
+                        this.left = true;
+                        this.right = false;
+                    case SnackBarHorizontal.RIGHT:
+                        this.left = false;
+                        this.right = true;
+                    default:
+                        this.left = false;
+                        this.right = true;
+                }
+                switch (this.options.vertical) {
+                    case SnackBarVertical.TOP:
+                        this.top = true;
+                        this.bottom = false;
+                    case SnackBarVertical.BOTTOM:
+                        this.top = false;
+                        this.bottom = true;
+                    default:
+                        this.top = true;
+                        this.bottom = false;
+                }
+            }
+        }
+    },
     props: {
         options: {
             required: true,
@@ -318,28 +369,22 @@ var script$1 = Vue.extend({
         }
     },
     data: function () {
+        var timeout = -1;
+        var left = false;
+        var right = false;
+        var top = false;
+        var bottom = false;
         return {
-            timeout: -1,
-            snackbarValid: false,
+            timeout: timeout,
+            left: left,
+            right: right,
+            top: top,
+            bottom: bottom
         };
-    },
-    watch: {
-        snackbar: function () {
-            var _this = this;
-            setTimeout(function () {
-                var prop = _this.snackbar;
-                prop = false;
-                _this.snackbarValid = false;
-                _this.$emit("update-prop", prop);
-            }, 9000);
-        }
     },
     methods: {
         closeSnackbar: function () {
-            var prop = this.snackbar;
-            prop = false;
-            this.snackbarValid = false;
-            this.$emit("update-prop", prop);
+            this.$emit("update-snackbar", false);
         }
     }
 });
@@ -359,7 +404,13 @@ var __vue_render__$1 = function() {
       _c(
         "v-snackbar",
         {
-          attrs: { timeout: _vm.timeout, right: "", top: "" },
+          attrs: {
+            timeout: _vm.timeout,
+            left: _vm.left,
+            right: _vm.right,
+            top: _vm.top,
+            bottom: _vm.bottom
+          },
           model: {
             value: _vm.snackbar,
             callback: function($$v) {
@@ -369,7 +420,15 @@ var __vue_render__$1 = function() {
           }
         },
         [
-          _vm._v("\n      " + _vm._s(_vm.options.text) + "\n      "),
+          _vm._v(
+            "\n\t\t" +
+              _vm._s(
+                _vm.options.text && _vm.options.text !== ""
+                  ? _vm.options.text
+                  : "Unkown error"
+              ) +
+              "\n\t\t"
+          ),
           _c(
             "v-btn",
             {
@@ -380,7 +439,7 @@ var __vue_render__$1 = function() {
                 }
               }
             },
-            [_vm._v("\n        Close\n      ")]
+            [_vm._v("\n\t\t\tClose\n\t\t")]
           )
         ],
         1
@@ -425,4 +484,4 @@ var ui = UI$1.getInstance();
 ui.registerView(__vue_component__);
 ui.registerView(__vue_component__$1);
 
-export { MenuUi, SnackBarTypes, getMenuUi };
+export { MenuUi, SnackBarHorizontal, SnackBarTypes, SnackBarVertical, getMenuUi };

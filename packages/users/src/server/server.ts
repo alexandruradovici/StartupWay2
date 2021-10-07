@@ -23,7 +23,7 @@ export class UsersServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if(conn) {
+			if (conn) {
 				await conn.beginTransaction();
 				user.password = UsersServer.passwordGenerator (user.password);
 				const queryOptions:QueryOptions = {
@@ -33,7 +33,7 @@ export class UsersServer {
 				await conn.query(queryOptions, user);
 				queryOptions.sql = `SELECT userId,firstName,lastName,username,email,phone,birthDate,avatarUu,socialMedia,userDetails,role,lastLogin FROM ${TABLE_USERS} WHERE userId=:userId`;
 				const response:User[] = await conn.query(queryOptions, {userId:user.userId});
-				if(response && response.length > 0 && response[0]) {
+				if (response && response.length > 0 && response[0]) {
 					await conn.commit();
 					await conn.release();
 					return response[0];
@@ -47,7 +47,7 @@ export class UsersServer {
 			}
 		} catch (error) {
 			console.error(error);
-			if(conn) {
+			if (conn) {
 				await conn.rollback();
 				await conn.release();
 			}
@@ -62,7 +62,7 @@ export class UsersServer {
 				sql: "SELECT users.*, userTeams.teamId, userTeams.role FROM users INNER JOIN userTeams ON user.userId!=:userTeams.userId"
 			}
 			const allUserTeams:(User&UserTeams)[] = await conn.query(queryOptions);
-			if(allUserTeams && allUserTeams.length > 0) {
+			if (allUserTeams && allUserTeams.length > 0) {
 				await conn.release();
 				return allUserTeams;
 			} else { 
@@ -71,7 +71,7 @@ export class UsersServer {
 			}
 		} catch (error) {
 			console.error(error);
-			if(conn)
+			if (conn)
 				await conn.release();
 			return [];
 		}
@@ -81,7 +81,7 @@ export class UsersServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if(conn) {
+			if (conn) {
 				await conn.beginTransaction();
 				const queryOptions:QueryOptions = {
 					namedPlaceholders:true,
@@ -90,7 +90,7 @@ export class UsersServer {
 				await conn.query(queryOptions, user);
 				queryOptions.sql = "SELECT userId as deleted_id FROM users WHERE userId=:userId";
 				const response:{deleted_id:string}[] = await conn.query(queryOptions, user);
-				if(response && response.length === 0) {
+				if (response && response.length === 0) {
 					await conn.commit();
 					await conn.release();
 					return true;
@@ -103,7 +103,7 @@ export class UsersServer {
 			}
 		} catch (error) {
 			console.error(error);
-			if(conn) {
+			if (conn) {
 				await conn.rollback();
 				await conn.release();
 			}
@@ -121,13 +121,13 @@ export class UsersServer {
 				sql: "SELECT username FROM users WHERE username=:username"
 			}
 			const resUsername:{username:string}[] = await conn.query(queryOptions,{username}) as {username:string}[];
-			if(resUsername && resUsername.length > 0 && resUsername[0]) {
+			if (resUsername && resUsername.length > 0 && resUsername[0]) {
 				queryOptions = {
 					namedPlaceholders:true,
 					sql: "SELECT * FROM users WHERE username=:username AND password=:password"
 				}
 				const user:User[] = await conn.query(queryOptions,{username,password}) as User[];
-				if(user && user.length > 0 && user[0]) {
+				if (user && user.length > 0 && user[0]) {
 					try {
 						await conn.beginTransaction();
 						const sessionId:string = uiidv4();
@@ -140,7 +140,7 @@ export class UsersServer {
 						await conn.query(queryOptions, {sessionId, userId, token});
 						queryOptions.sql = "SELECT sessionId, userId, token FROM sessions WHERE sessionId=:sessionId"
 						const resSession:Session[] = await conn.query(queryOptions,{sessionId:sessionId}) as Session[];
-						if(resSession && resSession.length > 0 && resSession[0]) {
+						if (resSession && resSession.length > 0 && resSession[0]) {
 							await conn.commit();
 							await conn.release();
 							return resSession[0];
@@ -154,7 +154,7 @@ export class UsersServer {
 							createdAt: new Date(),
 						};
 						errorSession.token = "error";
-						if(conn) {
+						if (conn) {
 							await conn.rollback();
 							await conn.release();
 							return errorSession;
@@ -177,11 +177,11 @@ export class UsersServer {
 				createdAt: new Date(),
 			};
 			errorSession.token = "error";
-			if(conn)
+			if (conn)
 				await conn.release();
 			return errorSession;
 		}
-		if(conn)
+		if (conn)
 			await conn.release();
 		return null;
 	}
@@ -190,20 +190,20 @@ export class UsersServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if(conn) {
+			if (conn) {
 				await conn.beginTransaction();
 				const queryOptions:QueryOptions = {
 					namedPlaceholders:true,
 					sql: "UPDATE users SET firstName=:firstName, lastName=:lastName, username=:username, email=:email, phone=:phone, socialMedia=:socialMedia, birthDate=:birthDate, userDetails=:userDetails, role=:role, avatarUu=:avatarUu, lastLogin=:lastLogin WHERE userId=:userId"
 				}
-				if(changedPass) {
+				if (changedPass) {
 					user.password = UsersServer.passwordGenerator(user.password);
 					queryOptions.sql = "UPDATE users SET firstName=:firstName, lastName=:lastName, username=:username, password=:password, email=:email, phone=:phone, socialMedia=:socialMedia, birthDate=:birthDate, userDetails=:userDetails, role=:role, avatarUu=:avatarUu, lastLogin=:lastLogin WHERE userId=:userId";
 				}
 				await conn.query(queryOptions, user);
 				queryOptions.sql = "SELECT userId,firstName,lastName,username,email,phone,birthDate,avatarUu,socialMedia,userDetails,role,lastLogin FROM users WHERE userId=:userId";
 				const resp:User[] = await conn.query(queryOptions, user);
-				if(resp && resp.length > 0 && resp[0]) {
+				if (resp && resp.length > 0 && resp[0]) {
 					await conn.commit();
 					await conn.release();
 					return true;
@@ -211,13 +211,13 @@ export class UsersServer {
 			}
 		} catch (error) {
 			console.error(error);
-			if(conn) {
+			if (conn) {
 				await conn.rollback();
 				await conn.release();
 			}
 			return false;
 		}
-		if(conn)
+		if (conn)
 			await conn.release();
 			return false;
 	}
@@ -231,7 +231,7 @@ export class UsersServer {
 				sql: "SELECT * FROM users WHERE username=:username"
 			};
 			const user:User[] = await conn.query(queryOptions,{username}) as User[];
-			if(user && user.length > 0 && user[0]) {
+			if (user && user.length > 0 && user[0]) {
 				if (user[0]) {
 					await conn.release();
 					return user[0];
@@ -240,7 +240,7 @@ export class UsersServer {
 		} catch (error) {
 			console.error(error);
 		}
-		if(conn)
+		if (conn)
 			await conn.release();
 		return null;
 	}
@@ -253,7 +253,7 @@ export class UsersServer {
 				sql: "SELECT * FROM users WHERE email=:email"
 			};
 			const user:User[] = await conn.query(queryOptions,{email}) as User[];
-			if(user && user.length > 0 && user[0]) {
+			if (user && user.length > 0 && user[0]) {
 				if (user[0]) {
 					await conn.release();
 					return user[0];
@@ -263,7 +263,7 @@ export class UsersServer {
 		catch (error) {
 			console.error(error);
 		}
-		if(conn)
+		if (conn)
 			await conn.release();
 		return null;
 	}
@@ -277,7 +277,7 @@ export class UsersServer {
 				sql: "SELECT * FROM users WHERE userId=:userId"
 			};
 			const user:User[] = await conn.query(queryOptions,{userId}) as User[];
-			if(user && user.length > 0 && user[0]) {
+			if (user && user.length > 0 && user[0]) {
 				if (user[0]){
 					await conn.release();
 					return user[0];
@@ -286,7 +286,7 @@ export class UsersServer {
 		} catch (error) {
 			console.error(error);
 		}
-		if(conn)
+		if (conn)
 			await conn.release();
 		return null;
 	}
@@ -295,14 +295,14 @@ export class UsersServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if(conn) {
+			if (conn) {
 				await conn.beginTransaction();
 				const queryOptions:QueryOptions = {
 					namedPlaceholders:true,
 					sql: ""
 				};
 				let values:{token?:string,sessionId?:string} = {};
-				if(sessionId){
+				if (sessionId){
 					queryOptions.sql = "DELETE FROM sessions WHERE sessions.token=:token AND sessions.sessionId=:sessionId";
 					values = {
 						token,
@@ -318,7 +318,7 @@ export class UsersServer {
 				await conn.query(queryOptions, values);
 				queryOptions.sql = "SELECT sessionId as deleted_id FROM sessions WHERE token=:token";
 				const response:{deleted_id:string}[] = await conn.query(queryOptions,values);
-				if(response && response.length === 0) {
+				if (response && response.length === 0) {
 					await conn.commit();
 					await conn.release();
 					return true;
@@ -328,13 +328,13 @@ export class UsersServer {
 			}
 		} catch (error) {
 			console.error(error);
-			if(conn) {
+			if (conn) {
 				await conn.rollback();
 				await conn.release();
 			}
 			return false;
 		}
-		if(conn)
+		if (conn)
 			await conn.release();
 		return false;
 	}
@@ -349,14 +349,14 @@ export class UsersServer {
 				sql: "SELECT * FROM session where userId=:userId"
 			}
 			const session:Session[] = await conn.query(queryOptions,{userId}) as Session[];
-			if(session && session.length > 0 && session[0]) {
+			if (session && session.length > 0 && session[0]) {
 				await conn.release();
 				return session[0];
 			}
 		} catch (error) {
 			console.error(error);
 		}
-		if(conn)
+		if (conn)
 			await conn.release();
 		return null;
 	}
@@ -369,11 +369,11 @@ export class UsersServer {
 				sql: "SELECT * FROM users WHERE role!='Mentor' AND role!='Admin'"
 			}
 			const users:User[] = await conn.query(queryOptions) as User[];
-			if(users && users.length > 0) {
+			if (users && users.length > 0) {
 				for(const u of users) {
-					if(u.socialMedia)
+					if (u.socialMedia)
 						u.socialMedia = JSON.parse((u.socialMedia as any) as string);
-					if(u.userDetails)
+					if (u.userDetails)
 						u.userDetails = JSON.parse((u.userDetails as any) as string);
 				}
 				await conn.release();
@@ -382,7 +382,7 @@ export class UsersServer {
 		} catch (error) {
 			console.error(error);
 		}
-		if(conn)
+		if (conn)
 			await conn.release();
 		return [];
 	}
@@ -394,14 +394,14 @@ export class UsersServer {
 				sql: "SELECT * FROM users"
 			}
 			const users:User[] = await conn.query(queryOptions) as User[];
-			if(users && users.length > 0) {
+			if (users && users.length > 0) {
 				await conn.release();
 				return users;
 			}
 		} catch (error) {
 			console.error(error);
 		}
-		if(conn)
+		if (conn)
 			await conn.release();
 		return [];
 	}
@@ -415,13 +415,13 @@ export class UsersServer {
 				sql: "SELECT userId FROM sessions where token=:token"
 			}
 			const session:{userId:string}[] =  await conn.query(queryOptions,{token}) as {userId:string}[];
-			if(session && session.length > 0 && session[0]) {
+			if (session && session.length > 0 && session[0]) {
 				queryOptions = {
 					namedPlaceholders:true,
 					sql: "SELECT * FROM users WHERE userId=:userId"
 				}
 				const user:User[] = await conn.query(queryOptions,{userId:session[0].userId}) as User[];// where data de azi mai noua decat expirare
-				if(user && user.length > 0 && user[0]) {
+				if (user && user.length > 0 && user[0]) {
 					await conn.release();
 					return user[0];
 				}
@@ -429,7 +429,7 @@ export class UsersServer {
 		} catch (error) {
 			console.error(error);
 		}
-		if(conn)
+		if (conn)
 			await conn.release();
 		return null;
 	}
@@ -458,22 +458,33 @@ router.use((req, res, next) => {
 
 router.post("/login", async (req:ApiRequest<{username:string,password:string,lastLogin:Date}>, res:ApiResponse<Session | null>) => {
 	try {
-		const session:Session | null = await usersServer.createSession(req.body.username, req.body.password);
 		const user = await usersServer.getUserByUsername(req.body.username);
-		if(user) {
-			user.lastLogin = req.body.lastLogin;
+		if (user) {
+			const session: Session | null = await usersServer.createSession(req.body.username, req.body.password);
+			console.log("SESSION");
+			console.log(session);
+			console.log("SESSION");
 			const resp = await usersServer.modifyUser(user);
-			if(resp) {
-				if(session === null) {
+			user.lastLogin = req.body.lastLogin;
+			if (resp) {
+				if (session === null) {
 					res.send(null);
-				} else if(session.token === "error") {
+				} else if (session.token === "error") {
 					res.status(500).send({err:500,data:null});
 				} else {
-					res.send (session);
+					res.send(session);
 				}
 			} else {
 				res.send(null);
 			}
+		} else {
+			const noUserSession: Session = {
+				sessionId: "",
+				token: "cred",
+				userId: "",
+				createdAt: new Date()
+			};
+			res.status(202).send(noUserSession);
 		}
 	} catch (e) {
 		console.error(e);
@@ -486,7 +497,7 @@ router.get("/verify/:email", async(req:ApiRequest<undefined>, res:ApiResponse<{a
 	try {
 		const email = req.params.email;
 		const user = await usersServer.getUserByEmail(email);
-		if(user) {
+		if (user) {
 			res.status(200).send({accept:"Yes"});
 		} else {
 			res.status(404).send({err:404,data:{accept:"No"}});
@@ -499,13 +510,13 @@ router.get("/verify/:email", async(req:ApiRequest<undefined>, res:ApiResponse<{a
 });
 
 const authFunct = getAuthorizationFunction();
-if(authFunct)
+if (authFunct)
 	router.use(authFunct);
 
 router.get("/user", async (req:ApiRequest<undefined>, res:ApiResponse<User|null>, next) => {
-	if((req as any).user) {
+	if ((req as any).user) {
 		const u:User | null = (req as any).user
-		if(u) {
+		if (u) {
 			u.socialMedia = JSON.parse((u.socialMedia as any) as string);
 			u.userDetails = JSON.parse((u.userDetails as any) as string);
 		}
@@ -535,9 +546,9 @@ router.post("/user/update", async (req:ApiRequest<{newUser:User,changedPass:stri
 		// 	date:new Date()
 		// }
 		// await daemon.addNotification(notification);
-		if(user) {
+		if (user) {
 			const resp = await usersServer.modifyUser(user, changedPass);
-			if(resp) {
+			if (resp) {
 				res.status(200).send(resp);
 			} else {
 				res.status(201).send(false);
@@ -555,7 +566,7 @@ router.post("/user/update", async (req:ApiRequest<{newUser:User,changedPass:stri
 router.get("/user/:email", async (req:ApiRequest<undefined>, res:ApiResponse<User | null>) => {
 	const email = req.params.email;
 	const user = await usersServer.getUserByEmail(email);
-	if(user) {
+	if (user) {
 		res.send(user);
 	} else {
 		res.status(401).send({err:401,data:null});
@@ -564,14 +575,14 @@ router.get("/user/:email", async (req:ApiRequest<undefined>, res:ApiResponse<Use
 router.get("/users", async (req:ApiRequest<undefined>, res:ApiResponse<User[]>) => {
 	try {
 		const usersList:User[] = await usersServer.getUsers();
-		if(usersList) {
+		if (usersList) {
 			// for(let user of usersList) {
 			// 	console.log(user.socialMedia);
 			// 	console.log(typeof user.socialMedia);
-			// 	if(typeof user.socialMedia === "string") {
+			// 	if (typeof user.socialMedia === "string") {
 			// 		user.socialMedia = JSON.parse((user.socialMedia as any) as string);
 			// 	}
-			// 	if(typeof user.userDetails === "string") {
+			// 	if (typeof user.userDetails === "string") {
 			// 		user.userDetails = JSON.parse((user.userDetails as any) as string);
 			// 	}
 			// }
@@ -587,7 +598,7 @@ router.get("/users", async (req:ApiRequest<undefined>, res:ApiResponse<User[]>) 
 router.get("/users/all", async (req:ApiRequest<undefined>, res:ApiResponse<User[]>) => {
 	try {
 		const usersList:User[] = await usersServer.getAllUsers();
-		if(usersList) {
+		if (usersList) {
 			for(let user of usersList) {
 				user.socialMedia = JSON.parse((user.socialMedia as any) as string);
 				user.userDetails = JSON.parse((user.userDetails as any) as string);
@@ -603,16 +614,16 @@ router.get("/users/all", async (req:ApiRequest<undefined>, res:ApiResponse<User[
 });
 
 router.post("/logout", async (req:ApiRequest<{sessionId:string}> & {token:string}, res:ApiResponse<boolean>, next) => {
-	if(req.body.sessionId) {
+	if (req.body.sessionId) {
 		const respSession = await usersServer.deleteSession(req.token, req.body.sessionId);
-		if(respSession) {
+		if (respSession) {
 			res.status(200).send(respSession);
 		} else {
 			res.status(201).send(false);
 		}
 	} else {
 		const respToken = await usersServer.deleteSession(req.token);
-		if(respToken) {
+		if (respToken) {
 			res.status(200).send(respToken);
 		} else {
 			res.status(201).send(false);
@@ -623,7 +634,7 @@ router.get("/session/:userId", async (req:ApiRequest<undefined>, res:ApiResponse
 	try {
 		// const userId = req.params.userId;
 		const session: Session | null = await usersServer.getUserLastSession(req.params.userId);
-		if(session) {
+		if (session) {
 			res.status(200).send(session);
 		} else {
 			res.status(204).send(null);
@@ -641,12 +652,12 @@ export function getAuthorizationFunction(): ((req:Request,res:Response,next:Next
 		const f = async (req:Request, res:Response, next:NextFunction)=> {
 			const authorization = req.header("Authorization");
 			let token = null;
-			if(authorization){
+			if (authorization){
 				token = authorization.split(" ")[1];
 			}
-			if(token !==  null) {
+			if (token !==  null) {
 				const user = await usersServer.getSessionUser(token);
-				if(user === null)
+				if (user === null)
 					res.status(401).send({err:401});
 				else
 				{

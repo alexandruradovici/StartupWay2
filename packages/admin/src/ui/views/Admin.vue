@@ -1,5 +1,5 @@
 <template>
-	<v-app>
+	<div>
 		<v-navigation-drawer app clipped permanent style="border-left:#ffb100 solid 10px;">
 			<v-list>
 				<v-list-item two-line>
@@ -60,7 +60,7 @@
 				<router-view></router-view>
 			</transition>
 		</v-container>
-	</v-app>
+	</div>
 </template>
 
 <script lang="ts">
@@ -84,7 +84,7 @@ export default Vue.extend({
 		user: {
 			immediate: true,
 			async handler(newUser: User):Promise<void> {
-				if(newUser) {
+				if (newUser) {
 					if (newUser.role === "Admin" || newUser.role === "SuperAdmin") {
 						try {
 							const response = await this.ui.api.get<(Team & Product)[]>("/api/v1/teams/mentor/teams/" + newUser.userId);

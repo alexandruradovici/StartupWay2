@@ -1,10 +1,10 @@
 <template>
-	<v-app id="app">
+	<div id="app">
 		<v-container v-if="!loadingPage" class="content" width="1000">
 			<v-divider></v-divider>
 			<template v-if="productUpdates"> 
 				<v-card flat outlined v-for="(item, index) in productUpdates" :key="index" width="800" class="justify-center" style="margin: auto; margin-bottom: 20px; margin-top: 30px;">
-					<v-card-title style="font-family: Georgia, serif; font-size: 18px; font-weight: 600;">
+					<v-card-title style=" font-size: 18px; font-weight: 600;">
 						<v-icon large left color="#22542b" v-if="item.feedType===FeedTypes.INVESTMENT">mdi-account-cash</v-icon>
 						<v-icon large left color="#e0ac1b" v-if="item.feedType===FeedTypes.AWARD">mdi-trophy</v-icon>
 						<v-icon large left color="#9e2219" v-if="item.feedType===FeedTypes.UPDATE">mdi-update</v-icon>
@@ -12,11 +12,11 @@
 					
 						Feed Type: {{ item.feedType }}
 					</v-card-title>
-					<v-card-subtitle v-if="item && item.date" style="font-family: Georgia, serif; font-size: 18px;">
+					<v-card-subtitle v-if="item && item.date" style=" font-size: 18px;">
 							{{formatDate(item.date)}}
 					</v-card-subtitle>
 					<v-divider></v-divider>
-					<v-card-text style="font-family: Georgia, serif;">
+					<v-card-text style="">
 						<span>Feed Description: {{ item.text["text"] }}</span>
 						<v-spacer></v-spacer>
 						<span v-if="item.feedType === FeedTypes.INVESTMENT"> Amount:{{ item.text["amount"] }} </span>
@@ -44,7 +44,7 @@
 				</v-col>
 			</v-row>
 		</v-container>
-	</v-app>
+	</div>
 </template>
 
 <script lang="ts">
@@ -64,17 +64,17 @@ export default Vue.extend({
 				this.loadingPage = true;
 				this.teamId = (this.$route.params.teamId);
 				try {
-					if(await this.getUsers(this.teamId))
+					if (await this.getUsers(this.teamId))
 						await this.getAllUsers();
 					const found= await this.ui.api.get<Team | null>("/api/v1/teams/team/" + this.teamId);
-					if(found.data) {
+					if (found.data) {
 						this.team = found.data.teamName;
 					}
 					const response = await this.ui.api.get<Feed[]>("/api/v1/feed/"+this.teamId);
 					
-					if(response.data) {
+					if (response.data) {
 						this.productUpdates = response.data;
-						if(this.productUpdates.length === 0) {
+						if (this.productUpdates.length === 0) {
 							this.productUpdates = null;
 						}
 					}
@@ -88,8 +88,8 @@ export default Vue.extend({
 			immediate: true,
 			async handler(newUser: User):Promise<void>  {
 				this.loadingPage = true;
-				if(newUser) {
-					if(newUser.role === "Admin" || newUser.role === "SuperAdmin") {
+				if (newUser) {
+					if (newUser.role === "Admin" || newUser.role === "SuperAdmin") {
 						try {
 							this.location = newUser.userDetails["location"];
 							const response = await this.ui.api.get<Team[]>("/api/v1/admin/teams/");
@@ -144,7 +144,7 @@ export default Vue.extend({
 		},
 		hasUser(user:(User&UserTeams)):boolean {
 			for(const aux of this.users) {
-				if(aux.userId === user.userId) {
+				if (aux.userId === user.userId) {
 					return true;
 				}
 			}

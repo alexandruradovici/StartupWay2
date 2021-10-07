@@ -1,17 +1,17 @@
 <template>
-	<v-app>
+	<div>
 		<v-container v-if="!loadingPage">
 			<div class="justify-center">
 				<v-row justify="center">
-					<h1 v-if="user" style="font-family: Georgia, serif; text-align: center; text-weight: bold, font-size: 20px; margin-top: 70px;"> 
+					<h1 v-if="user" style=" text-align: center; text-weight: bold, font-size: 20px; margin-top: 70px;"> 
 						Hello {{user.firstName}} {{user.lastName}} and welcome to StartupWay!
 					</h1>
 				</v-row>
 				<v-row justify="center">
-					<h1 v-if="teams.length === 0" style="font-family: Georgia, serif; text-align: center; text-weight: bold, font-size: 20px; margin-top: 20px;">
+					<h1 v-if="teams.length === 0" style=" text-align: center; text-weight: bold, font-size: 20px; margin-top: 20px;">
 						Oops, it seems like you are not enroled in any team, please contact your mentor for more details.
 					</h1>
-					<h1 v-else style="font-family: Georgia, serif; text-align: center; text-weight: bold, font-size: 20px; margin-top: 20px;">
+					<h1 v-else style=" text-align: center; text-weight: bold, font-size: 20px; margin-top: 20px;">
 						You are currently enroled in {{ teams.length }} 
 						<div v-if="teams.length===1">
 							team.
@@ -22,12 +22,12 @@
 					</h1>
 				</v-row>
 				<v-row justify="center">
-					<h1 style="font-family: Georgia, serif; text-align: center; text-weight: bold, font-size: 20px; margin-top: 20px;">
+					<h1 style=" text-align: center; text-weight: bold, font-size: 20px; margin-top: 20px;">
 						You can find a document of how to use the platform at the following link: <a target="_blank" href="https://docs.google.com/document/u/1/d/e/2PACX-1vTMWy4cQEquNi_mP4DQWl1VzzdCdtr35xdUZOBnyIpbyXxmKXEjMK5wgp7GPKp4_vXuLvyHQnOxqVd3/pub">User Guide</a>
 					</h1>
 				</v-row>
 				<v-row justify="center">
-					<h1 v-if="!currentTeam" style="font-family: Georgia, serif; text-align: center; text-weight: bold, font-size: 20px; margin-top: 20px;">
+					<h1 v-if="!currentTeam" style=" text-align: center; text-weight: bold, font-size: 20px; margin-top: 20px;">
 						Please select your team from the top right corner.
 					</h1>
 				</v-row>
@@ -44,7 +44,7 @@
 				</v-col>
 			</v-row>
 		</v-container>
-	</v-app>
+	</div>
 </template>
 
 <script lang="ts">
@@ -73,10 +73,10 @@ export default Vue.extend({
 			immediate: true,
 			async handler (newTeam: Team | null):Promise<void> {
 				this.loadingPage = true;
-				if(newTeam) {
+				if (newTeam) {
 					let response = await this.ui.api.get<Product | null>("/api/v1/teams/product/" + newTeam.teamId);
 					let product:Product | null = response.data;
-					if(product) {
+					if (product) {
 						(newTeam as Team&Product).businessTrack = product.businessTrack;
 						(newTeam as Team&Product).teamType = product.teamType;
 						this.teamId = newTeam.teamId;
@@ -96,8 +96,8 @@ export default Vue.extend({
 			immediate:true,
 			handler (newToken:string):void {
 				this.loadingPage = true;
-				if(newToken === null){
-					if(this.$route.path !== "/login")
+				if (newToken === null){
+					if (this.$route.path !== "/login")
 						this.$router.push("/login");
 				}
 				this.loadingPage = false;
@@ -107,7 +107,7 @@ export default Vue.extend({
 			immediate: true,
 			async handler (newUser: User):Promise<void> {
 				this.loadingPage = true;
-				if(newUser){
+				if (newUser){
 					await this.ui.storeDispatch("teams/loadTeams",newUser.userId);
 				}
 				this.loadingPage = false;

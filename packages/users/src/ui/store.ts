@@ -48,7 +48,7 @@ export default function usersStore ():Module<UsersState, RootState> {
 						password,
 						lastLogin: new Date()
 					});
-					if(r.data.sessionId === "") {
+					if (r.data.sessionId === "") {
 						return r.data.token;
 					}
                     storeParam.commit ('token', r.data.token);
@@ -68,6 +68,7 @@ export default function usersStore ():Module<UsersState, RootState> {
                     await ui.api.post<Session>("/api/v1/users/logout");
                     storeParam.commit ('token', null);
                     storeParam.commit ('user', null);
+					//TODO DELETE SESSIONS
 
                     return true;
                 }

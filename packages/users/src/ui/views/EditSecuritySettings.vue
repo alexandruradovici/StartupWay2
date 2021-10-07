@@ -1,22 +1,32 @@
 <template>
-	<v-app>
+	<div>
 		<v-container v-if="!loadingPage">
 			<v-form v-model="valid" lazy-validation>
-				<v-card flat style="margin: auto; padding-top: 20px;" max-width="900" color="#fcfcfc">
+				<v-card
+					flat
+					style="margin: auto; padding-top: 20px;"
+					max-width="900"
+					color="#fcfcfc"
+				>
 					<v-card-title class="justify-center">
-							
 						<v-list-item-avatar size="60">
-							
-							<v-hover v-slot:default="{ hover }" >
-								<v-img :elevation="hover ? 16 : 0" v-if="imgData !== ''" :src="imgData" @click="extendImage(imgData)"></v-img>
-								<v-icon v-else>mdi-account-circle mdi-48px</v-icon>
+							<v-hover v-slot:default="{ hover }">
+								<v-img
+									:elevation="hover ? 16 : 0"
+									v-if="imgData && imgData !== ''"
+									:src="imgData"
+									@click="extendImage(imgData)"
+								></v-img>
+								<v-icon v-else
+									>mdi-account-circle mdi-48px</v-icon
+								>
 							</v-hover>
 						</v-list-item-avatar>
-						{{user.firstName}} {{user.lastName}}
+						{{ user.firstName }} {{ user.lastName }}
 					</v-card-title>
-							
+
 					<v-list-item-subtitle>
-						Security Settings	
+						Security Settings
 					</v-list-item-subtitle>
 
 					<v-divider></v-divider>
@@ -32,7 +42,7 @@
 									prepend-icon="mdi-account-convert"
 								></v-text-field>
 							</v-col>
-							
+
 							<v-col cols="4" aling="center">
 								<v-text-field
 									v-model="email"
@@ -47,7 +57,9 @@
 							<v-col cols="4" align="center">
 								<v-text-field
 									v-model="passwordNew"
-									:prepend-icon="showNew ? 'mdi-eye' : 'mdi-eye-off'"
+									:prepend-icon="
+										showNew ? 'mdi-eye' : 'mdi-eye-off'
+									"
 									@click:prepend="showNew = !showNew"
 									:rules="passwordRules"
 									:type="showNew ? 'text' : 'password'"
@@ -55,87 +67,158 @@
 									color="primary"
 								></v-text-field>
 							</v-col>
-
 						</v-row>
 					</v-card-text>
 					<v-card-actions class="justify-center">
-						<v-btn :disabled="!valid" rounded color="primary" @click="update()" justify="center">Submit</v-btn>
+						<v-btn @click="back()" color="secondary">
+							Back
+						</v-btn>
+						<v-spacer></v-spacer>
+						<v-btn
+							:disabled="!valid"
+							rounded
+							color="primary"
+							@click="update()"
+							justify="center"
+							>Submit</v-btn
+						>
 					</v-card-actions>
 				</v-card>
 			</v-form>
 			<v-dialog v-model="extendDialog" max-width="450">
 				<v-card flat max-width="450">
-					<v-img :src="extendedImage"></v-img>
+					<v-img v-if="extendedImage" :src="extendedImage"></v-img>
 					<v-card-actions class="justify-center">
-						<v-btn text color="primary" @click="extendDialog=false">Exit</v-btn>
+						<v-btn
+							text
+							color="primary"
+							@click="extendDialog = false"
+							>Exit</v-btn
+						>
 					</v-card-actions>
 				</v-card>
-			</v-dialog>	
+			</v-dialog>
 		</v-container>
 		<v-container v-else>
 			<v-row justify="center">
 				<v-col md="auto">
 					<v-progress-circular
-					:size="500"
-					color="primary"
-					indeterminate
+						:size="500"
+						color="primary"
+						indeterminate
 					></v-progress-circular>
 				</v-col>
 			</v-row>
 		</v-container>
-	</v-app>
+		<SnackBar :options="snackOptions" @update-snackbar="updateSnack" :snackbar="snackbar"></SnackBar>
+	</div>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
 import { UI } from "@startupway/main/lib/ui";
-import { User, UserSocialMedia, UserDetails, universities} from "../../common";
+import { SnackBarOptions, SnackBarTypes, SnackBarHorizontal, SnackBarVertical } from "@startupway/menu/lib/ui";
+import { User, UserSocialMedia, UserDetails, universities } from "../../common";
 import { mapGetters } from "vuex";
+interface EditSecuritySettings {
+	ui: UI,
+	snackOptions: SnackBarOptions,
+	snackbar: boolean,
+	extendDialog: boolean,
+	loadingPage: boolean,
+	showNew: boolean,
+	showConfirm: boolean,
+	valid: boolean,
+	imgData: string | null,
+	extendedImage: string | null,
+	universities: string[],
+	firstName: string,
+	lastName: string,
+	email: string,
+	passwordNew: string,
+	passwordConfirm: string,
+	phone: string,
+	username: string,
+	date: string,
+	birthDate: Date,
+	facebook: string,
+	linkedin: string,
+	webpage: string,
+	details: string,
+	faculty: string,
+	group: string,
+	characterRules: ((param: string) => boolean | string)[],
+	passwordRules: ((param: string) => boolean | string)[],
+	emailRules: ((param: string) => boolean | string)[]
+}
 export default Vue.extend({
 	name: "EditSecuritySettings",
 	async mounted() {
 		try {
 			if (await this.ui.storeDispatch("users/load", {})) {
-				if(this.user) {
+				if (this.user) {
 					try {
 						this.firstName = (this.user as User).firstName;
 						this.lastName = (this.user as User).lastName;
 						this.username = (this.user as User).username;
 						this.email = (this.user as User).email;
 						this.phone = (this.user as User).phone;
-						this.date = new Date((this.user as User).birthDate).toISOString().substr(0, 10);
-						this.facebook = (this.user as User).socialMedia.facebook;
-						this.linkedin = (this.user as User).socialMedia.linkedin;
+						this.date = new Date((this.user as User).birthDate)
+							.toISOString()
+							.substr(0, 10);
+						this.facebook = (this
+							.user as User).socialMedia.facebook;
+						this.linkedin = (this
+							.user as User).socialMedia.linkedin;
 						this.webpage = (this.user as User).socialMedia.webpage;
 						this.faculty = (this.user as User).userDetails.faculty;
 						this.group = (this.user as User).userDetails.group;
 						this.details = (this.user as User).userDetails.details;
-						let response = await this.ui.api.post<string | null>("/api/v1/uploadDownload/get/file/user/avatar", {userId:this.user.userId});
-						if(response.data) {
+						let response = await this.ui.api.post<string | null>(
+							"/api/v1/uploadDownload/get/file/user/avatar",
+							{ userId: this.user.userId }
+						);
+						if (response.data) {
 							this.imgData = response.data;
 						}
-					} catch (e) {
-						console.error(e);
+					} catch (error) {
+						const e: Error = error;
+						console.error(e.message);
+						this.snackOptions.text = e.message;
+						this.snackOptions.type = SnackBarTypes.ERROR;
+						this.snackOptions.timeout = 2000;
+						this.snackbar = true;
 					}
 				}
 			}
-		} catch (e) {
-			console.error(e);
+		} catch (error) {
+			const e: Error = error;
+			console.error(e.message);
+			this.snackOptions.text = e.message;
+			this.snackOptions.type = SnackBarTypes.ERROR;
+			this.snackOptions.timeout = 2000;
+			this.snackbar = true;
 		}
 	},
-	data() {
+	data (): EditSecuritySettings {
 		return {
-			ui:UI.getInstance(),
+			ui: UI.getInstance(),
+			snackOptions: {
+				text:"",
+				type: SnackBarTypes.INFO,
+				timeout:2000,
+				horizontal: SnackBarHorizontal.RIGHT,
+				vertical: SnackBarVertical.BOTTOM
+			},
+			snackbar: false,
 			extendDialog: false,
-			loadingPage:false,
+			loadingPage: false,
 			showNew: false,
 			showConfirm: false,
-			valid:true,
-
-			imgData:{},
-
+			valid: true,
+			imgData: null,
 			extendedImage: "",
-			universities:universities,
+			universities: universities,
 			firstName: "" as string,
 			lastName: "" as string,
 			email: "" as string,
@@ -151,66 +234,68 @@ export default Vue.extend({
 			details: "" as string,
 			faculty: "" as string,
 			group: "" as string,
-
 			characterRules: [
 				(f: string) => {
-					for(let i = 0; i < f.length; i ++) {
-						if(f.charCodeAt(i) > 127) {
-							return 'Field must not contain unicode characters!'
+					for (let i = 0; i < f.length; i++) {
+						if (f.charCodeAt(i) > 127) {
+							return "Field must not contain unicode characters!";
 						}
 					}
 					return true;
 				},
 				(f: string) => {
-					if(f.length > 0)
-						return true;
-					else
-						return "Filed cannot be empty!";
+					if (f.length > 0) return true;
+					else return "Filed cannot be empty!";
 				}
 			],
 			passwordRules: [
 				(p: string) => {
-					if(p !== "" && p.length < 8)
+					if (p !== "" && p.length < 8)
 						return "Password must be at least 8 characters long!";
-					else
-						return true;
+					else return true;
 				},
 				(f: string) => {
-					for(let i = 0; i < f.length; i ++) {
-						if(f.charCodeAt(i) > 127) {
-							return 'Field must not contain unicode characters!'
+					for (let i = 0; i < f.length; i++) {
+						if (f.charCodeAt(i) > 127) {
+							return "Field must not contain unicode characters!";
 						}
 					}
 					return true;
-				},
+				}
 			],
 			emailRules: [
 				(e: string) => {
 					if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(e))
 						return true;
-					else
-						return "You have entered an invalid email address!";
+					else return "You have entered an invalid email address!";
 				},
 				(f: string) => {
-					if(f.length > 0)
-						return true;
-					else
-						return "Filed cannot be empty!";
+					if (f.length > 0) return true;
+					else return "Filed cannot be empty!";
 				}
 			]
 		};
 	},
 	computed: {
 		...mapGetters({
-			user: "users/user" 
+			user: "users/user"
 		})
 	},
 	methods: {
-		extendImage(image: string):void {
+		back (): void {
+			if (this.$route.path !== "/user/account") {
+                this.$router.push("/user/account");
+			}
+		},
+		updateSnack (prop:boolean): void {
+			console.log("got update event");
+			this.snackbar = prop;
+		},
+		extendImage (image: string | null): void {
 			this.extendedImage = image;
 			this.extendDialog = true;
 		},
-		async update():Promise<void> {
+		async update (): Promise<void> {
 			this.loadingPage = true;
 			let socialMedia: UserSocialMedia = {
 				facebook: this.facebook,
@@ -218,10 +303,10 @@ export default Vue.extend({
 				webpage: this.webpage
 			};
 			let userDetails: UserDetails = {
-				faculty:this.faculty,
+				faculty: this.faculty,
 				group: this.group,
 				details: this.details,
-				location:this.user.userDetails["location"]  
+				location: this.user.userDetails["location"]
 			};
 			let newUser;
 			let changedPass = false;
@@ -261,10 +346,13 @@ export default Vue.extend({
 				changedPass = true;
 			}
 			try {
-				let response = await this.ui.api.post<boolean>("/api/v1/users/user/update", {
-					newUser:newUser,
-					changedPass:changedPass	
-				});
+				let response = await this.ui.api.post<boolean>(
+					"/api/v1/users/user/update",
+					{
+						newUser: newUser,
+						changedPass: changedPass
+					}
+				);
 				//TODO ADD SNACKBAR
 				if (response.data) {
 					if (await this.ui.storeDispatch("users/load", {})) {
@@ -273,23 +361,39 @@ export default Vue.extend({
 						this.username = this.user.username;
 						this.email = this.user.email;
 						this.phone = this.user.phone;
-						this.date = new Date(this.user.birthDate).toISOString().substr(0, 10);
+						this.date = new Date(this.user.birthDate)
+							.toISOString()
+							.substr(0, 10);
 						this.facebook = this.user.socialMedia.facebook;
 						this.linkedin = this.user.socialMedia.linkedin;
 						this.webpage = this.user.socialMedia.webpage;
 						this.details = this.user.userDetails.details;
 						this.faculty = this.user.userDetails.faculty;
 						this.group = this.user.userDetails.group;
+
+						this.snackOptions.text = "Update has been successful!";
+						this.snackOptions.type = SnackBarTypes.SUCCESS;
+						this.snackOptions.timeout = 2000;
+						this.snackbar = true;
 					}
+				} else {
+					this.snackOptions.text = "An unexpected error occured. If the error persists, please contact technical support: teams@tech-lounge.ro.";
+					this.snackOptions.type = SnackBarTypes.ERROR;
+					this.snackOptions.timeout = 2000;
+					this.snackbar = true;
 				}
 			} catch (error) {
-				console.error(error);
+				const e: Error = error;
+				console.error(e.message);
+				this.snackOptions.text = e.message;
+				this.snackOptions.type = SnackBarTypes.ERROR;
+				this.snackOptions.timeout = 2000;
+				this.snackbar = true;
 			}
 			this.loadingPage = false;
-		},
+		}
 	}
 });
 </script>
 
-<style lang="less">
-</style>
+<style lang="less"></style>

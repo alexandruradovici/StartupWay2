@@ -42,6 +42,7 @@
 		"build-server": "tsc --build compile.tsconfig.json",
 		"build-ui": "webpack",
 		"start": "node lib/server/index.js",
-		"clean": "rm -rf lib compile.tsconfig.tsbuildinfo"
+		"clean": "rm -rf lib compile.tsconfig.tsbuildinfo",
+		"dev": "npm run build && npm run start"
 	}
 }

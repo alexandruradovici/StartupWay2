@@ -1,28 +1,32 @@
 <template>
 	<div>
 		<SimpleMenu :options="options" @click="click" ></SimpleMenu>
-		<SnackBar :options="snackOptions" :snackbar="snackbar" @update-prop="update"></SnackBar>
+		<SnackBar :options="snackOptions" v-if="snackbar" @update-snackbar="update"></SnackBar>
 	</div>
-	
 </template>
 
 <script lang="ts">
 import Vue from "vue";
-import { UI } from '@startupway/main/lib/ui';
+import { UI } from "@startupway/main/lib/ui";
 import { SnackBarOptions, SnackBarTypes, SimpleMenuOptions } from "@startupway/menu/lib/ui"
 import { User } from "../../common";
 import { mapGetters } from "vuex";
 enum MenuOptions {
 	MY_ACCOUNT = "1", LOGOUT = "2"
 };
-
+interface UserMenu {
+	ui: UI,
+	options: SimpleMenuOptions,
+	snackOptions: SnackBarOptions,
+	snackbar: boolean,
+}
 export default Vue.extend({
 	name: "UserMenu",
 	async mounted() {
 		this.ui = UI.getInstance();
 		await this.ui.storeDispatch("users/load", {});
 	},
-	data () {
+	data (): UserMenu {
 		return {
 			ui: {} as UI,
 			options: {
@@ -43,29 +47,29 @@ export default Vue.extend({
 						icon: "mdi-exit-run",
 					}
 				]
-			} as SimpleMenuOptions,
+			},
 			snackOptions: {
 				text:"",
-				type:"info",
+				type:SnackBarTypes.INFO,
 				timeout:2000
-			} as SnackBarOptions,
-			snackbar:false,
+			},
+			snackbar: false,
 		}
 	},
 	watch: {
 		user: {
 			immediate: true,
-			async handler (user: User):Promise<void> {
+			async handler (user: User): Promise<void> {
 				try {
-					if(user) {
+					if (user) {
 						this.options.menuName = user.firstName + " " + user.lastName;
 						let response = await this.ui.api.post<string | null>("/api/v1/uploadDownload/get/file/user/avatar", {userId:user.userId});
 
-						if(response.data) {
+						if (response.data) {
 							let aux = this.options;
 							aux.img = response.data;
 							this.options = aux;
-						} else if(response.status === 500) {
+						} else if (response.status === 500) {
 							this.snackOptions.text = "Server Error while Loading User Avatar. If the error persists, please contact technical support: teams@tech-lounge.ro.";
 							this.snackOptions.type = SnackBarTypes.ERROR;
 							this.snackOptions.timeout = 2000;
@@ -75,7 +79,7 @@ export default Vue.extend({
 						}
 					}
 				} catch (e) {
-					if(e.status === 500) {
+					if (e.status === 500) {
 						console.error(e);
 						this.snackOptions.text = "Server Error while Loading User Avatar. If the error persists, please contact technical support: teams@tech-lounge.ro.";
 						this.snackOptions.type = SnackBarTypes.ERROR;
@@ -94,20 +98,21 @@ export default Vue.extend({
 		}),
 	},
 	methods: {
-		async click (id: string):Promise<void> {
-			if (id === MenuOptions.LOGOUT) {
-				try {
+		async click (id: string): Promise<void> {
+			try {
+				if (id === MenuOptions.LOGOUT) {
 					await this.ui.storeDispatch ('users/logout', {});
 					// await this.ui.storeDispatch("teams/selectTeam", 0);
-					if(this.$route.path !== "/login")
-							this.$router.push("/login");
-				} catch (error) {
-					console.error(error);
+					if (this.$route.path !== "/login") {
+						this.$router.push("/login");
+					}
 				}
-			
+			} catch (error) {
+				const e = error as Error;
+				console.error(e);
 			}
 		},
-		update(prop:boolean):void {
+		update (prop:boolean): void {
 			this.snackbar = prop;
 		},
 	}

@@ -8,7 +8,7 @@ const setup = async () => {
 		const mariadb = MariaDBServer.getInstance();
 		const server = Server.getInstance();
 		const resp = await mariadb.start();
-		if(resp) {
+		if (resp) {
 			console.log("Connection created succsesfully");
 		} else {
 			console.log("Connection not created");

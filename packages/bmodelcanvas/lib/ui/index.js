@@ -453,7 +453,7 @@ var __vue_render__ = function() {
   var _h = _vm.$createElement;
   var _c = _vm._self._c || _h;
   return _c(
-    "v-app",
+    "div",
     [
       !_vm.loadingPage
         ? _c(
@@ -1567,8 +1567,7 @@ var __vue_render__$1 = function() {
   var _h = _vm.$createElement;
   var _c = _vm._self._c || _h;
   return _c(
-    "v-app",
-    { attrs: { id: "app" } },
+    "div",
     [
       !_vm.loadingPage
         ? _c(
@@ -1627,8 +1626,6 @@ var __vue_render__$1 = function() {
                                                 {
                                                   staticClass: "justify-center",
                                                   staticStyle: {
-                                                    "font-family":
-                                                      "Georgia, serif",
                                                     "font-size": "16px",
                                                     "font-weight": "600"
                                                   }

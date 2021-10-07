@@ -1,7 +1,5 @@
 <template>
-	<v-app>
-		<router-view></router-view>
-	</v-app>
+	<router-view></router-view>
 </template>
 
 <script lang="ts">
@@ -9,7 +7,7 @@ import Vue from "vue";
 export default Vue.extend({
 	name: "Application",
 	methods: {
-		functionOne(): void {
+		SnackBarListener(): void {
 			console.log("WORK");
 		},
 	},

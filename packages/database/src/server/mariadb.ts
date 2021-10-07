@@ -8,7 +8,7 @@ export class MariaDBServer {
 	public conn:PoolConnection;
 	private constructor () {
 		this.createDB().then(async (ret:boolean)=>{
-			if(ret) {
+			if (ret) {
 				console.log("Database initialized");
 			} else {
 				console.log("Database not initialized");
@@ -38,7 +38,7 @@ export class MariaDBServer {
 	}
     // private async createConn():Promise<boolean> {
 	// 	try {
-	// 		if(this.pool !== undefined) {
+	// 		if (this.pool !== undefined) {
 	// 			this.conn = await this.pool.getConnection();
 	// 		}
 	// 		return true;
@@ -64,7 +64,7 @@ export class MariaDBServer {
 			};
 			// Get DB schemba name 
 			const r:any[] = await auxConn.query(queryOptions, {db:process.env.DB_NAME});
-			if(r[0] === undefined || r[0].length < 1) {
+			if (r[0] === undefined || r[0].length < 1) {
 				queryOptions = {
 					namedPlaceholders:true,
 					sql:`CREATE DATABASE ${DB_NAME} CHARACTER SET ${DB_CHARSET} COLLATE ${DB_COLLATE}`
@@ -119,7 +119,7 @@ export class MariaDBServer {
 			await auxPool.end();
 
 			const respPool = await this.createPoolConn();
-			if(respPool)
+			if (respPool)
 				return true;
 			else
 				return false;
@@ -130,11 +130,11 @@ export class MariaDBServer {
 	}
 
 	public async start():Promise<boolean> {
-		if(this.pool === undefined) {
+		if (this.pool === undefined) {
 			const respPool = await this.createPoolConn();
-			if(respPool) {
+			if (respPool) {
 				// const respPoolConn = await this.createConn();
-				// if(respPoolConn) {
+				// if (respPoolConn) {
 				return true;
 				// } else {
 				// 	return false;
@@ -145,9 +145,9 @@ export class MariaDBServer {
 		}
 		return false;
 		// else {
-		// 	if(this.conn === undefined) {
+		// 	if (this.conn === undefined) {
 		// 		const respConn = await this.createConn();
-		// 		if(respConn) {
+		// 		if (respConn) {
 		// 			return true;
 		// 		} else {
 		// 			return false;

@@ -649,8 +649,7 @@ var __vue_render__ = function() {
   var _h = _vm.$createElement;
   var _c = _vm._self._c || _h;
   return _c(
-    "v-app",
-    { attrs: { id: "app" } },
+    "div",
     [
       _vm.role
         ? _c(
@@ -1682,8 +1681,7 @@ var __vue_render__$1 = function() {
   var _h = _vm.$createElement;
   var _c = _vm._self._c || _h;
   return _c(
-    "v-app",
-    { attrs: { id: "app" } },
+    "div",
     [
       !_vm.loadingPage
         ? _c(
@@ -1738,7 +1736,6 @@ var __vue_render__$1 = function() {
                                   "v-list-item-title",
                                   {
                                     staticStyle: {
-                                      "font-family": "Georgia, serif",
                                       "font-size": "17px",
                                       "font-weight": "700"
                                     }
@@ -1757,7 +1754,6 @@ var __vue_render__$1 = function() {
                                   "v-list-item-subtitle",
                                   {
                                     staticStyle: {
-                                      "font-family": "Georgia, serif",
                                       "font-size": "15px",
                                       "font-weight": "550"
                                     }
@@ -1769,7 +1765,6 @@ var __vue_render__$1 = function() {
                                   "v-list-item-subtitle",
                                   {
                                     staticStyle: {
-                                      "font-family": "Georgia, serif",
                                       "font-size": "15px",
                                       "font-weight": "550"
                                     }
@@ -1791,7 +1786,6 @@ var __vue_render__$1 = function() {
                                           "v-list-item-subtitle",
                                           {
                                             staticStyle: {
-                                              "font-family": "Georgia, serif",
                                               "font-size": "15px",
                                               "font-weight": "550"
                                             }
@@ -1813,7 +1807,6 @@ var __vue_render__$1 = function() {
                                           "v-list-item-subtitle",
                                           {
                                             staticStyle: {
-                                              "font-family": "Georgia, serif",
                                               "font-size": "15px",
                                               "font-weight": "550"
                                             }
@@ -1835,7 +1828,6 @@ var __vue_render__$1 = function() {
                                           "v-list-item-subtitle",
                                           {
                                             staticStyle: {
-                                              "font-family": "Georgia, serif",
                                               "font-size": "15px",
                                               "font-weight": "550"
                                             }
@@ -2140,12 +2132,7 @@ var __vue_render__$1 = function() {
                                 [
                                   _c(
                                     "v-card-title",
-                                    {
-                                      staticClass: "justify-center",
-                                      staticStyle: {
-                                        "font-family": "Georgia, serif"
-                                      }
-                                    },
+                                    { staticClass: "justify-center" },
                                     [_vm._v("Edit User Details")]
                                   ),
                                   _vm._v(" "),
@@ -2429,10 +2416,7 @@ var __vue_render__$1 = function() {
                         [
                           _c(
                             "v-card-title",
-                            {
-                              staticClass: "justify-center",
-                              staticStyle: { "font-family": "Georgia, serif" }
-                            },
+                            { staticClass: "justify-center" },
                             [_vm._v("Remove Users")]
                           ),
                           _vm._v(" "),
@@ -2481,10 +2465,7 @@ var __vue_render__$1 = function() {
                         [
                           _c(
                             "v-card-title",
-                            {
-                              staticClass: "justify-center",
-                              staticStyle: { "font-family": "Georgia, serif" }
-                            },
+                            { staticClass: "justify-center" },
                             [_vm._v("Add Users")]
                           ),
                           _vm._v(" "),
@@ -2548,14 +2529,9 @@ var __vue_render__$1 = function() {
                   _c(
                     "v-card",
                     [
-                      _c(
-                        "v-card-title",
-                        {
-                          staticClass: "justify-center",
-                          staticStyle: { "font-family": "Georgia, serif" }
-                        },
-                        [_vm._v("\n\t\t\t\t\tAdd Users\n\t\t\t\t")]
-                      ),
+                      _c("v-card-title", { staticClass: "justify-center" }, [
+                        _vm._v("\n\t\t\t\t\tAdd Users\n\t\t\t\t")
+                      ]),
                       _vm._v(" "),
                       _c(
                         "v-card-text",
@@ -2840,10 +2816,12 @@ var __vue_render__$1 = function() {
             1
           ),
       _vm._v(" "),
-      _c("SnackBar", {
-        attrs: { options: _vm.snackOptions, snackbar: _vm.snackbar },
-        on: { "update-prop": _vm.update }
-      })
+      _vm.snackbar
+        ? _c("SnackBar", {
+            attrs: { options: _vm.snackOptions },
+            on: { "update-snackbar": _vm.update }
+          })
+        : _vm._e()
     ],
     1
   )
@@ -3311,8 +3289,7 @@ var __vue_render__$2 = function() {
   var _h = _vm.$createElement;
   var _c = _vm._self._c || _h;
   return _c(
-    "v-app",
-    { attrs: { id: "app" } },
+    "div",
     [
       !_vm.loadingPage
         ? _c(
@@ -4897,8 +4874,7 @@ var __vue_render__$3 = function() {
   var _h = _vm.$createElement;
   var _c = _vm._self._c || _h;
   return _c(
-    "v-app",
-    { attrs: { id: "app" } },
+    "div",
     [
       !_vm.loadingPage
         ? _c(
@@ -4946,7 +4922,6 @@ var __vue_render__$3 = function() {
                                 "v-list-item-title",
                                 {
                                   staticStyle: {
-                                    "font-family": "Georgia, serif",
                                     "font-size": "17px",
                                     "font-weight": "700"
                                   }
@@ -4966,7 +4941,6 @@ var __vue_render__$3 = function() {
                                     "v-list-item-subtitle",
                                     {
                                       staticStyle: {
-                                        "font-family": "Georgia, serif",
                                         "font-size": "15px",
                                         "font-weight": "550"
                                       }
@@ -5298,10 +5272,7 @@ var __vue_render__$3 = function() {
                         [
                           _c(
                             "v-card-title",
-                            {
-                              staticClass: "justify-center",
-                              staticStyle: { "font-family": "Georgia, serif" }
-                            },
+                            { staticClass: "justify-center" },
                             [
                               _vm._v(
                                 "\n\t\t\t\t\t\t\tEdit " +
@@ -5484,10 +5455,7 @@ var __vue_render__$3 = function() {
                         [
                           _c(
                             "v-card-title",
-                            {
-                              staticClass: "justify-center",
-                              staticStyle: { "font-family": "Georgia, serif" }
-                            },
+                            { staticClass: "justify-center" },
                             [
                               _vm._v(
                                 "\n\t\t\t\t\t\t\tView " +
@@ -5883,10 +5851,12 @@ var __vue_render__$4 = function() {
           })
         : _vm._e(),
       _vm._v(" "),
-      _c("SnackBar", {
-        attrs: { options: _vm.snackOptions, snackbar: _vm.snackbar },
-        on: { "update-prop": _vm.update }
-      })
+      _vm.snackbar
+        ? _c("SnackBar", {
+            attrs: { options: _vm.snackOptions },
+            on: { "update-snackbar": _vm.update }
+          })
+        : _vm._e()
     ],
     1
   )
@@ -6723,7 +6693,7 @@ var __vue_render__$5 = function() {
   var _h = _vm.$createElement;
   var _c = _vm._self._c || _h;
   return _c(
-    "v-app",
+    "div",
     [
       !_vm.loadingPage
         ? _c(
@@ -6778,7 +6748,6 @@ var __vue_render__$5 = function() {
                                       "v-list-item-title",
                                       {
                                         staticStyle: {
-                                          "font-family": "Georgia, serif",
                                           "font-size": "17px",
                                           "font-weight": "700"
                                         }
@@ -6797,7 +6766,6 @@ var __vue_render__$5 = function() {
                                       "v-list-item-subtitle",
                                       {
                                         staticStyle: {
-                                          "font-family": "Georgia, serif",
                                           "font-size": "15px",
                                           "font-weight": "550"
                                         }
@@ -6809,7 +6777,6 @@ var __vue_render__$5 = function() {
                                       "v-list-item-subtitle",
                                       {
                                         staticStyle: {
-                                          "font-family": "Georgia, serif",
                                           "font-size": "15px",
                                           "font-weight": "550"
                                         }
@@ -6831,8 +6798,6 @@ var __vue_render__$5 = function() {
                                               "v-list-item-subtitle",
                                               {
                                                 staticStyle: {
-                                                  "font-family":
-                                                    "Georgia, serif",
                                                   "font-size": "15px",
                                                   "font-weight": "550"
                                                 }
@@ -6854,8 +6819,6 @@ var __vue_render__$5 = function() {
                                               "v-list-item-subtitle",
                                               {
                                                 staticStyle: {
-                                                  "font-family":
-                                                    "Georgia, serif",
                                                   "font-size": "15px",
                                                   "font-weight": "550"
                                                 }
@@ -6877,8 +6840,6 @@ var __vue_render__$5 = function() {
                                               "v-list-item-subtitle",
                                               {
                                                 staticStyle: {
-                                                  "font-family":
-                                                    "Georgia, serif",
                                                   "font-size": "15px",
                                                   "font-weight": "550"
                                                 }
@@ -7237,12 +7198,7 @@ var __vue_render__$5 = function() {
                                     [
                                       _c(
                                         "v-card-title",
-                                        {
-                                          staticClass: "justify-center",
-                                          staticStyle: {
-                                            "font-family": "Georgia, serif"
-                                          }
-                                        },
+                                        { staticClass: "justify-center" },
                                         [_vm._v("Edit User Details")]
                                       ),
                                       _vm._v(" "),
@@ -7712,10 +7668,7 @@ var __vue_render__$5 = function() {
                         [
                           _c(
                             "v-card-title",
-                            {
-                              staticClass: "justify-center",
-                              staticStyle: { "font-family": "Georgia, serif" }
-                            },
+                            { staticClass: "justify-center" },
                             [_vm._v("Remove Users")]
                           ),
                           _vm._v(" "),
@@ -7945,10 +7898,12 @@ var __vue_render__$5 = function() {
             1
           ),
       _vm._v(" "),
-      _c("SnackBar", {
-        attrs: { options: _vm.snackOptions, snackbar: _vm.snackbar },
-        on: { "update-prop": _vm.update }
-      })
+      _vm.snackbar
+        ? _c("SnackBar", {
+            attrs: { options: _vm.snackOptions },
+            on: { "update-snackbar": _vm.update }
+          })
+        : _vm._e()
     ],
     1
   )
@@ -8178,7 +8133,7 @@ var script$6 = Vue.extend({
             immediate: false,
             handler: function (newFiles) {
                 if (newFiles !== undefined && newFiles !== null) {
-                    //if(newFiles.length > 0 && newFiles.length < 10){
+                    //if (newFiles.length > 0 && newFiles.length < 10){
                     //for(const file of newFiles) {
                     if (newFiles.size < 314572800) {
                         this.validFiles = true;
@@ -8693,8 +8648,7 @@ var __vue_render__$6 = function() {
   var _h = _vm.$createElement;
   var _c = _vm._self._c || _h;
   return _c(
-    "v-app",
-    { attrs: { id: "app" } },
+    "div",
     [
       !_vm.loadingPage
         ? _c(
@@ -11047,10 +11001,12 @@ var __vue_render__$6 = function() {
                 1
               ),
               _vm._v(" "),
-              _c("SnackBar", {
-                attrs: { options: _vm.snackOptions, snackbar: _vm.snackbar },
-                on: { "update-prop": _vm.update }
-              }),
+              _vm.snackbar
+                ? _c("SnackBar", {
+                    attrs: { options: _vm.snackOptions },
+                    on: { "update-snackbar": _vm.update }
+                  })
+                : _vm._e(),
               _vm._v(" "),
               _c(
                 "v-dialog",
@@ -11415,8 +11371,7 @@ var __vue_render__$7 = function() {
   var _h = _vm.$createElement;
   var _c = _vm._self._c || _h;
   return _c(
-    "v-app",
-    { attrs: { id: "app" } },
+    "div",
     [
       !_vm.loadingPage
         ? _c(
@@ -11619,10 +11574,7 @@ var __vue_render__$7 = function() {
                         [
                           _c(
                             "v-card-title",
-                            {
-                              staticClass: "justify-center",
-                              staticStyle: { "font-family": "Georgia, serif" }
-                            },
+                            { staticClass: "justify-center" },
                             [
                               _vm._v(
                                 "\n\t\t\t\t\t" +
@@ -11738,10 +11690,7 @@ var __vue_render__$7 = function() {
                         [
                           _c(
                             "v-card-title",
-                            {
-                              staticClass: "justify-center",
-                              staticStyle: { "font-family": "Georgia, serif" }
-                            },
+                            { staticClass: "justify-center" },
                             [_vm._v("\n\t\t\t\t\tView activity\n\t\t\t\t")]
                           ),
                           _vm._v(" "),
@@ -11977,7 +11926,7 @@ var __vue_render__$8 = function() {
   var _h = _vm.$createElement;
   var _c = _vm._self._c || _h;
   return _c(
-    "v-app",
+    "div",
     [
       !_vm.loadingPage
         ? _c("v-container", [
@@ -11991,7 +11940,6 @@ var __vue_render__$8 = function() {
                         "h1",
                         {
                           staticStyle: {
-                            "font-family": "Georgia, serif",
                             "text-align": "center",
                             "text-weight": "bold, font-size: 20px",
                             "margin-top": "70px"
@@ -12007,14 +11955,15 @@ var __vue_render__$8 = function() {
                           )
                         ]
                       )
-                    : _vm._e(),
-                  _vm._v(" "),
+                    : _vm._e()
+                ]),
+                _vm._v(" "),
+                _c("v-row", { attrs: { justify: "center" } }, [
                   _vm.teams.length === 0
                     ? _c(
                         "h1",
                         {
                           staticStyle: {
-                            "font-family": "Georgia, serif",
                             "text-align": "center",
                             "text-weight": "bold, font-size: 20px",
                             "margin-top": "20px"
@@ -12030,7 +11979,6 @@ var __vue_render__$8 = function() {
                         "h1",
                         {
                           staticStyle: {
-                            "font-family": "Georgia, serif",
                             "text-align": "center",
                             "text-weight": "bold, font-size: 20px",
                             "margin-top": "20px"
@@ -12050,14 +11998,44 @@ var __vue_render__$8 = function() {
                                 _vm._v("\n\t\t\t\t\t\tteams.\n\t\t\t\t\t")
                               ])
                         ]
+                      )
+                ]),
+                _vm._v(" "),
+                _c("v-row", { attrs: { justify: "center" } }, [
+                  _c(
+                    "h1",
+                    {
+                      staticStyle: {
+                        "text-align": "center",
+                        "text-weight": "bold, font-size: 20px",
+                        "margin-top": "20px"
+                      }
+                    },
+                    [
+                      _vm._v(
+                        "\n\t\t\t\t\tYou can find a document of how to use the platform at the following link: "
                       ),
-                  _vm._v(" "),
+                      _c(
+                        "a",
+                        {
+                          attrs: {
+                            target: "_blank",
+                            href:
+                              "https://docs.google.com/document/u/1/d/e/2PACX-1vTMWy4cQEquNi_mP4DQWl1VzzdCdtr35xdUZOBnyIpbyXxmKXEjMK5wgp7GPKp4_vXuLvyHQnOxqVd3/pub"
+                          }
+                        },
+                        [_vm._v("User Guide")]
+                      )
+                    ]
+                  )
+                ]),
+                _vm._v(" "),
+                _c("v-row", { attrs: { justify: "center" } }, [
                   !_vm.currentTeam
                     ? _c(
                         "h1",
                         {
                           staticStyle: {
-                            "font-family": "Georgia, serif",
                             "text-align": "center",
                             "text-weight": "bold, font-size: 20px",
                             "margin-top": "20px"

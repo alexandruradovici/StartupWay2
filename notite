@@ -1,0 +1,22 @@
+/startupway/node_modules/mariadb/lib/pool-base.js:317
+[5/Sep/2021:15:34:16] throw new Error('Rejection by timeout without task !!!');
+[5/Sep/2021:15:34:16] ^
+[5/Sep/2021:15:34:16] Error: Rejection by timeout without task !!!
+[5/Sep/2021:15:34:16] at timeoutTask (/startupway/node_modules/mariadb/lib/pool-base.js:317:13)
+[5/Sep/2021:15:34:16] at Timeout.rejectAndResetTimeout [as _onTimeout] (/startupway/node_modules/mariadb/lib/pool-base.js:326:5)
+[5/Sep/2021:15:34:16] at listOnTimeout (internal/timers.js:559:11)
+[5/Sep/2021:15:34:16] at processTimers (internal/timers.js:500:7)
+[5/Sep/2021:15:34:16] npm ERR! code ELIFECYCLE
+[5/Sep/2021:15:34:16] npm ERR! errno 1
+[5/Sep/2021:15:34:16] npm ERR! @startupway/startupway@0.0.0 start: `node lib/server/index.js`
+[5/Sep/2021:15:34:16] npm ERR! Exit status 1
+[5/Sep/2021:15:34:16] npm ERR!
+[5/Sep/2021:15:34:16] npm ERR! Failed at the @startupway/startupway@0.0.0 start script.
+[5/Sep/2021:15:34:16] npm ERR! This is probably not a problem with npm. There is likely additional logging output above.
+[5/Sep/2021:15:34:16] npm ERR! A complete log of this run can be found in:
+[5/Sep/2021:15:34:16] npm ERR! /root/.npm/_logs/2021-09-05T15_34_16_069Z-debug.log
+
+
+
+DOWNLOAD paralel la mai multe videoclip-uri o data
+Download arhiva cu ppt-uri

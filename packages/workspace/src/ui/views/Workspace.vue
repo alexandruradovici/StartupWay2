@@ -1,5 +1,5 @@
 <template>
-	<v-app id="app">
+	<v-app id="app" style="overflow-y: hidden !important">
 		<v-navigation-drawer v-if="role" clipped app permanent expand-on-hover>
 			<v-list>
 				<v-list-item>
@@ -27,7 +27,7 @@
 			</v-list>
 		</v-navigation-drawer>
 		<v-app-bar app clipped-left clipped-right dark flat color="primary">
-			<v-toolbar-title link contain>
+			<v-toolbar-title link contain class="zoom">
 				<a href="/#/workspace"
 					><v-img left contain :src="logoImage" max-height="45" max-width="250"></v-img
 				></a>
@@ -46,7 +46,7 @@
 			>
 			</component>
 		</v-app-bar>
-		<v-main background-color="#fcfcfc">
+		<v-main background-color="#ffffff" style="overflow-y: auto">
 			<router-view ></router-view>
 		</v-main>
 	</v-app>
@@ -65,24 +65,24 @@ export default Vue.extend({
 	components: {},
 	async mounted() {
 		await this.ui.storeDispatch("users/load", {});
-		if(this.user) {
-			if(this.user.role === "Mentor") {
+		if (this.user) {
+			if (this.user.role === "Mentor") {
 				this.role=false;
 				this.type="mentor";
-			} else if(this.user.role === "Admin") {
+			} else if (this.user.role === "Admin") {
 				this.role=false;
 				this.type="admin";
-			} else if(this.user.role === "SuperAdmin") {
+			} else if (this.user.role === "SuperAdmin") {
 				this.role=false;
 				this.type="superAdmin";
 			} else {
 				this.role=true;
 			}
-			if(this.user.role === "Mentor" || this.user.role === "Admin" || this.user.role === "SuperAdmin") {
-				if(this.tabs.length > 0) {
+			if (this.user.role === "Mentor" || this.user.role === "Admin" || this.user.role === "SuperAdmin") {
+				if (this.tabs.length > 0) {
 					this.tabs = [];
 				}
-				if(this.$route.path !== "/dashboard")
+				if (this.$route.path !== "/dashboard")
 					this.$router.push("/dashboard");
 			} else {
 				this.tabs = [];
@@ -125,7 +125,7 @@ export default Vue.extend({
 				});
 				
 				this.userMenu.title = "User Menu";
-				if(this.$route.path !== "/frontPage")
+				if (this.$route.path !== "/frontPage")
 					this.$router.push("/frontPage");
 			}
 			this.loading = false;
@@ -155,8 +155,8 @@ export default Vue.extend({
 		_token: {
 			immediate:true,
 			handler (newToken:string):void {
-				if(newToken === null){
-					if(this.$route.path !== "/login")
+				if (newToken === null){
+					if (this.$route.path !== "/login")
 						this.$router.push("/login");
 				}
 			}
@@ -164,24 +164,24 @@ export default Vue.extend({
 		$route:{
 			immediate:true,
 			async handler(newRoute):Promise<void> {
-				if(newRoute.path === "/workspace") {
-					if(this.user) {
-						if(this.user.role === "Mentor") {
+				if (newRoute.path === "/workspace") {
+					if (this.user) {
+						if (this.user.role === "Mentor") {
 							this.role=false;
 							this.type="mentor";
-						} else if(this.user.role === "Admin") {
+						} else if (this.user.role === "Admin") {
 							this.role=false;
 							this.type="admin";
-						} else if(this.user.role === "SuperAdmin") {
+						} else if (this.user.role === "SuperAdmin") {
 							this.role=false;
 							this.type="superAdmin";
 						} else {
 							this.role=true;
-							if(this.$route.path !== "/frontPage")
+							if (this.$route.path !== "/frontPage")
 								this.$router.push("/frontPage");
 						}
-						if(!this.role) {
-							if(this.$route.path !== "/dashboard")
+						if (!this.role) {
+							if (this.$route.path !== "/dashboard")
 								this.$router.push("/dashboard");
 						}
 					}
@@ -218,14 +218,14 @@ export default Vue.extend({
 			return moment();
 		},
 		pushToTabs(tab:{key:number,title:string,icon:string,link:string}):void {
-			if(this.tabs.find((item:{key:number,title:string,icon:string,link:string}) => {
+			if (this.tabs.find((item:{key:number,title:string,icon:string,link:string}) => {
 				return item.link === tab.link
 			}) === undefined) {
 				this.tabs.push(tab);
 			}
 		},
 		checkRoute():boolean {
-			if(this.$router.currentRoute.path === "/workspace")
+			if (this.$router.currentRoute.path === "/workspace")
 				return true;
 			else
 				return false;
@@ -237,4 +237,16 @@ export default Vue.extend({
 });
 </script>
 <style lang="less">
+.zoom {
+  transition: transform .2s; /* Animation */
+}
+.zoom:hover {
+	transform: scale(1.2);
+}
+.fade-enter-active, .fade-leave-active {
+    transition: opacity .5s
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
+    opacity: 0
+}
 </style>

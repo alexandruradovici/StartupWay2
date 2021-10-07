@@ -80,6 +80,10 @@ declare const _default: import("vue/types/vue").ExtendedVue<Vue, {
     _enumToData(enumData: any, name: string): void;
     clearFilters(): void;
     openLink(item: Review): void;
+    getLogo(event: {
+        item: Review;
+        open: boolean;
+    }): Promise<void>;
     goToTeam(item: Review): Promise<void>;
     changeData(): Promise<void>;
     editTeam(team: Team & Product): void;

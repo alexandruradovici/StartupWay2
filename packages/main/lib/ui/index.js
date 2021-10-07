@@ -9,7 +9,7 @@ import axios from 'axios';
 var script = Vue.extend({
     name: "Application",
     methods: {
-        functionOne: function () {
+        SnackBarListener: function () {
             console.log("WORK");
         },
     },
@@ -98,7 +98,7 @@ var __vue_render__ = function() {
   var _vm = this;
   var _h = _vm.$createElement;
   var _c = _vm._self._c || _h;
-  return _c("v-app", [_c("router-view")], 1)
+  return _c("router-view")
 };
 var __vue_staticRenderFns__ = [];
 __vue_render__._withStripped = true;
@@ -132,24 +132,55 @@ __vue_render__._withStripped = true;
     undefined
   );
 
+var LogType;
+(function (LogType) {
+    LogType[LogType["INFO"] = 0] = "INFO";
+    LogType[LogType["WARRNING"] = 1] = "WARRNING";
+    LogType[LogType["ERROR"] = 2] = "ERROR";
+})(LogType || (LogType = {}));
 var UI = /** @class */ (function () {
     function UI() {
         this.api = axios.create();
         this.router = new VueRouter();
+        /**
+         * #01939A	#167C81	#017177	#20B5BB	#39B6BB
+            Secondary Color A:
+            #FFAB00	#D59B23	#C48400	#FFB92A	#FFC44C
+            Secondary Color B:
+            #FF0700	#D52823	#C40500	#FF302A	#FF504C
+         */
         this.vuetifyOptions = {
             theme: {
                 themes: {
+                    // light: {
+                    // 	primary: '#197E81',
+                    // 	secondary: '#3c5459',
+                    // 	accent: '#F5C00C',
+                    // 	error: '#971c19',
+                    // },
+                    // dark: {
+                    // 	primary: '#165455',
+                    // 	secondary: '#ffffff',
+                    // 	accent: '#231F20',
+                    // 	error: '#971c19',
+                    // },
                     light: {
-                        primary: '#197E81',
-                        secondary: '#3c5459',
-                        accent: '#F5C00C',
-                        error: '#971c19',
-                    },
-                    dark: {
-                        primary: '#165455',
-                        secondary: '#ffffff',
-                        accent: '#231F20',
-                        error: '#971c19',
+                        primary: "#01939A",
+                        primaryDark1: "#167C81",
+                        primaryDark2: "#017177",
+                        primaryLight1: "#20B5BB",
+                        primaryLight2: "#39B6BB",
+                        secondary: "#FFAB00",
+                        secondaryDark1: "#D59B23",
+                        secondaryDark2: "#C48400",
+                        secondaryLight1: "#FFB92A",
+                        secondaryLight2: "#FFC44C",
+                        accent: "#FF0700",
+                        accentDark1: "#D52823",
+                        accentDark2: "#C40500",
+                        accentLight1: "#FF302A",
+                        accentLight2: "#FF504C",
+                        error: "#971c19",
                     },
                 },
             }
@@ -214,6 +245,18 @@ var UI = /** @class */ (function () {
     };
     UI.prototype.error = function (err) {
         console.error(err);
+    };
+    UI.prototype.logEvent = function (pack, component, message, type) {
+        switch (type) {
+            case LogType.INFO:
+                console.info("INFO from |[" + pack + "]|[" + component + "]| with message: [" + message + "]");
+            case LogType.WARRNING:
+                console.warn("WARNNING from |[" + pack + "]|[" + component + "]| with message: [" + message + "]");
+            case LogType.ERROR:
+                console.error("ERROR from |[" + pack + "]|[" + component + "]| with message: [" + message + "]");
+            default:
+                console.log("|[" + pack + "]|[" + component + "]|[" + message + "]");
+        }
     };
     UI.getInstance = function () {
         if (!UI.instance) {

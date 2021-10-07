@@ -1,14 +1,17 @@
 import Vue from "vue";
 import { UI } from "@startupway/main/lib/ui";
-declare const _default: import("vue/types/vue").ExtendedVue<Vue, {
+import { SnackBarOptions } from "@startupway/menu/lib/ui";
+interface EditSecuritySettings {
     ui: UI;
+    snackOptions: SnackBarOptions;
+    snackbar: boolean;
     extendDialog: boolean;
     loadingPage: boolean;
     showNew: boolean;
     showConfirm: boolean;
     valid: boolean;
-    imgData: {};
-    extendedImage: string;
+    imgData: string | null;
+    extendedImage: string | null;
     universities: string[];
     firstName: string;
     lastName: string;
@@ -25,11 +28,14 @@ declare const _default: import("vue/types/vue").ExtendedVue<Vue, {
     details: string;
     faculty: string;
     group: string;
-    characterRules: (((f: string) => true | "Field must not contain unicode characters!") | ((f: string) => true | "Filed cannot be empty!"))[];
-    passwordRules: (((p: string) => true | "Password must be at least 8 characters long!") | ((f: string) => true | "Field must not contain unicode characters!"))[];
-    emailRules: (((e: string) => true | "You have entered an invalid email address!") | ((f: string) => true | "Filed cannot be empty!"))[];
-}, {
-    extendImage(image: string): void;
+    characterRules: ((param: string) => boolean | string)[];
+    passwordRules: ((param: string) => boolean | string)[];
+    emailRules: ((param: string) => boolean | string)[];
+}
+declare const _default: import("vue/types/vue").ExtendedVue<Vue, EditSecuritySettings, {
+    back(): void;
+    updateSnack(prop: boolean): void;
+    extendImage(image: string | null): void;
     update(): Promise<void>;
 }, {
     user: any;

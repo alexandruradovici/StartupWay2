@@ -112,10 +112,10 @@ export default Vue.extend({
 								let name = "";
 								for (let team of this.teams) {
 									if (this.user.role === "Admin") {
-										if(team.teams_teamId === workshop.teamId)
+										if (team.teams_teamId === workshop.teamId)
 											name = team.teams_teamName;
-									} else if(this.user.role === "Mentor") {
-										if(team.teamId === workshop.teamId)
+									} else if (this.user.role === "Mentor") {
+										if (team.teamId === workshop.teamId)
 											name = team.teams_teamName;
 									}
 								}
@@ -157,7 +157,7 @@ export default Vue.extend({
 					// as any same as canvas
 					let response = await this.ui.api.get<(Team & Product)[]>("/api/v1/teams/mentor/teams/" + this.user.userId);
 					if (response) this.teams = response.data;
-				} else if(this.user.role === "Admin") {
+				} else if (this.user.role === "Admin") {
 					let response = await this.ui.api.get<(Team & Product)[]>("/api/v1/admin/teams/");
 					if (response) this.teams = response.data;
 				}

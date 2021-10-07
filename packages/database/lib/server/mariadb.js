@@ -82,7 +82,7 @@ var MariaDBServer = /** @class */ (function () {
     };
     // private async createConn():Promise<boolean> {
     // 	try {
-    // 		if(this.pool !== undefined) {
+    // 		if (this.pool !== undefined) {
     // 			this.conn = await this.pool.getConnection();
     // 		}
     // 		return true;
@@ -251,7 +251,7 @@ var MariaDBServer = /** @class */ (function () {
                         respPool = _a.sent();
                         if (respPool) {
                             // const respPoolConn = await this.createConn();
-                            // if(respPoolConn) {
+                            // if (respPoolConn) {
                             return [2 /*return*/, true];
                             // } else {
                             // 	return false;

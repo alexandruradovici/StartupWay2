@@ -60,7 +60,7 @@ export class AdminServer {
 		ParsedCSV | null
 	{
 		try {
-			if(teamMentor === undefined || firstName === undefined || lastName === undefined || email === undefined || teamId === undefined)
+			if (teamMentor === undefined || firstName === undefined || lastName === undefined || email === undefined || teamId === undefined)
 				return null;
 			let parsedCSV:ParsedCSV = {
 				teamId:parseInt(teamId)
@@ -78,7 +78,7 @@ export class AdminServer {
 			}
 			const productId = uiidv4();
 			const insertTeamId = uiidv4();
-			if(teamName !== undefined && loc !== undefined && teamMentor !== undefined && pitcher !== undefined) {
+			if (teamName !== undefined && loc !== undefined && teamMentor !== undefined && pitcher !== undefined) {
 				parsedCSV.team = {
 					teamId:insertTeamId,
 					productId:productId,
@@ -94,15 +94,15 @@ export class AdminServer {
 				return null;
 			}
 			let bT:string = "";
-			if(businessTrack !== undefined) {
+			if (businessTrack !== undefined) {
 				bT = (businessTrack as string).toUpperCase().replace(/\s+/g, '');
 			}
 			let tT = "";
-			if(teamTrack !== undefined) {
+			if (teamTrack !== undefined) {
 				tT = (teamTrack as string).split("-")[0].toUpperCase();
 			}
 			let wD = "";
-			if(workshopNo !== undefined) {
+			if (workshopNo !== undefined) {
 				wD = days[parseInt(workshopNo as string)];
 			}
 			const bTValue = parseEnum<BusinessTrack,typeof BusinessTrack>(BusinessTrack,bT);
@@ -111,13 +111,13 @@ export class AdminServer {
 			let btVal = "";
 			let ttVal = "";
 			let wdVal = "";
-			if(bTValue !== undefined) {
+			if (bTValue !== undefined) {
 				btVal = bTValue;
 			}
-			if(tTValue !== undefined) {
+			if (tTValue !== undefined) {
 				ttVal = tTValue;
 			}
-			if(wDValue !== undefined) {
+			if (wDValue !== undefined) {
 				wdVal = wDValue;
 			}
 			parsedCSV.product = {
@@ -145,32 +145,32 @@ export class AdminServer {
 				lastMentorUpdate:new Date(),
 			}
 
-			if(parsedCSV.product && wDValue) {
+			if (parsedCSV.product && wDValue) {
 				parsedCSV.product.workshopDay = wdVal;
 			}
 
-			if(parsedCSV.product && bTValue) {
+			if (parsedCSV.product && bTValue) {
 				parsedCSV.product.businessTrack = btVal;
 			}
 
-			if(parsedCSV.product && tTValue) {
+			if (parsedCSV.product && tTValue) {
 				parsedCSV.product.teamType = ttVal;
 			}
-			if(parsedCSV.product && shortDescRO) {
+			if (parsedCSV.product && shortDescRO) {
 				parsedCSV.product.descriptionRO = shortDescRO;
 			}
-			if(parsedCSV.product && shortDescEN) {
+			if (parsedCSV.product && shortDescEN) {
 				parsedCSV.product.descriptionEN = shortDescEN;
 			}
 			
 			let username = "";
-			if(email !== undefined)
+			if (email !== undefined)
 				username = (email as string).split("@")[0].toLowerCase();
 
 			let aux = new Date(); // .toISOString().split('T')[0];
 
 			try {
-				if(birthDate !== undefined)
+				if (birthDate !== undefined)
 					aux = new Date((birthDate as string)); // .toISOString().split('T')[0];
 			} catch (e) {
 				console.error(e);
@@ -209,17 +209,17 @@ export class AdminServer {
 	public parseUpdateCSV(loc?:string, teamName?:string, descRO?:string, descEN?:string):UpdateCSV | null {
 		try {
 			let updateCSV:UpdateCSV | null = null;
-			if(loc !== undefined && loc !== "" && teamName !== undefined && teamName !== "") {
+			if (loc !== undefined && loc !== "" && teamName !== undefined && teamName !== "") {
 				updateCSV = {
 					location:loc,
 					teamName:teamName,
 					descRO:"",
 					descEN:""
 				};
-				if(descRO !== undefined) {
+				if (descRO !== undefined) {
 					updateCSV.descRO = descRO;
 				}
-				if(descEN !== undefined) {
+				if (descEN !== undefined) {
 					updateCSV.descEN = descEN;
 				}
 				return updateCSV;
@@ -258,7 +258,7 @@ export class AdminServer {
 	formatDate(date: Date):string {
 		try {
 			const time  = (new Date(date)).toTimeString().split(" ");
-			if(new Date(date).toString() === "Invalid Date")
+			if (new Date(date).toString() === "Invalid Date")
 				return "";
 			else
 				return (new Date(date)).toDateString() + " " + time[0];
@@ -278,13 +278,13 @@ export class AdminServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if(conn) {
+			if (conn) {
 				const queryOptions:QueryOptions = {
 					namedPlaceholders:true,
-					sql:"SELECT IF(JSON_EXTRACT(productDetails,'$.assessment20May') = \"Yes\",\"DA\",\ Echipa,JSON_EXTRACT(t.teamDetails,'$.mentor') as Mentor,IF((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"pres\")>0,\"DA\",\"NU\") as 'Au prezentare pptx incarcata?',IF((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"image\")>0,(SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"image\"),0) as 'Au poze la \"Product Images\"?',IF((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"demoVid\")>0,\"DA\",\"NU\") as 'Au \"Tehnic Demo Video\" incarcat?', IF((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"presVid\")>0,\"DA\",\"NU\") as 'Au \"Product Presentation Video\" incarcat?',IF((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"logo\")>0,\"DA\",\"NU\") as 'Au \"Logo\" incarcat?',IF((JSON_EXTRACT(p.productDetails,'$.website')=''),'NU','DA') as 'Au link catre pagina web a produsului?',IF((JSON_EXTRACT(p.productDetails,'$.facebook')=''),'NU','DA') as 'Au link catre pagina de facebook a produsului?',DATE_FORMAT(p.lastMentorUpdate, \"%d %M %Y\") as \"Ultima actualizare a descrierii RO\",DATE_FORMAT(p.lastMentorUpdate, \"%d %M %Y\") as \"Ultima actualizare a descrierii ENG\",CONCAT((SELECT count(*) from (SELECT u.avatarUu, t1.teamId,IF(u.avatarUu!='',\"Yes\",\"No\") as has from users u inner join userTeams uT on u.userId = uT.userId inner join teams t1 on t1.teamId = uT.teamId ) as t2 where t2.teamId = t.teamId and t2.has =\"Yes\" ),'|',(SELECT count(*) from (SELECT u.avatarUu, t1.teamId, IF(u.avatarUu!='',\"Yes\",\"No\") as has from users u inner join userTeams uT on u.userId = uT.userId inner join teams t1 on t1.teamId = uT.teamId ) as t2 where t2.teamId = t.teamId)) as \"Au toti membrii echipei poza incarcata?\", IFNULL(DATE_FORMAT(tab.date, '%d %M %Y'),'') as \"Ultima actualizare a Lean Model Canvas\",DATE_FORMAT(p.updatedAt, \"%d %M %Y\") as \"Ultima actualizare\" from teams t inner join products p on t.productId = p.productId and JSON_EXTRACT(productDetails,'$.assessment20May') = \"Yes\" left join (SELECT date, productId from bModelCanvas group by productId) as tab on p.productId = tab.productId;"
+					sql:"SELECT if (JSON_EXTRACT(productDetails,'$.assessment20May') = \"Yes\",\"DA\",\ Echipa,JSON_EXTRACT(t.teamDetails,'$.mentor') as Mentor,if ((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"pres\")>0,\"DA\",\"NU\") as 'Au prezentare pptx incarcata?',if ((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"image\")>0,(SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"image\"),0) as 'Au poze la \"Product Images\"?',if ((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"demoVid\")>0,\"DA\",\"NU\") as 'Au \"Tehnic Demo Video\" incarcat?', if ((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"presVid\")>0,\"DA\",\"NU\") as 'Au \"Product Presentation Video\" incarcat?',if ((SELECT count(*) from uploadDownload ud where ud.productId= p.productId and fileType=\"logo\")>0,\"DA\",\"NU\") as 'Au \"Logo\" incarcat?',if ((JSON_EXTRACT(p.productDetails,'$.website')=''),'NU','DA') as 'Au link catre pagina web a produsului?',if ((JSON_EXTRACT(p.productDetails,'$.facebook')=''),'NU','DA') as 'Au link catre pagina de facebook a produsului?',DATE_FORMAT(p.lastMentorUpdate, \"%d %M %Y\") as \"Ultima actualizare a descrierii RO\",DATE_FORMAT(p.lastMentorUpdate, \"%d %M %Y\") as \"Ultima actualizare a descrierii ENG\",CONCAT((SELECT count(*) from (SELECT u.avatarUu, t1.teamId,if (u.avatarUu!='',\"Yes\",\"No\") as has from users u inner join userTeams uT on u.userId = uT.userId inner join teams t1 on t1.teamId = uT.teamId ) as t2 where t2.teamId = t.teamId and t2.has =\"Yes\" ),'|',(SELECT count(*) from (SELECT u.avatarUu, t1.teamId, if (u.avatarUu!='',\"Yes\",\"No\") as has from users u inner join userTeams uT on u.userId = uT.userId inner join teams t1 on t1.teamId = uT.teamId ) as t2 where t2.teamId = t.teamId)) as \"Au toti membrii echipei poza incarcata?\", IFNULL(DATE_FORMAT(tab.date, '%d %M %Y'),'') as \"Ultima actualizare a Lean Model Canvas\",DATE_FORMAT(p.updatedAt, \"%d %M %Y\") as \"Ultima actualizare\" from teams t inner join products p on t.productId = p.productId and JSON_EXTRACT(productDetails,'$.assessment20May') = \"Yes\" left join (SELECT date, productId from bModelCanvas group by productId) as tab on p.productId = tab.productId;"
 				}
 				const response:any[] = await conn.query(queryOptions);
-				if(response && response.length > 0) {
+				if (response && response.length > 0) {
 					await conn.release();
 					return response
 				} else {
@@ -297,7 +297,7 @@ export class AdminServer {
 		} catch (e) {
 			console.log("Error in function \"getUDCData()\"|\"admin\"")
 			console.error(e);
-			if(conn)
+			if (conn)
 				await conn.release();
 			return [];
 		}
@@ -311,14 +311,14 @@ export class AdminServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if(conn) {
+			if (conn) {
 				const queryOptions:QueryOptions = {
 					namedPlaceholders:true,
 					sql:"SELECT t.location as 'oras', t.teamName as 'nume_echipa', p.businessTrack as 'business_track', p.teamType as 'type', p.descriptionRO as 'descriere_RO', p.descriptionEN as 'descriere_ENG' from teams t inner join products p on p.productId = t.productId and JSON_EXTRACT(productDetails,'$.assessment20May') = 'Yes';"
 	
 				}
 				const response:any[] = await conn.query(queryOptions);
-				if(response && response.length > 0) {
+				if (response && response.length > 0) {
 					await conn.release();
 					return response
 				} else {
@@ -331,7 +331,7 @@ export class AdminServer {
 		} catch (e) {
 			console.log("Error in function \"getTeamData()\"|\"admin\"")
 			console.error(e);
-			if(conn)
+			if (conn)
 				await conn.release();
 			return [];
 		}
@@ -346,11 +346,11 @@ export class AdminServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if(conn) {
+			if (conn) {
 				await conn.beginTransaction();
 				recovery.recoveryLink = this._randomRecoveryGenerator();
 				const user = await this.users.getUserByEmail(recovery.email);
-				if(user)
+				if (user)
 					recovery.userId = user.userId;
 				else throw new Error("No such user");
 				
@@ -361,7 +361,7 @@ export class AdminServer {
 				await conn.query(queryOptions,recovery);
 				queryOptions.sql = "SELECT recoveryId,userId,email,recoveryLink FROM recoveries WHERE recoveryId=:recoveryId"
 				const newRecovery:Recovery[] = await conn.query(queryOptions,{recoveryId:recovery.recoveryId});
-				if(newRecovery && newRecovery.length > 0 && newRecovery[0]) {
+				if (newRecovery && newRecovery.length > 0 && newRecovery[0]) {
 					const msg:string = "Hello " + user.firstName + " " + user.lastName +" ,\n\n" 
 					+ "Here is your activation link, please click here to reset your password.\n" 
 					+ "		https://teams.innovationlabs.ro/#/recovery/"+newRecovery[0].recoveryLink + "\n"
@@ -374,7 +374,7 @@ export class AdminServer {
 						date:new Date()
 					}
 					const newNotification:SWNotify | null = await daemon.addNotification(notification);
-					if(newNotification) {
+					if (newNotification) {
 						await conn.commit();
 						await conn.release();
 					} else {
@@ -391,7 +391,7 @@ export class AdminServer {
 		} catch (error) {
 			console.log("Error in function \"addRecovery(recovery)\"|\"admin\"");
 			console.error(error);
-			if(conn) {
+			if (conn) {
 				await conn.rollback();
 				await conn.release();
 			}
@@ -408,7 +408,7 @@ export class AdminServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if(conn) {
+			if (conn) {
 				await conn.beginTransaction();
 				const queryOptions:QueryOptions = {
 					namedPlaceholders:true,
@@ -417,7 +417,7 @@ export class AdminServer {
 				await conn.query(queryOptions,{recoveryId});
 				queryOptions.sql = "SELECT recoveryId FROM recoveries WHERE recoveryId=:recoveryId";
 				const response:{deleted_id:string}[] = await conn.query(queryOptions, {recoveryId});
-				if(response && response.length === 0) {
+				if (response && response.length === 0) {
 					await conn.commit();
 					await conn.release();
 					return true;
@@ -432,7 +432,7 @@ export class AdminServer {
 		} catch (error) {
 			console.log("Error in function \"deleteRecovery(recoveryId)\"|\"admin\"");
 			console.error(error);
-			if(conn) {
+			if (conn) {
 				await conn.rollback();
 				await conn.release();
 			}
@@ -449,7 +449,7 @@ export class AdminServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if(conn) {
+			if (conn) {
 				const queryOptions:QueryOptions = {
 					namedPlaceholders:true,
 					sql:"SELECT * FROM recoveries WHERE recoveryId=:recoveryId"
@@ -469,7 +469,7 @@ export class AdminServer {
 		} catch (error) {
 			console.log("Error in function \"findRecoveryById(id)\"|\"admin\"");
 			console.error(error);
-			if(conn)
+			if (conn)
 				await conn.release();
 			return null;
 		}
@@ -484,7 +484,7 @@ export class AdminServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if(conn) {
+			if (conn) {
 				const queryOptions:QueryOptions = {
 					namedPlaceholders:true,
 					sql:"SELECT * FROM recoveries WHERE recoveryLink=:recoveryLink"
@@ -503,7 +503,7 @@ export class AdminServer {
 		} catch (error) {
 			console.log("Error in function \"findRecoveryByToken(recoveryLink)\"|\"admin\"");
 			console.error(error);
-			if(conn)
+			if (conn)
 				await conn.release();
 			return null;
 		}
@@ -543,7 +543,7 @@ router.post("/createResetEmail", async (req:ApiRequest<{email:string}>,res:ApiRe
 		};
 		/** @type {Recovery} Recovery object */
 		const recovery:Recovery | null = await admin.addRecovery(aux);
-		if(recovery) {
+		if (recovery) {
 			res.send(recovery);	
 		} else {
 			res.status(401).send({err:401, data:null});
@@ -571,9 +571,9 @@ router.post("/resetPassword", async (req:ApiRequest<{token:string,password:strin
 
 	try {
 		const recovery:Recovery | null = await admin.findRecoveryByToken(token);
-		if(recovery) {
+		if (recovery) {
 			const user:User | null = await users.getUserByEmail(recovery.email);
-			if(user) {
+			if (user) {
 				user.password = await UsersServer.passwordGenerator(password);
 				await users.modifyUser(user);
 				res.status(200).send({username:user.username});
@@ -600,7 +600,7 @@ router.post("/checkToken", async(req:ApiRequest<{token:string}>,res:ApiResponse<
 	const token = req.body.token;
 	try {
 		const recovery:Recovery | null = await admin.findRecoveryByToken(token);
-		if(recovery) {
+		if (recovery) {
 			res.send({matched:true});
 		} else {
 			res.send({matched:false});
@@ -621,7 +621,7 @@ router.post("/deleteRecovery", async(req:ApiRequest<{token:string}>,res:ApiRespo
 	const token = req.body.token;
 	try {
 		const recovery:Recovery | null = await admin.findRecoveryByToken(token);
-		if(recovery) {
+		if (recovery) {
 			await admin.deleteRecovery(recovery.recoveryId);
 			res.status(200).send(true);
 		} else {
@@ -638,7 +638,7 @@ router.post("/deleteRecovery", async(req:ApiRequest<{token:string}>,res:ApiRespo
  * Create a private router for the admin plugin
  */
 const authFunct = getAuthorizationFunction();
-if(authFunct)
+if (authFunct)
 	router.use(authFunct);
 
 
@@ -656,16 +656,16 @@ router.post("/updateDescriptionCSV",async(req:ApiRequest<{encode:string}>,res:Ap
 		const parsed = Papa.parse<Array<string | undefined>>(string).data;
 		parsed.splice(0,1);
 		for(const arr of parsed) {
-			if(arr) {
+			if (arr) {
 				const object = admin.parseUpdateCSV(...(arr));
-				if(object !== null) {
+				if (object !== null) {
 					const team = await teams.getTeamByYearAndLocation((new Date()).getFullYear(), object.location, object.teamName);
-					if(team) {
+					if (team) {
 						const product = await teams.getProductByTeamId(team.teamId);
-						if(product) {
-							if(object.descEN !== "")
+						if (product) {
+							if (object.descEN !== "")
 								product.descriptionEN = object.descEN;
-							if(object.descRO !== "")
+							if (object.descRO !== "")
 								product.descriptionRO = object.descRO;
 							await teams.updateProduct(product);
 						} else {
@@ -712,9 +712,9 @@ router.post("/uploadCSV", async(req:ApiRequest<{encode:string}>,res:ApiResponse<
 		
 		const obj:ParsedCSV[] = [];
 		for(const arr of parsed) {
-			if(arr) {
+			if (arr) {
 				const object = admin.parseCSVData(...(arr));
-				if(object !== null)
+				if (object !== null)
 					obj.push(object)
 			}
 			// WORKAROUND for parsing the csv data. TODO -> Create interface for parsing
@@ -725,16 +725,16 @@ router.post("/uploadCSV", async(req:ApiRequest<{encode:string}>,res:ApiResponse<
 			// WORKAROUND for parsing the csv data. TODO -> Create interface for parsing
 			for(const entry of newObj[key]) {
 				let team:Team | null = null;
-				if(entry.team && entry.product) {
+				if (entry.team && entry.product) {
 					const mentorEmail:string = entry.team.teamDetails["mentor"];
 					const mentor:User | null = await users.getUserByEmail(mentorEmail);
 					let mentorUsername = "";
-					if(mentorEmail !== undefined) {
+					if (mentorEmail !== undefined) {
 						mentorUsername = mentorEmail.split("@")[0]
 					}
-					if(mentor) {
+					if (mentor) {
 						entry.product.mentorId = mentor.userId;
-					} else if(mentorUsername !== "") {
+					} else if (mentorUsername !== "") {
 						const password = admin.randomPassword();
 						let user:User | null = await users.addUser({
 							// as any -> todo -> discuss if we change to userId: string|null 
@@ -754,7 +754,7 @@ router.post("/uploadCSV", async(req:ApiRequest<{encode:string}>,res:ApiResponse<
 							avatarUu:"",
 							lastLogin:new Date()
 						});
-						if(user) {
+						if (user) {
 							const msg:string = "Hello " + user.firstName + " " + user.lastName +" ,\n\n" 
 								+ "Here is your new account, please do not disclose these informations to anyone.\n" 
 								+ "		Username: " +user.username + "\n"
@@ -773,14 +773,14 @@ router.post("/uploadCSV", async(req:ApiRequest<{encode:string}>,res:ApiResponse<
 						}
 					}
 					team = await teams.getTeamByYearAndLocation(entry.team.year, entry.team.location, entry.team.teamName);
-					if(team === null) {
+					if (team === null) {
 						team = await teams.addTeam(entry.team,entry.product);
 					}
 				}
 				let user:User | null = null;
-				if(entry.user) {
+				if (entry.user) {
 					user = await users.getUserByEmail(entry.user.email);
-					if(user == null) {
+					if (user == null) {
 						const password = admin.randomPassword();
 						entry.user.password = password;
 						const msg:string = "Hello " + entry.user.firstName + " " + entry.user.lastName +" ,\n\n" 
@@ -797,22 +797,22 @@ router.post("/uploadCSV", async(req:ApiRequest<{encode:string}>,res:ApiResponse<
 							date:new Date()
 						}
 						await daemon.addNotification(notification);
-						if(entry.product)
+						if (entry.product)
 							entry.product.mentorId = entry.user.userId;
 						user = await users.addUser(entry.user);
 					}
 				}
 				let userTeam:UserTeams | null = null;
-				if(user && team)
+				if (user && team)
 					userTeam = await teams.getUserInTeam(user.userId,team.teamId);
-				if(userTeam === null && user !== null && team !== null)
+				if (userTeam === null && user !== null && team !== null)
 				{
 					let role = user.role;
 					let teamUser:UserTeams | null = null;
-					if(user && team && role !== undefined && role !== null)
+					if (user && team && role !== undefined && role !== null)
 						teamUser = await teams.addUserToTeam(user, team, role);
 					let initDate;
-					if(team.teamDetails["location"] === "Bucharest"){
+					if (team.teamDetails["location"] === "Bucharest"){
 						initDate = moment("2021-03-02");
 					} else {
 						initDate = moment("2021-03-09");
@@ -821,7 +821,7 @@ router.post("/uploadCSV", async(req:ApiRequest<{encode:string}>,res:ApiResponse<
 						const aux = moment(initDate.toDate());
 						const date = aux.add(7*i,"days").toDate();
 						let userActivity:UserActivity;
-						if(user !== null && teamUser !== null) {
+						if (user !== null && teamUser !== null) {
 							userActivity = {
 								activityId:uiidv4(),
 								userId:user.userId,
@@ -831,7 +831,7 @@ router.post("/uploadCSV", async(req:ApiRequest<{encode:string}>,res:ApiResponse<
 								description:""
 							}
 							const response = await teams.addActivityForUser((userActivity as UserActivity));
-							if(!response){
+							if (!response){
 								console.error("Error on route \"/uploadCSV\" in \"admin\" router");
 								console.error("No activity added NO RESPONSE");
 								break;
@@ -862,10 +862,10 @@ router.post("/newUserActivity", async (req:ApiRequest<UserActivity[]>,res:ApiRes
 		/** @type {UserActivity[]} the user activity to be added */
 		const userActivities:UserActivity[] = req.body;
 
-		if(userActivities) {
+		if (userActivities) {
 			for(const activity of userActivities) {
 				const response:UserActivity | null = await teams.addActivityForUser((activity as UserActivity));
-				if(!response) {
+				if (!response) {
 					console.error("Error on route \"/newUserActivity\" in \"admin\" router");
 					console.error("No user activity added!");
 					res.status(401).send({err:401, data:false});
@@ -895,7 +895,7 @@ router.post("/download/udc/data", async (req:ApiRequest<undefined>,res:ApiRespon
 			array.push(row);
 		}
 		const csv = Papa.unparse(array);
-		if(csv) {
+		if (csv) {
 			res.send(csv);
 		} else {
 			console.error("Error on route \"/download/udc/data\" in \"admin\" router");
@@ -920,7 +920,7 @@ router.post("/download/team/data", async (req:ApiRequest<undefined>,res:ApiRespo
 			array.push(row);
 		}
 		const csv = Papa.unparse(array);
-		if(csv) {
+		if (csv) {
 			res.send(csv);
 		} else {
 			console.error("Error on route \"/download/team/data\" in \"admin\" router");
@@ -943,7 +943,7 @@ router.get("/users/:location", async (req:ApiRequest<undefined>,res:ApiResponse<
 	let teamsArray:(Team & Product)[] = [];
 
 	try {
-		if(req.params.location === "all") {
+		if (req.params.location === "all") {
 			teamsArray = await teams.getTeams();
 		} else {
 			teamsArray = await teams.getTeamsByLocation(req.params.location);
@@ -954,7 +954,7 @@ router.get("/users/:location", async (req:ApiRequest<undefined>,res:ApiResponse<
 			users.push(...auxUsers);
 		}
 
-		if(users) {
+		if (users) {
 			res.send(users);
 		} else {
 			console.error("Error on route \"/users/:" + req.params.location + "\" in \"admin\" router");
@@ -979,7 +979,7 @@ router.get("/users", async (req:ApiRequest<undefined>,res:ApiResponse<(User & Us
 			const auxUsers = await teams.getUsersByTeamId(team.teamId);
 			users.push(...auxUsers);
 		}
-		if(users) {
+		if (users) {
 			for(let user of users) {
 				user.socialMedia = JSON.parse((user.socialMedia as any) as string);
 				user.userDetails = JSON.parse((user.userDetails as any) as string);
@@ -1003,7 +1003,7 @@ router.get("/users", async (req:ApiRequest<undefined>,res:ApiResponse<(User & Us
 router.get("/teams/:location", async (req:ApiRequest<undefined>,res:ApiResponse<(Team & Product)[]>) => {
 	try {
 		let teamsArray:(Team & Product)[] = [];
-		if(req.params.location === "all" || req.params.location === "undefined") {
+		if (req.params.location === "all" || req.params.location === "undefined") {
 			teamsArray = await teams.getTeams();
 		} else {
 			teamsArray = await teams.getTeamsByLocation(req.params.location);
@@ -1012,7 +1012,7 @@ router.get("/teams/:location", async (req:ApiRequest<undefined>,res:ApiResponse<
 			team.productDetails = JSON.parse((team.productDetails as any) as string);
 			team.teamDetails = JSON.parse((team.teamDetails as any) as string);
 		}
-		if(teamsArray) {
+		if (teamsArray) {
 			res.send(teamsArray);
 		} else {
 			res.status(401).send({err:401, data:[]});
@@ -1030,7 +1030,7 @@ router.get("/teams/:location", async (req:ApiRequest<undefined>,res:ApiResponse<
 router.get("/teams", async (req:ApiRequest<undefined>,res:ApiResponse<Team[]>) => {
 	try {
 		const teamsArray:Team[] = await teams.getTeams();
-		if(teamsArray) {
+		if (teamsArray) {
 			res.send(teamsArray);
 		} else {
 			res.status(401).send({err:401, data:[]});
@@ -1056,11 +1056,11 @@ router.post("/teams/review", async (req:ApiRequest<{type:string,location:string,
 
 	try {
 		let teamsArray:(Team & Product)[] =[];
-		if(type === "admin") 
+		if (type === "admin") 
 			teamsArray = await teams.getTeamsByLocation(location);
-		else if(type === "mentor")
+		else if (type === "mentor")
 			teamsArray = await teams.getTeamAndProductByMentorId(req.body.id);
-		else if(type === "superAdmin") {
+		else if (type === "superAdmin") {
 			teamsArray = await teams.getTeams();
 		}
 		const reviews:Review[] = [];
@@ -1069,13 +1069,13 @@ router.post("/teams/review", async (req:ApiRequest<{type:string,location:string,
 			const mentor:User | null = await users.getUserByEmail(JSON.parse(team.teamDetails as any)["mentor"]);
 			const product = JSON.parse(team.productDetails as any);
 			let review:Review;
-			if(mentor && product) {
+			if (mentor && product) {
 				let assesFinals = false;
 				let assesSemifinals = false;
-				if(product.assessment20May !== undefined) {
+				if (product.assessment20May !== undefined) {
 					assesFinals = product.assessment20May;
 				}
-				if(product.assessment12Oct !== undefined) {
+				if (product.assessment12Oct !== undefined) {
 					assesSemifinals = product.assessment12Oct;
 				}
 				review = {
@@ -1088,6 +1088,7 @@ router.post("/teams/review", async (req:ApiRequest<{type:string,location:string,
 					description:team.descriptionEN,
 					webLink:product.website,
 					teamId:team.teamId,
+					productId: team.productId,
 					mentorNotes:product.mentorNotes,
 					adminNotes:product.adminNotes,
 					assessment20May:assesFinals,
@@ -1098,7 +1099,7 @@ router.post("/teams/review", async (req:ApiRequest<{type:string,location:string,
 				reviews.push(review);
 			};
 		}
-		if(reviews) {
+		if (reviews) {
 			reviews.sort((a:Review,b:Review) => {
 				return a.startupName.localeCompare(b.startupName);
 			})
@@ -1132,10 +1133,10 @@ router.post("/teams/review/update", async (req:ApiRequest<{reviews:Review[],type
 		for (const review of reviews) {
 			const product:(Product | null) = await teams.getProductByTeamId(review.teamId);
 			const team:(Team | null) = await teams.getTeamById(review.teamId);
-			if(product && team) {
-				if(type && type === "mentor") {
+			if (product && team) {
+				if (type && type === "mentor") {
 					product.productDetails["mentorNotes"] = review.mentorNotes;
-				} else if(type && type === "admin") {
+				} else if (type && type === "admin") {
 					product.productDetails["adminNotes"] = review.adminNotes;
 				}
 				team.location=review.location;
@@ -1144,7 +1145,7 @@ router.post("/teams/review/update", async (req:ApiRequest<{reviews:Review[],type
 				team.teamDetails["mentor"] = review.mentor;
 	
 				const newTeam = await teams.updateTeam(team);
-				if(!newTeam) {
+				if (!newTeam) {
 					console.error("Error on route \"/teams/review/update\" in \"admin\" router");
 					console.error("Error, team not updated");
 					res.status(401).send({err:401});
@@ -1161,12 +1162,12 @@ router.post("/teams/review/update", async (req:ApiRequest<{reviews:Review[],type
 				product.lastMentorUpdate = new Date(review.lastMentorUpdate);
 				product.updatedAt = new Date(review.updatedAt);
 				const prodRes:(Product | null) = await teams.updateProduct(product);
-				if(prodRes) {
+				if (prodRes) {
 					revRes.push(review);
 				}
 			}
 		}
-		if(revRes) {
+		if (revRes) {
 			res.send(revRes);
 		} else {
 			console.error("Error on route \"/teams/review/update\" in \"admin\" router");
@@ -1191,9 +1192,9 @@ router.post("/changeRole", async (req:ApiRequest<{user:User,userTeam:UserTeams}>
 	const userTeam:UserTeams = req.body.userTeam;
 
 	try {
-		if(user) {
+		if (user) {
 			await users.modifyUser(user);
-			if(userTeam)
+			if (userTeam)
 				await teams.updateUserTeamDetails(userTeam);
 			else {
 				console.error("Error on route \"/changeRole\" in \"admin\" router");
@@ -1219,7 +1220,7 @@ router.post("/changeRole", async (req:ApiRequest<{user:User,userTeam:UserTeams}>
  */
 router.post("/add/workshop", async (req,res) => {
 	const workshop = req.body.workshop;
-	if(workshop) {
+	if (workshop) {
 		//TODO
 		res.send(workshop);
 	} else {
@@ -1234,7 +1235,7 @@ router.post("/add/workshop", async (req,res) => {
 router.post("/add/workshop/Instances", async (req,res) => {
 	const instances = req.body.instances;
 	
-	if(instances) {
+	if (instances) {
 		//TODO
 		res.send(instances);
 	} else {
@@ -1255,9 +1256,9 @@ router.post("/request/user", async (req:ApiRequest<{from:string,email:string,fir
 	const team = await teams.getTeamById(teamId);
 	const product = await teams.getProductByTeamId(teamId);
 	let mentor;
-	if(product)
+	if (product)
 		mentor = await users.getUserById(product.mentorId);
-	if(mentor && team) {
+	if (mentor && team) {
 		const msg:string = "		From:" + from + "\n" 
 			+ "		First Name: " +firstName + "\n"
 			+ "		Last Name: " +lastName + "\n" 
@@ -1297,24 +1298,24 @@ router.post("/add/user", async (req:ApiRequest<{user:User,option:string,teamId:s
 			date:new Date()
 		}
 		await daemon.addNotification(notification);
-		if(user) {
+		if (user) {
 			let newUser = await users.addUser((user as User));
-			if(newUser) {
-				if(option === "team") {
+			if (newUser) {
+				if (option === "team") {
 					const teamId = req.body.teamId;
 					const team = await teams.getTeamById(teamId);
 					let userTeam;
-					if(team) {
+					if (team) {
 						userTeam = await teams.getUserInTeam(newUser.userId,team.teamId);
 					}	
-					if(userTeam)
+					if (userTeam)
 					{
 						let role = newUser.role;
-						if(team) {
+						if (team) {
 							let initDate;
 							const teamUser = await teams.addUserToTeam(newUser, team,role);
-							if(teamUser) {
-								if(team.teamDetails["location"] === "Bucharest"){
+							if (teamUser) {
+								if (team.teamDetails["location"] === "Bucharest"){
 									initDate = moment("2020-03-02");
 								} else {
 									initDate = moment("2020-03-09");
@@ -1352,7 +1353,7 @@ router.post("/add/user", async (req:ApiRequest<{user:User,option:string,teamId:s
 router.post("/update/user", async (req:ApiRequest<{user:User,changedPass:boolean}>,res:ApiResponse<boolean>) => {
 	const user = req.body.user;
 	const changedPass = req.body.changedPass;
-	if(changedPass) {
+	if (changedPass) {
 		const msg:string = "Hello " + user.firstName + " " + user.lastName +" ,\n\n" 
 			+ "Here is your new password, please do not disclose these informations to anyone.\n" 
 			+ "		Username: " +user.username + "\n"
@@ -1370,9 +1371,9 @@ router.post("/update/user", async (req:ApiRequest<{user:User,changedPass:boolean
 		user.password = UsersServer.passwordGenerator(user.password);
 	}
 	
-	if(user) {
+	if (user) {
 		let resp = await users.modifyUser(user);
-		if(resp) {
+		if (resp) {
 			res.status(200).send(true);
 		} else {
 			res.status(401).send({err:401,data:false});
@@ -1384,7 +1385,7 @@ router.post("/update/user", async (req:ApiRequest<{user:User,changedPass:boolean
 });
 router.post("/delete/user", async (req:ApiRequest<{user:User}>,res:ApiResponse<boolean>) => {
 	const user = req.body.user;
-	if(user) {
+	if (user) {
 		//TODO
 		res.send(true);
 	} else {
@@ -1395,16 +1396,16 @@ router.post("/delete/user", async (req:ApiRequest<{user:User}>,res:ApiResponse<b
 router.post("/request/user/team", async(req:ApiRequest<{user:User,team:Team}>,res:ApiResponse<undefined>) => {
 	const user = req.body.user;
 	const team = req.body.team;
-	if(user && team) {
+	if (user && team) {
 		const userTeam = await teams.getUserInTeam(user.userId,team.teamId);	
-		if(userTeam)
+		if (userTeam)
 		{
 			let role = user.role
 			const teamUser = await teams.addUserToTeam(user, team,role);
-			if(teamUser) {
+			if (teamUser) {
 				let initDate;
 		
-				if(team.teamDetails["location"] === "Bucharest"){
+				if (team.teamDetails["location"] === "Bucharest"){
 					initDate = moment("2020-03-02");
 				} else {
 					initDate = moment("2020-03-09");

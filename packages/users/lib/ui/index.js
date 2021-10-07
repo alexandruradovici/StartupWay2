@@ -1,8 +1,9 @@
 import { UI as UI$1 } from '@startupway/main/lib/ui';
 import { WorkspaceUI, ToolbarButtonPosition } from '@startupway/workspace/lib/ui';
 import Vue from 'vue';
-import { SnackBarTypes } from '@startupway/menu/lib/ui';
+import { SnackBarTypes, SnackBarHorizontal, SnackBarVertical } from '@startupway/menu/lib/ui';
 import { mapGetters } from 'vuex';
+import VueRecaptcha from 'vue-recaptcha';
 
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation.
@@ -180,6 +181,7 @@ function usersStore() {
                                 _a.sent();
                                 storeParam.commit('token', null);
                                 storeParam.commit('user', null);
+                                //TODO DELETE SESSIONS
                                 return [2 /*return*/, true];
                             case 2:
                                 _a.sent();
@@ -224,11 +226,12 @@ var img = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAApwAAAFOCAYAAAArVc0cAAA
 
 var script = Vue.extend({
     name: "Login",
-    // components: {
-    // 	"SnackBar": SnackBar
-    // },
+    components: {
+        VueRecaptcha: VueRecaptcha
+    },
     mounted: function () {
-        // this.ui = UI.getInstance();
+        this.ui.logEvent("USERS", (this.$options.name ? this.$options.name : "UNKOWN"), VueRecaptcha.name + " Loaded");
+        this.loadedPage = true;
     },
     data: function () {
         return {
@@ -237,9 +240,12 @@ var script = Vue.extend({
             pass: "",
             snackOptions: {
                 text: "",
-                type: "info",
-                timeout: 2000
+                type: SnackBarTypes.INFO,
+                timeout: 2000,
+                horizontal: SnackBarHorizontal.RIGHT,
+                vertical: SnackBarVertical.BOTTOM
             },
+            showPassword: false,
             snackbar: false,
             dialog: false,
             verified: true,
@@ -249,6 +255,9 @@ var script = Vue.extend({
             lightOn: false,
             aKey: "6Le6Jq4ZAAAAAEf_TFh2ZR-3tv3wycflW7ctlEeF",
             loginImage: img,
+            triggered: false,
+            loadedPage: false,
+            loadedRecaptcha: false,
         };
     },
     watch: {
@@ -293,6 +302,7 @@ var script = Vue.extend({
     })),
     methods: {
         update: function (prop) {
+            console.log("got update event");
             this.snackbar = prop;
         },
         // as any -> Google api, to reseach into response type.
@@ -303,16 +313,16 @@ var script = Vue.extend({
         },
         resetPassword: function () {
             return __awaiter(this, void 0, void 0, function () {
-                var response, e_1;
+                var response, error_1;
                 return __generator(this, function (_a) {
                     switch (_a.label) {
                         case 0:
                             _a.trys.push([0, 4, , 5]);
-                            return [4 /*yield*/, this.ui.api.get("/api/v1/verify/" + this.email)];
+                            return [4 /*yield*/, this.ui.api.get("/api/v1/users/verify/" + this.email)];
                         case 1:
                             response = _a.sent();
                             if (!(response.data.accept = "Yes")) return [3 /*break*/, 3];
-                            return [4 /*yield*/, this.ui.api.post("/api/v1/createResetEmail", { email: this.email })];
+                            return [4 /*yield*/, this.ui.api.post("/api/v1/admin/createResetEmail", { email: this.email })];
                         case 2:
                             _a.sent();
                             this.verified = false;
@@ -320,20 +330,12 @@ var script = Vue.extend({
                             _a.label = 3;
                         case 3: return [3 /*break*/, 5];
                         case 4:
-                            e_1 = _a.sent();
-                            if (e_1.response.status === 404) {
-                                this.snackOptions.text = "The email does not exists. If the error persists, please contact technical support: teams@tech-lounge.ro.";
-                                this.snackOptions.type = SnackBarTypes.ERROR;
-                                this.snackOptions.timeout = 2000;
-                                this.snackbar = true;
-                            }
-                            else {
-                                console.error(e_1);
-                                this.snackOptions.text = "Server Error. If the error persists, please contact technical support: teams@tech-lounge.ro.";
-                                this.snackOptions.type = SnackBarTypes.ERROR;
-                                this.snackOptions.timeout = 2000;
-                                this.snackbar = true;
-                            }
+                            error_1 = _a.sent();
+                            console.error(error_1);
+                            this.snackOptions.text = "FrontEnd error. If the error persists, please contact technical support: teams@tech-lounge.ro.";
+                            this.snackOptions.type = SnackBarTypes.ERROR;
+                            this.snackOptions.timeout = 2000;
+                            this.snackbar = true;
                             return [3 /*break*/, 5];
                         case 5: return [2 /*return*/];
                     }
@@ -342,17 +344,20 @@ var script = Vue.extend({
         },
         loginFunction: function () {
             return __awaiter(this, void 0, void 0, function () {
-                var token, error_1;
+                var token, error_2;
                 return __generator(this, function (_a) {
                     switch (_a.label) {
                         case 0:
-                            _a.trys.push([0, 2, , 3]);
+                            this.triggered = true;
+                            _a.label = 1;
+                        case 1:
+                            _a.trys.push([1, 3, , 4]);
                             return [4 /*yield*/, this.ui.storeDispatch("users/login", {
                                     username: this.login,
                                     password: this.pass,
                                     lastLogin: new Date()
                                 })];
-                        case 1:
+                        case 2:
                             token = _a.sent();
                             if (token === "cred") {
                                 this.snackOptions.text = "Password or Username incorrect";
@@ -366,16 +371,18 @@ var script = Vue.extend({
                                 this.snackOptions.timeout = 2000;
                                 this.snackbar = true;
                             }
-                            return [3 /*break*/, 3];
-                        case 2:
-                            error_1 = _a.sent();
-                            this.snackOptions.text = "Server Error. If the error persists, please contact technical support: teams@tech-lounge.ro.";
+                            return [3 /*break*/, 4];
+                        case 3:
+                            error_2 = _a.sent();
+                            console.error(error_2);
+                            this.snackOptions.text = "FrontEnd error. If the error persists, please contact technical support: teams@tech-lounge.ro.";
                             this.snackOptions.type = SnackBarTypes.ERROR;
                             this.snackOptions.timeout = 2000;
                             this.snackbar = true;
-                            console.error(error_1);
-                            return [3 /*break*/, 3];
-                        case 3: return [2 /*return*/];
+                            return [3 /*break*/, 4];
+                        case 4:
+                            this.triggered = false;
+                            return [2 /*return*/];
                     }
                 });
             });
@@ -458,6 +465,59 @@ function normalizeComponent(template, style, script, scopeId, isFunctionalTempla
     return script;
 }
 
+const isOldIE = typeof navigator !== 'undefined' &&
+    /msie [6-9]\\b/.test(navigator.userAgent.toLowerCase());
+function createInjector(context) {
+    return (id, style) => addStyle(id, style);
+}
+let HEAD;
+const styles = {};
+function addStyle(id, css) {
+    const group = isOldIE ? css.media || 'default' : id;
+    const style = styles[group] || (styles[group] = { ids: new Set(), styles: [] });
+    if (!style.ids.has(id)) {
+        style.ids.add(id);
+        let code = css.source;
+        if (css.map) {
+            // https://developer.chrome.com/devtools/docs/javascript-debugging
+            // this makes source maps inside style tags work properly in Chrome
+            code += '\n/*# sourceURL=' + css.map.sources[0] + ' */';
+            // http://stackoverflow.com/a/26603875
+            code +=
+                '\n/*# sourceMappingURL=data:application/json;base64,' +
+                    btoa(unescape(encodeURIComponent(JSON.stringify(css.map)))) +
+                    ' */';
+        }
+        if (!style.element) {
+            style.element = document.createElement('style');
+            style.element.type = 'text/css';
+            if (css.media)
+                style.element.setAttribute('media', css.media);
+            if (HEAD === undefined) {
+                HEAD = document.head || document.getElementsByTagName('head')[0];
+            }
+            HEAD.appendChild(style.element);
+        }
+        if ('styleSheet' in style.element) {
+            style.styles.push(code);
+            style.element.styleSheet.cssText = style.styles
+                .filter(Boolean)
+                .join('\n');
+        }
+        else {
+            const index = style.ids.size - 1;
+            const textNode = document.createTextNode(code);
+            const nodes = style.element.childNodes;
+            if (nodes[index])
+                style.element.removeChild(nodes[index]);
+            if (nodes.length)
+                style.element.insertBefore(textNode, nodes[index]);
+            else
+                style.element.appendChild(textNode);
+        }
+    }
+}
+
 /* script */
 const __vue_script__ = script;
 
@@ -467,12 +527,11 @@ var __vue_render__ = function() {
   var _h = _vm.$createElement;
   var _c = _vm._self._c || _h;
   return _c(
-    "v-main",
-    { staticStyle: { "background-color": "rgba(25, 126, 129, 0.1)" } },
+    "v-app",
     [
       _c(
         "v-container",
-        { attrs: { fluid: "", "fill-height": "" } },
+        { staticClass: "bg", attrs: { fluid: "", "fill-height": "" } },
         [
           _c(
             "v-layout",
@@ -483,168 +542,200 @@ var __vue_render__ = function() {
                 { attrs: { xs12: "", sm8: "", md4: "" } },
                 [
                   _c(
-                    "v-card",
-                    { staticClass: "elevation-12" },
+                    "v-fab-transition",
                     [
-                      _c(
-                        "v-toolbar",
-                        {
-                          staticStyle: {},
-                          attrs: {
-                            color: "primary",
-                            dark: "",
-                            flat: "",
-                            height: "170px"
-                          }
-                        },
-                        [
-                          _c("v-img", {
-                            attrs: {
-                              contain: "",
-                              src: _vm.loginImage,
-                              "max-height": "170"
-                            }
-                          })
-                        ],
-                        1
-                      ),
-                      _vm._v(" "),
-                      _c(
-                        "v-card-text",
-                        { staticStyle: { "margin-top": "50px" } },
-                        [
-                          _c(
-                            "v-form",
-                            [
-                              _c("v-text-field", {
-                                attrs: {
-                                  id: "login",
-                                  label: "Username",
-                                  name: "login",
-                                  type: "text",
-                                  rounded: "",
-                                  outlined: "",
-                                  color: "primary",
-                                  "prepend-icon": "mdi-account-circle mdi-36px"
-                                },
-                                on: {
-                                  keyup: function($event) {
-                                    if (
-                                      !$event.type.indexOf("key") &&
-                                      _vm._k(
-                                        $event.keyCode,
-                                        "enter",
-                                        13,
-                                        $event.key,
-                                        "Enter"
-                                      )
-                                    ) {
-                                      return null
-                                    }
-                                    return _vm.loginFunction()
-                                  }
-                                },
-                                model: {
-                                  value: _vm.login,
-                                  callback: function($$v) {
-                                    _vm.login = $$v;
-                                  },
-                                  expression: "login"
-                                }
-                              }),
-                              _vm._v(" "),
-                              _c("v-text-field", {
-                                attrs: {
-                                  id: "password",
-                                  label: "Password",
-                                  name: "password",
-                                  type: "password",
-                                  rounded: "",
-                                  outlined: "",
-                                  color: "primary",
-                                  "prepend-icon": "mdi-key-variant mdi-36px"
-                                },
-                                on: {
-                                  keyup: function($event) {
-                                    if (
-                                      !$event.type.indexOf("key") &&
-                                      _vm._k(
-                                        $event.keyCode,
-                                        "enter",
-                                        13,
-                                        $event.key,
-                                        "Enter"
-                                      )
-                                    ) {
-                                      return null
-                                    }
-                                    return _vm.loginFunction()
-                                  }
-                                },
-                                model: {
-                                  value: _vm.pass,
-                                  callback: function($$v) {
-                                    _vm.pass = $$v;
-                                  },
-                                  expression: "pass"
-                                }
-                              })
-                            ],
-                            1
-                          )
-                        ],
-                        1
-                      ),
-                      _vm._v(" "),
-                      _c(
-                        "v-card-actions",
-                        { staticClass: "justify-center" },
-                        [
-                          _c(
-                            "v-col",
-                            { staticClass: "justify-center" },
+                      _vm.loadedPage
+                        ? _c(
+                            "v-card",
+                            {
+                              staticClass: "elevation-12",
+                              attrs: { shaped: "" }
+                            },
                             [
                               _c(
-                                "v-row",
-                                { staticClass: "justify-center" },
+                                "v-toolbar",
+                                {
+                                  staticStyle: {},
+                                  attrs: {
+                                    color: "primary",
+                                    dark: "",
+                                    flat: "",
+                                    height: "170px"
+                                  }
+                                },
+                                [
+                                  _c("v-img", {
+                                    attrs: {
+                                      contain: "",
+                                      src: _vm.loginImage,
+                                      "max-height": "170"
+                                    }
+                                  })
+                                ],
+                                1
+                              ),
+                              _vm._v(" "),
+                              _c(
+                                "v-card-text",
+                                { staticStyle: { "margin-top": "50px" } },
                                 [
                                   _c(
-                                    "v-btn",
-                                    {
-                                      attrs: {
-                                        rounded: "",
-                                        height: "40",
-                                        width: "300",
-                                        color: "primary"
-                                      },
-                                      on: {
-                                        click: function($event) {
-                                          return _vm.loginFunction()
+                                    "v-form",
+                                    [
+                                      _c("v-text-field", {
+                                        staticClass: "pb-2",
+                                        attrs: {
+                                          id: "login",
+                                          label: "Username",
+                                          name: "login",
+                                          type: "text",
+                                          rounded: "",
+                                          outlined: "",
+                                          color: "primary",
+                                          "prepend-icon":
+                                            "mdi-account-circle mdi-36px"
+                                        },
+                                        on: {
+                                          keyup: function($event) {
+                                            if (
+                                              !$event.type.indexOf("key") &&
+                                              _vm._k(
+                                                $event.keyCode,
+                                                "enter",
+                                                13,
+                                                $event.key,
+                                                "Enter"
+                                              )
+                                            ) {
+                                              return null
+                                            }
+                                            return _vm.loginFunction()
+                                          }
+                                        },
+                                        model: {
+                                          value: _vm.login,
+                                          callback: function($$v) {
+                                            _vm.login = $$v;
+                                          },
+                                          expression: "login"
                                         }
-                                      }
-                                    },
-                                    [_vm._v("Login")]
+                                      }),
+                                      _vm._v(" "),
+                                      _c("v-text-field", {
+                                        staticClass: "pb-2",
+                                        attrs: {
+                                          id: "password",
+                                          label: "Password",
+                                          name: "password",
+                                          type: _vm.showPassword
+                                            ? "text"
+                                            : "password",
+                                          rounded: "",
+                                          outlined: "",
+                                          color: "primary",
+                                          "prepend-icon":
+                                            "mdi-key-variant mdi-36px",
+                                          "append-icon": _vm.showPassword
+                                            ? "mdi-eye"
+                                            : "mdi-eye-off"
+                                        },
+                                        on: {
+                                          "click:append": function($event) {
+                                            _vm.showPassword = !_vm.showPassword;
+                                          },
+                                          keyup: function($event) {
+                                            if (
+                                              !$event.type.indexOf("key") &&
+                                              _vm._k(
+                                                $event.keyCode,
+                                                "enter",
+                                                13,
+                                                $event.key,
+                                                "Enter"
+                                              )
+                                            ) {
+                                              return null
+                                            }
+                                            return _vm.loginFunction()
+                                          }
+                                        },
+                                        model: {
+                                          value: _vm.pass,
+                                          callback: function($$v) {
+                                            _vm.pass = $$v;
+                                          },
+                                          expression: "pass"
+                                        }
+                                      })
+                                    ],
+                                    1
                                   )
                                 ],
                                 1
                               ),
                               _vm._v(" "),
                               _c(
-                                "v-row",
+                                "v-card-actions",
                                 { staticClass: "justify-center" },
                                 [
                                   _c(
-                                    "v-btn",
-                                    {
-                                      staticStyle: { "margin-top": "30px" },
-                                      attrs: { color: "primary", text: "" },
-                                      on: {
-                                        click: function($event) {
-                                          _vm.dialog = true;
-                                        }
-                                      }
-                                    },
-                                    [_vm._v("Forgot Password?")]
+                                    "v-col",
+                                    { staticClass: "justify-center" },
+                                    [
+                                      _c(
+                                        "v-row",
+                                        { staticClass: "justify-center" },
+                                        [
+                                          _c(
+                                            "v-btn",
+                                            {
+                                              attrs: {
+                                                disabled: _vm.triggered,
+                                                rounded: "",
+                                                "min-height": "10%",
+                                                width: "75%",
+                                                color: "primary"
+                                              },
+                                              on: {
+                                                click: function($event) {
+                                                  return _vm.loginFunction()
+                                                }
+                                              }
+                                            },
+                                            [_vm._v("Login")]
+                                          )
+                                        ],
+                                        1
+                                      ),
+                                      _vm._v(" "),
+                                      _c(
+                                        "v-row",
+                                        { staticClass: "justify-center" },
+                                        [
+                                          _c(
+                                            "v-btn",
+                                            {
+                                              staticStyle: {
+                                                "margin-top": "30px"
+                                              },
+                                              attrs: {
+                                                color: "primary",
+                                                width: "75%",
+                                                text: ""
+                                              },
+                                              on: {
+                                                click: function($event) {
+                                                  _vm.dialog = true;
+                                                }
+                                              }
+                                            },
+                                            [_vm._v("Forgot Password?")]
+                                          )
+                                        ],
+                                        1
+                                      )
+                                    ],
+                                    1
                                   )
                                 ],
                                 1
@@ -652,9 +743,7 @@ var __vue_render__ = function() {
                             ],
                             1
                           )
-                        ],
-                        1
-                      )
+                        : _vm._e()
                     ],
                     1
                   )
@@ -666,108 +755,130 @@ var __vue_render__ = function() {
           ),
           _vm._v(" "),
           _c(
-            "v-dialog",
-            {
-              attrs: { width: "450", persistent: "" },
-              model: {
-                value: _vm.dialog,
-                callback: function($$v) {
-                  _vm.dialog = $$v;
-                },
-                expression: "dialog"
-              }
-            },
+            "v-scale-transition",
             [
               _c(
-                "v-card",
-                { attrs: { width: "450", flat: "" } },
+                "v-dialog",
+                {
+                  attrs: { width: "450", persistent: "" },
+                  model: {
+                    value: _vm.dialog,
+                    callback: function($$v) {
+                      _vm.dialog = $$v;
+                    },
+                    expression: "dialog"
+                  }
+                },
                 [
                   _c(
-                    "v-card-title",
-                    {
-                      staticClass: "justify-center",
-                      staticStyle: {
-                        "font-family": "Georgia, serif",
-                        margin: "auto"
-                      }
-                    },
-                    [_vm._v("\n\t\t\t\t\t\tPassword Recovery\n\t\t\t\t\t")]
-                  ),
-                  _vm._v(" "),
-                  _c("v-divider"),
-                  _vm._v(" "),
-                  !_vm.sent
-                    ? _c(
-                        "v-card-text",
-                        { staticStyle: { "margin-top": "20px" } },
-                        [
-                          _vm._v(
-                            "\n\t\t\t\t\t\tAn email with the reset link has been sent to your account\n\t\t\t\t\t"
+                    "v-card",
+                    { attrs: { width: "450", flat: "" } },
+                    [
+                      _c(
+                        "v-card-title",
+                        {
+                          staticClass: "justify-center",
+                          staticStyle: { margin: "auto" }
+                        },
+                        [_vm._v("\n\t\t\t\t\t\tPassword Recovery\n\t\t\t\t\t")]
+                      ),
+                      _vm._v(" "),
+                      _c("v-divider"),
+                      _vm._v(" "),
+                      !_vm.sent
+                        ? _c(
+                            "v-card-text",
+                            { staticStyle: { "margin-top": "20px" } },
+                            [
+                              _vm._v(
+                                "\n\t\t\t\t\t\tAn email with the reset link has been sent to your account\n\t\t\t\t\t"
+                              )
+                            ]
                           )
-                        ]
-                      )
-                    : _c(
-                        "v-card-text",
-                        { staticStyle: { "margin-top": "20px" } },
-                        [
-                          _vm._v(
-                            "\n\t\t\t\t\t\tPlease enter your email\n\t\t\t\t\t\t"
+                        : _c(
+                            "v-card-text",
+                            { staticStyle: { "margin-top": "20px" } },
+                            [
+                              _vm._v(
+                                "\n\t\t\t\t\t\tPlease enter your email\n\t\t\t\t\t\t"
+                              ),
+                              _c("v-spacer"),
+                              _vm._v(" "),
+                              _c("v-text-field", {
+                                attrs: { placeholder: "Email" },
+                                model: {
+                                  value: _vm.email,
+                                  callback: function($$v) {
+                                    _vm.email = $$v;
+                                  },
+                                  expression: "email"
+                                }
+                              }),
+                              _vm._v(" "),
+                              _c(
+                                "v-scale-transition",
+                                [
+                                  _c("vue-recaptcha", {
+                                    directives: [
+                                      {
+                                        name: "show",
+                                        rawName: "v-show",
+                                        value: _vm.loadedRecaptcha,
+                                        expression: "loadedRecaptcha"
+                                      }
+                                    ],
+                                    attrs: {
+                                      sitekey: _vm.aKey,
+                                      loadRecaptchaScript: true
+                                    },
+                                    on: {
+                                      "hook:mounted": function($event) {
+                                        _vm.loadedRecaptcha = true;
+                                      },
+                                      verify: _vm.validate
+                                    }
+                                  })
+                                ],
+                                1
+                              )
+                            ],
+                            1
                           ),
+                      _vm._v(" "),
+                      _c(
+                        "v-card-actions",
+                        [
+                          _vm.sent
+                            ? _c(
+                                "v-btn",
+                                {
+                                  attrs: { disabled: _vm.verified },
+                                  on: {
+                                    click: function($event) {
+                                      return _vm.resetPassword()
+                                    }
+                                  }
+                                },
+                                [_vm._v("Reset Password")]
+                              )
+                            : _vm._e(),
+                          _vm._v(" "),
                           _c("v-spacer"),
                           _vm._v(" "),
-                          _c("v-text-field", {
-                            attrs: { placeholder: "Email" },
-                            model: {
-                              value: _vm.email,
-                              callback: function($$v) {
-                                _vm.email = $$v;
-                              },
-                              expression: "email"
-                            }
-                          }),
-                          _vm._v(" "),
-                          _c("vue-recaptcha", {
-                            attrs: {
-                              sitekey: _vm.aKey,
-                              loadRecaptchaScript: true
-                            },
-                            on: { verify: _vm.validate }
-                          })
-                        ],
-                        1
-                      ),
-                  _vm._v(" "),
-                  _c(
-                    "v-card-actions",
-                    [
-                      _vm.sent
-                        ? _c(
+                          _c(
                             "v-btn",
                             {
-                              attrs: { disabled: _vm.verified },
+                              attrs: { color: "primary" },
                               on: {
                                 click: function($event) {
-                                  return _vm.resetPassword()
+(_vm.dialog = false), (_vm.sent = true);
                                 }
                               }
                             },
-                            [_vm._v("Reset Password")]
+                            [_vm._v("Close")]
                           )
-                        : _vm._e(),
-                      _vm._v(" "),
-                      _c("v-spacer"),
-                      _vm._v(" "),
-                      _c(
-                        "v-btn",
-                        {
-                          attrs: { color: "primary" },
-                          on: {
-                            click: function($event) {
-(_vm.dialog = false), (_vm.sent = true);
-                            }
-                          }
-                        },
-                        [_vm._v("Close")]
+                        ],
+                        1
                       )
                     ],
                     1
@@ -784,7 +895,7 @@ var __vue_render__ = function() {
       _vm._v(" "),
       _c("SnackBar", {
         attrs: { options: _vm.snackOptions, snackbar: _vm.snackbar },
-        on: { "update-prop": _vm.update }
+        on: { "update-snackbar": _vm.update }
       })
     ],
     1
@@ -794,15 +905,17 @@ var __vue_staticRenderFns__ = [];
 __vue_render__._withStripped = true;
 
   /* style */
-  const __vue_inject_styles__ = undefined;
+  const __vue_inject_styles__ = function (inject) {
+    if (!inject) return
+    inject("data-v-42980660_0", { source: "\n.bg {\r\n\tbackground-image: linear-gradient(to right top, #ffffff, #fafbfe, #f4f8fc, #ecf5fa, #e4f2f6, #d2e7eb, #c0dcde, #aed1d1, #8dbcbc, #6ca7a8, #499294, #197e81);\n}\r\n", map: {"version":3,"sources":["/mnt/d/Proiecte/StartupWay2PR2/packages/users/src/ui/views/Login.vue"],"names":[],"mappings":";AA8PA;CACA,2JAAA;AACA","file":"Login.vue","sourcesContent":["<template>\r\n\t<v-app>\r\n\t\t<v-container\r\n\t\t\tfluid \r\n\t\t\tfill-height\r\n\t\t\tclass=\"bg\"\r\n\t\t>\r\n\t\t\t<v-layout align-center justify-center> \r\n\t\t\t\t<v-flex xs12 sm8 md4>\r\n\t\t\t\t\t<v-fab-transition>\r\n\t\t\t\t\t\t<v-card v-if=\"loadedPage\" class=\"elevation-12\" shaped>\r\n\t\t\t\t\t\t\t<v-toolbar color=\"primary\" dark flat height=\"170px\" style=\"padding\">\r\n\t\t\t\t\t\t\t\t<v-img contain :src=\"loginImage\" max-height=\"170\"></v-img>\t\t\t\t\t\t\t\t \t\t\t\t\t\t\t\t\r\n\t\t\t\t\t\t\t</v-toolbar>\r\n\t\t\t\t\t\t\t<v-card-text style=\"margin-top: 50px;\">\r\n\t\t\t\t\t\t\t\t<v-form>\r\n\t\t\t\t\t\t\t\t\t<v-text-field\r\n\t\t\t\t\t\t\t\t\t\tid=\"login\"\r\n\t\t\t\t\t\t\t\t\t\tv-model=\"login\"\r\n\t\t\t\t\t\t\t\t\t\tlabel=\"Username\"\r\n\t\t\t\t\t\t\t\t\t\tname=\"login\"\r\n\t\t\t\t\t\t\t\t\t\ttype=\"text\"\r\n\t\t\t\t\t\t\t\t\t\trounded\r\n\t\t\t\t\t\t\t\t\t\toutlined\r\n\t\t\t\t\t\t\t\t\t\tcolor=\"primary\"\r\n\t\t\t\t\t\t\t\t\t\tprepend-icon=\"mdi-account-circle mdi-36px\"\r\n\t\t\t\t\t\t\t\t\t\t@keyup.enter=\"loginFunction()\"\r\n\t\t\t\t\t\t\t\t\t\tclass=\"pb-2\"\r\n\t\t\t\t\t\t\t\t\t></v-text-field>\r\n\r\n\t\t\t\t\t\t\t\t\t<v-text-field\r\n\t\t\t\t\t\t\t\t\t\tid=\"password\"\r\n\t\t\t\t\t\t\t\t\t\tv-model=\"pass\"\r\n\t\t\t\t\t\t\t\t\t\tlabel=\"Password\"\r\n\t\t\t\t\t\t\t\t\t\tname=\"password\"\r\n\t\t\t\t\t\t\t\t\t\t:type=\"showPassword ? 'text' : 'password'\"\r\n\t\t\t\t\t\t\t\t\t\trounded\r\n\t\t\t\t\t\t\t\t\t\toutlined\r\n\t\t\t\t\t\t\t\t\t\tcolor=\"primary\"\r\n\t\t\t\t\t\t\t\t\t\tprepend-icon=\"mdi-key-variant mdi-36px\"\r\n\t\t\t\t\t\t\t\t\t\t:append-icon=\"showPassword ? 'mdi-eye' : 'mdi-eye-off'\"\r\n\t\t\t\t\t\t\t\t\t\t@click:append=\"showPassword = !showPassword\"\r\n\t\t\t\t\t\t\t\t\t\t@keyup.enter=\"loginFunction()\"\r\n\t\t\t\t\t\t\t\t\t\tclass=\"pb-2\"\r\n\t\t\t\t\t\t\t\t\t></v-text-field>\r\n\t\t\t\t\t\t\t\t</v-form>\r\n\t\t\t\t\t\t\t</v-card-text>\r\n\t\t\t\t\t\t\t<v-card-actions class=\"justify-center\">\r\n\t\t\t\t\t\t\t\t<v-col class=\"justify-center\">\r\n\t\t\t\t\t\t\t\t\t<v-row class=\"justify-center\">\r\n\t\t\t\t\t\t\t\t\t\t<v-btn :disabled=\"triggered\" rounded min-height=\"10%\" width=\"75%\" color=\"primary\" @click=\"loginFunction()\">Login</v-btn>\r\n\t\t\t\t\t\t\t\t\t</v-row>\r\n\t\t\t\t\t\t\t\t\t<v-row class=\"justify-center\">\r\n\t\t\t\t\t\t\t\t\t\t<v-btn color=\"primary\" width=\"75%\" text @click=\"dialog=true\" style=\"margin-top: 30px;\">Forgot Password?</v-btn>\r\n\t\t\t\t\t\t\t\t\t</v-row>\r\n\t\t\t\t\t\t\t\t</v-col>\r\n\t\t\t\t\t\t\t</v-card-actions>\r\n\t\t\t\t\t\t</v-card>\r\n\t\t\t\t\t</v-fab-transition>\r\n\t\t\t\t</v-flex>\r\n\t\t\t</v-layout>\r\n\t\t\t<v-scale-transition>\r\n\t\t\t\t<v-dialog width=\"450\" v-model=\"dialog\" persistent>\r\n\t\t\t\t\t<v-card width=\"450\" flat>\r\n\t\t\t\t\t\t<v-card-title class=\"justify-center\" style=\" margin: auto;\">\r\n\t\t\t\t\t\t\tPassword Recovery\r\n\t\t\t\t\t\t</v-card-title>\r\n\t\t\t\t\t\t<v-divider></v-divider>\r\n\t\t\t\t\t\t<v-card-text v-if=\"!sent\" style=\"margin-top: 20px;\">\r\n\t\t\t\t\t\t\tAn email with the reset link has been sent to your account\r\n\t\t\t\t\t\t</v-card-text>\r\n\t\t\t\t\t\t<v-card-text v-else style=\"margin-top: 20px;\">\r\n\t\t\t\t\t\t\tPlease enter your email\r\n\t\t\t\t\t\t\t<v-spacer></v-spacer>\r\n\t\t\t\t\t\t\t<v-text-field v-model=\"email\" placeholder=\"Email\"></v-text-field>\r\n\t\t\t\t\t\t\t<v-scale-transition>\r\n\t\t\t\t\t\t\t\t<vue-recaptcha v-show=\"loadedRecaptcha\" @hook:mounted=\"loadedRecaptcha = true\" @verify=\"validate\" :sitekey=\"aKey\" :loadRecaptchaScript=\"true\"></vue-recaptcha>\r\n\t\t\t\t\t\t\t</v-scale-transition>\r\n\t\t\t\t\t\t</v-card-text>\r\n\t\t\t\t\t\t<v-card-actions>\r\n\t\t\t\t\t\t\t<v-btn v-if=\"sent\" :disabled=\"verified\" @click=\"resetPassword()\">Reset Password</v-btn>\r\n\t\t\t\t\t\t\t<v-spacer></v-spacer>\r\n\t\t\t\t\t\t\t<v-btn color=\"primary\" @click=\"dialog=false, sent=true\">Close</v-btn>\r\n\t\t\t\t\t\t</v-card-actions>\r\n\t\t\t\t\t</v-card>\r\n\t\t\t\t</v-dialog>\r\n\t\t\t</v-scale-transition>\r\n\t\t</v-container>\r\n\t\t<SnackBar :options=\"snackOptions\" @update-snackbar=\"update\" :snackbar=\"snackbar\"></SnackBar>\r\n\t</v-app>\r\n</template>\r\n\r\n<script lang=\"ts\">\r\nimport Vue from \"vue\";\r\nimport login from \"../img/welcome-startupway-white-668px.png\";\r\nimport { UI } from \"@startupway/main/lib/ui\";\r\nimport { User } from \"../../common\";\r\nimport { SnackBarOptions, SnackBarTypes, SnackBarHorizontal, SnackBarVertical } from \"@startupway/menu/lib/ui\";\r\nimport { mapGetters } from \"vuex\";\r\nimport VueRecaptcha from \"vue-recaptcha\";\r\ninterface ILogin {\r\n\tui: UI,\r\n\tlogin: string,\r\n\tpass: string,\r\n\tsnackOptions: SnackBarOptions,\r\n\tshowPassword: boolean,\r\n\tsnackbar: boolean,\r\n\tdialog: boolean,\r\n\tverified: boolean,\r\n\tsent: boolean,\r\n\temail: string,\r\n\tlightOff: boolean,\r\n\tlightOn: boolean,\r\n\taKey: string,\r\n\tloginImage: string,\r\n\ttriggered: boolean,\r\n\tloadedPage: boolean,\r\n\tloadedRecaptcha: boolean,\r\n}\r\nexport default Vue.extend({\r\n\tname: \"Login\",\r\n\tcomponents: {\r\n\t\tVueRecaptcha\r\n\t},\r\n\tmounted () {\r\n\t\tthis.ui.logEvent(\r\n\t\t\t\"USERS\",\r\n\t\t\t(this.$options.name ? this.$options.name : \"UNKOWN\"),\r\n\t\t\t`${VueRecaptcha.name} Loaded`\r\n\t\t);\r\n\t\tthis.loadedPage = true;\r\n\t},\r\n\tdata (): ILogin {\r\n\t\treturn {\r\n\t\t\tui: UI.getInstance(),\r\n\t\t\tlogin: \"\" as string,\r\n\t\t\tpass: \"\" as string,\r\n\t\t\tsnackOptions: {\r\n\t\t\t\ttext:\"\",\r\n\t\t\t\ttype: SnackBarTypes.INFO,\r\n\t\t\t\ttimeout:2000,\r\n\t\t\t\thorizontal: SnackBarHorizontal.RIGHT,\r\n\t\t\t\tvertical: SnackBarVertical.BOTTOM\r\n\t\t\t},\r\n\t\t\tshowPassword: false,\r\n\t\t\tsnackbar: false,\r\n\t\t\tdialog: false,\r\n\t\t\tverified: true,\r\n\t\t\tsent: true,\r\n\t\t\temail: \"\",\r\n\t\t\tlightOff: true,\r\n\t\t\tlightOn: false,\r\n\t\t\taKey:\"6Le6Jq4ZAAAAAEf_TFh2ZR-3tv3wycflW7ctlEeF\",\r\n\t\t\tloginImage: login,\r\n\t\t\ttriggered: false,\r\n\t\t\tloadedPage: false,\r\n\t\t\tloadedRecaptcha: false,\r\n\t\t};\r\n\t},\r\n\twatch: {\r\n\t\t_token: {\r\n\t\t\timmediate: true,\r\n\t\t\tasync handler(value: string):Promise<void> {\r\n\t\t\t\tif (value) {\r\n\t\t\t\t\tlet serverResponse = await this.ui.api.get<User | null>(\"/api/v1/users/user\", {\r\n\t\t\t\t\t\theaders: { Authorization: `Bearer ${this._token}` }\r\n\t\t\t\t\t});\r\n\t\t\t\t\tif (serverResponse.status !== 401) {\r\n\t\t\t\t\t\tif (this.$route.path!==\"/workspace\")\r\n\t\t\t\t\t\t\tthis.$router.push(\"/workspace\");\r\n\t\t\t\t\t}\r\n\t\t\t\t\t// get user - if not 401 push this.$router.push (\"/workspace\")\r\n\t\t\t\t\t// else delete token\r\n\t\t\t\t} else {\r\n\t\t\t\t\t// error\r\n\t\t\t\t}\r\n\t\t\t}\r\n\t\t},\r\n\t\tligthOff: {\r\n\t\t\timmediate: true,\r\n\t\t\thandler():void {\r\n\t\t\t\tsetInterval( () => {\r\n\t\t\t\t\tthis.lightOff = !this.lightOff;\r\n\t\t\t\t\tthis.lightOn = !this.lightOn;\r\n\t\t\t\t}, 1000);\r\n\t\t\t}\r\n\t\t}\r\n\t},\r\n\tcomputed: {\r\n\t\t...mapGetters({\r\n\t\t\t_token: \"users/token\"\r\n\t\t})\r\n\t},\r\n\tmethods: {\r\n\t\tupdate (prop:boolean): void {\r\n\t\t\tconsole.log(\"got update event\");\r\n\t\t\tthis.snackbar = prop;\r\n\t\t},\r\n\t\t// as any -> Google api, to reseach into response type.\r\n\t\tvalidate(response:any):void {\r\n\t\t\tif (response) {\r\n\t\t\t\tthis.verified = false;\r\n\t\t\t}\r\n\t\t},\r\n\t\t\r\n\t\tasync resetPassword():Promise<void> {\r\n\t\t\ttry {\r\n\t\t\t\tlet response = await this.ui.api.get<{accept:string}>(\"/api/v1/users/verify/\"+this.email);\r\n\t\t\t\tif (response.data.accept = \"Yes\") {\r\n\t\t\t\t\tawait this.ui.api.post(\"/api/v1/admin/createResetEmail\", {email:this.email});\r\n\t\t\t\t\tthis.verified = false;\r\n\t\t\t\t\tthis.sent=false;\r\n\t\t\t\t}\r\n\t\t\t} catch (error) {\r\n\t\t\t\tconsole.error(error);\r\n\t\t\t\tthis.snackOptions.text = \"FrontEnd error. If the error persists, please contact technical support: teams@tech-lounge.ro.\";\r\n\t\t\t\tthis.snackOptions.type = SnackBarTypes.ERROR;\r\n\t\t\t\tthis.snackOptions.timeout = 2000;\r\n\t\t\t\tthis.snackbar = true;\r\n\t\t\t}\r\n\t\t},\r\n\t\tasync loginFunction():Promise<void> {\r\n\t\t\tthis.triggered = true;\r\n\t\t\ttry {\r\n\t\t\t\tlet token = <string> await this.ui.storeDispatch(\"users/login\", {\r\n\t\t\t\t\tusername: this.login,\r\n\t\t\t\t\tpassword: this.pass,\r\n\t\t\t\t\tlastLogin: new Date()\r\n\t\t\t\t});\r\n\t\t\t\tif (token === \"cred\") {\r\n\t\t\t\t\tthis.snackOptions.text = \"Password or Username incorrect\";\r\n\t\t\t\t\tthis.snackOptions.type = SnackBarTypes.ERROR;\r\n\t\t\t\t\tthis.snackOptions.timeout = 2000;\r\n\t\t\t\t\tthis.snackbar = true;\r\n\t\t\t\t} else if (token === \"error\") {\r\n\t\t\t\t\tthis.snackOptions.text = \"Server Error. If the error persists, please contact technical support: teams@tech-lounge.ro.\";\r\n\t\t\t\t\tthis.snackOptions.type = SnackBarTypes.ERROR;\r\n\t\t\t\t\tthis.snackOptions.timeout = 2000;\r\n\t\t\t\t\tthis.snackbar = true;\r\n\t\t\t\t}\r\n\t\t\t} catch (error) {\r\n\t\t\t\tconsole.error(error);\r\n\t\t\t\tthis.snackOptions.text = \"FrontEnd error. If the error persists, please contact technical support: teams@tech-lounge.ro.\";\r\n\t\t\t\tthis.snackOptions.type = SnackBarTypes.ERROR;\r\n\t\t\t\tthis.snackOptions.timeout = 2000;\r\n\t\t\t\tthis.snackbar = true;\r\n\t\t\t}\r\n\t\t\tthis.triggered = false;\r\n\t\t}\r\n\t}\r\n});\r\n</script>\r\n\r\n<style lang=\"css\">\r\n.bg {\r\n\tbackground-image: linear-gradient(to right top, #ffffff, #fafbfe, #f4f8fc, #ecf5fa, #e4f2f6, #d2e7eb, #c0dcde, #aed1d1, #8dbcbc, #6ca7a8, #499294, #197e81);\r\n}\r\n</style>"]}, media: undefined });
+
+  };
   /* scoped */
   const __vue_scope_id__ = undefined;
   /* module identifier */
   const __vue_module_identifier__ = undefined;
   /* functional template */
   const __vue_is_functional_template__ = false;
-  /* style inject */
-  
   /* style inject SSR */
   
   /* style inject shadow dom */
@@ -817,7 +930,7 @@ __vue_render__._withStripped = true;
     __vue_is_functional_template__,
     __vue_module_identifier__,
     false,
-    undefined,
+    createInjector,
     undefined,
     undefined
   );
@@ -867,7 +980,7 @@ var script$1 = Vue.extend({
             },
             snackOptions: {
                 text: "",
-                type: "info",
+                type: SnackBarTypes.INFO,
                 timeout: 2000
             },
             snackbar: false,
@@ -928,24 +1041,25 @@ var script$1 = Vue.extend({
     methods: {
         click: function (id) {
             return __awaiter(this, void 0, void 0, function () {
-                var error_1;
+                var error_1, e;
                 return __generator(this, function (_a) {
                     switch (_a.label) {
                         case 0:
-                            if (!(id === MenuOptions.LOGOUT)) return [3 /*break*/, 4];
-                            _a.label = 1;
-                        case 1:
-                            _a.trys.push([1, 3, , 4]);
+                            _a.trys.push([0, 3, , 4]);
+                            if (!(id === MenuOptions.LOGOUT)) return [3 /*break*/, 2];
                             return [4 /*yield*/, this.ui.storeDispatch('users/logout', {})];
-                        case 2:
+                        case 1:
                             _a.sent();
                             // await this.ui.storeDispatch("teams/selectTeam", 0);
-                            if (this.$route.path !== "/login")
+                            if (this.$route.path !== "/login") {
                                 this.$router.push("/login");
-                            return [3 /*break*/, 4];
+                            }
+                            _a.label = 2;
+                        case 2: return [3 /*break*/, 4];
                         case 3:
                             error_1 = _a.sent();
-                            console.error(error_1);
+                            e = error_1;
+                            console.error(e);
                             return [3 /*break*/, 4];
                         case 4: return [2 /*return*/];
                     }
@@ -974,10 +1088,12 @@ var __vue_render__$1 = function() {
         on: { click: _vm.click }
       }),
       _vm._v(" "),
-      _c("SnackBar", {
-        attrs: { options: _vm.snackOptions, snackbar: _vm.snackbar },
-        on: { "update-prop": _vm.update }
-      })
+      _vm.snackbar
+        ? _c("SnackBar", {
+            attrs: { options: _vm.snackOptions },
+            on: { "update-snackbar": _vm.update }
+          })
+        : _vm._e()
     ],
     1
   )
@@ -1018,7 +1134,7 @@ var script$2 = Vue.extend({
     name: "EditAccount",
     mounted: function () {
         return __awaiter(this, void 0, void 0, function () {
-            var response, e_1, e_2;
+            var response, error_1, e, error_2, e;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -1026,6 +1142,7 @@ var script$2 = Vue.extend({
                         return [4 /*yield*/, this.ui.storeDispatch("users/load", {})];
                     case 1:
                         if (!_a.sent()) return [3 /*break*/, 5];
+                        console.log(this.user);
                         this.firstName = this.user.firstName;
                         this.lastName = this.user.lastName;
                         this.username = this.user.username;
@@ -1050,13 +1167,23 @@ var script$2 = Vue.extend({
                         }
                         return [3 /*break*/, 5];
                     case 4:
-                        e_1 = _a.sent();
-                        console.error(e_1);
+                        error_1 = _a.sent();
+                        e = error_1;
+                        console.error(e.message);
+                        this.snackOptions.text = e.message;
+                        this.snackOptions.type = SnackBarTypes.ERROR;
+                        this.snackOptions.timeout = 2000;
+                        this.snackbar = true;
                         return [3 /*break*/, 5];
                     case 5: return [3 /*break*/, 7];
                     case 6:
-                        e_2 = _a.sent();
-                        console.error(e_2);
+                        error_2 = _a.sent();
+                        e = error_2;
+                        console.error(e.message);
+                        this.snackOptions.text = e.message;
+                        this.snackOptions.type = SnackBarTypes.ERROR;
+                        this.snackOptions.timeout = 2000;
+                        this.snackbar = true;
                         return [3 /*break*/, 7];
                     case 7: return [2 /*return*/];
                 }
@@ -1066,6 +1193,14 @@ var script$2 = Vue.extend({
     data: function () {
         return {
             ui: UI$1.getInstance(),
+            snackOptions: {
+                text: "",
+                type: SnackBarTypes.INFO,
+                timeout: 2000,
+                horizontal: SnackBarHorizontal.RIGHT,
+                vertical: SnackBarVertical.BOTTOM
+            },
+            snackbar: false,
             extendedImage: "",
             extendDialog: false,
             loadingPage: false,
@@ -1111,7 +1246,6 @@ var script$2 = Vue.extend({
             encoded: false,
             base64Encode: "",
             ext: "",
-            profileImage: {},
             imgData: "",
             valid: true
         };
@@ -1148,6 +1282,10 @@ var script$2 = Vue.extend({
         user: "users/user"
     })),
     methods: {
+        updateSnack: function (prop) {
+            console.log("got update event");
+            this.snackbar = prop;
+        },
         extendImage: function (image) {
             this.extendedImage = image;
             this.extendDialog = true;
@@ -1174,21 +1312,24 @@ var script$2 = Vue.extend({
         },
         uploadImage: function () {
             return __awaiter(this, void 0, void 0, function () {
-                var response, response_1, error_1;
+                var response, response_1, error_3, e;
                 return __generator(this, function (_a) {
                     switch (_a.label) {
                         case 0:
-                            _a.trys.push([0, 5, , 6]);
+                            this.loadingPage = true;
+                            _a.label = 1;
+                        case 1:
+                            _a.trys.push([1, 6, , 7]);
                             return [4 /*yield*/, this.ui.api.post("/api/v1/uploadDownload/upload/file/user/avatar", {
                                     userId: this.user.userId,
                                     base64Encode: this.base64Encode
                                 })];
-                        case 1:
-                            response = _a.sent();
-                            if (!response.data) return [3 /*break*/, 4];
-                            return [4 /*yield*/, this.ui.storeDispatch("users/load", {})];
                         case 2:
-                            if (!_a.sent()) return [3 /*break*/, 4];
+                            response = _a.sent();
+                            if (!response.data) return [3 /*break*/, 5];
+                            return [4 /*yield*/, this.ui.storeDispatch("users/load", {})];
+                        case 3:
+                            if (!_a.sent()) return [3 /*break*/, 5];
                             this.firstName = this.user.firstName;
                             this.lastName = this.user.lastName;
                             this.username = this.user.username;
@@ -1202,18 +1343,29 @@ var script$2 = Vue.extend({
                             this.faculty = this.user.userDetails.faculty;
                             this.group = this.user.userDetails.group;
                             return [4 /*yield*/, this.ui.api.post("/api/v1/uploadDownload/get/file/user/avatar", { userId: this.user.userId })];
-                        case 3:
+                        case 4:
                             response_1 = _a.sent();
                             if (response_1.data) {
                                 this.imgData = response_1.data;
+                                this.snackOptions.text = "Image update has been successful";
+                                this.snackOptions.type = SnackBarTypes.SUCCESS;
+                                this.snackOptions.timeout = 2000;
+                                this.snackbar = true;
                             }
-                            _a.label = 4;
-                        case 4: return [3 /*break*/, 6];
-                        case 5:
-                            error_1 = _a.sent();
-                            console.error(error_1);
-                            return [3 /*break*/, 6];
-                        case 6: return [2 /*return*/];
+                            _a.label = 5;
+                        case 5: return [3 /*break*/, 7];
+                        case 6:
+                            error_3 = _a.sent();
+                            e = error_3;
+                            console.error(e.message);
+                            this.snackOptions.text = e.message;
+                            this.snackOptions.type = SnackBarTypes.ERROR;
+                            this.snackOptions.timeout = 2000;
+                            this.snackbar = true;
+                            return [3 /*break*/, 7];
+                        case 7:
+                            this.loadingPage = false;
+                            return [2 /*return*/];
                     }
                 });
             });
@@ -1230,7 +1382,7 @@ var script$2 = Vue.extend({
         },
         update: function () {
             return __awaiter(this, void 0, void 0, function () {
-                var socialMedia, userDetails, newUser, changedPass, response, error_2;
+                var socialMedia, userDetails, newUser, changedPass, response, error_4, e;
                 return __generator(this, function (_a) {
                     switch (_a.label) {
                         case 0:
@@ -1285,7 +1437,7 @@ var script$2 = Vue.extend({
                             }
                             _a.label = 1;
                         case 1:
-                            _a.trys.push([1, 5, , 6]);
+                            _a.trys.push([1, 6, , 7]);
                             return [4 /*yield*/, this.ui.api.post("/api/v1/users/user/update", {
                                     newUser: newUser,
                                     changedPass: changedPass
@@ -1308,14 +1460,29 @@ var script$2 = Vue.extend({
                                 this.details = this.user.userDetails.details;
                                 this.faculty = this.user.userDetails.faculty;
                                 this.group = this.user.userDetails.group;
+                                this.snackOptions.text = "Account update has been successful";
+                                this.snackOptions.type = SnackBarTypes.SUCCESS;
+                                this.snackOptions.timeout = 2000;
+                                this.snackbar = true;
                             }
-                            _a.label = 4;
-                        case 4: return [3 /*break*/, 6];
-                        case 5:
-                            error_2 = _a.sent();
-                            console.error(error_2);
-                            return [3 /*break*/, 6];
+                            return [3 /*break*/, 5];
+                        case 4:
+                            this.snackOptions.text = "An unexpected error occured. If the error persists, please contact technical support: teams@tech-lounge.ro.";
+                            this.snackOptions.type = SnackBarTypes.ERROR;
+                            this.snackOptions.timeout = 2000;
+                            this.snackbar = true;
+                            _a.label = 5;
+                        case 5: return [3 /*break*/, 7];
                         case 6:
+                            error_4 = _a.sent();
+                            e = error_4;
+                            console.error(e.message);
+                            this.snackOptions.text = e.message;
+                            this.snackOptions.type = SnackBarTypes.ERROR;
+                            this.snackOptions.timeout = 2000;
+                            this.snackbar = true;
+                            return [3 /*break*/, 7];
+                        case 7:
                             this.loadingPage = false;
                             return [2 /*return*/];
                     }
@@ -1334,7 +1501,7 @@ var __vue_render__$2 = function() {
   var _h = _vm.$createElement;
   var _c = _vm._self._c || _h;
   return _c(
-    "v-app",
+    "div",
     [
       !_vm.loadingPage
         ? _c(
@@ -1368,8 +1535,9 @@ var __vue_render__$2 = function() {
                             "v-list-item-avatar",
                             { attrs: { size: "60" } },
                             [
-                              _vm.imgData !== ""
+                              _vm.imgData && _vm.imgData !== ""
                                 ? _c("v-img", {
+                                    staticClass: "zoom",
                                     attrs: { src: _vm.imgData },
                                     on: {
                                       click: function($event) {
@@ -1580,7 +1748,8 @@ var __vue_render__$2 = function() {
                                         "close-on-content-click": false,
                                         "return-value": _vm.date,
                                         transition: "scale-transition",
-                                        "offset-y": ""
+                                        "offset-y": "",
+                                        "min-width": "auto"
                                       },
                                       on: {
                                         "update:returnValue": function($event) {
@@ -1606,7 +1775,8 @@ var __vue_render__$2 = function() {
                                                       attrs: {
                                                         label: "Birthdate",
                                                         "persistent-hint": "",
-                                                        "prepend-icon": "event"
+                                                        "prepend-icon":
+                                                          "mdi-calendar"
                                                       },
                                                       model: {
                                                         value: _vm.date,
@@ -1627,7 +1797,7 @@ var __vue_render__$2 = function() {
                                         ],
                                         null,
                                         false,
-                                        3973987613
+                                        2271028494
                                       ),
                                       model: {
                                         value: _vm.dateMenu,
@@ -1906,7 +2076,9 @@ var __vue_render__$2 = function() {
                     "v-card",
                     { attrs: { flat: "", "max-width": "450" } },
                     [
-                      _c("v-img", { attrs: { src: _vm.extendedImage } }),
+                      _vm.extendedImage
+                        ? _c("v-img", { attrs: { src: _vm.extendedImage } })
+                        : _vm._e(),
                       _vm._v(" "),
                       _c(
                         "v-card-actions",
@@ -1962,7 +2134,12 @@ var __vue_render__$2 = function() {
               )
             ],
             1
-          )
+          ),
+      _vm._v(" "),
+      _c("SnackBar", {
+        attrs: { options: _vm.snackOptions, snackbar: _vm.snackbar },
+        on: { "update-snackbar": _vm.updateSnack }
+      })
     ],
     1
   )
@@ -1971,15 +2148,17 @@ var __vue_staticRenderFns__$2 = [];
 __vue_render__$2._withStripped = true;
 
   /* style */
-  const __vue_inject_styles__$2 = undefined;
+  const __vue_inject_styles__$2 = function (inject) {
+    if (!inject) return
+    inject("data-v-9560c80c_0", { source: ".zoom {\n  transition: transform 0.2s;\n  /* Animation */\n}\n.zoom:hover {\n  transform: scale(1.2);\n}\n", map: {"version":3,"sources":["EditAccount.vue"],"names":[],"mappings":"AAAA;EACE,0BAA0B;EAC1B,cAAc;AAChB;AACA;EACE,qBAAqB;AACvB","file":"EditAccount.vue","sourcesContent":[".zoom {\n  transition: transform 0.2s;\n  /* Animation */\n}\n.zoom:hover {\n  transform: scale(1.2);\n}\n"]}, media: undefined });
+
+  };
   /* scoped */
   const __vue_scope_id__$2 = undefined;
   /* module identifier */
   const __vue_module_identifier__$2 = undefined;
   /* functional template */
   const __vue_is_functional_template__$2 = false;
-  /* style inject */
-  
   /* style inject SSR */
   
   /* style inject shadow dom */
@@ -1994,7 +2173,7 @@ __vue_render__$2._withStripped = true;
     __vue_is_functional_template__$2,
     __vue_module_identifier__$2,
     false,
-    undefined,
+    createInjector,
     undefined,
     undefined
   );
@@ -2003,7 +2182,7 @@ var script$3 = Vue.extend({
     name: "EditSecuritySettings",
     mounted: function () {
         return __awaiter(this, void 0, void 0, function () {
-            var response, e_1, e_2;
+            var response, error_1, e, error_2, e;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -2020,9 +2199,13 @@ var script$3 = Vue.extend({
                         this.username = this.user.username;
                         this.email = this.user.email;
                         this.phone = this.user.phone;
-                        this.date = new Date(this.user.birthDate).toISOString().substr(0, 10);
-                        this.facebook = this.user.socialMedia.facebook;
-                        this.linkedin = this.user.socialMedia.linkedin;
+                        this.date = new Date(this.user.birthDate)
+                            .toISOString()
+                            .substr(0, 10);
+                        this.facebook = this
+                            .user.socialMedia.facebook;
+                        this.linkedin = this
+                            .user.socialMedia.linkedin;
                         this.webpage = this.user.socialMedia.webpage;
                         this.faculty = this.user.userDetails.faculty;
                         this.group = this.user.userDetails.group;
@@ -2035,13 +2218,23 @@ var script$3 = Vue.extend({
                         }
                         return [3 /*break*/, 5];
                     case 4:
-                        e_1 = _a.sent();
-                        console.error(e_1);
+                        error_1 = _a.sent();
+                        e = error_1;
+                        console.error(e.message);
+                        this.snackOptions.text = e.message;
+                        this.snackOptions.type = SnackBarTypes.ERROR;
+                        this.snackOptions.timeout = 2000;
+                        this.snackbar = true;
                         return [3 /*break*/, 5];
                     case 5: return [3 /*break*/, 7];
                     case 6:
-                        e_2 = _a.sent();
-                        console.error(e_2);
+                        error_2 = _a.sent();
+                        e = error_2;
+                        console.error(e.message);
+                        this.snackOptions.text = e.message;
+                        this.snackOptions.type = SnackBarTypes.ERROR;
+                        this.snackOptions.timeout = 2000;
+                        this.snackbar = true;
                         return [3 /*break*/, 7];
                     case 7: return [2 /*return*/];
                 }
@@ -2051,12 +2244,20 @@ var script$3 = Vue.extend({
     data: function () {
         return {
             ui: UI$1.getInstance(),
+            snackOptions: {
+                text: "",
+                type: SnackBarTypes.INFO,
+                timeout: 2000,
+                horizontal: SnackBarHorizontal.RIGHT,
+                vertical: SnackBarVertical.BOTTOM
+            },
+            snackbar: false,
             extendDialog: false,
             loadingPage: false,
             showNew: false,
             showConfirm: false,
             valid: true,
-            imgData: {},
+            imgData: null,
             extendedImage: "",
             universities: universities,
             firstName: "",
@@ -2078,7 +2279,7 @@ var script$3 = Vue.extend({
                 function (f) {
                     for (var i = 0; i < f.length; i++) {
                         if (f.charCodeAt(i) > 127) {
-                            return 'Field must not contain unicode characters!';
+                            return "Field must not contain unicode characters!";
                         }
                     }
                     return true;
@@ -2100,11 +2301,11 @@ var script$3 = Vue.extend({
                 function (f) {
                     for (var i = 0; i < f.length; i++) {
                         if (f.charCodeAt(i) > 127) {
-                            return 'Field must not contain unicode characters!';
+                            return "Field must not contain unicode characters!";
                         }
                     }
                     return true;
-                },
+                }
             ],
             emailRules: [
                 function (e) {
@@ -2126,13 +2327,22 @@ var script$3 = Vue.extend({
         user: "users/user"
     })),
     methods: {
+        back: function () {
+            if (this.$route.path !== "/user/account") {
+                this.$router.push("/user/account");
+            }
+        },
+        updateSnack: function (prop) {
+            console.log("got update event");
+            this.snackbar = prop;
+        },
         extendImage: function (image) {
             this.extendedImage = image;
             this.extendDialog = true;
         },
         update: function () {
             return __awaiter(this, void 0, void 0, function () {
-                var socialMedia, userDetails, newUser, changedPass, response, error_1;
+                var socialMedia, userDetails, newUser, changedPass, response, error_3, e;
                 return __generator(this, function (_a) {
                     switch (_a.label) {
                         case 0:
@@ -2187,7 +2397,7 @@ var script$3 = Vue.extend({
                             }
                             _a.label = 1;
                         case 1:
-                            _a.trys.push([1, 5, , 6]);
+                            _a.trys.push([1, 6, , 7]);
                             return [4 /*yield*/, this.ui.api.post("/api/v1/users/user/update", {
                                     newUser: newUser,
                                     changedPass: changedPass
@@ -2203,27 +2413,44 @@ var script$3 = Vue.extend({
                                 this.username = this.user.username;
                                 this.email = this.user.email;
                                 this.phone = this.user.phone;
-                                this.date = new Date(this.user.birthDate).toISOString().substr(0, 10);
+                                this.date = new Date(this.user.birthDate)
+                                    .toISOString()
+                                    .substr(0, 10);
                                 this.facebook = this.user.socialMedia.facebook;
                                 this.linkedin = this.user.socialMedia.linkedin;
                                 this.webpage = this.user.socialMedia.webpage;
                                 this.details = this.user.userDetails.details;
                                 this.faculty = this.user.userDetails.faculty;
                                 this.group = this.user.userDetails.group;
+                                this.snackOptions.text = "Update has been successful!";
+                                this.snackOptions.type = SnackBarTypes.SUCCESS;
+                                this.snackOptions.timeout = 2000;
+                                this.snackbar = true;
                             }
-                            _a.label = 4;
-                        case 4: return [3 /*break*/, 6];
-                        case 5:
-                            error_1 = _a.sent();
-                            console.error(error_1);
-                            return [3 /*break*/, 6];
+                            return [3 /*break*/, 5];
+                        case 4:
+                            this.snackOptions.text = "An unexpected error occured. If the error persists, please contact technical support: teams@tech-lounge.ro.";
+                            this.snackOptions.type = SnackBarTypes.ERROR;
+                            this.snackOptions.timeout = 2000;
+                            this.snackbar = true;
+                            _a.label = 5;
+                        case 5: return [3 /*break*/, 7];
                         case 6:
+                            error_3 = _a.sent();
+                            e = error_3;
+                            console.error(e.message);
+                            this.snackOptions.text = e.message;
+                            this.snackOptions.type = SnackBarTypes.ERROR;
+                            this.snackOptions.timeout = 2000;
+                            this.snackbar = true;
+                            return [3 /*break*/, 7];
+                        case 7:
                             this.loadingPage = false;
                             return [2 /*return*/];
                     }
                 });
             });
-        },
+        }
     }
 });
 
@@ -2236,7 +2463,7 @@ var __vue_render__$3 = function() {
   var _h = _vm.$createElement;
   var _c = _vm._self._c || _h;
   return _c(
-    "v-app",
+    "div",
     [
       !_vm.loadingPage
         ? _c(
@@ -2278,7 +2505,7 @@ var __vue_render__$3 = function() {
                                       fn: function(ref) {
                                         var hover = ref.hover;
                                         return [
-                                          _vm.imgData !== ""
+                                          _vm.imgData && _vm.imgData !== ""
                                             ? _c("v-img", {
                                                 attrs: {
                                                   elevation: hover ? 16 : 0,
@@ -2303,7 +2530,7 @@ var __vue_render__$3 = function() {
                                   ],
                                   null,
                                   false,
-                                  1683802845
+                                  74143598
                                 )
                               })
                             ],
@@ -2321,7 +2548,7 @@ var __vue_render__$3 = function() {
                       ),
                       _vm._v(" "),
                       _c("v-list-item-subtitle", [
-                        _vm._v("\n\t\t\t\t\tSecurity Settings\t\n\t\t\t\t")
+                        _vm._v("\n\t\t\t\t\tSecurity Settings\n\t\t\t\t")
                       ]),
                       _vm._v(" "),
                       _c("v-divider"),
@@ -2425,6 +2652,21 @@ var __vue_render__$3 = function() {
                           _c(
                             "v-btn",
                             {
+                              attrs: { color: "secondary" },
+                              on: {
+                                click: function($event) {
+                                  return _vm.back()
+                                }
+                              }
+                            },
+                            [_vm._v("\n\t\t\t\t\t\tBack\n\t\t\t\t\t")]
+                          ),
+                          _vm._v(" "),
+                          _c("v-spacer"),
+                          _vm._v(" "),
+                          _c(
+                            "v-btn",
+                            {
                               attrs: {
                                 disabled: !_vm.valid,
                                 rounded: "",
@@ -2466,7 +2708,9 @@ var __vue_render__$3 = function() {
                     "v-card",
                     { attrs: { flat: "", "max-width": "450" } },
                     [
-                      _c("v-img", { attrs: { src: _vm.extendedImage } }),
+                      _vm.extendedImage
+                        ? _c("v-img", { attrs: { src: _vm.extendedImage } })
+                        : _vm._e(),
                       _vm._v(" "),
                       _c(
                         "v-card-actions",
@@ -2522,7 +2766,12 @@ var __vue_render__$3 = function() {
               )
             ],
             1
-          )
+          ),
+      _vm._v(" "),
+      _c("SnackBar", {
+        attrs: { options: _vm.snackOptions, snackbar: _vm.snackbar },
+        on: { "update-snackbar": _vm.updateSnack }
+      })
     ],
     1
   )

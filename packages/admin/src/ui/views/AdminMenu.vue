@@ -49,7 +49,7 @@ export default Vue.extend({
 		user: {
 			immediate: true,
 			async handler(newUser: User):Promise<void> {
-				if(newUser) {
+				if (newUser) {
 					if (newUser.role === "Admin" || newUser.role === "SuperAdmin" ) {
 						this.userRole = newUser.role;
 					}

@@ -422,6 +422,59 @@ function normalizeComponent(template, style, script, scopeId, isFunctionalTempla
     return script;
 }
 
+const isOldIE = typeof navigator !== 'undefined' &&
+    /msie [6-9]\\b/.test(navigator.userAgent.toLowerCase());
+function createInjector(context) {
+    return (id, style) => addStyle(id, style);
+}
+let HEAD;
+const styles = {};
+function addStyle(id, css) {
+    const group = isOldIE ? css.media || 'default' : id;
+    const style = styles[group] || (styles[group] = { ids: new Set(), styles: [] });
+    if (!style.ids.has(id)) {
+        style.ids.add(id);
+        let code = css.source;
+        if (css.map) {
+            // https://developer.chrome.com/devtools/docs/javascript-debugging
+            // this makes source maps inside style tags work properly in Chrome
+            code += '\n/*# sourceURL=' + css.map.sources[0] + ' */';
+            // http://stackoverflow.com/a/26603875
+            code +=
+                '\n/*# sourceMappingURL=data:application/json;base64,' +
+                    btoa(unescape(encodeURIComponent(JSON.stringify(css.map)))) +
+                    ' */';
+        }
+        if (!style.element) {
+            style.element = document.createElement('style');
+            style.element.type = 'text/css';
+            if (css.media)
+                style.element.setAttribute('media', css.media);
+            if (HEAD === undefined) {
+                HEAD = document.head || document.getElementsByTagName('head')[0];
+            }
+            HEAD.appendChild(style.element);
+        }
+        if ('styleSheet' in style.element) {
+            style.styles.push(code);
+            style.element.styleSheet.cssText = style.styles
+                .filter(Boolean)
+                .join('\n');
+        }
+        else {
+            const index = style.ids.size - 1;
+            const textNode = document.createTextNode(code);
+            const nodes = style.element.childNodes;
+            if (nodes[index])
+                style.element.removeChild(nodes[index]);
+            if (nodes.length)
+                style.element.insertBefore(textNode, nodes[index]);
+            else
+                style.element.appendChild(textNode);
+        }
+    }
+}
+
 /* script */
 const __vue_script__ = script;
 
@@ -432,7 +485,10 @@ var __vue_render__ = function() {
   var _c = _vm._self._c || _h;
   return _c(
     "v-app",
-    { attrs: { id: "app" } },
+    {
+      staticStyle: { "overflow-y": "hidden !important" },
+      attrs: { id: "app" }
+    },
     [
       _vm.role
         ? _c(
@@ -530,24 +586,28 @@ var __vue_render__ = function() {
           }
         },
         [
-          _c("v-toolbar-title", { attrs: { link: "", contain: "" } }, [
-            _c(
-              "a",
-              { attrs: { href: "/#/workspace" } },
-              [
-                _c("v-img", {
-                  attrs: {
-                    left: "",
-                    contain: "",
-                    src: _vm.logoImage,
-                    "max-height": "45",
-                    "max-width": "250"
-                  }
-                })
-              ],
-              1
-            )
-          ]),
+          _c(
+            "v-toolbar-title",
+            { staticClass: "zoom", attrs: { link: "", contain: "" } },
+            [
+              _c(
+                "a",
+                { attrs: { href: "/#/workspace" } },
+                [
+                  _c("v-img", {
+                    attrs: {
+                      left: "",
+                      contain: "",
+                      src: _vm.logoImage,
+                      "max-height": "45",
+                      "max-width": "250"
+                    }
+                  })
+                ],
+                1
+              )
+            ]
+          ),
           _vm._v(" "),
           _vm._l(_vm.toolbarButtonsLeft, function(toolbarButton, index) {
             return _c(toolbarButton.view, {
@@ -570,7 +630,10 @@ var __vue_render__ = function() {
       _vm._v(" "),
       _c(
         "v-main",
-        { attrs: { "background-color": "#fcfcfc" } },
+        {
+          staticStyle: { "overflow-y": "auto" },
+          attrs: { "background-color": "#ffffff" }
+        },
         [_c("router-view")],
         1
       )
@@ -582,15 +645,17 @@ var __vue_staticRenderFns__ = [];
 __vue_render__._withStripped = true;
 
   /* style */
-  const __vue_inject_styles__ = undefined;
+  const __vue_inject_styles__ = function (inject) {
+    if (!inject) return
+    inject("data-v-706bdbf6_0", { source: ".zoom {\n  transition: transform 0.2s;\n  /* Animation */\n}\n.zoom:hover {\n  transform: scale(1.2);\n}\n.fade-enter-active,\n.fade-leave-active {\n  transition: opacity 0.5s;\n}\n.fade-enter,\n.fade-leave-to {\n  opacity: 0;\n}\n", map: {"version":3,"sources":["Workspace.vue"],"names":[],"mappings":"AAAA;EACE,0BAA0B;EAC1B,cAAc;AAChB;AACA;EACE,qBAAqB;AACvB;AACA;;EAEE,wBAAwB;AAC1B;AACA;;EAEE,UAAU;AACZ","file":"Workspace.vue","sourcesContent":[".zoom {\n  transition: transform 0.2s;\n  /* Animation */\n}\n.zoom:hover {\n  transform: scale(1.2);\n}\n.fade-enter-active,\n.fade-leave-active {\n  transition: opacity 0.5s;\n}\n.fade-enter,\n.fade-leave-to {\n  opacity: 0;\n}\n"]}, media: undefined });
+
+  };
   /* scoped */
   const __vue_scope_id__ = undefined;
   /* module identifier */
   const __vue_module_identifier__ = undefined;
   /* functional template */
   const __vue_is_functional_template__ = false;
-  /* style inject */
-  
   /* style inject SSR */
   
   /* style inject shadow dom */
@@ -605,7 +670,7 @@ __vue_render__._withStripped = true;
     __vue_is_functional_template__,
     __vue_module_identifier__,
     false,
-    undefined,
+    createInjector,
     undefined,
     undefined
   );
@@ -747,146 +812,136 @@ var __vue_render__$1 = function() {
     "v-app",
     [
       _c(
-        "v-main",
+        "v-container",
+        { attrs: { fluid: "", "fill-height": "" } },
         [
           _c(
-            "v-container",
-            { attrs: { fluid: "", "fill-height": "" } },
+            "v-layout",
+            { attrs: { "align-center": "", "justify-center": "" } },
             [
               _c(
-                "v-layout",
-                { attrs: { "align-center": "", "justify-center": "" } },
+                "v-flex",
+                { attrs: { xs12: "", sm8: "", md4: "" } },
                 [
+                  _c("v-img", { attrs: { src: _vm.logoImage, contain: "" } }),
+                  _vm._v(" "),
+                  _c("v-spacer"),
+                  _vm._v(" "),
                   _c(
-                    "v-flex",
-                    { attrs: { xs12: "", sm8: "", md4: "" } },
+                    "v-card",
+                    { staticClass: "elevation-12" },
                     [
-                      _c("v-img", {
-                        attrs: { src: _vm.logoImage, contain: "" }
-                      }),
-                      _vm._v(" "),
-                      _c("v-spacer"),
-                      _vm._v(" "),
                       _c(
-                        "v-card",
-                        { staticClass: "elevation-12" },
+                        "v-toolbar",
+                        { attrs: { color: "primary", dark: "", flat: "" } },
                         [
                           _c(
-                            "v-toolbar",
-                            { attrs: { color: "primary", dark: "", flat: "" } },
-                            [
-                              _c(
-                                "v-toolbar-title",
-                                { attrs: { "align-center": "" } },
-                                [_vm._v("Password Reset")]
-                              ),
-                              _vm._v(" "),
-                              _c("v-spacer")
-                            ],
-                            1
+                            "v-toolbar-title",
+                            { attrs: { "align-center": "" } },
+                            [_vm._v("Password Reset")]
                           ),
                           _vm._v(" "),
+                          _c("v-spacer")
+                        ],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-card-text",
+                        [
                           _c(
-                            "v-card-text",
+                            "v-form",
                             [
-                              _c(
-                                "v-form",
-                                [
-                                  _c("v-text-field", {
-                                    attrs: {
-                                      id: "password",
-                                      label: "New Password",
-                                      name: "password",
-                                      type: "password"
-                                    },
-                                    on: {
-                                      keyup: function($event) {
-                                        if (
-                                          !$event.type.indexOf("key") &&
-                                          _vm._k(
-                                            $event.keyCode,
-                                            "enter",
-                                            13,
-                                            $event.key,
-                                            "Enter"
-                                          )
-                                        ) {
-                                          return null
-                                        }
-                                        return _vm.resetPassword()
-                                      }
-                                    },
-                                    model: {
-                                      value: _vm.password,
-                                      callback: function($$v) {
-                                        _vm.password = $$v;
-                                      },
-                                      expression: "password"
+                              _c("v-text-field", {
+                                attrs: {
+                                  id: "password",
+                                  label: "New Password",
+                                  name: "password",
+                                  type: "password"
+                                },
+                                on: {
+                                  keyup: function($event) {
+                                    if (
+                                      !$event.type.indexOf("key") &&
+                                      _vm._k(
+                                        $event.keyCode,
+                                        "enter",
+                                        13,
+                                        $event.key,
+                                        "Enter"
+                                      )
+                                    ) {
+                                      return null
                                     }
-                                  }),
-                                  _vm._v(" "),
-                                  _c("v-text-field", {
-                                    attrs: {
-                                      id: "newPassword",
-                                      label: "Retype your password",
-                                      name: "newPassword",
-                                      type: "password"
-                                    },
-                                    on: {
-                                      keyup: function($event) {
-                                        if (
-                                          !$event.type.indexOf("key") &&
-                                          _vm._k(
-                                            $event.keyCode,
-                                            "enter",
-                                            13,
-                                            $event.key,
-                                            "Enter"
-                                          )
-                                        ) {
-                                          return null
-                                        }
-                                        return _vm.resetPassword()
-                                      }
-                                    },
-                                    model: {
-                                      value: _vm.newPassword,
-                                      callback: function($$v) {
-                                        _vm.newPassword = $$v;
-                                      },
-                                      expression: "newPassword"
-                                    }
-                                  }),
-                                  _vm._v(" "),
-                                  _vm.match
-                                    ? _c("span", [
-                                        _vm._v("Passwords do not match")
-                                      ])
-                                    : _vm._e()
-                                ],
-                                1
-                              )
-                            ],
-                            1
-                          ),
-                          _vm._v(" "),
-                          _c(
-                            "v-card-actions",
-                            [
-                              _c(
-                                "v-btn",
-                                {
-                                  attrs: { color: "primary" },
-                                  on: {
-                                    click: function($event) {
-                                      return _vm.resetPassword()
-                                    }
+                                    return _vm.resetPassword()
                                   }
                                 },
-                                [_vm._v("Reset")]
-                              )
+                                model: {
+                                  value: _vm.password,
+                                  callback: function($$v) {
+                                    _vm.password = $$v;
+                                  },
+                                  expression: "password"
+                                }
+                              }),
+                              _vm._v(" "),
+                              _c("v-text-field", {
+                                attrs: {
+                                  id: "newPassword",
+                                  label: "Retype your password",
+                                  name: "newPassword",
+                                  type: "password"
+                                },
+                                on: {
+                                  keyup: function($event) {
+                                    if (
+                                      !$event.type.indexOf("key") &&
+                                      _vm._k(
+                                        $event.keyCode,
+                                        "enter",
+                                        13,
+                                        $event.key,
+                                        "Enter"
+                                      )
+                                    ) {
+                                      return null
+                                    }
+                                    return _vm.resetPassword()
+                                  }
+                                },
+                                model: {
+                                  value: _vm.newPassword,
+                                  callback: function($$v) {
+                                    _vm.newPassword = $$v;
+                                  },
+                                  expression: "newPassword"
+                                }
+                              }),
+                              _vm._v(" "),
+                              _vm.match
+                                ? _c("span", [_vm._v("Passwords do not match")])
+                                : _vm._e()
                             ],
                             1
+                          )
+                        ],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-card-actions",
+                        [
+                          _c(
+                            "v-btn",
+                            {
+                              attrs: { color: "primary" },
+                              on: {
+                                click: function($event) {
+                                  return _vm.resetPassword()
+                                }
+                              }
+                            },
+                            [_vm._v("Reset")]
                           )
                         ],
                         1

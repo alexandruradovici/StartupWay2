@@ -1,8 +1,7 @@
 <template>
-	<v-app>
+	<div>
 		<v-container fluid pl-7 pr-7 v-if="!loadingPage">
 			<v-card color="#fcfcfc" flat style="margin: auto; margin-top: 50px;">
-				
 				<v-divider></v-divider>
 				<v-card-text>
 					<v-list nav dense color="#fcfcfc">
@@ -17,18 +16,18 @@
 							</v-list-item-avatar>
 
 							<v-list-item-content>
-								<v-list-item-title style="font-family: Georgia, serif; font-size: 17px; font-weight: 700;"> {{ user.firstName }} {{ user.lastName }}</v-list-item-title>
-								<v-list-item-subtitle style="font-family: Georgia, serif; font-size: 15px; font-weight: 550;">{{ user.email }}</v-list-item-subtitle>
-								<v-list-item-subtitle style="font-family: Georgia, serif; font-size: 15px; font-weight: 550;">{{ user.phone }}</v-list-item-subtitle>
+								<v-list-item-title style=" font-size: 17px; font-weight: 700;"> {{ user.firstName }} {{ user.lastName }}</v-list-item-title>
+								<v-list-item-subtitle style=" font-size: 15px; font-weight: 550;">{{ user.email }}</v-list-item-subtitle>
+								<v-list-item-subtitle style=" font-size: 15px; font-weight: 550;">{{ user.phone }}</v-list-item-subtitle>
 								<v-row>
 									<v-col md4 class="justify-center">
-										<v-list-item-subtitle style="font-family: Georgia, serif; font-size: 15px; font-weight: 550;">{{ user.faculty }}</v-list-item-subtitle>
+										<v-list-item-subtitle style=" font-size: 15px; font-weight: 550;">{{ user.faculty }}</v-list-item-subtitle>
 									</v-col>
 									<v-col md4 class="justify-center">
-										<v-list-item-subtitle style="font-family: Georgia, serif; font-size: 15px; font-weight: 550;">{{ user.group }}</v-list-item-subtitle>
+										<v-list-item-subtitle style=" font-size: 15px; font-weight: 550;">{{ user.group }}</v-list-item-subtitle>
 									</v-col>
 									<v-col md4 class="justify-center">
-										<v-list-item-subtitle style="font-family: Georgia, serif; font-size: 15px; font-weight: 550;">{{ user.role }}</v-list-item-subtitle>
+										<v-list-item-subtitle style=" font-size: 15px; font-weight: 550;">{{ user.role }}</v-list-item-subtitle>
 									</v-col>
 								</v-row>
 								<v-row>
@@ -96,7 +95,7 @@
 							<!-- <v-card v-if="user.userId !== undefined"> -->
 							<v-card flat>
 								<v-form v-model="userValid" lazy-validation>
-								<v-card-title class="justify-center" style="font-family: Georgia, serif;">Edit User Details</v-card-title>
+								<v-card-title class="justify-center" style="">Edit User Details</v-card-title>
 								<v-card-text style="margin-top: 50px;">
 									<div class="details">Faculty</div>
 									<v-select 
@@ -197,7 +196,7 @@
 			</v-dialog>
 			<v-dialog v-model="acceptDialog" persistent max-width="290">
 				<v-card v-if="remove">
-					<v-card-title class="justify-center" style="font-family: Georgia, serif;">Remove Users</v-card-title>
+					<v-card-title class="justify-center" style="">Remove Users</v-card-title>
 					<v-card-text>Are you sure you want to remove this user?</v-card-text>
 					<v-card-actions class="justify-center">
 						<v-btn color="#32a852" text @click="accept('remove')">Yes</v-btn>
@@ -237,8 +236,8 @@
 				</v-col>
 			</v-row>
 		</v-container> 
-		<SnackBar :options="snackOptions" :snackbar="snackbar" @update-prop="update"></SnackBar>
-	</v-app>
+		<SnackBar :options="snackOptions" v-if="snackbar" @update-snackbar="update"></SnackBar>
+	</div>
 </template>
 
 <script lang="ts">
@@ -255,9 +254,9 @@ export default Vue.extend({
 		user: {
 			immediate: true,
 			async handler(newUser: User):Promise<void> {
-				if(newUser.role === "CEO")
+				if (newUser.role === "CEO")
 					this.userRole = newUser.role;
-				if(this.userRole) {
+				if (this.userRole) {
 					await this.getAllUsers();
 				}
 			}
@@ -267,7 +266,7 @@ export default Vue.extend({
 			async handler(newTeam: Team):Promise<void> {
 				this.teamId = newTeam.teamId;
 				if (this.teamId === "") {
-					if(this.$route.path !== "/workspace")
+					if (this.$route.path !== "/workspace")
 						this.$router.push("/workspace");
 				} else {
 					await this.getUsers(newTeam.teamId);
@@ -292,7 +291,7 @@ export default Vue.extend({
 						return "You have entered an invalid email address!";
 				},,
 				(f: string) => {
-					if(f.length > 0)
+					if (f.length > 0)
 						return true;
 					else
 						return "Filed cannot be empty!";
@@ -413,7 +412,7 @@ export default Vue.extend({
 					(user as ((User & UserTeams) & VisualUser)).transport = "";
 				}
 
-				if(user.avatarUu !== "" && user.avatarUu !== undefined && user.avatarUu !== null){
+				if (user.avatarUu !== "" && user.avatarUu !== undefined && user.avatarUu !== null){
 					(user as ((User & UserTeams) & VisualUser)).image = await this.getUserImage(user.avatarUu, user.userId);
 				} else {
 					(user as ((User & UserTeams) & VisualUser)).image = ""
@@ -422,13 +421,13 @@ export default Vue.extend({
 			return users;
 		},
 		async getUserImage(avatar:string,userId:string):Promise<string> {
-			if(avatar !== "" && avatar !== null) {
-				if(userId !== "") {
+			if (avatar !== "" && avatar !== null) {
+				if (userId !== "") {
 					try {
 						const response = await this.ui.api.post<string | null>("/api/v1/uploadDownload/get/file/user/avatar", {userId:userId});
-						if(response.data) {
+						if (response.data) {
 							return response.data;
-						} else if(response.status === 500) {
+						} else if (response.status === 500) {
 							this.snackOptions.text = "Server Error while Loading User Avatar. If the error persists, please contact technical support: teams@tech-lounge.ro.";
 							this.snackOptions.type = SnackBarTypes.ERROR;
 							this.snackOptions.timeout = 2000;
@@ -438,7 +437,7 @@ export default Vue.extend({
 							return "";
 						}
 					} catch (e) {
-						if(e.status === 500) {
+						if (e.status === 500) {
 							console.error(e);
 							this.snackOptions.text = "Server Error while Loading User Avatar. If the error persists, please contact technical support: teams@tech-lounge.ro.";
 							this.snackOptions.type = SnackBarTypes.ERROR;
@@ -456,7 +455,7 @@ export default Vue.extend({
 		},
 		hasUser(user:User | (User & UserTeams)):boolean {
 			for(const aux of this.users) {
-				if(aux.userId === user.userId) {
+				if (aux.userId === user.userId) {
 					return true;
 				}
 			}
@@ -469,7 +468,7 @@ export default Vue.extend({
 					this.allUsers = await this.modifyUsers(response.data);
 					this.allUsers = this.allUsers.filter((user:User) => { return !this.hasUser(user)});
 					return true;
-				} else if(response.status === 204) {
+				} else if (response.status === 204) {
 					this.snackOptions.text = "There Was a Problem Loading the Users. If the error persists, please contact technical support: teams@tech-lounge.ro.";
 					this.snackOptions.type = SnackBarTypes.INFO;
 					this.snackOptions.timeout = 2000;
@@ -495,18 +494,18 @@ export default Vue.extend({
 					users: this.toRemove,
 					teamId: this.teamId
 				});
-				if(response.data) {
+				if (response.data) {
 					this.loading = true;
 					this.snackOptions.text = "Remove User Successful";
 					this.snackOptions.type = SnackBarTypes.SUCCESS;
 					this.snackOptions.timeout = 2000;
 					this.snackbar = true;
 					const newResponse = await this.refreshLists();
-					if(newResponse) {
+					if (newResponse) {
 						this.loading = false;
 						
 					}
-				} else if(response.status === 204) {
+				} else if (response.status === 204) {
 					this.snackOptions.text = "Remove User Failed, Please Try Again Later. If the error persists, please contact technical support: teams@tech-lounge.ro.";
 					this.snackOptions.type = SnackBarTypes.INFO;
 					this.snackOptions.timeout = 2000;
@@ -532,7 +531,7 @@ export default Vue.extend({
 				if (response.data) {
 					this.users = await this.modifyUsers(response.data);
 					return true;
-				} else if(response.status === 204) {
+				} else if (response.status === 204) {
 					this.snackOptions.text = "There Was a Problem Loading the Users. If the error persists, please contact technical support: teams@tech-lounge.ro.";
 					this.snackOptions.type = SnackBarTypes.INFO;
 					this.snackOptions.timeout = 2000;
@@ -551,7 +550,7 @@ export default Vue.extend({
 		},
 		async updateUserInfo(userParam?:(User & UserTeams & VisualUser)) {
 			let item:(User & UserTeams & VisualUser) | null = null;
-			if(userParam !== undefined) {
+			if (userParam !== undefined) {
 				item = userParam;
 			} else {
 				item = this.item;
@@ -598,7 +597,7 @@ export default Vue.extend({
 					}
 				);
 				if (response.data) {
-					if(userParam === undefined) {
+					if (userParam === undefined) {
 						this.item = {
 							userId: "",
 							userProductId: "",
@@ -629,7 +628,7 @@ export default Vue.extend({
 					this.snackOptions.type = SnackBarTypes.SUCCESS;
 					this.snackOptions.timeout = 2000;
 					this.snackbar = true;
-				} else if(response.status === 204) {
+				} else if (response.status === 204) {
 					this.snackOptions.text = "Update Failed, Please Try Again Later. If the error persists, please contact technical support: teams@tech-lounge.ro.";
 					this.snackOptions.type = SnackBarTypes.INFO;
 					this.snackOptions.timeout = 2000;
@@ -638,8 +637,8 @@ export default Vue.extend({
 			} catch (e) {
 				console.error(e);
 			}
-			if(user.userId === this.user.userId)
-				if(user.role === "CEO")
+			if (user.userId === this.user.userId)
+				if (user.role === "CEO")
 					this.userRole = user.role;
 				else
 					this.userRole = "";
@@ -684,11 +683,11 @@ export default Vue.extend({
 		},
 		openLink(link: string):void {
 			let webLink:string = link;
-			if(webLink.includes("http://")) {
+			if (webLink.includes("http://")) {
 				window.open(webLink, "_blank");
 				return;
 			}
-			if(!webLink.includes("https://")) {
+			if (!webLink.includes("https://")) {
 				webLink = "https://" + webLink;
 			}
 			window.open(webLink, "_blank");
@@ -702,7 +701,7 @@ export default Vue.extend({
 					email:this.requestEmail,
 					teamId:this.teamId
 				});
-				if(response.data) {
+				if (response.data) {
 					this.requestDialog = false;
 				}
 				this.$forceUpdate();
@@ -721,10 +720,10 @@ export default Vue.extend({
 					teamId: this.teamId,
 				});
 				
-				if(response.data) {
+				if (response.data) {
 					this.loading = true;
 					const newResponse = await this.refreshLists();
-					if(newResponse) {
+					if (newResponse) {
 						this.loading = false;
 						this.snackOptions.text = "Add Users Successful";
 						this.snackOptions.type = SnackBarTypes.SUCCESS;
@@ -737,7 +736,7 @@ export default Vue.extend({
 						this.snackbar = true;
 						this.loading = false;
 					}
-				} else if(response.status === 204) {
+				} else if (response.status === 204) {
 					this.snackOptions.text = "Add Users Failed, Please Try Again Later. If the error persists, please contact technical support: teams@tech-lounge.ro.";
 					this.snackOptions.type = SnackBarTypes.INFO;
 					this.snackOptions.timeout = 2000;
@@ -755,7 +754,7 @@ export default Vue.extend({
 			const foundTeam = await this.ui.api.get<Team | null>("/api/v1/teams/team/" + this.teamId);
 			let initDate;
 			const allActivities = [];
-			if(foundTeam.data && foundTeam.data.location === "Bucharest"){
+			if (foundTeam.data && foundTeam.data.location === "Bucharest"){
 				initDate = moment("2020-03-02");
 			} else {
 				initDate = moment("2020-03-09");
@@ -789,11 +788,11 @@ export default Vue.extend({
 			this.loadingPage = false;
 		},
 		accept(type:string):void{
-			if(type == "remove"){
+			if (type == "remove"){
 				this.removeUsers();
 				this.remove = false;
 			}
-			else if(type == "add"){
+			else if (type == "add"){
 				this.addUsers();
 				this.add = false;
 				this.addUsersDialog = false;
@@ -814,8 +813,8 @@ export default Vue.extend({
 		},
 		async refreshLists():Promise<boolean> {
 			try {
-				if(await this.getUsers(this.teamId))
-					if(await this.getAllUsers())
+				if (await this.getUsers(this.teamId))
+					if (await this.getAllUsers())
 						return true;
 					else
 						return false;

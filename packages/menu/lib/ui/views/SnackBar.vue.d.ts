@@ -1,9 +1,13 @@
 import Vue from "vue";
 import { SnackBarOptions } from "../../common";
-declare const _default: import("vue/types/vue").ExtendedVue<Vue, {
+interface ISnackbar {
     timeout: number;
-    snackbarValid: boolean;
-}, {
+    left: boolean;
+    right: boolean;
+    top: boolean;
+    bottom: boolean;
+}
+declare const _default: import("vue/types/vue").ExtendedVue<Vue, ISnackbar, {
     closeSnackbar(): void;
 }, unknown, {
     options: SnackBarOptions;

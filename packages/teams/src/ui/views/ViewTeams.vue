@@ -1,5 +1,5 @@
 <template>
-	<v-app id="app">
+	<div>
 		<v-navigation-drawer v-if="role" clipped app permanent expand-on-hover>
 			<v-list>
 				<v-list-item>
@@ -46,7 +46,7 @@
 				</v-row>
 			</transition>
 		</v-container>
-	</v-app>
+	</div>
 </template>
 
 <script lang="ts">
@@ -65,14 +65,14 @@ export default Vue.extend({
 			async handler(newRoute):Promise<void> {
 				const component:string = this.$route.params.component;
 
-				if(this.selectedTeam !== this.$route.params.teamId) {
+				if (this.selectedTeam !== this.$route.params.teamId) {
 					this.selectedTeam = this.$route.params.teamId;
 					try {
-						if(await this.getUsers(this.selectedTeam))
+						if (await this.getUsers(this.selectedTeam))
 							await this.getAllUsers();
 						this.teamId = this.selectedTeam;
 						const found = this.viewTeams.find ( (team: {value:string,name:string}) => team.value === this.selectedTeam);
-						if(found !== undefined) {
+						if (found !== undefined) {
 							this.team = found.name;
 						}
 					} catch (e) {
@@ -85,7 +85,7 @@ export default Vue.extend({
 		mentoredTeam: {
 			immediate:true,
 			async handler(newTeam:string):Promise<void> {
-				if(this.mentoredTeams.length > 0){
+				if (this.mentoredTeams.length > 0){
 					this.selectedMentoredTeam = this.mentoredTeams.find( team => {
 						return team.teamId === newTeam;
 					});
@@ -96,11 +96,11 @@ export default Vue.extend({
 		selectedMentoredTeam: {
 			immediate:true,
 			async handler(newTeam:(Team & Product)):Promise<void> {
-				if(newTeam) {
-					if(newTeam !== undefined && newTeam.teamId !== undefined) {
+				if (newTeam) {
+					if (newTeam !== undefined && newTeam.teamId !== undefined) {
 						const response = await this.ui.api.get<Product | null>("/api/v1/teams/product/" + newTeam.teamId);
 						const product:Product | null = response.data;
-						if(product) {
+						if (product) {
 							newTeam.businessTrack = product.businessTrack;
 							newTeam.teamType = product.teamType;
 						}
@@ -111,8 +111,8 @@ export default Vue.extend({
 		user: {
 			immediate: true,
 			async handler(newUser: User):Promise<void> {
-				if(newUser) {
-					if(newUser.role === "Admin" || newUser.role === "SuperAdmin") {
+				if (newUser) {
+					if (newUser.role === "Admin" || newUser.role === "SuperAdmin") {
 						try {
 							this.location = newUser.userDetails["location"];
 							const response = await this.ui.api.get<Team[]>("/api/v1/admin/teams/");
@@ -135,12 +135,12 @@ export default Vue.extend({
 							console.error(e);
 						}
 					}
-					if(newUser.role === "Mentor" || newUser.role === "Admin" || newUser.role === "SuperAdmin") {
-						if(this.tabs.length > 0) {
+					if (newUser.role === "Mentor" || newUser.role === "Admin" || newUser.role === "SuperAdmin") {
+						if (this.tabs.length > 0) {
 							this.tabs = [];
 						}
 						this.role = newUser.role;
-						if(newUser.role === "Mentor") {
+						if (newUser.role === "Mentor") {
 							await this.ui.api.get("/api/v1/teams/mentor/teams/" + newUser.userId);
 							
 						}
@@ -189,7 +189,7 @@ export default Vue.extend({
 			immediate: true,
 			async handler(newTeams: Team[]):Promise<void> {
 				newTeams.forEach(async (team: Team) => {
-					if(team) {
+					if (team) {
 						this.viewTeams.push({
 							name: team.teamName,
 							value: team.teamId
@@ -205,7 +205,7 @@ export default Vue.extend({
 					for(const team of newTeams) {
 						const response = await this.ui.api.get<Product | null>("/api/v1/teams/product/" + team.teamId);
 						const product:Product | null = response.data;
-						if(product) {
+						if (product) {
 							team.businessTrack = product.businessTrack;
 							team.teamType = product.teamType;
 						}
@@ -216,10 +216,10 @@ export default Vue.extend({
 		currentTeam: {
 			immediate: true,
 			async handler (newTeam: (Team & Product)):Promise<void> {
-				if(newTeam) {
+				if (newTeam) {
 					const response = await this.ui.api.get<Product | null>("/api/v1/teams/product/" + newTeam.teamId);
 					const product:Product | null = response.data;
-					if(product) {
+					if (product) {
 						newTeam.businessTrack = product.businessTrack;
 						newTeam.teamType = product.teamType;
 					}
@@ -264,18 +264,18 @@ export default Vue.extend({
 	},
 	methods: {
 		pushToTabs(tab:{key:number,title:string,icon:string,link:string}):void {
-			if(this.tabs.find((item:{key:number,title:string,icon:string,link:string}) => {
+			if (this.tabs.find((item:{key:number,title:string,icon:string,link:string}) => {
 				return item.link === tab.link
 			}) === undefined) {
 				this.tabs.push(tab);
 			}
 		},
 		changeRoute(link:string):void {
-			if((this.role==="Mentor" || this.role==="Admin" || this.role ==="SuperAdmin") && this.selectedTeam !== "" && link.split("/")[1] === "viewTeam") {
+			if ((this.role==="Mentor" || this.role==="Admin" || this.role ==="SuperAdmin") && this.selectedTeam !== "" && link.split("/")[1] === "viewTeam") {
 				this.$router.push(link + "/" + this.selectedTeam);
 			}
 			else
-				if(this.$route.path !== "/workspace")
+				if (this.$route.path !== "/workspace")
 					this.$router.push("/workspace");
 		},
 		async getUsers(teamId: string):Promise<boolean> {
@@ -293,7 +293,7 @@ export default Vue.extend({
 		},
 		hasUser(user:(User&UserTeams) | User):boolean {
 			for(const aux of this.users) {
-				if(aux.userId === user.userId) {
+				if (aux.userId === user.userId) {
 					return true;
 				}
 			}

@@ -1,5 +1,5 @@
 <template>
-	<v-app id="app">
+	<div>
 		<v-container v-if="!loadingPage" class="content" fluid pl-7 pr-7>
 				<v-divider></v-divider>
 				<v-card flat style="margin: auto;" width="800" color="#fcfcfc">
@@ -11,8 +11,8 @@
 							</v-list-item-avatar>
 
 							<v-list-item-content>
-								<v-list-item-title style="font-family: Georgia, serif; font-size: 17px; font-weight: 700;"> {{ user.firstName }} {{ user.lastName }}</v-list-item-title>
-								<v-list-item-subtitle style="font-family: Georgia, serif; font-size: 15px; font-weight: 550;" v-if="user.role !== ''">
+								<v-list-item-title style=" font-size: 17px; font-weight: 700;"> {{ user.firstName }} {{ user.lastName }}</v-list-item-title>
+								<v-list-item-subtitle style=" font-size: 15px; font-weight: 550;" v-if="user.role !== ''">
 									{{user.role}}
 								</v-list-item-subtitle>
 								<v-list-item-subtitle v-else>
@@ -75,7 +75,7 @@
 					</v-card>
 					<v-dialog v-model="editDialog" max-width="450">
 						<v-card flat width="450" v-if="edited">
-							<v-card-title class="justify-center" style="font-family: Georgia, serif;">
+							<v-card-title class="justify-center" style="">
 								Edit {{mentoredUser.firstName}}'s activity
 							</v-card-title>
 							<v-card-subtitle>
@@ -121,7 +121,7 @@
 					</v-dialog>
 					<v-dialog v-model="viewDialog" max-width="450">
 						<v-card flat width="450" v-if="edited">
-							<v-card-title class="justify-center" style="font-family: Georgia, serif;">
+							<v-card-title class="justify-center" style="">
 								View {{mentoredUser.firstName}}'s activity
 							</v-card-title>
 							<v-card-subtitle>
@@ -156,7 +156,7 @@
 				</v-col>
 			</v-row>
 		</v-container>
-	</v-app>
+	</div>
 </template>
 
 <script lang="ts">
@@ -175,10 +175,10 @@ export default Vue.extend({
 				this.loadingPage = true;
 				this.teamId = this.$route.params.teamId;
 				try {
-					if(await this.getUsers(this.teamId))
+					if (await this.getUsers(this.teamId))
 						await this.getAllUsers();
 					const found = await this.ui.api.get<Team | null>("/api/v1/teams/team/" + this.teamId);
-					if(found.data) {
+					if (found.data) {
 						this.team = found.data.teamName;
 					}
 				} catch (e) {
@@ -191,8 +191,8 @@ export default Vue.extend({
 			immediate: true,
 			async handler(newUser: User):Promise<void>  {
 				this.loadingPage = true;
-				if(newUser) {
-					if(newUser.role === "Admin" || newUser.role === "SuperAdmin") {
+				if (newUser) {
+					if (newUser.role === "Admin" || newUser.role === "SuperAdmin") {
 						try {
 							this.location = newUser.userDetails["location"];
 							const response = await this.ui.api.get<Team[]>("/api/v1/admin/teams/");
@@ -221,7 +221,7 @@ export default Vue.extend({
 			immediate: true,
 			handler (newActivities: UserActivity[]):void {
 				this.loadingPage = true;
-				if(newActivities.length !== 0) {
+				if (newActivities.length !== 0) {
 					newActivities.forEach( (activity:UserActivity) => {
 						(activity as UserActivity & {stringDate:Date | string}).stringDate = activity.date;
 					});
@@ -235,14 +235,14 @@ export default Vue.extend({
 			immediate:true,
 			async handler(newUser:(User & UserTeams)):Promise<void>  {
 				this.loadingPage = true;
-				if(newUser) {
+				if (newUser) {
 					const newUserId=newUser.userId;
-					if(newUserId) {
+					if (newUserId) {
 						const response = await this.ui.api.post<UserActivity[]>("/api/v1/teams/team/activity", {
 							userId: newUserId,
 							teamId: this.teamId
 						});
-						if(response.data) {
+						if (response.data) {
 							this.weeks = response.data;
 							this.weeks.forEach( (week) => {
 								(week as (UserActivity & {stringDate:Date | string})).stringDate = week.date;
@@ -294,7 +294,7 @@ export default Vue.extend({
 		},
 		hasUser(user:(User&UserTeams) | User):boolean{
 			for(const aux of this.users) {
-				if(aux.userId === user.userId) {
+				if (aux.userId === user.userId) {
 					return true;
 				}
 			}
@@ -343,13 +343,13 @@ export default Vue.extend({
 			return users;
 		},
 		async getUserImage(avatar:string,userId:string):Promise<string> {
-			if(avatar !== "" && avatar !== null) {
-				if(userId !== "") {
+			if (avatar !== "" && avatar !== null) {
+				if (userId !== "") {
 					try {
 						const response = await this.ui.api.post<string | null>("/api/v1/uploadDownload/get/file/user/avatar", {userId:userId});
-						if(response.data) {
+						if (response.data) {
 							return response.data;
-						} else if(response.status === 500) {
+						} else if (response.status === 500) {
 							// this.snackOptions.text = "Server Error while Loading User Avatar";
 							// this.snackOptions.type = SnackBarTypes.ERROR;
 							// this.snackOptions.timeout = 2000;
@@ -359,7 +359,7 @@ export default Vue.extend({
 							return "";
 						}
 					} catch (e) {
-						if(e.status === 500) {
+						if (e.status === 500) {
 							console.error(e);
 							// this.snackOptions.text = "Server Error while Loading User Avatar";
 							// this.snackOptions.type = SnackBarTypes.ERROR;
@@ -401,7 +401,7 @@ export default Vue.extend({
 					userId: this.userId,
 					teamId: this.teamId
 				});
-				if(respArr) {
+				if (respArr) {
 					this.activities = respArr.data;
 				}
 				this.edited=null;

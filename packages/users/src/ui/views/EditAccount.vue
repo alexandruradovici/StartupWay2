@@ -1,12 +1,12 @@
 <template>
-	<v-app>
+	<div>
 		<v-container v-if="!loadingPage">
 			<v-form v-model="valid" lazy-validation> 
 				<v-card flat style="margin: auto; padding-top: 20px;" max-width="900" color="#fcfcfc">
 					<v-card-title class="justify-center">
 						<v-list-item-avatar size="60">
-								<v-img   v-if="imgData !== ''" :src="imgData" @click="extendImage(imgData)"></v-img>
-								<v-icon v-else>mdi-account-circle mdi-48px</v-icon>
+							<v-img class="zoom" v-if="imgData && imgData !== ''" :src="imgData" @click="extendImage(imgData)"></v-img>
+							<v-icon v-else>mdi-account-circle mdi-48px</v-icon>
 						</v-list-item-avatar>
 						{{user.firstName}} {{user.lastName}}
 					</v-card-title>
@@ -82,13 +82,14 @@
 									:return-value.sync="date"
 									transition="scale-transition"
 									offset-y
-									>
+									min-width="auto"
+								>
 									<template v-slot:activator = "{ on }">
 										<v-text-field
 											v-model="date"
 											label="Birthdate"
 											persistent-hint
-											prepend-icon="event"
+											prepend-icon="mdi-calendar"
 											v-on="on"
 										></v-text-field>
 									</template>
@@ -172,7 +173,7 @@
 			</v-form>
 			<v-dialog v-model="extendDialog" max-width="450">
 				<v-card flat max-width="450">
-					<v-img :src="extendedImage"></v-img>
+					<v-img v-if="extendedImage" :src="extendedImage"></v-img>
 					<v-card-actions class="justify-center">
 						<v-btn text color="primary" @click="extendDialog=false">Exit</v-btn>
 					</v-card-actions>
@@ -190,19 +191,58 @@
 				</v-col>
 			</v-row>
 		</v-container>
-	</v-app>
+		<SnackBar :options="snackOptions" @update-snackbar="updateSnack" :snackbar="snackbar"></SnackBar>
+	</div>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
 import { UI } from "@startupway/main/lib/ui";
+import { SnackBarOptions, SnackBarTypes, SnackBarHorizontal, SnackBarVertical } from "@startupway/menu/lib/ui";
 import { User, UserSocialMedia, UserDetails, universities} from "../../common";
 import { mapGetters } from "vuex";
+import * as _ from 'lodash';
+interface EditAccount {
+	ui: UI,
+	snackOptions: SnackBarOptions,
+	snackbar: boolean,
+	extendedImage: string | null,
+	extendDialog: boolean,
+	loadingPage: boolean,
+	show: boolean,
+	dateMenu: boolean,
+	universities: string[],
+	firstName: string,
+	lastName: string,
+	email: string,
+	password: string,
+	phone: string,
+	username: string,
+	date: string,
+	birthDate: Date,
+	facebook: string,
+	linkedin: string,
+	webpage: string,
+	details: string,
+	faculty: string,
+	group: string,
+	imageRules: ((param: File) => boolean | string) [],
+	characterRules: ((param: string) => boolean | string)[],
+	phoneRules: ((param: string) => boolean | string)[],
+	//File upload
+	file: File | undefined,
+	encoded: boolean,
+	base64Encode: string,
+	ext: string,
+	imgData: string | null,
+	valid: boolean
+}
 export default Vue.extend({
 	name: "EditAccount",
 	async mounted() {
 		try {
 			if (await this.ui.storeDispatch("users/load", {})) {
+				console.log(this.user);
 				this.firstName = this.user.firstName;
 				this.lastName = this.user.lastName;
 				this.username = this.user.username;
@@ -215,50 +255,68 @@ export default Vue.extend({
 				this.faculty = this.user.userDetails.faculty;
 				this.group = this.user.userDetails.group;
 				this.details = this.user.userDetails.details;
-				if(this.user) {
+				if (this.user) {
 					try {
 						let response = await this.ui.api.post<string | null>("/api/v1/uploadDownload/get/file/user/avatar", {userId:this.user.userId});
-						if(response.data) {
+						if (response.data) {
 							this.imgData = response.data;
 						}
-					} catch (e) {
-						console.error(e);
+					} catch (error) {
+						const e: Error = error;
+						console.error(e.message);
+						this.snackOptions.text = e.message;
+						this.snackOptions.type = SnackBarTypes.ERROR;
+						this.snackOptions.timeout = 2000;
+						this.snackbar = true;
 					}
 				}
 			}
-		} catch (e) {
-			console.error(e);
+		} catch (error) {
+			const e: Error = error;
+			console.error(e.message);
+			this.snackOptions.text = e.message;
+			this.snackOptions.type = SnackBarTypes.ERROR;
+			this.snackOptions.timeout = 2000;
+			this.snackbar = true;
 		}
 	},
-	data() {
+	data (): EditAccount {
 		return {
-			ui:UI.getInstance(),
+			ui: UI.getInstance(),
+			snackOptions: {
+				text:"",
+				type: SnackBarTypes.INFO,
+				timeout:2000,
+				horizontal: SnackBarHorizontal.RIGHT,
+				vertical: SnackBarVertical.BOTTOM
+			},
+			snackbar: false,
 			extendedImage: "",
 			extendDialog: false,
-			loadingPage:false,
+			loadingPage: false,
 			show: false,
 			dateMenu: false,
 			universities:universities,
-			firstName: "" as string,
-			lastName: "" as string,
-			email: "" as string,
-			password: "" as string,
-			phone: "" as string,
-			username: "" as string,
+			firstName: "",
+			lastName: "",
+			email: "",
+			password: "",
+			phone: "",
+			username: "",
 			date: new Date().toISOString().substr(0, 10),
 			birthDate: {} as Date,
-			facebook: "" as string,
-			linkedin: "" as string,
-			webpage: "" as string,
-			details: "" as string,
-			faculty: "" as string,
-			group: "" as string,
+			facebook: "",
+			linkedin: "",
+			webpage: "",
+			details: "",
+			faculty: "",
+			group: "",
 			imageRules: [
 				(value:File) => !value || value.size < 5000000 || 'Image size should be less than 5 MB!',
 			],
 			characterRules: [
 				(f: string) => {
-					if(f.length > 0)
+					if (f.length > 0)
 						return true;
 					else
 						return "Filed cannot be empty!";
@@ -267,7 +325,7 @@ export default Vue.extend({
 			phoneRules:[
 				(v:string) => {
 					var phoneno = /^\+?([0-9]{2})\)?[-. ]?([0-9]{4})[-. ]?([0-9]{4})$/;
-						if(v.match(phoneno))
+						if (v.match(phoneno))
 							return true;
 						else
 							return "Phone number is not valid";
@@ -276,9 +334,8 @@ export default Vue.extend({
 			//File upload
 			file:(undefined  as unknown) as File,
 			encoded:false,
-			base64Encode:"" as string,
-			ext:"" as string,
-			profileImage:{},
+			base64Encode: "",
+			ext: "",
 			imgData:"",
 			valid:true
 		};
@@ -288,7 +345,7 @@ export default Vue.extend({
 		base64Encode: {
 			immediate:true,
 			handler (base64Encode):void {
-				if(base64Encode !== '' && base64Encode !== undefined) {
+				if (base64Encode !== '' && base64Encode !== undefined) {
 					this.encoded = false;
 				} else {
 					this.encoded = true;
@@ -298,9 +355,9 @@ export default Vue.extend({
 		file: {
 			immediate:false,
 			handler(newFile):void {
-				if(newFile !== "" && newFile !== undefined) {
+				if (newFile !== "" && newFile !== undefined) {
 					this.ext = newFile.name.split('.')[1].toLowerCase();
-					if(newFile !== undefined) {
+					if (newFile !== undefined) {
 						this._toBase64(newFile);
 					} else {
 						this.base64Encode = '';
@@ -315,6 +372,10 @@ export default Vue.extend({
 		})
 	},
 	methods: {
+		updateSnack (prop:boolean): void {
+			console.log("got update event");
+			this.snackbar = prop;
+		},
 		extendImage(image: string):void {
 			this.extendedImage = image;
 			this.extendDialog = true;
@@ -324,7 +385,7 @@ export default Vue.extend({
 			reader.readAsDataURL(file);
 			reader.onload = () => {
 				const result = reader.result;
-				if(result) {
+				if (result) {
 					const aux = result.toString().split(",");
 					this.base64Encode = aux[1];
 				}
@@ -335,10 +396,11 @@ export default Vue.extend({
 			return true;
 		},
 		goToSecurity():void {
-			if(this.$route.path !== "/user/security")
+			if (this.$route.path !== "/user/security")
 				this.$router.push("/user/security");
 		},
 		async uploadImage():Promise<void> {
+			this.loadingPage = true;
 			try {
 				let response = await this.ui.api.post<boolean>("/api/v1/uploadDownload/upload/file/user/avatar", {
 					userId:this.user.userId,
@@ -360,18 +422,28 @@ export default Vue.extend({
 						this.faculty = (this.user as User).userDetails.faculty;
 						this.group = (this.user as User).userDetails.group;
 						let response = await this.ui.api.post<string | null>("/api/v1/uploadDownload/get/file/user/avatar", {userId:(this.user as User).userId});
-						if(response.data) {
+						if (response.data) {
 							this.imgData = response.data;
+							this.snackOptions.text = "Image update has been successful";
+							this.snackOptions.type = SnackBarTypes.SUCCESS;
+							this.snackOptions.timeout = 2000;
+							this.snackbar = true;
 						}
 					}
 				}
 			} catch (error) {
-				console.error(error);
+				const e: Error = error;
+				console.error(e.message);
+				this.snackOptions.text = e.message;
+				this.snackOptions.type = SnackBarTypes.ERROR;
+				this.snackOptions.timeout = 2000;
+				this.snackbar = true;
 			}
+			this.loadingPage = false;
 		},
 		_verifyString(check:string):boolean {
 			for(let i = 0; i< check.length; i++) {
-				if(check.charCodeAt(i) > 255) {
+				if (check.charCodeAt(i) > 255) {
 					this.valid = false;
 					return false;
 				}
@@ -449,10 +521,25 @@ export default Vue.extend({
 						this.details = this.user.userDetails.details;
 						this.faculty = this.user.userDetails.faculty;
 						this.group = this.user.userDetails.group;
+
+						this.snackOptions.text = "Account update has been successful";
+						this.snackOptions.type = SnackBarTypes.SUCCESS;
+						this.snackOptions.timeout = 2000;
+						this.snackbar = true;
 					}
+				} else {
+					this.snackOptions.text = "An unexpected error occured. If the error persists, please contact technical support: teams@tech-lounge.ro.";
+					this.snackOptions.type = SnackBarTypes.ERROR;
+					this.snackOptions.timeout = 2000;
+					this.snackbar = true;
 				}
 			} catch (error) {
-				console.error(error);
+				const e: Error = error;
+				console.error(e.message);
+				this.snackOptions.text = e.message;
+				this.snackOptions.type = SnackBarTypes.ERROR;
+				this.snackOptions.timeout = 2000;
+				this.snackbar = true;
 			}
 			this.loadingPage = false;
 		},
@@ -461,4 +548,10 @@ export default Vue.extend({
 </script>
 
 <style lang="less">
+.zoom {
+  transition: transform .2s; /* Animation */
+}
+.zoom:hover {
+	transform: scale(1.2);
+}
 </style>

@@ -51,7 +51,7 @@ export class DaemonServer {
 					response = info.response;
 				}
 			});
-			if(response !== {})
+			if (response !== {})
 				return true;
 			else
 				return false;
@@ -84,7 +84,7 @@ export class DaemonServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if(conn) {
+			if (conn) {
 				await conn.beginTransaction()
 				const queryOptions:QueryOptions = {
 					namedPlaceholders:true,
@@ -93,7 +93,7 @@ export class DaemonServer {
 				await conn.query(queryOptions, notification);
 				queryOptions.sql = "SELECT * FROM notifications WHERE email=:email AND notifyType=:notifyType AND msgType=:msgType";
 				const deletedNotifies:SWNotify[] = await conn.query(queryOptions,notification);
-				if(deletedNotifies && deletedNotifies.length === 0) {
+				if (deletedNotifies && deletedNotifies.length === 0) {
 					await conn.commit();
 					await conn.release();
 					return true;
@@ -108,7 +108,7 @@ export class DaemonServer {
 		} catch (e) {
 			console.log("Error in function \"getTeamData()\"|\"admin\"")
 			console.error(e);
-			if(conn) {
+			if (conn) {
 				await conn.rollback();
 				await conn.release();
 			}
@@ -120,7 +120,7 @@ export class DaemonServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if(conn) {
+			if (conn) {
 				await conn.beginTransaction()
 				const queryOptions:QueryOptions = {
 					namedPlaceholders:true,
@@ -129,7 +129,7 @@ export class DaemonServer {
 				await conn.query(queryOptions, notification);
 				queryOptions.sql = "SELECT * FROM notifications WHERE email=:email AND notifyType=:notifyType AND msgType=:msgType";
 				const updatedNotifications:SWNotify[] = await conn.query(queryOptions,notification);
-				if(updatedNotifications && updatedNotifications.length > 0 && updatedNotifications[0]) {
+				if (updatedNotifications && updatedNotifications.length > 0 && updatedNotifications[0]) {
 					await conn.commit();
 					await conn.release();
 					return true;
@@ -144,7 +144,7 @@ export class DaemonServer {
 		} catch (e) {
 			console.log("Error in function \"getTeamData()\"|\"admin\"")
 			console.error(e);
-			if(conn) {
+			if (conn) {
 				await conn.rollback();
 				await conn.release();
 			}
@@ -156,7 +156,7 @@ export class DaemonServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if(conn) {
+			if (conn) {
 				await conn.beginTransaction()
 				const queryOptions:QueryOptions = {
 					namedPlaceholders:true,
@@ -165,7 +165,7 @@ export class DaemonServer {
 				await conn.query(queryOptions, notification);
 				queryOptions.sql = "SELECT * FROM notifications WHERE email=:email AND notifyType=:notifyType AND msgType=:msgType";
 				const newNotifies:SWNotify[] = await conn.query(queryOptions,notification);
-				if(newNotifies && newNotifies.length > 0 && newNotifies[0]) {
+				if (newNotifies && newNotifies.length > 0 && newNotifies[0]) {
 					await conn.commit();
 					await conn.release();
 					return newNotifies[0];
@@ -180,7 +180,7 @@ export class DaemonServer {
 		} catch (e) {
 			console.log("Error in function \"getTeamData()\"|\"admin\"")
 			console.error(e);
-			if(conn) {
+			if (conn) {
 				await conn.rollback();
 				await conn.release();
 			}
@@ -211,7 +211,7 @@ async function emailDaemon():Promise<void> {
 	let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if(conn) {
+			if (conn) {
 				while(true){
 					await conn.beginTransaction();
 					const queryOptions: QueryOptions = {
@@ -223,8 +223,8 @@ async function emailDaemon():Promise<void> {
 						//LOGIC
 						const notification:SWNotify = notify[0];
 						const deleteResp = await daemon.deleteNotification(notification);
-						if(deleteResp) {
-							if(notification.notifyType === "EMAIL") {
+						if (deleteResp) {
+							if (notification.notifyType === "EMAIL") {
 								let from = (process.env.MAIL_USER as string);
 								let to = notification.email;
 								let text = notification.text;
@@ -243,13 +243,13 @@ async function emailDaemon():Promise<void> {
 									default:
 										break;
 								}
-								if(subject !== "") {
+								if (subject !== "") {
 									const mailOptions = daemon.createMailOptions(from, to, subject, text);
 									const transporter = daemon.createMailTransporter();
-									if(mailOptions !== null && transporter !== null) {
+									if (mailOptions !== null && transporter !== null) {
 										const resp = await daemon.sendMail(transporter,mailOptions);
 										await daemon.delay(2000);
-										if(resp) {
+										if (resp) {
 											await conn.commit();
 											continue;
 										} else {
@@ -275,7 +275,7 @@ async function emailDaemon():Promise<void> {
 			}
 		} catch (error) {
 			console.error(error);
-			if(conn) {
+			if (conn) {
 				await conn.rollback();
 				await conn.release();
 			}

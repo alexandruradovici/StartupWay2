@@ -1,30 +1,35 @@
 <template>
-	<v-app>
-		<v-container background-color="#fcfcfc">
-			<div class="justify-center">
-				<v-row class="mb-6" justify="center" no-gutters>
-					<v-row class="justify-center" align="center">
-						<v-col class="d-flex align-start flex-column">
-							<h1 v-if="role!=='Mentor' && role!=='User'" class="landing-message">Admin View</h1>
-							<h1 v-else class="landing-message">Mentor View</h1>
-						</v-col>
-						<v-col class="d-flex align-end flex-column">
-							<v-tooltip bottom>
-								<template v-slot:activator="{on, attrs}">
-									<v-btn v-on="on" v-bind="attrs" @click="changeRoute('/assessment')" fab medium right color="#197E81">
-										<v-icon color="#fcfcfc">mdi-chart-box-outline</v-icon>
-									</v-btn>
-								</template>
-								<span>Check Assessments</span>
-							</v-tooltip>
-						</v-col>
-					</v-row>
-				</v-row>
-				<v-row class="mb-6" justify="center" >
-					<v-card class="mx-auto" flat color="#fcfcfc">
+	<div>
+		<v-container justify="center">
+			<v-row class="ma-3 mb-3" justify="center" no-gutters>
+				<v-card color="primary" flat shaped outlined width="100%">
+					<v-card flat shaped outlined width="100%" class="pa-2">
+						<v-row class="justify-center pa-2 ma-2" align="center">
+							<v-col class="d-flex align-start flex-column">
+								<h1 v-if="role!=='Mentor' && role!=='User'" class="landing-message">Admin View</h1>
+								<h1 v-else class="landing-message">Mentor View</h1>
+							</v-col>
+							<v-col class="d-flex align-end flex-column">
+								<v-tooltip bottom>
+									<template v-slot:activator="{on, attrs}">
+										<v-btn v-on="on" v-bind="attrs" @click="changeRoute('/assessment')" fab outlined right color="secondaryDark1">
+											<v-icon color="secondaryDark1">mdi-chart-box-outline</v-icon>
+										</v-btn>
+									</template>
+									<span>Check Assessments</span>
+								</v-tooltip>
+							</v-col>
+						</v-row>
+					</v-card>
+				</v-card>
+			</v-row>
+			<v-row class="ma-3 mb-6" justify="center">
+				<v-layout child-flex align-center justify-center height="100vh">
+					<v-card shaped outlined color="primary" flat height="100%" width="100%" class="d-flex flex-column">
 						<v-data-table
 							item-key="startupName"
-							class="elevation-2"
+							class="elevation-2 pa-2"
+							fill-height
 							:headers="headers"
 							:items="filteredReviews"
 							:search="search"
@@ -37,6 +42,7 @@
 							:expanded.sync="expanded"
 							:loading="filteredReviews.length <= 0"
 							loading-text="Loading teams"
+							@item-expanded="getLogo"
 						>
 							<template v-slot:top>
 								<v-text-field
@@ -54,7 +60,7 @@
 									<v-dialog persistent v-model="approveDialog" v-if="updated" max-width="600px">
 										<v-card>
 											<v-form lazy-validation v-model="validDesc">
-												<v-card-title class="justify-center" style="font-family: Georgia, serif;">Approve Pending Description</v-card-title>
+												<v-card-title class="justify-center" style="">Approve Pending Description</v-card-title>
 												<v-divider></v-divider>
 												<v-card-text>
 													<div>Startup Name</div>
@@ -75,6 +81,15 @@
 														:rules="rulesDesc"
 														no-resize counter="600"
 													></v-textarea>
+													<div>Actual English Description</div>
+													<v-textarea
+														outlined
+														rounded
+														color="primary"
+														v-model="updated.descriptionEN"
+														disabled
+														no-resize counter="600"
+													></v-textarea>
 													<div>Pending Romanian Description</div>
 													<v-textarea
 														outlined
@@ -82,6 +97,15 @@
 														color="primary"
 														v-model="updated.pendingDescriptionRO"
 														:rules="rulesDesc"
+														no-resize counter="600"
+													></v-textarea>
+													<div>Actual Romanian Description</div>
+													<v-textarea
+														outlined
+														rounded
+														color="primary"
+														v-model="updated.descriptionRO"
+														disabled
 														no-resize counter="600"
 													></v-textarea>
 												</v-card-text>
@@ -95,9 +119,9 @@
 										</v-card>
 									</v-dialog>
 									<v-dialog persistent v-model="dialog" v-if="team" max-width="600px">
-										<v-card>
+										<v-card outline>
 											<v-form lazy-validation v-model="valid" v-if="team">
-												<v-card-title class="justify-center" style="font-family: Georgia, serif;">Edit Team Details</v-card-title>
+												<v-card-title class="justify-center" style="">Edit Team Details</v-card-title>
 												<v-divider></v-divider>
 												<v-card-text style="margin-top: 50px;">
 													<v-text-field 
@@ -243,43 +267,149 @@
 								></v-simple-checkbox>
 							</template>
 							<template v-slot:expanded-item="{ headers, item }">
-								<td :colspan="headers.length">
-								<v-card flat outlined>
-									<v-card-title style="font-family: Georgia, serif; font-size: 18px; font-weight: 600;">
-										Team Description
-									</v-card-title>
-									<v-card-text style="font-family: Georgia; font-size: 16px;">
-										{{allDescriptions[item.teamId]}}
-									</v-card-text>
-									<v-card-actions class="justify-center">
-										<!-- {{item.webLink}} -->
-										<v-btn rounded color="primary" :disabled="item.webLink.trim() === ''" @click="openLink(item)">Visit Website</v-btn>
-										<!-- <v-btn @click="goToTeam(item)">Team Details</v-btn>  -->
-										<v-btn rounded color="primary" @click="selectTeam(item)">Edit Team</v-btn>
-										<v-btn rounded color="primary" @click="editProduct(item)">Edit Product</v-btn>
-										<v-btn rounded color="primary" @click="teamActivity(item)">Team Activity</v-btn>
-										<v-btn rounded color="primary" @click="productNewUpdates(item)">Product Updates</v-btn>
-										<v-btn rounded color="primary" @click="openCanvas(item)">Canvas</v-btn>
-									</v-card-actions>
-								</v-card>
+								<td class="pa-0" :colspan="headers.length">
+									<v-card flat outlined class="pa-0">
+										<v-list-item three-line>
+											<v-list-item-content>
+												<div class="text-overline mb-4">
+													Last update: {{item.updatedAt}}
+													<!-- Team Description -->
+												</div>
+												<v-list-item-title class="text-h5 mb-1">
+													{{item.startupName}}
+												</v-list-item-title>
+												<v-list-item-subtitle>
+													{{allDescriptions[item.teamId]}}
+												</v-list-item-subtitle>
+											</v-list-item-content>
+											<v-list-item-avatar
+												v-if="item.logo"
+												tile
+												size="150"
+												color="secondary"
+											>
+												<v-img :src="item.logo" icon>
+
+												</v-img>
+											</v-list-item-avatar>
+											<v-list-item-avatar
+												v-else
+												tile
+												size="150"
+												color="secondary"
+											>
+												<v-icon>
+													mdi-account
+												</v-icon>
+											</v-list-item-avatar>
+										</v-list-item>
+										<v-card-actions class="text-center">
+											<v-spacer></v-spacer>
+											<v-tooltip bottom>
+												<template v-slot:activator="{ on, attrs }">
+													<v-btn
+														class="ml-4 mr-4"
+														color="secondaryDark1"
+														outlined
+														fab
+														v-bind="attrs"
+														v-on="on"
+														:disabled="item.webLink.trim() === ''"
+														@click="openLink(item)"
+													>
+														<v-icon>mdi-web</v-icon>
+													</v-btn>
+												</template>
+												<span>Visit website</span>
+											</v-tooltip>
+											<v-tooltip bottom>
+												<template v-slot:activator="{ on, attrs }">
+													<v-btn
+														class="ml-4 mr-4"
+														color="secondaryDark1"
+														outlined
+														fab
+														v-bind="attrs"
+														v-on="on"
+														@click="selectTeam(item)"
+													>
+														<v-icon>mdi-account-multiple</v-icon>
+													</v-btn>
+												</template>
+												<span>Edit Team</span>
+											</v-tooltip>
+											<v-tooltip bottom>
+												<template v-slot:activator="{ on, attrs }">
+													<v-btn
+														class="ml-4 mr-4"
+														color="secondaryDark1"
+														outlined
+														fab
+														v-bind="attrs"
+														v-on="on"
+														@click="editProduct(item)"
+													>
+														<v-icon>mdi-toolbox-outline</v-icon>
+													</v-btn>
+												</template>
+												<span>Edit Product</span>
+											</v-tooltip>
+											<v-tooltip bottom>
+												<template v-slot:activator="{ on, attrs }">
+													<v-btn
+														class="ml-4 mr-4"
+														color="secondaryDark1"
+														outlined
+														fab
+														v-bind="attrs"
+														v-on="on"
+														@click="teamActivity(item)"
+													>
+														<v-icon>mdi-badge-account-horizontal</v-icon>
+													</v-btn>
+												</template>
+												<span>View Team Activity</span>
+											</v-tooltip>
+											<v-tooltip bottom>
+												<template v-slot:activator="{ on, attrs }">
+													<v-btn
+														class="ml-4 mr-4"
+														color="secondaryDark1"
+														outlined
+														fab
+														v-bind="attrs"
+														v-on="on"
+														@click="productNewUpdates(item)"
+													>
+														<v-icon>mdi-newspaper-variant</v-icon>
+													</v-btn>
+												</template>
+												<span>View Product News</span>
+											</v-tooltip>
+											<v-tooltip bottom>
+												<template v-slot:activator="{ on, attrs }">
+													<v-btn
+														class="ml-4 mr-4"
+														color="secondaryDark1"
+														outlined
+														fab
+														v-bind="attrs"
+														v-on="on"
+														@click="openCanvas(item)"
+													>
+														<v-icon>mdi-chart-tree</v-icon>
+													</v-btn>
+												</template>
+												<span>View Business Canvas</span>
+											</v-tooltip>
+										</v-card-actions>
+									</v-card>
 								</td>
 							</template>
 						</v-data-table>
-						<v-divider style="margin-top: 30px; margin-bottom: 30px;"></v-divider>
 					</v-card>
-				</v-row>
-			</div>
-			<!-- <v-container v-else>
-				<v-row class="justify-center">
-					<v-col>
-						<v-progress-circular
-						:size="250"
-						color="primary"
-						indeterminate
-						></v-progress-circular>
-					</v-col>
-				</v-row>
-			</v-container> -->
+				</v-layout>
+			</v-row>
 		</v-container>
 		<v-navigation-drawer  v-model="drawer" clipped app permanent right :mini-variant.sync="mini">
 			<v-list>
@@ -301,7 +431,7 @@
 			<v-list nav dense>
 				<v-list-item link>
 					<v-list-item-icon>
-						<v-icon v-if="teamTypeFilter.trim() !== ''" color="#197E81">mdi-radar</v-icon>
+						<v-icon v-if="teamTypeFilter.trim() !== ''" color="primary">mdi-radar</v-icon>
 						<v-icon v-else>mdi-radar</v-icon>
 					</v-list-item-icon>
 					<v-list-item-content>
@@ -314,7 +444,7 @@
 				</v-list-item>
 				<v-list-item link>
 					<v-list-item-icon>
-						<v-icon v-if="businessTracksFilter.trim() !== ''" color="#197E81">mdi-domain</v-icon>
+						<v-icon v-if="businessTracksFilter.trim() !== ''" color="primary">mdi-domain</v-icon>
 						<v-icon v-else>mdi-domain</v-icon>
 					</v-list-item-icon>
 					<v-list-item-content>
@@ -327,7 +457,7 @@
 				</v-list-item>
 				<v-list-item link>
 					<v-list-item-icon>
-						<v-icon v-if="finalsFilter !== null" color="#197E81">mdi-flag-checkered</v-icon>
+						<v-icon v-if="finalsFilter !== null" color="primary">mdi-flag-checkered</v-icon>
 						<v-icon v-else>mdi-flag-checkered</v-icon>
 					</v-list-item-icon>
 					<v-list-item-content>
@@ -337,7 +467,7 @@
 				</v-list-item>
 				<v-list-item link>
 					<v-list-item-icon>
-						<v-icon v-if="semifinalsFilter !== null" color="#197E81">mdi-flag</v-icon>
+						<v-icon v-if="semifinalsFilter !== null" color="primary">mdi-flag</v-icon>
 						<v-icon v-else>mdi-flag</v-icon>
 					</v-list-item-icon>
 					<v-list-item-content>
@@ -347,7 +477,7 @@
 				</v-list-item>
 				<v-list-item link>
 					<v-list-item-icon>
-						<v-icon v-if="locationFilter.trim() !== ''" color="#197E81">mdi-city</v-icon>
+						<v-icon v-if="locationFilter.trim() !== ''" color="primary">mdi-city</v-icon>
 						<v-icon v-else>mdi-city</v-icon>
 					</v-list-item-icon>
 					<v-list-item-content>
@@ -360,7 +490,7 @@
 				</v-list-item>
 				<v-list-item link>
 					<v-list-item-icon>
-						<v-icon v-if="workshopFilter.trim() !== ''" color="#197E81">mdi-briefcase</v-icon>
+						<v-icon v-if="workshopFilter.trim() !== ''" color="primary">mdi-briefcase</v-icon>
 						<v-icon v-else>mdi-briefcase</v-icon>
 					</v-list-item-icon>
 					<v-list-item-content>
@@ -381,7 +511,7 @@
 				</v-list-item>
 			</v-list>
 		</v-navigation-drawer>
-	</v-app>
+	</div>
 </template>
 
 <script lang="ts">
@@ -416,7 +546,7 @@ export default Vue.extend({
 			allTeams: [] as (Team & Product)[],
 			startupRules: [
 				(value: string) => {
-					if(value && value.length > 0) 
+					if (value && value.length > 0) 
 						return true;
 					else
 						return "Team needs a name";
@@ -516,11 +646,11 @@ export default Vue.extend({
 		mentoredTeam: {
 			immediate:true,
 			async handler(newTeam:string):Promise<void> {
-				if(this.mentoredTeams.length > 0){
+				if (this.mentoredTeams.length > 0){
 					const resp = this.mentoredTeams.find( team => {
 						return team.teamId == newTeam;
 					});
-					if(resp) {
+					if (resp) {
 						this.selectedMentoredTeam = resp;
 					}
 					this.id = newTeam;
@@ -530,11 +660,11 @@ export default Vue.extend({
 		selectedMentoredTeam: {
 			immediate:true,
 			async handler(newTeam:Team & Product):Promise<void> {
-				if(newTeam) {
+				if (newTeam) {
 					try {
 						let response = await this.ui.api.get<Product | null>("/api/v1/teams/product/" + newTeam.teamId);
 						let product:Product | null = response.data;
-						if(product) {
+						if (product) {
 							newTeam.businessTrack = product.businessTrack;
 							newTeam.teamType = product.teamType;
 						}
@@ -545,9 +675,9 @@ export default Vue.extend({
 			}
 		},
 		async $route (to, from):Promise<void> {
-			if(to.path == "/workspace") {
+			if (to.path == "/workspace") {
 				this.router=false;
-			} else if(to.path == "/login") {
+			} else if (to.path == "/login") {
 				this.tabs=[];
 			}
 			this.currentRoute=to.name;
@@ -567,8 +697,8 @@ export default Vue.extend({
 		_token: {
 			immediate:true,
 			handler (newToken:string):void {
-				if(newToken === null){
-					if(this.$route.path !== "/login")
+				if (newToken === null){
+					if (this.$route.path !== "/login")
 						this.$router.push("/login");
 				}
 			}
@@ -576,19 +706,19 @@ export default Vue.extend({
 		user: {
 			immediate: true,
 			async handler (newUser: User):Promise<void> {
-				if(newUser) {
-					if(newUser.role === "Mentor") {
+				if (newUser) {
+					if (newUser.role === "Mentor") {
 						this.type="mentor";
-					} else if(newUser.role === "Admin") {
+					} else if (newUser.role === "Admin") {
 						this.type="admin";
-					} else if(newUser.role === "SuperAdmin") {
+					} else if (newUser.role === "SuperAdmin") {
 						this.type="superAdmin";
 					} else {
 						this.loading = false;
 						this.loadingPage = false;
 					}
-					if(newUser.role === "Mentor" || newUser.role === "Admin" || newUser.role === "SuperAdmin" ) {
-						if(this.tabs.length > 0) {
+					if (newUser.role === "Mentor" || newUser.role === "Admin" || newUser.role === "SuperAdmin" ) {
+						if (this.tabs.length > 0) {
 							this.tabs = [];
 						}
 						if (newUser.role === "Admin" || newUser.role === "SuperAdmin") {
@@ -600,10 +730,14 @@ export default Vue.extend({
 									this.mentoredTeams[team].teamId;
 									this.mentoredTeams[team].description = response.data[team].descriptionEN;
 									this.mentoredTeams[team].mentor = this.mentoredTeams[team].teamDetails.mentor;
+									// resImage = await this.ui.api.get<{data:string,type:string,ext:string,uuid:string}[] | null>("/api/v1/uploadDownload/get/file/product/logo/"+ this.product.productId);
+									// if (resImage.data) {
+									// 	this.logo = resImage.data[0];
+									// }
 								}
 							}
 							
-						} else if(newUser.role === "Mentor") {
+						} else if (newUser.role === "Mentor") {
 							this.role = newUser.role;
 							let response = await this.ui.api.get<(Team & Product)[]>("/api/v1/teams/mentor/teamsAndProduct/" + newUser.userId);
 							if (response) {
@@ -735,10 +869,10 @@ export default Vue.extend({
 		},
 		filteredReviews():Review[] {
 			let filteredRev:Review[] = [];
-			if(this.reviews.length > 0) {
+			if (this.reviews.length > 0) {
 				filteredRev = this.reviews.filter((review:Review) => {
-					if(this.finalsFilter !== null) {
-						if(this.semifinalsFilter !== null) {
+					if (this.finalsFilter !== null) {
+						if (this.semifinalsFilter !== null) {
 							return review.teamTrack.includes(this.teamTypeFilter) &&
 								review.businessTrack.includes(this.businessTracksFilter) &&
 								review.location.includes(this.locationFilter) &&
@@ -752,7 +886,7 @@ export default Vue.extend({
 							review.workshopNr.includes(this.workshopFilter) &&
 							review.assessment20May === this.finalsFilter;
 					} else {
-						if(this.semifinalsFilter !== null) {
+						if (this.semifinalsFilter !== null) {
 							return review.teamTrack.includes(this.teamTypeFilter) &&
 								review.businessTrack.includes(this.businessTracksFilter) &&
 								review.location.includes(this.locationFilter) &&
@@ -775,7 +909,7 @@ export default Vue.extend({
 		},
 		formatDate(date: Date):string {
 			let time  = (new Date(date)).toTimeString().split(" ");
-			if(new Date(date).toString() === "Invalid Date")
+			if (new Date(date).toString() === "Invalid Date")
 				return "";
 			else 
 			return (new Date(date)).toDateString() + " " + time[0];
@@ -786,7 +920,7 @@ export default Vue.extend({
 		},
 		openForApprove(item: (Team & Product)):void {
 			let toApprove = this.approveDescriptions.find((el : (Team & Product)) => el.teamId === item.teamId);
-			if(toApprove) {
+			if (toApprove) {
 				this.approveDialog = true;
 				this.updated = toApprove;
 				this.selectedTeam = item.teamId;
@@ -794,14 +928,14 @@ export default Vue.extend({
 		},
 		updateColor(item: (Team & Product)):string {
 			let found = this.approveDescriptions.find((element: (Team & Product)) => element.teamId === item.teamId)
-			if(found)
+			if (found)
 				return "red";
 			return "green";
 		},
 		disabledIcon(item: (Team & Product) | null):boolean {
-			if(item) {
+			if (item) {
 				let found = this.approveDescriptions.find((element: (Team & Product)) => element.teamId === item.teamId)
-				if(found !== undefined)
+				if (found !== undefined)
 					return false;
 				return true;
 			}
@@ -824,20 +958,40 @@ export default Vue.extend({
 		},
 		openLink(item:Review):void {
 			let webLink:string = item.webLink;
-			if(!webLink.includes("http://")) {
+			if (!webLink.includes("http://")) {
 				webLink = "http://" + webLink;
 			}
 			window.open(webLink, "_blank");
+		},
+		async getLogo (event: {item: Review, open: boolean} ): Promise<void> {
+			try {
+				if (!event.item.logo) {
+					const reviewIndex = this.reviews.indexOf(event.item);
+					const filteredIndex = this.filteredReviews.indexOf(event.item);
+					if (reviewIndex !== -1) {
+						const resImage = await this.ui.api.get<{data:string,type:string,ext:string,uuid:string}[] | null>(`/api/v1/uploadDownload/get/file/product/logo/${event.item.productId}`);
+						if (resImage.data && resImage.data.length !== 0) {
+							event.item.logo = resImage.data[0].data;
+						}
+						this.reviews[reviewIndex] = event.item;
+						this.filteredReviews[filteredIndex] = event.item;
+						this.$forceUpdate();
+					}
+				}
+			} catch (error) {
+				const e:Error = error;
+				console.error(e.message);
+			}
 		},
 		async goToTeam(item:Review) {
 			let teamId = item.teamId;
 			await this.$store.dispatch("teams/mentorTeam",teamId);
 			const path = "/viewTeam/product/"
-			if(this.$route.path !== path)
+			if (this.$route.path !== path)
 				this.$router.push(path + teamId);
 		},
 		async changeData() {
-			if(this.team !== null && this.team.startupName != "") {
+			if (this.team !== null && this.team.startupName != "") {
 				this.loading = true;
 				this.loadingPage = true;
 				
@@ -849,14 +1003,14 @@ export default Vue.extend({
 					reviews:this.reviews,
 					type:this.type
 				});
-				if(response) {
+				if (response) {
 					this.reviews = response.data;
 					
 					let productToUpdate = this.allTeams.findIndex((el: Team & Product) => el.startupName === (this.allTeams[productIndex] as Team & Product).startupName);
-					if(productToUpdate !== undefined) {
+					if (productToUpdate !== undefined) {
 						try {
 							let product = await this.ui.api.get<Product | null>("/api/v1/teams/product/" + this.allTeams[productToUpdate].teamId);
-							if(product.data) {
+							if (product.data) {
 								product.data.lastMentorUpdate = (this.formatDate(new Date()) as unknown as Date) ;
 								product.data.updatedAt = (this.formatDate(new Date()) as unknown as Date) ;
 								try {
@@ -933,13 +1087,13 @@ export default Vue.extend({
 		},
 		async approveDescription() {
 			try {
-				if(this.updated) {
+				if (this.updated) {
 					let pendingUpdateRO = this.updated.descriptionRO;
 					let pendingUpdateEN = this.updated.descriptionEN;
-					if(this.updated.pendingDescriptionRO !== '') {
+					if (this.updated.pendingDescriptionRO !== '') {
 						pendingUpdateRO = this.updated.pendingDescriptionRO;
 					}
-					if(this.updated.pendingDescriptionEN !== '') {
+					if (this.updated.pendingDescriptionEN !== '') {
 						pendingUpdateEN = this.updated.pendingDescriptionEN;
 					}
 
@@ -958,12 +1112,12 @@ export default Vue.extend({
 							lastMentorUpdate: (this.formatDate(new Date()) as unknown as Date),
 							updatedAt: this.updated.updatedAt
 						})
-					if(response.data) {
+					if (response.data) {
 						
 						let res = await this.ui.api.get<Product | null>("/api/v1/teams/product/" + this.selectedTeam);
-							if(res) {
+							if (res) {
 								let product = response.data;
-								if(this.updated) {
+								if (this.updated) {
 									this.updated.productId = product.productId;
 									this.updated.startupName = product.startupName;
 									this.updated.businessTrack = product.businessTrack;
@@ -1031,7 +1185,7 @@ export default Vue.extend({
 				team.updatedAt = new Date(this.formatDate(team.updatedAt));
 				team.lastMentorUpdate = new Date(this.formatDate(team.lastMentorUpdate));
 				this.allTeams.push(team);
-				if(team.pendingDescriptionEN !== "" || team.pendingDescriptionRO !=="") {
+				if (team.pendingDescriptionEN !== "" || team.pendingDescriptionRO !=="") {
 					this.existsUpdate = true;
 					this.approveDescriptions.push(team);
 				};
@@ -1066,14 +1220,14 @@ export default Vue.extend({
 			return newArray
 		},
 		pushToTabs(tab:Tab):void {
-			if(this.tabs.find((item:Tab) => {
+			if (this.tabs.find((item:Tab) => {
 				return item.link === tab.link
 			}) === undefined) {
 				this.tabs.push(tab);
 			}
 		},
 		checkRoute():boolean {
-			if(this.$router.currentRoute.path === "/workspace")
+			if (this.$router.currentRoute.path === "/workspace")
 				return true;
 			else
 				return false;
@@ -1082,12 +1236,12 @@ export default Vue.extend({
 			this.$router.go(-1);
 		},
 		changeRoute(link:string):void {
-			if((this.role==="Mentor" || this.role==="Admin" || this.role ==="SuperAdmin") && this.selectedMentoredTeam.teamId !== "" && link.split("/")[1] === "viewTeam") {
-				if(this.$route.path !== link + "/" + this.id)
+			if ((this.role==="Mentor" || this.role==="Admin" || this.role ==="SuperAdmin") && this.selectedMentoredTeam.teamId !== "" && link.split("/")[1] === "viewTeam") {
+				if (this.$route.path !== link + "/" + this.id)
 					this.$router.push(link + "/" + this.id);
 			}
 			else {
-				if(this.$route.path !== link)
+				if (this.$route.path !== link)
 					this.$router.push(link);
 			}
 		}

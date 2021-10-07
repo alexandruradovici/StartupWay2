@@ -78,7 +78,7 @@ var Server = /** @class */ (function () {
         }
     };
     Server.prototype.start = function (port) {
-        if (port === void 0) { port = 8080; }
+        if (port === void 0) { port = 9090; }
         return __awaiter(this, void 0, void 0, function () {
             var server, serverListener;
             return __generator(this, function (_a) {

@@ -48,12 +48,14 @@ export interface Review {
     description: string;
     webLink: string;
     teamId: string;
+    productId: string;
     mentorNotes: string;
     adminNotes: string;
     assessment20May: boolean;
     assessment12Oct: boolean;
     updatedAt: string;
     lastMentorUpdate: string;
+    logo?: string;
 }
 export interface ModifiedTeam {
     teamId: string;

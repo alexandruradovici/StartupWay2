@@ -1,5 +1,5 @@
 <template>
-	<v-app id="app">
+	<div>
 		<v-container v-if="!loadingPage">
 			<v-card flat style="margin: auto; margin-top: 50px;" max-width="1000" color="#fcfcfc">
 				<v-divider></v-divider>
@@ -39,7 +39,7 @@
 			</v-card>
 			<v-dialog v-model="editDialog" max-width="450">
 				<v-card flat width="450" v-if="edited">
-					<v-card-title class="justify-center" style="font-family: Georgia, serif;">
+					<v-card-title class="justify-center" style="">
 						{{formatDate(edited.date)}}
 					</v-card-title>
 					<v-divider></v-divider>
@@ -73,7 +73,7 @@
 
 			<v-dialog v-model="viewDialog" max-width="450">
 				<v-card flat width="450" v-if="edited">
-					<v-card-title class="justify-center" style="font-family: Georgia, serif;">
+					<v-card-title class="justify-center" style="">
 						View activity
 					</v-card-title>
 					<v-card-subtitle class="justify-center">
@@ -106,7 +106,7 @@
 				</v-col>
 			</v-row>
 		</v-container>
-	</v-app>
+	</div>
 </template>
 
 <script lang="ts">
@@ -125,21 +125,21 @@ export default Vue.extend({
 			immediate: true,
 			async handler (newTeam: Team):Promise<void> {
 				this.loadingPage = true;
-				if(this.currentTeam) {
+				if (this.currentTeam) {
 					this.teamId = newTeam.teamId;
-					if(this.teamId === "") {
-						if(this.$route.path!=="/workspace")
+					if (this.teamId === "") {
+						if (this.$route.path!=="/workspace")
 							this.$router.push("/workspace");
 					} else {
 						try {
-							if(!this.userId) {
+							if (!this.userId) {
 								this.userId = this.user.userId;
 							}
 							const response = await this.ui.api.post<UserActivity[]>("/api/v1/teams/team/activity", {
 								userId: this.userId,
 								teamId: this.teamId
 							});
-							if(response) {
+							if (response) {
 								this.activities = response.data;
 							}
 						} catch(e) {
@@ -154,10 +154,10 @@ export default Vue.extend({
 			immediate: true,
 			async handler (newUser: User):Promise<User> {
 				this.loadingPage = true;
-				if(this.user) {
+				if (this.user) {
 					this.userId = newUser.userId;
-					if(this.userId === "") {
-						if(this.$route.path!=="/workspace")
+					if (this.userId === "") {
+						if (this.$route.path!=="/workspace")
 							this.$router.push("/workspace");
 					} else {
 						try {
@@ -165,7 +165,7 @@ export default Vue.extend({
 								userId: this.userId,
 								teamId: this.teamId
 							});
-							if(response) {
+							if (response) {
 								this.activities = response.data;
 							}
 						} catch(e) {
@@ -181,7 +181,7 @@ export default Vue.extend({
 			immediate: true,
 			handler (newActivities: UserActivity[]):void {
 				this.loadingPage = true;
-				if(newActivities.length !== 0) {
+				if (newActivities.length !== 0) {
 					newActivities.forEach( (activity:UserActivity) => {
 						(activity as UserActivity & {stringDate:string}).stringDate = (moment(activity.date).format('[Week:] Do [of] MMMM'));
 					});
@@ -233,11 +233,11 @@ export default Vue.extend({
 			const curr = moment(week.date).toDate();
 			let next = undefined;
 			let nextNext = undefined;
-			if(this.weeks[index+1] !== undefined)
+			if (this.weeks[index+1] !== undefined)
 				next = moment(this.weeks[index+1].date).toDate();
-			if(this.weeks[index+2] !== undefined)
+			if (this.weeks[index+2] !== undefined)
 				nextNext = moment(this.weeks[index+2].date).toDate();
-			if(moment(this.date).isBetween(next,nextNext,undefined,'[)')){
+			if (moment(this.date).isBetween(next,nextNext,undefined,'[)')){
 				return true;
 			} else return moment(this.date).isBetween(curr,next,undefined,'[)');
 		},
@@ -266,7 +266,7 @@ export default Vue.extend({
 					userId: this.userId,
 					teamId: this.teamId
 				});
-				if(response.data) {
+				if (response.data) {
 					this.activities = response.data;
 				}
 				this.editDialog=false;
@@ -276,7 +276,7 @@ export default Vue.extend({
 			}
 			try {
 				const resp = await this.ui.api.get<Product | null>("/api/v1/teams/product/" + this.teamId);
-				if(resp.data) {
+				if (resp.data) {
 					resp.data.updatedAt = (this.formatDateTime(new Date()) as unknown as Date) ;
 					try {
 						await this.ui.api.post("/api/v1/teams/product/update", {

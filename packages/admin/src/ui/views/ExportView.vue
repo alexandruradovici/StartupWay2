@@ -1,8 +1,8 @@
 <template>
-	<v-app>
+	<div>
 		<v-card flat style="margin-left: auto; margin-right: auto; padding-top: 20px; background-color: #fcfcfc;" min-width="500">
 			<v-container v-show="!loadingPage">
-				<v-card-title class="justify-center" style="font-family: Georgia, serif; font-weight: bold;">Export Data</v-card-title>
+				<v-card-title class="justify-center" style=" font-weight: bold;">Export Data</v-card-title>
 				<v-divider></v-divider>
 				<v-card-text class="justify-center">
 					Multiple export options
@@ -32,7 +32,7 @@
 				</v-row>
 				<v-row>
 					<v-col cols="6" align="center">
-						<v-card-title class="justify-center" style="font-family: Georgia, serif; font-weight: bold;">All Teams</v-card-title>
+						<v-card-title class="justify-center" style=" font-weight: bold;">All Teams</v-card-title>
 						<v-row>
 							<v-select
 								v-model="teamDate"
@@ -61,7 +61,7 @@
 				<v-row>
 					<v-col cols="6" align="center">
 						<v-row>
-						<v-card-title class="justify-center" style="font-family: Georgia, serif; font-weight: bold;">City Teams</v-card-title>
+						<v-card-title class="justify-center" style=" font-weight: bold;">City Teams</v-card-title>
 							<v-row>
 								<v-col>
 									<v-select
@@ -112,7 +112,7 @@
 				<v-row>
 					<v-col cols="6" align="center">
 						<v-row>
-							<v-card-title class="justify-center" style="font-family: Georgia, serif; font-weight: bold;">Preset Teams</v-card-title>
+							<v-card-title class="justify-center" style=" font-weight: bold;">Preset Teams</v-card-title>
 							<v-select
 								v-model="preset"
 								:items="presetTeams"
@@ -165,8 +165,8 @@
 				</v-row>
 			</v-container>
 		</v-card>
-		<SnackBar :options="snackOptions" :snackbar="snackbar" @update-prop="update"></SnackBar>
-	</v-app>
+		<SnackBar :options="snackOptions" v-if="snackbar" @update-snackbar="update"></SnackBar>
+	</div>
 </template>
 
 <script lang="ts">
@@ -252,19 +252,19 @@ export default Vue.extend({
 		user: {
 			immediate:true,
 			async handler (newUser:User):Promise<void> {
-				if(newUser) {
-					if(newUser.role !== "Admin" && newUser.role !== "SuperAdmin") {
-						if(this.$route.path!=="/workspace")
+				if (newUser) {
+					if (newUser.role !== "Admin" && newUser.role !== "SuperAdmin") {
+						if (this.$route.path!=="/workspace")
 							this.$router.push("/workspace");
 					} else {
 						try {
 							const response = await this.ui.api.get<Team[]>("/api/v1/admin/teams"); 
-							if(response) {
+							if (response) {
 								this.teams = response.data;
 								
 							}
 							// const demoResponse = await this.ui.api.get<number[]>("/api/v1/teams/teams/demoDay");
-							// if(demoResponse.data) {
+							// if (demoResponse.data) {
 							// 	this.presetTeams.push({
 							// 		text:"DemoDay Teams",
 							// 		value:demoResponse.data
@@ -293,26 +293,26 @@ export default Vue.extend({
 			try {
 				this.loadingPage = true;
 				let body = {};
-				if(type === 'all')
+				if (type === 'all')
 					body = {
 						type:type,
 						date:this.teamDate,
 						cityOrTeam:''
 					};
-				else if(type === 'team')
+				else if (type === 'team')
 					body = {
 						type:type,
 						date:'none',
 						cityOrTeam:this.team
 					}
-				else if(type === 'city')
+				else if (type === 'city')
 					body = {
 						type:type,
 						date:this.cityDate,
 						cityOrTeam:this.city
 					}; 
 				
-				else if(type === 'preset')
+				else if (type === 'preset')
 					body = {
 						type:type,
 						date:'none',
@@ -321,11 +321,11 @@ export default Vue.extend({
 					};  
 				
 				const response = await this.ui.api.post<string | null>("/api/v1/uploadDownload/download/zip/",body);
-				if(response.status === 200) {
+				if (response.status === 200) {
 					// let url = response.data.url;
 					this.toStop = false;
 					setTimeout(()=> {
-						if(!this.toStop) {
+						if (!this.toStop) {
 							this.snackOptions.text = "Request timed out, please try again later, if the problem perssists please contact teams@tech-lounge.ro for more information";
 							this.snackOptions.type = SnackBarTypes.INFO;
 							this.snackOptions.timeout = 2000;
@@ -345,8 +345,8 @@ export default Vue.extend({
 					const statusFunction = async () => {
 						try {
 							const response = await this.ui.api.post<string | null>("/api/v1/uploadDownload/check/zip/status/",body);
-							if(response.data) {
-								if(response.data === "ERROR") {
+							if (response.data) {
+								if (response.data === "ERROR") {
 									this.snackOptions.text = "Server ERROR; Please contact teams@tech-lounge.ro for more information";
 									this.snackOptions.type = SnackBarTypes.ERROR;
 									this.snackOptions.timeout = 2000;
@@ -354,19 +354,19 @@ export default Vue.extend({
 									this.loadingPage = false;
 									this.toStop = true;
 									return;
-								} else if(response.data === "NO_FILES_TO_UPLOAD") {
+								} else if (response.data === "NO_FILES_TO_UPLOAD") {
 									noUpload();
 									return;
-								} else if(response.data !== "NOT_DONE" && response.data !== "") {
+								} else if (response.data !== "NOT_DONE" && response.data !== "") {
 									this.openUrl(response.data);
 									return;
 								}
-								if(!this.toStop)
+								if (!this.toStop)
 									setTimeout(statusFunction,1000);
 							}
 						} catch (error) {
-							if(error.response.status === 401 || error.response.status === 502) {
-								if(!this.toStop)
+							if (error.response.status === 401 || error.response.status === 502) {
+								if (!this.toStop)
 									setTimeout(statusFunction,1000);
 							} else {
 								console.error(error);
@@ -394,10 +394,10 @@ export default Vue.extend({
 			try {
 				this.loadingPage = true;
 				const response = await this.ui.api.get<string | null>("/api/v1/uploadDownload/download/zip/" + type + "/" + this.date);
-				if(response.status === 200 && response.data) {
+				if (response.status === 200 && response.data) {
 					const url = response.data;
 					window.open(url, '_blank');
-				} else if(response.status === 204) {
+				} else if (response.status === 204) {
 					this.snackOptions.text = "There are no files uploaded for any of the teams";
 					this.snackOptions.type = SnackBarTypes.INFO;
 					this.snackOptions.timeout = 2000;
@@ -416,7 +416,7 @@ export default Vue.extend({
 		async exportUDC():Promise<void> {
 			try {
 				const response = await this.ui.api.post<string | null>("/api/v1/admin/download/udc/data");	
-				if(response.data) {
+				if (response.data) {
 					const hiddenElement = document.createElement('a');
 					hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(response.data);
 					hiddenElement.target = '_blank';
@@ -430,7 +430,7 @@ export default Vue.extend({
 		async exportTDD():Promise<void> {
 			try {
 				const response = await this.ui.api.post<string | null>("/api/v1/admin/download/team/data");	
-				if(response.data) {
+				if (response.data) {
 					const hiddenElement = document.createElement('a');
 					hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(response.data);
 					hiddenElement.target = '_blank';

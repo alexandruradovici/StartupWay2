@@ -1,5 +1,5 @@
 <template>
-	<v-app>
+	<div>
 		<v-container background-color="#fcfcfc">
 			<div class="justify-center">
 				<v-row class="mb-6" justify="center" no-gutters>
@@ -142,7 +142,7 @@
 				</v-list-item>
 			</v-list>
 		</v-navigation-drawer>
-	</v-app>
+	</div>
 </template>
 
 <script lang="ts">
@@ -239,11 +239,11 @@ export default Vue.extend({
 		mentoredTeam: {
 			immediate:true,
 			async handler(newTeam:string):Promise<void> {
-				if(this.mentoredTeams.length > 0){
+				if (this.mentoredTeams.length > 0){
 					const resp = this.mentoredTeams.find( team => {
 						return team.teamId == newTeam;
 					});
-					if(resp) {
+					if (resp) {
 						this.selectedMentoredTeam = resp;
 					}
 					this.id = newTeam;
@@ -253,11 +253,11 @@ export default Vue.extend({
 		selectedMentoredTeam: {
 			immediate:true,
 			async handler(newTeam:Team & Product):Promise<void> {
-				if(newTeam) {
+				if (newTeam) {
 					try {
 						let response = await this.ui.api.get<Product | null>("/api/v1/teams/product/" + newTeam.teamId);
 						let product:Product | null = response.data;
-						if(product) {
+						if (product) {
 							newTeam.businessTrack = product.businessTrack;
 							newTeam.teamType = product.teamType;
 						}
@@ -283,8 +283,8 @@ export default Vue.extend({
 		_token: {
 			immediate:true,
 			handler (newToken:string):void {
-				if(newToken === null){
-					if(this.$route.path !== "/login")
+				if (newToken === null){
+					if (this.$route.path !== "/login")
 						this.$router.push("/login");
 				}
 			}
@@ -292,20 +292,20 @@ export default Vue.extend({
 		user: {
 			immediate: true,
 			async handler (newUser: User):Promise<void> {
-				if(newUser) {
+				if (newUser) {
 					this.loading = true;
 					this.loadingPage = true;
-					if(newUser.role === "Mentor") {
+					if (newUser.role === "Mentor") {
 						this.type="mentor";
-					} else if(newUser.role === "Admin") {
+					} else if (newUser.role === "Admin") {
 						this.type="admin";
-					} else if(newUser.role === "SuperAdmin") {
+					} else if (newUser.role === "SuperAdmin") {
 						this.type="superAdmin";
 					} else {
 						this.loading = false;
 						this.loadingPage = false;
 					}
-					if(newUser.role === "Mentor" || newUser.role === "Admin" || newUser.role === "SuperAdmin" ) {
+					if (newUser.role === "Mentor" || newUser.role === "Admin" || newUser.role === "SuperAdmin" ) {
 						if (newUser.role === "Admin" || newUser.role === "SuperAdmin") {
 							this.role = newUser.role;
 							let response = await this.ui.api.get<(Team & Product & {assesFinals:boolean,assesSemiFinals:boolean})[]>("/api/v1/admin/teams/"+newUser.userDetails["location"]);
@@ -313,7 +313,7 @@ export default Vue.extend({
 								this.teams = this.modifyTeams(response.data);
 							}
 							
-						} else if(newUser.role === "Mentor") {
+						} else if (newUser.role === "Mentor") {
 							this.role = newUser.role;
 							let response = await this.ui.api.get<(Team & Product & {assesFinals:boolean,assesSemiFinals:boolean})[]>("/api/v1/teams/mentor/teamsAndProduct/" + newUser.userId);
 							if (response) {
@@ -412,10 +412,10 @@ export default Vue.extend({
 		},
 		filteredTeams():(Team & Product & {assesFinals:boolean,assesSemiFinals:boolean})[] {
 			let filteredTeam:(Team & Product & {assesFinals:boolean,assesSemiFinals:boolean})[] = [];
-			if(this.teams.length > 0) {
+			if (this.teams.length > 0) {
 				filteredTeam = this.teams.filter((team:Team & Product & {assesFinals:boolean,assesSemiFinals:boolean}) => {
-					if(this.finalsFilterAssessment !== null) {
-						if(this.semifinalsFilterAssessment !== null) {
+					if (this.finalsFilterAssessment !== null) {
+						if (this.semifinalsFilterAssessment !== null) {
 							return team.teamType.includes(this.teamTypeFilterAssessment) &&
 								team.businessTrack.includes(this.businessTracksFilterAssessment) &&
 								team.location.includes(this.locationFilterAssessment) &&
@@ -427,7 +427,7 @@ export default Vue.extend({
 							team.location.includes(this.locationFilterAssessment) &&
 							team.assesFinals === this.finalsFilterAssessment;
 					} else {
-						if(this.semifinalsFilterAssessment !== null) {
+						if (this.semifinalsFilterAssessment !== null) {
 							return team.teamType.includes(this.teamTypeFilterAssessment) &&
 								team.businessTrack.includes(this.businessTracksFilterAssessment) &&
 								team.location.includes(this.locationFilterAssessment) &&
@@ -449,7 +449,7 @@ export default Vue.extend({
 		},
 		formatDate(date: Date):string {
 			let time  = (new Date(date)).toTimeString().split(" ");
-			if(new Date(date).toString() === "Invalid Date")
+			if (new Date(date).toString() === "Invalid Date")
 				return "";
 			else 
 			return (new Date(date)).toDateString() + " " + time[0];
@@ -474,7 +474,7 @@ export default Vue.extend({
 		},
 		openLink(item:Review):void {
 			let webLink:string = item.webLink;
-			if(!webLink.includes("http://")) {
+			if (!webLink.includes("http://")) {
 				webLink = "http://" + webLink;
 			}
 			window.open(webLink, "_blank");
@@ -483,7 +483,7 @@ export default Vue.extend({
 			let teamId = item.teamId;
 			await this.$store.dispatch("teams/mentorTeam",teamId);
 			const path = "/viewTeam/product/"
-			if(this.$route.path !== path)
+			if (this.$route.path !== path)
 				this.$router.push(path + teamId);
 		},
 		modifyTeams(newTeams:(Team & Product & {assesFinals:boolean,assesSemiFinals:boolean})[]):(Team & Product & {assesFinals:boolean,assesSemiFinals:boolean})[] {
@@ -503,7 +503,7 @@ export default Vue.extend({
 			return newArray
 		},
 		checkRoute():boolean {
-			if(this.$router.currentRoute.path === "/workspace")
+			if (this.$router.currentRoute.path === "/workspace")
 				return true;
 			else
 				return false;
@@ -512,11 +512,11 @@ export default Vue.extend({
 			try {
 				const response = await this.ui.api.get<Product | null>("/api/v1/teams/product/" + item.teamId);
 				const product = response.data;
-				if(product) {
+				if (product) {
 					product.productDetails.assessment20May = item.assesFinals;
 					product.productDetails.assessment12Oct = item.assesSemiFinals;
 					const resp:Product | null = await this.ui.api.post("/api/v1/teams/product/update", {teamId:item.teamId, product:product});
-					if(!resp){
+					if (!resp){
 						console.log("ERROR");
 					}
 				} else {

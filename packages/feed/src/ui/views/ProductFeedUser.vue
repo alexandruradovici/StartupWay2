@@ -1,5 +1,5 @@
 <template>
-	<v-app>
+	<div>
 		<v-container v-if="!loadingPage" class="content" width="1000">
 			<v-container>
 				<v-card flat outlined color="#fcfcfc" class="justify-center">
@@ -52,7 +52,7 @@
 					</v-card>
 					<v-dialog v-model="editDialog" max-width="450">
 						<v-card flat width="450" v-if="edited">
-							<v-card-title class="justify-center" style="font-family: Georgia, serif; font-weight: bold;">
+							<v-card-title class="justify-center" style=" font-weight: bold;">
 								Edit {{edited.feedType}} 
 							</v-card-title>
 							<v-card-subtitle class="justify-center" style="font-weight: bold;">
@@ -83,7 +83,7 @@
 					</v-dialog>
 					<v-dialog v-model="removeDialog" persistent max-width="290">
 						<v-card>
-							<v-card-title class="justify-center" style="font-family: Georgia, serif;">Remove Feed</v-card-title>
+							<v-card-title class="justify-center" style="">Remove Feed</v-card-title>
 							<v-card-text>Are you sure you want to remove this update form your team's feed list?</v-card-text>
 							<v-card-actions class="justify-center">
 								<v-btn color="#32a852" text @click="accept(edited)">Yes</v-btn>
@@ -105,7 +105,7 @@
 				</v-col>
 			</v-row>
 		</v-container>
-	</v-app>
+	</div>
 </template>
 
 <script lang="ts">
@@ -137,10 +137,10 @@ export default Vue.extend({
 			immediate: true,
 			async handler(newTeam: Team | null) {
 				this.loadingPage = true;
-				if(newTeam) {
+				if (newTeam) {
 					this.teamId = newTeam.teamId;
 					if (this.teamId === "" || this.teamId === undefined) {
-						if(this.$route.path!=="/workspace")
+						if (this.$route.path!=="/workspace")
 							this.$router.push("/workspace");
 						this.productUpdates = [];
 					} else {
@@ -288,7 +288,7 @@ export default Vue.extend({
 			}
 			try {
 				let product = await this.ui.api.get<Product | null>("/api/v1/teams/product/" + this.teamId);
-				if(product.data) {
+				if (product.data) {
 					product.data.updatedAt = (this.formatDate(new Date()) as unknown as Date) ;
 					try {
 						await this.ui.api.post<Product | null>("/api/v1/teams/product/update", {

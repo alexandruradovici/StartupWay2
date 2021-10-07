@@ -33,7 +33,7 @@ export class WorkspaceUI {
 
 
 	public static getInstance(): WorkspaceUI {
-		if(!WorkspaceUI.instance) {
+		if (!WorkspaceUI.instance) {
 			WorkspaceUI.instance = new WorkspaceUI();
 		}
 		return WorkspaceUI.instance;

@@ -69,7 +69,7 @@ export default function teamsStore () {
 				let newProduct:Product | null = null;
 				try {
 					const response = await ui.api.get<Product | null>("/api/v1/teams/product/"+teamId);
-					if(response.data) {
+					if (response.data) {
 						newProduct = response.data;
 					}
 					
@@ -90,7 +90,7 @@ export default function teamsStore () {
 						ext:data.ext,
 						teamId: data.teamId
 					});
-					if(updateResponse.data)
+					if (updateResponse.data)
 						return true;
 					else 
 						return false;

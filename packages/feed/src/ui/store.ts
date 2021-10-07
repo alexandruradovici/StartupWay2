@@ -40,7 +40,7 @@ export default function feedStore ():Module<FeedState, RootState> {
 			async addFeed(storeParam, feed:Feed):Promise<boolean> {
 				try {
 					const response = await ui.api.post<Feed | null>("/api/v1/feed/add", feed);
-					if(response.status === 200) {
+					if (response.status === 200) {
 						return true;
 					} else {
 						return false;
@@ -53,7 +53,7 @@ export default function feedStore ():Module<FeedState, RootState> {
 			async updateFeed(storeParam, feed:Feed):Promise<boolean> {
 				try {
 					const response = await ui.api.post<Feed | null>("/api/v1/feed/update", {feed});
-					if(response.status === 200) {
+					if (response.status === 200) {
 						return true;
 					} else {
 						return false;
@@ -66,7 +66,7 @@ export default function feedStore ():Module<FeedState, RootState> {
 			async deleteFeed(storeParam, feed:Feed):Promise<boolean> {
 				try {
 					const response = await ui.api.post<boolean>("/api/v1/feed/delete", {feed});
-					if(response.status === 200) {
+					if (response.status === 200) {
 						return true;
 					} else {
 						return false;

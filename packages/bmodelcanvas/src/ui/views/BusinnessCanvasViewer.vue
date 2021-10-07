@@ -1,5 +1,5 @@
 <template>
-	<v-app id="app">
+	<div>
 		<v-container v-if="!loadingPage" class="content" width="1000">
 				<v-divider style="margin-bottom: 30px;"></v-divider>
 				<v-expansion-panels popout v-if="canvases" >
@@ -9,7 +9,7 @@
 							<v-row>
 								<v-col cols="6" md="4" v-for="(propValue, propName) in canvas.fields" :key="propName">
 									<v-card class="pa-2" outlined tile rounded >
-										<v-card-title class="justify-center" style="font-family: Georgia, serif; font-size: 16px; font-weight: 600;">
+										<v-card-title class="justify-center" style=" font-size: 16px; font-weight: 600;">
 											{{ propName }}
 										</v-card-title>
 										<v-divider></v-divider>
@@ -43,7 +43,7 @@
 				</v-col>
 			</v-row>
 		</v-container>
-	</v-app>
+	</div>
 </template>
 
 <script lang="ts">
@@ -63,17 +63,17 @@ export default Vue.extend({
 				this.loadingPage=true;
 				this.teamId = this.$route.params.teamId;
 				try {
-					if(await this.getUsers(this.teamId))
+					if (await this.getUsers(this.teamId))
 						await this.getAllUsers();
 					const found = await this.ui.api.get<Team | null>("/api/v1/teams/team/" + this.teamId);
-					if(found.data) {
+					if (found.data) {
 						this.team = found.data.teamName;
 					}
 					
 					const response = await this.ui.api.get<BModelCanvas[]>("/api/v1/canvas/" + this.teamId);
 					if (response.data) {
 						this.canvases = response.data;
-						if(this.canvases.length === 0) {
+						if (this.canvases.length === 0) {
 							this.canvases = null;
 						}
 					}
@@ -87,8 +87,8 @@ export default Vue.extend({
 			immediate: true,
 			async handler(newUser: User):Promise<void>  {
 				this.loadingPage = true;
-				if(newUser) {
-					if(newUser.role === "Admin" || newUser.role === "SuperAdmin") {
+				if (newUser) {
+					if (newUser.role === "Admin" || newUser.role === "SuperAdmin") {
 						try {
 							this.location = newUser.userDetails["location"];
 							const response = await this.ui.api.get<Team[]>("/api/v1/admin/teams/");
@@ -142,7 +142,7 @@ export default Vue.extend({
 		},
 		hasUser(user:(User&UserTeams)):boolean{
 			for(const aux of this.users) {
-				if(aux.userId === user.userId) {
+				if (aux.userId === user.userId) {
 					return true;
 				}
 			}

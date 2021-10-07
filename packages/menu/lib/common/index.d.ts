@@ -3,10 +3,20 @@ export declare enum SnackBarTypes {
     INFO = "info",
     SUCCESS = "success"
 }
+export declare enum SnackBarHorizontal {
+    LEFT = "left",
+    RIGHT = "right"
+}
+export declare enum SnackBarVertical {
+    TOP = "top",
+    BOTTOM = "bottom"
+}
 export interface SnackBarOptions {
     text: string;
     type: SnackBarTypes;
     timeout?: number;
+    horizontal?: SnackBarHorizontal;
+    vertical?: SnackBarVertical;
 }
 export interface SimpleMenuOptions {
     menuName: string;

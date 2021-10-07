@@ -15,7 +15,7 @@ export class WorkshopServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if(conn) {
+			if (conn) {
 				await conn.beginTransaction();
 				const queryOptions:QueryOptions = {
 					namedPlaceholders:true,
@@ -24,7 +24,7 @@ export class WorkshopServer {
 				await conn.query(queryOptions,workshopParam);
 				queryOptions.sql = "SELECT workshopId, workshopName FROM workshops WHERE workshopId=:workshopId";
 				const response:Workshop[] = await conn.query(queryOptions,{workshopId:workshopParam.workshopId});
-				if(response && response.length > 0 && response[0]) {
+				if (response && response.length > 0 && response[0]) {
 					await conn.commit();
 					await conn.release();
 					return response[0];
@@ -38,7 +38,7 @@ export class WorkshopServer {
 			}
 		} catch (error) {
 			console.error(error);
-			if(conn) {
+			if (conn) {
 				await conn.rollback();
 				await conn.release();
 			}
@@ -50,7 +50,7 @@ export class WorkshopServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if(conn) {
+			if (conn) {
 				await conn.beginTransaction();
 				const queryOptions:QueryOptions = {
 					namedPlaceholders:true,
@@ -59,7 +59,7 @@ export class WorkshopServer {
 				await conn.query(queryOptions, workshopInstance);
 				queryOptions.sql = "SELECT workshopInstanceId,workshopId,teamId,trainerName,workshopDate,workshopDetails FROM workshopInstances WHERE workshopInstanceId=:workshopInstanceId";
 				const response:WorkshopInstances[] = await conn.query(queryOptions,{workshopInstanceId:workshopInstance.workshopInstanceId});
-				if(response && response.length > 0 && response[0]) {
+				if (response && response.length > 0 && response[0]) {
 					await conn.commit();
 					await conn.release();
 					return response[0];
@@ -73,7 +73,7 @@ export class WorkshopServer {
 			}
 		} catch (error) {
 			console.error(error);
-			if(conn) {
+			if (conn) {
 				await conn.rollback();
 				await conn.release();
 			}
@@ -85,7 +85,7 @@ export class WorkshopServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if(conn) {
+			if (conn) {
 				await conn.beginTransaction();
 				const queryOptions:QueryOptions = {
 					namedPlaceholders:true,
@@ -94,7 +94,7 @@ export class WorkshopServer {
 				await conn.query(queryOptions,workshopAttendance);
 				queryOptions.sql = "SELECT attendanceId,attendanceDate,userId,workshopInstanceId FROM workshopAttendances WHERE attendanceId=:attendanceId";
 				const response:WorkshopAttendances[] = await conn.query(queryOptions,{attendanceId:workshopAttendance.attendanceId});
-				if(response && response.length > 0 && response[0]) {
+				if (response && response.length > 0 && response[0]) {
 					await conn.commit();
 					await conn.release();
 					return response[0];
@@ -108,7 +108,7 @@ export class WorkshopServer {
 			}
 		} catch (error) {
 			console.error(error);
-			if(conn) {
+			if (conn) {
 				await conn.rollback();
 				await conn.release();
 			}
@@ -120,7 +120,7 @@ export class WorkshopServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if(conn) {
+			if (conn) {
 				await conn.beginTransaction();
 				const queryOptions:QueryOptions = {
 					namedPlaceholders:true,
@@ -129,7 +129,7 @@ export class WorkshopServer {
 				await conn.query(queryOptions, {attendanceId});
 				queryOptions.sql = "SELECT attendanceId as deleted_id FROM workshopAttendances WHERE attendanceId=:attendanceId";
 				const response:{deleted_id:string}[] = await conn.query(queryOptions,{attendanceId});
-				if(response && response.length === 0) {
+				if (response && response.length === 0) {
 					await conn.commit();
 					await conn.release(); 
 					return true;
@@ -143,7 +143,7 @@ export class WorkshopServer {
 			}
 		} catch (error) {
 			console.error(error);
-			if(conn) {
+			if (conn) {
 				await conn.rollback();
 				await conn.release();
 			}
@@ -155,12 +155,12 @@ export class WorkshopServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if(conn) {
+			if (conn) {
 				const queryOptions:QueryOptions = {
 					sql: "SELECT workshops.* FROM workshops"
 				}
 				const workshops:Workshop[] = await conn.query(queryOptions) as Workshop[];
-				if(workshops && workshops.length > 0) {
+				if (workshops && workshops.length > 0) {
 					await conn.release();
 					return workshops;
 				} else {
@@ -172,7 +172,7 @@ export class WorkshopServer {
 			}
 		} catch (error) {
 			console.error(error);
-			if(conn)
+			if (conn)
 				await conn.release();
 			return [];
 		}
@@ -182,12 +182,12 @@ export class WorkshopServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if(conn) {
+			if (conn) {
 				const queryOptions:QueryOptions = {
 					sql: "SELECT workshopInstances.* FROM workshopInstances WHERE workshopInstances.teamId IN (:teamIds)"
 				}
 				const workshops:WorkshopInstances[] = await conn.query(queryOptions,{teamIds}) as WorkshopInstances[];
-				if(workshops && workshops.length > 0) {
+				if (workshops && workshops.length > 0) {
 					await conn.release();
 					return workshops;
 				} else {
@@ -199,7 +199,7 @@ export class WorkshopServer {
 			}
 		} catch (error) {
 			console.error(error);
-			if(conn)
+			if (conn)
 				await conn.release();
 			return [];
 		}
@@ -209,12 +209,12 @@ export class WorkshopServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if(conn) {
+			if (conn) {
 				const queryOptions:QueryOptions = {
 					sql: "SELECT workshopInstances.* FROM workshopInstances WHERE workshopInstances.workshopId=:workshopId"
 				}
 				const workshopInstances:WorkshopInstances[] = await conn.query(queryOptions,{workshopId}) as WorkshopInstances[];
-				if(workshopInstances && workshopInstances.length > 0) {
+				if (workshopInstances && workshopInstances.length > 0) {
 					await conn.release();
 					return workshopInstances;
 				} else {
@@ -226,7 +226,7 @@ export class WorkshopServer {
 			}
 		} catch (error) {
 			console.error(error);
-			if(conn)
+			if (conn)
 				await conn.release();
 			return [];
 		}
@@ -236,12 +236,12 @@ export class WorkshopServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if(conn) {
+			if (conn) {
 				const queryOptions:QueryOptions = {
 					sql: "SELECT workshopAttendances.* FROM workshopAttendances"
 				}
 				const workshopAttendances:WorkshopAttendances[] = await conn.query(queryOptions) as WorkshopAttendances[];
-				if(workshopAttendances && workshopAttendances.length > 0) {
+				if (workshopAttendances && workshopAttendances.length > 0) {
 					await conn.release();
 					return workshopAttendances;
 				} else {
@@ -253,7 +253,7 @@ export class WorkshopServer {
 			}
 		} catch (error) {
 			console.error(error);
-			if(conn)
+			if (conn)
 				await conn.release();
 			return [];
 		}
@@ -263,12 +263,12 @@ export class WorkshopServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if(conn) {
+			if (conn) {
 				const queryOptions:QueryOptions = {
 					sql: "SELECT workshopInstances.*, workshopAttendances.* FROM workshopInstances INNER JOIN ON workshopAttendances.workshopInstanceId=workshopInstances.workshopInstanceId WHERE workshopInstances.workshopId=:workshopId"
 				}
 				const workshopInstances:(WorkshopInstances & WorkshopAttendances)[] = await conn.query(queryOptions,{workshopId});
-				if(workshopInstances && workshopInstances.length > 0) {
+				if (workshopInstances && workshopInstances.length > 0) {
 					await conn.release();
 					return workshopInstances;
 				} else {
@@ -280,7 +280,7 @@ export class WorkshopServer {
 			}
 		} catch (error) {
 			console.error(error);
-			if(conn)
+			if (conn)
 				await conn.release();
 			return [];
 		}
@@ -300,7 +300,7 @@ const router = Router();
 const workshop = WorkshopServer.getInstance();
 
 const authFunct = getAuthorizationFunction();
-if(authFunct)
+if (authFunct)
 	router.use(authFunct);
 	// Bypass params dictionary and send authorization Function
 

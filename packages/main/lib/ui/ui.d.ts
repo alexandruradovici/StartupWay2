@@ -6,11 +6,23 @@ import { AxiosInstance } from "axios";
 export interface RootState {
     version: string;
 }
+declare enum LogType {
+    INFO = 0,
+    WARRNING = 1,
+    ERROR = 2
+}
 export declare class UI {
     readonly api: AxiosInstance;
     private static instance;
     private router;
     private store;
+    /**
+     * #01939A	#167C81	#017177	#20B5BB	#39B6BB
+        Secondary Color A:
+        #FFAB00	#D59B23	#C48400	#FFB92A	#FFC44C
+        Secondary Color B:
+        #FF0700	#D52823	#C40500	#FF302A	#FF504C
+     */
     private vuetifyOptions;
     routes: RouteConfig[];
     private start;
@@ -21,6 +33,8 @@ export declare class UI {
     registerRoute(newRoute: RouteConfig, parent?: string): void;
     registerView(view: VueConstructor<Vue>): void;
     error(err: string): void;
+    logEvent(pack: string, component: string, message: string, type?: LogType): void;
     static getInstance(): UI;
 }
+export {};
 //# sourceMappingURL=ui.d.ts.map

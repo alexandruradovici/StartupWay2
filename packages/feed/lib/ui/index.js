@@ -461,7 +461,7 @@ var __vue_render__ = function() {
   var _h = _vm.$createElement;
   var _c = _vm._self._c || _h;
   return _c(
-    "v-app",
+    "div",
     [
       !_vm.loadingPage
         ? _c(
@@ -804,10 +804,7 @@ var __vue_render__ = function() {
                                     "v-card-title",
                                     {
                                       staticClass: "justify-center",
-                                      staticStyle: {
-                                        "font-family": "Georgia, serif",
-                                        "font-weight": "bold"
-                                      }
+                                      staticStyle: { "font-weight": "bold" }
                                     },
                                     [
                                       _vm._v(
@@ -993,12 +990,7 @@ var __vue_render__ = function() {
                             [
                               _c(
                                 "v-card-title",
-                                {
-                                  staticClass: "justify-center",
-                                  staticStyle: {
-                                    "font-family": "Georgia, serif"
-                                  }
-                                },
+                                { staticClass: "justify-center" },
                                 [_vm._v("Remove Feed")]
                               ),
                               _vm._v(" "),
@@ -1356,7 +1348,7 @@ var __vue_render__$1 = function() {
   var _h = _vm.$createElement;
   var _c = _vm._self._c || _h;
   return _c(
-    "v-app",
+    "div",
     { attrs: { id: "app" } },
     [
       !_vm.loadingPage
@@ -1385,7 +1377,6 @@ var __vue_render__$1 = function() {
                           "v-card-title",
                           {
                             staticStyle: {
-                              "font-family": "Georgia, serif",
                               "font-size": "18px",
                               "font-weight": "600"
                             }
@@ -1458,12 +1449,7 @@ var __vue_render__$1 = function() {
                         item && item.date
                           ? _c(
                               "v-card-subtitle",
-                              {
-                                staticStyle: {
-                                  "font-family": "Georgia, serif",
-                                  "font-size": "18px"
-                                }
-                              },
+                              { staticStyle: { "font-size": "18px" } },
                               [
                                 _vm._v(
                                   "\n\t\t\t\t\t\t" +
@@ -1478,7 +1464,7 @@ var __vue_render__$1 = function() {
                         _vm._v(" "),
                         _c(
                           "v-card-text",
-                          { staticStyle: { "font-family": "Georgia, serif" } },
+                          {},
                           [
                             _c("span", [
                               _vm._v(

@@ -91,15 +91,18 @@ var UploadDownloadServer = /** @class */ (function () {
                         queryOptions = {
                             sql: "SELECT uploadDownload.* FROM uploadDownload where uploadDownload.productId=:productId"
                         };
-                        return [4 /*yield*/, conn.query(queryOptions, { productId: "7051998" })];
+                        return [4 /*yield*/, conn.query(queryOptions, {
+                                productId: "7051998"
+                            })];
                     case 3:
                         links = _b.sent();
                         if (links.length > 0) {
                             try {
                                 for (links_1 = __values(links), links_1_1 = links_1.next(); !links_1_1.done; links_1_1 = links_1.next()) {
                                     link = links_1_1.value;
-                                    if (link.uuid !== '') {
-                                        if (UploadDownloadServer.zips[link.uuid] === undefined) {
+                                    if (link.uuid !== "") {
+                                        if (UploadDownloadServer.zips[link.uuid] ===
+                                            undefined) {
                                             UploadDownloadServer.zips[link.uuid] = null;
                                         }
                                     }
@@ -161,7 +164,8 @@ var UploadDownloadServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, uploadDownloadLink)];
                     case 4:
                         _a.sent();
-                        queryOptions.sql = "SELECT uuid,productId,fileType,extension,uploadTime FROM uploadDownload WHERE uuid=:uuid";
+                        queryOptions.sql =
+                            "SELECT uuid,productId,fileType,extension,uploadTime FROM uploadDownload WHERE uuid=:uuid";
                         return [4 /*yield*/, conn.query(queryOptions, { uuid: uploadDownloadLink.uuid })];
                     case 5:
                         response = _a.sent();
@@ -224,7 +228,8 @@ var UploadDownloadServer = /** @class */ (function () {
                         return [4 /*yield*/, conn.query(queryOptions, { uuid: uuid })];
                     case 4:
                         _a.sent();
-                        queryOptions.sql = "SELECT uuid as deleted_id FROM uploadDownload WHERE uuid=:uuid";
+                        queryOptions.sql =
+                            "SELECT uuid as deleted_id FROM uploadDownload WHERE uuid=:uuid";
                         return [4 /*yield*/, conn.query(queryOptions, { uuid: uuid })];
                     case 5:
                         response = _a.sent();
@@ -283,8 +288,10 @@ var UploadDownloadServer = /** @class */ (function () {
                         };
                         return [4 /*yield*/, conn.query(queryOptions, { uuid: uuid })];
                     case 3:
-                        uploadDownloadLink = _a.sent();
-                        if (!(uploadDownloadLink && uploadDownloadLink.length > 0 && uploadDownloadLink[0])) return [3 /*break*/, 5];
+                        uploadDownloadLink = (_a.sent());
+                        if (!(uploadDownloadLink &&
+                            uploadDownloadLink.length > 0 &&
+                            uploadDownloadLink[0])) return [3 /*break*/, 5];
                         return [4 /*yield*/, conn.release()];
                     case 4:
                         _a.sent();
@@ -330,7 +337,7 @@ var UploadDownloadServer = /** @class */ (function () {
                         };
                         return [4 /*yield*/, conn.query(queryOptions, { productId: productId, fileType: fileType })];
                     case 3:
-                        uploadDownloadLinks = _a.sent();
+                        uploadDownloadLinks = (_a.sent());
                         if (!(uploadDownloadLinks && uploadDownloadLinks.length > 0)) return [3 /*break*/, 5];
                         return [4 /*yield*/, conn.release()];
                     case 4:
@@ -377,7 +384,8 @@ var UploadDownloadServer = /** @class */ (function () {
                         };
                         links = [];
                         if (!(date === "none")) return [3 /*break*/, 4];
-                        queryOptions.sql = "SELECT * FROM uploadDownload WHERE productId=:productId";
+                        queryOptions.sql =
+                            "SELECT * FROM uploadDownload WHERE productId=:productId";
                         return [4 /*yield*/, conn.query(queryOptions, { productId: productId })];
                     case 3:
                         links = _a.sent();
@@ -385,7 +393,8 @@ var UploadDownloadServer = /** @class */ (function () {
                     case 4:
                         if (!(date === "may")) return [3 /*break*/, 6];
                         // queryOptions.nestTables="_";
-                        queryOptions.sql = "SELECT uploadDownload.* products.* FROM uploadDownload INNER JOIN products ON products.productId = uploadDownload.productId AND JSON_EXTRACT(productDetails,'$.assessment20May') = 'Yes' WHERE uploadDownload.productId=:productId ";
+                        queryOptions.sql =
+                            "SELECT uploadDownload.* products.* FROM uploadDownload INNER JOIN products ON products.productId = uploadDownload.productId AND JSON_EXTRACT(productDetails,'$.assessment20May') = 'Yes' WHERE uploadDownload.productId=:productId ";
                         return [4 /*yield*/, conn.query(queryOptions, { productId: productId })];
                     case 5:
                         links = _a.sent();
@@ -393,7 +402,8 @@ var UploadDownloadServer = /** @class */ (function () {
                     case 6:
                         if (!(date === "oct")) return [3 /*break*/, 8];
                         // queryOptions.nestTables="_";
-                        queryOptions.sql = "SELECT uploadDownload.* products.* FROM uploadDownload INNER JOIN products ON products.productId = uploadDownload.productId AND JSON_EXTRACT(productDetails,'$.assessment20May') = 'Yes' AND JSON_EXTRACT(productDetails,'$.assessment12Oct') = 'Yes' WHERE uploadDownload.productId=:productId ";
+                        queryOptions.sql =
+                            "SELECT uploadDownload.* products.* FROM uploadDownload INNER JOIN products ON products.productId = uploadDownload.productId AND JSON_EXTRACT(productDetails,'$.assessment20May') = 'Yes' AND JSON_EXTRACT(productDetails,'$.assessment12Oct') = 'Yes' WHERE uploadDownload.productId=:productId ";
                         return [4 /*yield*/, conn.query(queryOptions, { productId: productId })];
                     case 7:
                         links = _a.sent();
@@ -445,21 +455,24 @@ var UploadDownloadServer = /** @class */ (function () {
                         };
                         links = [];
                         if (!(date === "none")) return [3 /*break*/, 4];
-                        queryOptions.sql = "SELECT uploadDownload.uuid, uploadDownload.fileType, uploadDownload.extension, uploadDownload.uploadTime, products.* FROM uploadDownload INNER JOIN products ON products.productId=uploadDownload.productId WHERE uploadDownload.fileType=:fileType";
+                        queryOptions.sql =
+                            "SELECT uploadDownload.uuid, uploadDownload.fileType, uploadDownload.extension, uploadDownload.uploadTime, products.* FROM uploadDownload INNER JOIN products ON products.productId=uploadDownload.productId WHERE uploadDownload.fileType=:fileType";
                         return [4 /*yield*/, conn.query(queryOptions, { fileType: fileType })];
                     case 3:
                         links = _a.sent();
                         return [3 /*break*/, 8];
                     case 4:
                         if (!(date === "may")) return [3 /*break*/, 6];
-                        queryOptions.sql = "SELECT uploadDownload.uuid, uploadDownload.fileType, uploadDownload.extension, uploadDownload.uploadTime, products.* FROM uploadDownload INNER JOIN products ON products.productId=uploadDownload.productId AND JSON_EXTRACT(productDetails,'$.assessment20May') = 'Yes' WHERE uploadDownload.fileType=:fileType";
+                        queryOptions.sql =
+                            "SELECT uploadDownload.uuid, uploadDownload.fileType, uploadDownload.extension, uploadDownload.uploadTime, products.* FROM uploadDownload INNER JOIN products ON products.productId=uploadDownload.productId AND JSON_EXTRACT(productDetails,'$.assessment20May') = 'Yes' WHERE uploadDownload.fileType=:fileType";
                         return [4 /*yield*/, conn.query(queryOptions, { fileType: fileType })];
                     case 5:
                         links = _a.sent();
                         return [3 /*break*/, 8];
                     case 6:
                         if (!(date === "oct")) return [3 /*break*/, 8];
-                        queryOptions.sql = "SELECT uploadDownload.uuid, uploadDownload.fileType, uploadDownload.extension, uploadDownload.uploadTime, products.* FROM uploadDownload INNER JOIN products ON products.productId=uploadDownload.productId AND JSON_EXTRACT(productDetails,'$.assessment20May') = 'Yes' AND JSON_EXTRACT(productDetails,'$.assessment12Oct') = 'Yes' WHERE uploadDownload.fileType=:fileType";
+                        queryOptions.sql =
+                            "SELECT uploadDownload.uuid, uploadDownload.fileType, uploadDownload.extension, uploadDownload.uploadTime, products.* FROM uploadDownload INNER JOIN products ON products.productId=uploadDownload.productId AND JSON_EXTRACT(productDetails,'$.assessment20May') = 'Yes' AND JSON_EXTRACT(productDetails,'$.assessment12Oct') = 'Yes' WHERE uploadDownload.fileType=:fileType";
                         return [4 /*yield*/, conn.query(queryOptions, { fileType: fileType })];
                     case 7:
                         links = _a.sent();
@@ -498,15 +511,19 @@ var UploadDownloadServer = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 14, , 15]);
-                        return [4 /*yield*/, aws_sdk_1.default.config.update({ region: process.env.REGION, accessKeyId: process.env.AKEY, secretAccessKey: process.env.ASECRETKEY })];
+                        return [4 /*yield*/, aws_sdk_1.default.config.update({
+                                region: process.env.REGION,
+                                accessKeyId: process.env.AKEY,
+                                secretAccessKey: process.env.ASECRETKEY
+                            })];
                     case 1:
                         _a.sent();
                         s3 = new aws_sdk_1.default.S3();
                         if (!(uuid !== "" && uuid !== undefined && process.env.BUCKET)) return [3 /*break*/, 12];
                         uploadParams = {
                             Bucket: process.env.BUCKET,
-                            Key: '',
-                            Body: ''
+                            Key: "",
+                            Body: ""
                         };
                         readable = new stream_1.Readable();
                         if (!(fileType === "base64")) return [3 /*break*/, 5];
@@ -566,9 +583,13 @@ var UploadDownloadServer = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 4, , 5]);
-                        aws_sdk_1.default.config.update({ region: process.env.REGION, accessKeyId: process.env.AKEY, secretAccessKey: process.env.ASECRETKEY });
+                        aws_sdk_1.default.config.update({
+                            region: process.env.REGION,
+                            accessKeyId: process.env.AKEY,
+                            secretAccessKey: process.env.ASECRETKEY
+                        });
                         s3 = new aws_sdk_1.default.S3({
-                            signatureVersion: 'v4',
+                            signatureVersion: "v4"
                         });
                         if (!(uuid !== "" && uuid !== undefined)) return [3 /*break*/, 2];
                         BucketParams = {
@@ -576,7 +597,9 @@ var UploadDownloadServer = /** @class */ (function () {
                             Key: uuid
                         };
                         utf8Data = void 0;
-                        return [4 /*yield*/, s3.getObject(BucketParams).promise()];
+                        return [4 /*yield*/, s3
+                                .getObject(BucketParams)
+                                .promise()];
                     case 1:
                         response = _a.sent();
                         console.log(response.Body);
@@ -606,9 +629,13 @@ var UploadDownloadServer = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 6, , 7]);
-                        aws_sdk_1.default.config.update({ region: process.env.REGION, accessKeyId: process.env.AKEY, secretAccessKey: process.env.ASECRETKEY });
+                        aws_sdk_1.default.config.update({
+                            region: process.env.REGION,
+                            accessKeyId: process.env.AKEY,
+                            secretAccessKey: process.env.ASECRETKEY
+                        });
                         s3 = new aws_sdk_1.default.S3({
-                            signatureVersion: 'v4',
+                            signatureVersion: "v4"
                         });
                         name_1 = "";
                         if (!(userId !== undefined && userId !== "")) return [3 /*break*/, 2];
@@ -627,23 +654,53 @@ var UploadDownloadServer = /** @class */ (function () {
                         product = _a.sent();
                         if (product) {
                             date = this.formatDate(link.uploadTime);
-                            if (link.uploadTime === undefined || date === undefined) {
+                            if (link.uploadTime === undefined ||
+                                date === undefined) {
                                 date = this.formatDate(new Date());
                             }
                             if (link.fileType === "demoVid") {
-                                name_1 = product.startupName + "_tehnic_demo_video_" + date + "." + link.extension;
+                                name_1 =
+                                    product.startupName +
+                                        "_tehnic_demo_video_" +
+                                        date +
+                                        "." +
+                                        link.extension;
                             }
                             else if (link.fileType === "presVid") {
-                                name_1 = product.startupName + "_products_presentation_video_" + date + "." + link.extension;
+                                name_1 =
+                                    product.startupName +
+                                        "_products_presentation_video_" +
+                                        date +
+                                        "." +
+                                        link.extension;
                             }
                             else if (link.fileType === "pres") {
-                                name_1 = product.startupName + "_powerpoint_presentation_" + date + "." + link.extension;
+                                name_1 =
+                                    product.startupName +
+                                        "_powerpoint_presentation_" +
+                                        date +
+                                        "." +
+                                        link.extension;
                             }
                             else if (link.fileType === "image") {
-                                name_1 = product.startupName + "_products_image_" + link.uuid[0] + link.uuid[1] + link.uuid[2] + "_" + date + "." + link.extension;
+                                name_1 =
+                                    product.startupName +
+                                        "_products_image_" +
+                                        link.uuid[0] +
+                                        link.uuid[1] +
+                                        link.uuid[2] +
+                                        "_" +
+                                        date +
+                                        "." +
+                                        link.extension;
                             }
                             else if (link.fileType === "logo") {
-                                name_1 = product.startupName + "_logo_" + date + "." + link.extension;
+                                name_1 =
+                                    product.startupName +
+                                        "_logo_" +
+                                        date +
+                                        "." +
+                                        link.extension;
                             }
                             else {
                                 name_1 = link.fileType + link.extension;
@@ -653,7 +710,7 @@ var UploadDownloadServer = /** @class */ (function () {
                     case 5:
                         if (uuid !== "" && uuid !== undefined) {
                             signedUrlExpireSeconds = 60 * 5;
-                            url = s3.getSignedUrl('getObject', {
+                            url = s3.getSignedUrl("getObject", {
                                 Bucket: process.env.BUCKET,
                                 Key: uuid,
                                 Expires: signedUrlExpireSeconds,
@@ -682,7 +739,11 @@ var UploadDownloadServer = /** @class */ (function () {
             var s3, deleteParams;
             return __generator(this, function (_a) {
                 try {
-                    aws_sdk_1.default.config.update({ region: process.env.REGION, accessKeyId: process.env.AKEY, secretAccessKey: process.env.ASECRETKEY });
+                    aws_sdk_1.default.config.update({
+                        region: process.env.REGION,
+                        accessKeyId: process.env.AKEY,
+                        secretAccessKey: process.env.ASECRETKEY
+                    });
                     s3 = new aws_sdk_1.default.S3();
                     if (uuid !== undefined && uuid !== "" && process.env.BUCKET) {
                         deleteParams = {
@@ -723,7 +784,7 @@ var UploadDownloadServer = /** @class */ (function () {
                 switch (_m.label) {
                     case 0:
                         _m.trys.push([0, 124, , 125]);
-                        UploadDownloadServer.zips[linkUuid] = new jszip_1.default;
+                        UploadDownloadServer.zips[linkUuid] = new jszip_1.default();
                         zip = UploadDownloadServer.zips[linkUuid];
                         if (!(type === "all")) return [3 /*break*/, 28];
                         return [4 /*yield*/, teams.getTeams()];
@@ -744,7 +805,7 @@ var UploadDownloadServer = /** @class */ (function () {
                         return [4 /*yield*/, teams.getUsersByTeamId(product.teamId)];
                     case 5:
                         usersArr = _m.sent();
-                        folder = product.location + '/' + product.teamName;
+                        folder = product.location + "/" + product.teamName;
                         return [4 /*yield*/, teams.isTeamInDate(date, prId)];
                     case 6:
                         d = _m.sent();
@@ -758,11 +819,21 @@ var UploadDownloadServer = /** @class */ (function () {
                         if (!!usersArr_1_1.done) return [3 /*break*/, 11];
                         user = usersArr_1_1.value;
                         if (!user) return [3 /*break*/, 10];
-                        if (!(user.avatarUu !== '' && user.avatarUu !== null)) return [3 /*break*/, 10];
+                        if (!(user.avatarUu !== "" &&
+                            user.avatarUu !== null)) return [3 /*break*/, 10];
                         return [4 /*yield*/, uploadDownload.getS3Object(user.avatarUu)];
                     case 9:
                         obj = _m.sent();
-                        name_2 = folder + '/UserImages/' + product.location + "_" + product.teamName + '_profile_photo_' + user.firstName + "_" + user.lastName + '.png';
+                        name_2 = folder +
+                            "/UserImages/" +
+                            product.location +
+                            "_" +
+                            product.teamName +
+                            "_profile_photo_" +
+                            user.firstName +
+                            "_" +
+                            user.lastName +
+                            ".png";
                         if (obj !== "" && zip) {
                             zip.file(name_2, obj, { base64: true });
                         }
@@ -802,19 +873,68 @@ var UploadDownloadServer = /** @class */ (function () {
                         date_1 = uploadDownload.formatDate(link.uploadTime);
                         name_3 = "";
                         if (link.fileType === "demoVid") {
-                            name_3 = folder + '/Videos/' + product.location + "_" + product.teamName + "_tehnic_demo_video_" + date_1 + "." + link.extension;
+                            name_3 =
+                                folder +
+                                    "/Videos/" +
+                                    product.location +
+                                    "_" +
+                                    product.teamName +
+                                    "_tehnic_demo_video_" +
+                                    date_1 +
+                                    "." +
+                                    link.extension;
                         }
                         else if (link.fileType === "presVid") {
-                            name_3 = folder + '/Videos/' + product.location + "_" + product.teamName + "_products_presentation_video_" + date_1 + "." + link.extension;
+                            name_3 =
+                                folder +
+                                    "/Videos/" +
+                                    product.location +
+                                    "_" +
+                                    product.teamName +
+                                    "_products_presentation_video_" +
+                                    date_1 +
+                                    "." +
+                                    link.extension;
                         }
                         else if (link.fileType === "pres") {
-                            name_3 = folder + '/PowerPoint/' + product.location + "_" + product.teamName + "_powerpoint_presentation_" + date_1 + "." + link.extension;
+                            name_3 =
+                                folder +
+                                    "/PowerPoint/" +
+                                    product.location +
+                                    "_" +
+                                    product.teamName +
+                                    "_powerpoint_presentation_" +
+                                    date_1 +
+                                    "." +
+                                    link.extension;
                         }
                         else if (link.fileType === "image") {
-                            name_3 = folder + '/Images/' + product.location + "_" + product.teamName + "_products_image_" + link.uuid[0] + link.uuid[1] + link.uuid[2] + "_" + date_1 + "." + link.extension;
+                            name_3 =
+                                folder +
+                                    "/Images/" +
+                                    product.location +
+                                    "_" +
+                                    product.teamName +
+                                    "_products_image_" +
+                                    link.uuid[0] +
+                                    link.uuid[1] +
+                                    link.uuid[2] +
+                                    "_" +
+                                    date_1 +
+                                    "." +
+                                    link.extension;
                         }
                         else if (link.fileType === "logo") {
-                            name_3 = folder + '/Images/' + product.location + "_" + product.teamName + "_logo_" + date_1 + "." + link.extension;
+                            name_3 =
+                                folder +
+                                    "/Images/" +
+                                    product.location +
+                                    "_" +
+                                    product.teamName +
+                                    "_logo_" +
+                                    date_1 +
+                                    "." +
+                                    link.extension;
                         }
                         else {
                             console.error("Unidentified link");
@@ -894,16 +1014,28 @@ var UploadDownloadServer = /** @class */ (function () {
                         if (!!users_1_1.done) return [3 /*break*/, 39];
                         user = users_1_1.value;
                         if (!user) return [3 /*break*/, 38];
-                        if (!(user.avatarUu !== '' && user.avatarUu !== null)) return [3 /*break*/, 38];
+                        if (!(user.avatarUu !== "" &&
+                            user.avatarUu !== null)) return [3 /*break*/, 38];
                         return [4 /*yield*/, uploadDownload.getS3Object(user.avatarUu)];
                     case 37:
                         obj = _m.sent();
-                        name_4 = product.teamName + '/UserImages/' + product.location + "_" + product.teamName + '_profile_photo_' + user.firstName + "_" + user.lastName + '.png';
+                        name_4 = product.teamName +
+                            "/UserImages/" +
+                            product.location +
+                            "_" +
+                            product.teamName +
+                            "_profile_photo_" +
+                            user.firstName +
+                            "_" +
+                            user.lastName +
+                            ".png";
                         if (obj !== "" && zip) {
-                            zip.file(name_4, obj, { base64: true });
+                            zip.file(name_4, obj, {
+                                base64: true
+                            });
                         }
                         else {
-                            console.error('No obj GETS3OBJ');
+                            console.error("No obj GETS3OBJ");
                         }
                         _m.label = 38;
                     case 38:
@@ -938,22 +1070,71 @@ var UploadDownloadServer = /** @class */ (function () {
                         date_2 = uploadDownload.formatDate(link.uploadTime);
                         name_5 = "";
                         if (link.fileType === "demoVid") {
-                            name_5 = product.teamName + '/Videos/' + product.location + "_" + product.teamName + "_tehnic_demo_video_" + date_2 + "." + link.extension;
+                            name_5 =
+                                product.teamName +
+                                    "/Videos/" +
+                                    product.location +
+                                    "_" +
+                                    product.teamName +
+                                    "_tehnic_demo_video_" +
+                                    date_2 +
+                                    "." +
+                                    link.extension;
                         }
                         else if (link.fileType === "presVid") {
-                            name_5 = product.teamName + '/Videos/' + product.location + "_" + product.teamName + "_products_presentation_video_" + date_2 + "." + link.extension;
+                            name_5 =
+                                product.teamName +
+                                    "/Videos/" +
+                                    product.location +
+                                    "_" +
+                                    product.teamName +
+                                    "_products_presentation_video_" +
+                                    date_2 +
+                                    "." +
+                                    link.extension;
                         }
                         else if (link.fileType === "pres") {
-                            name_5 = product.teamName + '/PowerPoint/' + product.location + "_" + product.teamName + "_powerpoint_presentation_" + date_2 + "." + link.extension;
+                            name_5 =
+                                product.teamName +
+                                    "/PowerPoint/" +
+                                    product.location +
+                                    "_" +
+                                    product.teamName +
+                                    "_powerpoint_presentation_" +
+                                    date_2 +
+                                    "." +
+                                    link.extension;
                         }
                         else if (link.fileType === "image") {
-                            name_5 = product.teamName + '/Images/' + product.location + "_" + product.teamName + "_products_image_" + link.uuid[0] + link.uuid[1] + link.uuid[2] + "_" + date_2 + "." + link.extension;
+                            name_5 =
+                                product.teamName +
+                                    "/Images/" +
+                                    product.location +
+                                    "_" +
+                                    product.teamName +
+                                    "_products_image_" +
+                                    link.uuid[0] +
+                                    link.uuid[1] +
+                                    link.uuid[2] +
+                                    "_" +
+                                    date_2 +
+                                    "." +
+                                    link.extension;
                         }
                         else if (link.fileType === "logo") {
-                            name_5 = product.teamName + '/Images/' + product.location + "_" + product.teamName + "_logo_" + date_2 + "." + link.extension;
+                            name_5 =
+                                product.teamName +
+                                    "/Images/" +
+                                    product.location +
+                                    "_" +
+                                    product.teamName +
+                                    "_logo_" +
+                                    date_2 +
+                                    "." +
+                                    link.extension;
                         }
                         else {
-                            console.error('Unidentified link');
+                            console.error("Unidentified link");
                         }
                         return [4 /*yield*/, uploadDownload.getS3Object(link.uuid)];
                     case 45:
@@ -962,11 +1143,11 @@ var UploadDownloadServer = /** @class */ (function () {
                             zip.file(name_5, obj, { base64: true });
                         }
                         else {
-                            console.error('No obj GETS3OBJ');
+                            console.error("No obj GETS3OBJ");
                         }
                         return [3 /*break*/, 47];
                     case 46:
-                        console.error('No Product');
+                        console.error("No Product");
                         _m.label = 47;
                     case 47:
                         links_3_1 = links_3.next();
@@ -1024,16 +1205,27 @@ var UploadDownloadServer = /** @class */ (function () {
                         if (!!users_2_1.done) return [3 /*break*/, 66];
                         user = users_2_1.value;
                         if (!user) return [3 /*break*/, 65];
-                        if (!(user.avatarUu !== '' && user.avatarUu !== null)) return [3 /*break*/, 65];
+                        if (!(user.avatarUu !== "" &&
+                            user.avatarUu !== null)) return [3 /*break*/, 65];
                         return [4 /*yield*/, uploadDownload.getS3Object(user.avatarUu)];
                     case 64:
                         obj = _m.sent();
-                        name_6 = 'UserImages/' + teamP.location + "_" + teamP.teamName + '_profile_photo_' + user.firstName + "_" + user.lastName + '.png';
+                        name_6 = "UserImages/" +
+                            teamP.location +
+                            "_" +
+                            teamP.teamName +
+                            "_profile_photo_" +
+                            user.firstName +
+                            "_" +
+                            user.lastName +
+                            ".png";
                         if (obj !== "" && zip) {
-                            zip.file(name_6, obj, { base64: true });
+                            zip.file(name_6, obj, {
+                                base64: true
+                            });
                         }
                         else {
-                            console.error('No obj GETS3OBJ');
+                            console.error("No obj GETS3OBJ");
                         }
                         _m.label = 65;
                     case 65:
@@ -1070,22 +1262,66 @@ var UploadDownloadServer = /** @class */ (function () {
                         date_3 = uploadDownload.formatDate(link.uploadTime);
                         name_7 = "";
                         if (link.fileType === "demoVid") {
-                            name_7 = "Videos/" + teamP.location + "_" + product.startupName + "_tehnic_demo_video_" + date_3 + "." + link.extension;
+                            name_7 =
+                                "Videos/" +
+                                    teamP.location +
+                                    "_" +
+                                    product.startupName +
+                                    "_tehnic_demo_video_" +
+                                    date_3 +
+                                    "." +
+                                    link.extension;
                         }
                         else if (link.fileType === "presVid") {
-                            name_7 = "Videos/" + teamP.location + "_" + product.startupName + "_products_presentation_video_" + date_3 + "." + link.extension;
+                            name_7 =
+                                "Videos/" +
+                                    teamP.location +
+                                    "_" +
+                                    product.startupName +
+                                    "_products_presentation_video_" +
+                                    date_3 +
+                                    "." +
+                                    link.extension;
                         }
                         else if (link.fileType === "pres") {
-                            name_7 = "PowerPoint/" + teamP.location + "_" + product.startupName + "_powerpoint_presentation_" + date_3 + "." + link.extension;
+                            name_7 =
+                                "PowerPoint/" +
+                                    teamP.location +
+                                    "_" +
+                                    product.startupName +
+                                    "_powerpoint_presentation_" +
+                                    date_3 +
+                                    "." +
+                                    link.extension;
                         }
                         else if (link.fileType === "image") {
-                            name_7 = "Images/" + teamP.location + "_" + product.startupName + "_products_image_" + link.uuid[0] + link.uuid[1] + link.uuid[2] + "_" + date_3 + "." + link.extension;
+                            name_7 =
+                                "Images/" +
+                                    teamP.location +
+                                    "_" +
+                                    product.startupName +
+                                    "_products_image_" +
+                                    link.uuid[0] +
+                                    link.uuid[1] +
+                                    link.uuid[2] +
+                                    "_" +
+                                    date_3 +
+                                    "." +
+                                    link.extension;
                         }
                         else if (link.fileType === "logo") {
-                            name_7 = "Images/" + teamP.location + "_" + product.startupName + "_logo_" + date_3 + "." + link.extension;
+                            name_7 =
+                                "Images/" +
+                                    teamP.location +
+                                    "_" +
+                                    product.startupName +
+                                    "_logo_" +
+                                    date_3 +
+                                    "." +
+                                    link.extension;
                         }
                         else {
-                            console.error('Unidentified link');
+                            console.error("Unidentified link");
                         }
                         return [4 /*yield*/, uploadDownload.getS3Object(link.uuid)];
                     case 73:
@@ -1094,11 +1330,11 @@ var UploadDownloadServer = /** @class */ (function () {
                             zip.file(name_7, obj, { base64: true });
                         }
                         else {
-                            console.error('No obj GETS3OBJ');
+                            console.error("No obj GETS3OBJ");
                         }
                         return [3 /*break*/, 75];
                     case 74:
-                        console.error('No Product');
+                        console.error("No Product");
                         _m.label = 75;
                     case 75:
                         links_4_1 = links_4.next();
@@ -1120,7 +1356,9 @@ var UploadDownloadServer = /** @class */ (function () {
                         _m.label = 81;
                     case 81: return [3 /*break*/, 112];
                     case 82:
-                        if (!(team && typeof team === "object" && typeof team[0] === "string")) return [3 /*break*/, 112];
+                        if (!(team &&
+                            typeof team === "object" &&
+                            typeof team[0] === "string")) return [3 /*break*/, 112];
                         return [4 /*yield*/, teams.getTeamsByIdList(team)];
                     case 83:
                         teamsArr = _m.sent();
@@ -1139,7 +1377,9 @@ var UploadDownloadServer = /** @class */ (function () {
                         return [4 /*yield*/, teams.isTeamInDate(date, prId)];
                     case 87:
                         d = _m.sent();
-                        if (!(users_6.length !== 0 && d && option === "everything")) return [3 /*break*/, 95];
+                        if (!(users_6.length !== 0 &&
+                            d &&
+                            option === "everything")) return [3 /*break*/, 95];
                         _m.label = 88;
                     case 88:
                         _m.trys.push([88, 93, 94, 95]);
@@ -1149,16 +1389,28 @@ var UploadDownloadServer = /** @class */ (function () {
                         if (!!users_3_1.done) return [3 /*break*/, 92];
                         user = users_3_1.value;
                         if (!user) return [3 /*break*/, 91];
-                        if (!(user.avatarUu !== '' && user.avatarUu !== null)) return [3 /*break*/, 91];
+                        if (!(user.avatarUu !== "" &&
+                            user.avatarUu !== null)) return [3 /*break*/, 91];
                         return [4 /*yield*/, uploadDownload.getS3Object(user.avatarUu)];
                     case 90:
                         obj = _m.sent();
-                        name_8 = teamP.teamName + '/UserImages/' + teamP.location + "_" + teamP.teamName + '_profile_photo_' + user.firstName + "_" + user.lastName + '.png';
+                        name_8 = teamP.teamName +
+                            "/UserImages/" +
+                            teamP.location +
+                            "_" +
+                            teamP.teamName +
+                            "_profile_photo_" +
+                            user.firstName +
+                            "_" +
+                            user.lastName +
+                            ".png";
                         if (obj !== "" && zip) {
-                            zip.file(name_8, obj, { base64: true });
+                            zip.file(name_8, obj, {
+                                base64: true
+                            });
                         }
                         else {
-                            console.error('No obj GETS3OBJ');
+                            console.error("No obj GETS3OBJ");
                         }
                         _m.label = 91;
                     case 91:
@@ -1182,7 +1434,7 @@ var UploadDownloadServer = /** @class */ (function () {
                     case 96:
                         links = _m.sent();
                         return [3 /*break*/, 99];
-                    case 97: return [4 /*yield*/, uploadDownload.getLinksByProductId(prId, 'none')];
+                    case 97: return [4 /*yield*/, uploadDownload.getLinksByProductId(prId, "none")];
                     case 98:
                         links = _m.sent();
                         _m.label = 99;
@@ -1207,42 +1459,130 @@ var UploadDownloadServer = /** @class */ (function () {
                         name_9 = "";
                         if (option === "everything") {
                             if (link.fileType === "demoVid") {
-                                name_9 = teamP.teamName + '/Videos/' + teamP.location + "_" + teamP.teamName + "_tehnic_demo_video_" + date_4 + "." + link.extension;
+                                name_9 =
+                                    teamP.teamName +
+                                        "/Videos/" +
+                                        teamP.location +
+                                        "_" +
+                                        teamP.teamName +
+                                        "_tehnic_demo_video_" +
+                                        date_4 +
+                                        "." +
+                                        link.extension;
                             }
                             else if (link.fileType === "presVid") {
-                                name_9 = teamP.teamName + '/Videos/' + teamP.location + "_" + teamP.teamName + "_products_presentation_video_" + date_4 + "." + link.extension;
+                                name_9 =
+                                    teamP.teamName +
+                                        "/Videos/" +
+                                        teamP.location +
+                                        "_" +
+                                        teamP.teamName +
+                                        "_products_presentation_video_" +
+                                        date_4 +
+                                        "." +
+                                        link.extension;
                             }
                             else if (link.fileType === "pres") {
-                                name_9 = teamP.teamName + '/PowerPoint/' + teamP.location + "_" + teamP.teamName + "_powerpoint_presentation_" + date_4 + "." + link.extension;
+                                name_9 =
+                                    teamP.teamName +
+                                        "/PowerPoint/" +
+                                        teamP.location +
+                                        "_" +
+                                        teamP.teamName +
+                                        "_powerpoint_presentation_" +
+                                        date_4 +
+                                        "." +
+                                        link.extension;
                             }
                             else if (link.fileType === "image") {
-                                name_9 = teamP.teamName + '/Images/' + teamP.location + "_" + teamP.teamName + "_products_image_" + link.uuid[0] + link.uuid[1] + link.uuid[2] + "_" + date_4 + "." + link.extension;
+                                name_9 =
+                                    teamP.teamName +
+                                        "/Images/" +
+                                        teamP.location +
+                                        "_" +
+                                        teamP.teamName +
+                                        "_products_image_" +
+                                        link.uuid[0] +
+                                        link.uuid[1] +
+                                        link.uuid[2] +
+                                        "_" +
+                                        date_4 +
+                                        "." +
+                                        link.extension;
                             }
                             else if (link.fileType === "logo") {
-                                name_9 = teamP.teamName + '/Images/' + teamP.location + "_" + teamP.teamName + "_logo_" + date_4 + "." + link.extension;
+                                name_9 =
+                                    teamP.teamName +
+                                        "/Images/" +
+                                        teamP.location +
+                                        "_" +
+                                        teamP.teamName +
+                                        "_logo_" +
+                                        date_4 +
+                                        "." +
+                                        link.extension;
                             }
                             else {
-                                console.error('Unidentified link');
+                                console.error("Unidentified link");
                             }
                         }
                         else {
                             if (option === "demoVid") {
-                                name_9 = teamP.location + "_" + teamP.teamName + "_tehnic_demo_video_" + date_4 + "." + link.extension;
+                                name_9 =
+                                    teamP.location +
+                                        "_" +
+                                        teamP.teamName +
+                                        "_tehnic_demo_video_" +
+                                        date_4 +
+                                        "." +
+                                        link.extension;
                             }
                             else if (option === "presVid") {
-                                name_9 = teamP.location + "_" + teamP.teamName + "_products_presentation_video_" + date_4 + "." + link.extension;
+                                name_9 =
+                                    teamP.location +
+                                        "_" +
+                                        teamP.teamName +
+                                        "_products_presentation_video_" +
+                                        date_4 +
+                                        "." +
+                                        link.extension;
                             }
                             else if (option === "pres") {
-                                name_9 = teamP.location + "_" + teamP.teamName + "_powerpoint_presentation_" + date_4 + "." + link.extension;
+                                name_9 =
+                                    teamP.location +
+                                        "_" +
+                                        teamP.teamName +
+                                        "_powerpoint_presentation_" +
+                                        date_4 +
+                                        "." +
+                                        link.extension;
                             }
                             else if (option === "image") {
-                                name_9 = teamP.location + "_" + teamP.teamName + "_products_image_" + link.uuid[0] + link.uuid[1] + link.uuid[2] + "_" + date_4 + "." + link.extension;
+                                name_9 =
+                                    teamP.location +
+                                        "_" +
+                                        teamP.teamName +
+                                        "_products_image_" +
+                                        link.uuid[0] +
+                                        link.uuid[1] +
+                                        link.uuid[2] +
+                                        "_" +
+                                        date_4 +
+                                        "." +
+                                        link.extension;
                             }
                             else if (option === "logo") {
-                                name_9 = teamP.location + "_" + teamP.teamName + "_logo_" + date_4 + "." + link.extension;
+                                name_9 =
+                                    teamP.location +
+                                        "_" +
+                                        teamP.teamName +
+                                        "_logo_" +
+                                        date_4 +
+                                        "." +
+                                        link.extension;
                             }
                             else {
-                                console.error('Unidentified link');
+                                console.error("Unidentified link");
                             }
                         }
                         return [4 /*yield*/, uploadDownload.getS3Object(link.uuid)];
@@ -1252,11 +1592,11 @@ var UploadDownloadServer = /** @class */ (function () {
                             zip.file(name_9, obj, { base64: true });
                         }
                         else {
-                            console.error('No obj GETS3OBJ');
+                            console.error("No obj GETS3OBJ");
                         }
                         return [3 /*break*/, 104];
                     case 103:
-                        console.error('No Product');
+                        console.error("No Product");
                         _m.label = 104;
                     case 104:
                         links_5_1 = links_5.next();
@@ -1305,7 +1645,7 @@ var UploadDownloadServer = /** @class */ (function () {
                     case 114:
                         upload = _m.sent();
                         if (!upload) return [3 /*break*/, 117];
-                        console.log('Uploaded file');
+                        console.log("Uploaded file");
                         return [4 /*yield*/, uploadDownload.addLink(link)];
                     case 115:
                         _m.sent();
@@ -1316,11 +1656,16 @@ var UploadDownloadServer = /** @class */ (function () {
                     case 117: return [4 /*yield*/, fs_extra_1.default.remove(tmpPath)];
                     case 118:
                         _m.sent();
-                        console.error('Didn\'t upload ADDS3File');
+                        console.error("Didn't upload ADDS3File");
                         _m.label = 119;
                     case 119: return [3 /*break*/, 121];
                     case 120:
-                        zip.generateNodeStream({ type: 'nodebuffer', streamFiles: true }).pipe(fs_extra_1.default.createWriteStream(path_1.default.join("/tmp", uuid_2 + '.zip'))).on('finish', function () { return __awaiter(_this, void 0, void 0, function () {
+                        zip.generateNodeStream({
+                            type: "nodebuffer",
+                            streamFiles: true
+                        })
+                            .pipe(fs_extra_1.default.createWriteStream(path_1.default.join("/tmp", uuid_2 + ".zip")))
+                            .on("finish", function () { return __awaiter(_this, void 0, void 0, function () {
                             var link, upload, tmpFile;
                             return __generator(this, function (_a) {
                                 switch (_a.label) {
@@ -1341,7 +1686,7 @@ var UploadDownloadServer = /** @class */ (function () {
                                     case 1:
                                         upload = _a.sent();
                                         if (!upload) return [3 /*break*/, 4];
-                                        console.log('Uploaded file');
+                                        console.log("Uploaded file");
                                         return [4 /*yield*/, uploadDownload.addLink(link)];
                                     case 2:
                                         _a.sent();
@@ -1352,11 +1697,11 @@ var UploadDownloadServer = /** @class */ (function () {
                                     case 4: return [4 /*yield*/, fs_extra_1.default.remove(tmpFile)];
                                     case 5:
                                         _a.sent();
-                                        console.error('Didn\'t upload ADDS3File');
+                                        console.error("Didn't upload ADDS3File");
                                         _a.label = 6;
                                     case 6: return [3 /*break*/, 8];
                                     case 7:
-                                        console.error('Didn\'t create link ADDLINK');
+                                        console.error("Didn't create link ADDLINK");
                                         _a.label = 8;
                                     case 8: return [2 /*return*/];
                                 }
@@ -1389,7 +1734,7 @@ var UploadDownloadServer = /** @class */ (function () {
                         link = null;
                         if (link)
                             null;
-                        uuid = '';
+                        uuid = "";
                         if (!(type === "all")) return [3 /*break*/, 2];
                         uuid = "all_uploads_arhive_" + date;
                         return [4 /*yield*/, uploadDownload.getLinkByUuid(uuid)];
@@ -1415,7 +1760,8 @@ var UploadDownloadServer = /** @class */ (function () {
                         link = _a.sent();
                         return [3 /*break*/, 9];
                     case 7:
-                        if (!(typeof team === "object" && typeof team[0] === "string")) return [3 /*break*/, 9];
+                        if (!(typeof team === "object" &&
+                            typeof team[0] === "string")) return [3 /*break*/, 9];
                         if (option !== undefined)
                             uuid = "demoday_uploads_arhive_" + option;
                         else
@@ -1428,7 +1774,7 @@ var UploadDownloadServer = /** @class */ (function () {
                         if (!link) return [3 /*break*/, 13];
                         oldDate = new Date(link.uploadTime).getTime();
                         newDate = new Date().getTime();
-                        if (!(link.uuid === '' || newDate - oldDate >= 86400000)) return [3 /*break*/, 13];
+                        if (!(link.uuid === "" || newDate - oldDate >= 86400000)) return [3 /*break*/, 13];
                         if (!(UploadDownloadServer.zips[uuid] === null)) return [3 /*break*/, 11];
                         return [4 /*yield*/, uploadDownload.generateZip(type, date, uuid, option, city, team)];
                     case 10:
@@ -1459,7 +1805,7 @@ var UploadDownloadServer = /** @class */ (function () {
                     case 0:
                         _a.trys.push([0, 16, , 17]);
                         link = null;
-                        uuid = '';
+                        uuid = "";
                         if (!(type === "all")) return [3 /*break*/, 2];
                         uuid = "all_uploads_arhive_" + date;
                         return [4 /*yield*/, uploadDownload.getLinkByUuid(uuid)];
@@ -1485,7 +1831,8 @@ var UploadDownloadServer = /** @class */ (function () {
                         link = _a.sent();
                         return [3 /*break*/, 9];
                     case 7:
-                        if (!(typeof team === "object" && typeof team[0] === "string")) return [3 /*break*/, 9];
+                        if (!(typeof team === "object" &&
+                            typeof team[0] === "string")) return [3 /*break*/, 9];
                         if (option !== undefined)
                             uuid = "demoday_uploads_arhive_" + option;
                         else
@@ -1506,7 +1853,7 @@ var UploadDownloadServer = /** @class */ (function () {
                     case 11: return [4 /*yield*/, uploadDownload.getS3Url(link.uuid)];
                     case 12:
                         url = _a.sent();
-                        if (url !== '')
+                        if (url !== "")
                             return [2 /*return*/, url];
                         else
                             return [2 /*return*/, "ERROR"];
@@ -1530,25 +1877,25 @@ var UploadDownloadServer = /** @class */ (function () {
         return this.INSTANCE;
     };
     UploadDownloadServer.zips = {
-        "all_uploads_arhive_none": null,
-        "all_uploads_arhive_may": null,
-        "all_uploads_arhive_oct": null,
-        "Bucharest_uploads_arhive_none": null,
-        "Bucharest_uploads_arhive_may": null,
-        "Bucharest_uploads_arhive_oct": null,
-        "Sibiu_uploads_arhive_none": null,
-        "Sibiu_uploads_arhive_may": null,
-        "Sibiu_uploads_arhive_oct": null,
-        "Iasi_uploads_arhive_none": null,
-        "Iasi_uploads_arhive_may": null,
-        "Iasi_uploads_arhive_oct": null,
-        "Cluj_uploads_arhive_none": null,
-        "Cluj_uploads_arhive_may": null,
-        "Cluj_uploads_arhive_oct": null,
-        "Timisoara_uploads_arhive_none": null,
-        "Timisoara_uploads_arhive_may": null,
-        "Timisoara_uploads_arhive_oct": null,
-        "demoday_uploads_arhive": null
+        all_uploads_arhive_none: null,
+        all_uploads_arhive_may: null,
+        all_uploads_arhive_oct: null,
+        Bucharest_uploads_arhive_none: null,
+        Bucharest_uploads_arhive_may: null,
+        Bucharest_uploads_arhive_oct: null,
+        Sibiu_uploads_arhive_none: null,
+        Sibiu_uploads_arhive_may: null,
+        Sibiu_uploads_arhive_oct: null,
+        Iasi_uploads_arhive_none: null,
+        Iasi_uploads_arhive_may: null,
+        Iasi_uploads_arhive_oct: null,
+        Cluj_uploads_arhive_none: null,
+        Cluj_uploads_arhive_may: null,
+        Cluj_uploads_arhive_oct: null,
+        Timisoara_uploads_arhive_none: null,
+        Timisoara_uploads_arhive_may: null,
+        Timisoara_uploads_arhive_oct: null,
+        demoday_uploads_arhive: null
     };
     return UploadDownloadServer;
 }());
@@ -1569,7 +1916,10 @@ router.get("/get/file/product/:fileType/:productId", function (req, res) { retur
                 _d.trys.push([0, 12, , 13]);
                 type = req.params.fileType;
                 productId = req.params.productId;
-                if (!(productId !== "" && productId !== undefined && type !== "" && type !== undefined)) return [3 /*break*/, 10];
+                if (!(productId !== "" &&
+                    productId !== undefined &&
+                    type !== "" &&
+                    type !== undefined)) return [3 /*break*/, 10];
                 return [4 /*yield*/, uploadDownload.getLinksByProductIdAndFileType(productId, type)];
             case 1:
                 links = _d.sent();
@@ -1731,20 +2081,51 @@ router.get("/download/zip/:type/:date", function (req, res) { return __awaiter(v
                 date_5 = uploadDownload.formatDate(link.uploadTime);
                 name_11 = "";
                 if (type_1 === "demoVid") {
-                    name_11 = product.startupName + "_tehnic_demo_video_" + date_5 + "." + link.extension;
+                    name_11 =
+                        product.startupName +
+                            "_tehnic_demo_video_" +
+                            date_5 +
+                            "." +
+                            link.extension;
                 }
                 else if (type_1 === "presVid") {
-                    name_11 = product.startupName + "_products_presentation_video_" + date_5 + "." + link.extension;
+                    name_11 =
+                        product.startupName +
+                            "_products_presentation_video_" +
+                            date_5 +
+                            "." +
+                            link.extension;
                 }
                 else if (type_1 === "pres") {
-                    name_11 = product.startupName + "_powerpoint_presentation_" + date_5 + "." + link.extension;
+                    name_11 =
+                        product.startupName +
+                            "_powerpoint_presentation_" +
+                            date_5 +
+                            "." +
+                            link.extension;
                 }
                 else if (type_1 === "image") {
                     zip.folder(product.startupName);
-                    name_11 = product.startupName + "/" + product.startupName + "_products_image_" + link.uuid[0] + link.uuid[1] + link.uuid[2] + "_" + date_5 + "." + link.extension;
+                    name_11 =
+                        product.startupName +
+                            "/" +
+                            product.startupName +
+                            "_products_image_" +
+                            link.uuid[0] +
+                            link.uuid[1] +
+                            link.uuid[2] +
+                            "_" +
+                            date_5 +
+                            "." +
+                            link.extension;
                 }
                 else if (type_1 === "logo") {
-                    name_11 = product.startupName + "_logo_" + date_5 + "." + link.extension;
+                    name_11 =
+                        product.startupName +
+                            "_logo_" +
+                            date_5 +
+                            "." +
+                            link.extension;
                 }
                 else {
                     name_11 = type_1 + link.extension;
@@ -1756,7 +2137,7 @@ router.get("/download/zip/:type/:date", function (req, res) { return __awaiter(v
                     zip.file(name_11, obj, { base64: true });
                 }
                 else {
-                    res.status(404).send('No obj GETS3OBJ');
+                    res.status(404).send("No obj GETS3OBJ");
                 }
                 return [3 /*break*/, 7];
             case 6:
@@ -1778,7 +2159,12 @@ router.get("/download/zip/:type/:date", function (req, res) { return __awaiter(v
                 return [7 /*endfinally*/];
             case 11:
                 uuid_3 = uuid_1.v4();
-                zip.generateNodeStream({ type: 'nodebuffer', streamFiles: true }).pipe(fs_extra_1.default.createWriteStream(path_1.default.join("/tmp", uuid_3 + '.zip'))).on('finish', function () { return __awaiter(void 0, void 0, void 0, function () {
+                zip.generateNodeStream({
+                    type: "nodebuffer",
+                    streamFiles: true
+                })
+                    .pipe(fs_extra_1.default.createWriteStream(path_1.default.join("/tmp", uuid_3 + ".zip")))
+                    .on("finish", function () { return __awaiter(void 0, void 0, void 0, function () {
                     var link, newLink, upload, tmpFile, url;
                     return __generator(this, function (_a) {
                         switch (_a.label) {
@@ -1817,7 +2203,7 @@ router.get("/download/zip/:type/:date", function (req, res) { return __awaiter(v
                                 return [4 /*yield*/, fs_extra_1.default.remove(tmpFile)];
                             case 7:
                                 _a.sent();
-                                res.status(404).send('No url GETS3URL');
+                                res.status(404).send("No url GETS3URL");
                                 _a.label = 8;
                             case 8: return [3 /*break*/, 12];
                             case 9: return [4 /*yield*/, uploadDownload.deleteLink(newLink.uuid)];
@@ -1826,11 +2212,11 @@ router.get("/download/zip/:type/:date", function (req, res) { return __awaiter(v
                                 return [4 /*yield*/, fs_extra_1.default.remove(tmpFile)];
                             case 11:
                                 _a.sent();
-                                res.status(404).send('Didn\'t upload ADDS3File');
+                                res.status(404).send("Didn't upload ADDS3File");
                                 _a.label = 12;
                             case 12: return [3 /*break*/, 14];
                             case 13:
-                                res.status(404).send('Didn\'t create link ADDLINK');
+                                res.status(404).send("Didn't create link ADDLINK");
                                 _a.label = 14;
                             case 14: return [2 /*return*/];
                         }
@@ -1861,7 +2247,7 @@ router.post("/download/zip/", function (req, res) { return __awaiter(void 0, voi
                 team = req.body.team;
                 city = req.body.city;
                 option = req.body.option;
-                res.status(200).send('OK');
+                res.status(200).send("OK");
                 return [4 /*yield*/, uploadDownload.checkZip(type, date, option, city, team)];
             case 1:
                 _a.sent();
@@ -1963,16 +2349,25 @@ router.post("/download/team/zip/:type/:date", function (req, res) { return __awa
                 if (!!users_7_1.done) return [3 /*break*/, 13];
                 user = users_7_1.value;
                 if (!user) return [3 /*break*/, 12];
-                if (!(user.avatarUu !== '' && user.avatarUu !== null)) return [3 /*break*/, 12];
+                if (!(user.avatarUu !== "" &&
+                    user.avatarUu !== null)) return [3 /*break*/, 12];
                 return [4 /*yield*/, uploadDownload.getS3Object(user.avatarUu)];
             case 11:
                 obj = _j.sent();
-                name_12 = 'UserImages/' + team.location + "_" + team.teamName + '_profile_photo_' + user.firstName + "_" + user.lastName + '.png';
+                name_12 = "UserImages/" +
+                    team.location +
+                    "_" +
+                    team.teamName +
+                    "_profile_photo_" +
+                    user.firstName +
+                    "_" +
+                    user.lastName +
+                    ".png";
                 if (obj !== "") {
                     zip.file(name_12, obj, { base64: true });
                 }
                 else {
-                    res.status(404).send('No obj GETS3OBJ');
+                    res.status(404).send("No obj GETS3OBJ");
                 }
                 _j.label = 12;
             case 12:
@@ -2009,22 +2404,66 @@ router.post("/download/team/zip/:type/:date", function (req, res) { return __awa
                 date_7 = uploadDownload.formatDate(link_1.uploadTime);
                 name_13 = "";
                 if (link_1.fileType === "demoVid") {
-                    name_13 = "Videos/" + team.location + "_" + product_1.startupName + "_tehnic_demo_video_" + date_7 + "." + link_1.extension;
+                    name_13 =
+                        "Videos/" +
+                            team.location +
+                            "_" +
+                            product_1.startupName +
+                            "_tehnic_demo_video_" +
+                            date_7 +
+                            "." +
+                            link_1.extension;
                 }
                 else if (link_1.fileType === "presVid") {
-                    name_13 = "Videos/" + team.location + "_" + product_1.startupName + "_products_presentation_video_" + date_7 + "." + link_1.extension;
+                    name_13 =
+                        "Videos/" +
+                            team.location +
+                            "_" +
+                            product_1.startupName +
+                            "_products_presentation_video_" +
+                            date_7 +
+                            "." +
+                            link_1.extension;
                 }
                 else if (link_1.fileType === "pres") {
-                    name_13 = "PowerPoint/" + team.location + "_" + product_1.startupName + "_powerpoint_presentation_" + date_7 + "." + link_1.extension;
+                    name_13 =
+                        "PowerPoint/" +
+                            team.location +
+                            "_" +
+                            product_1.startupName +
+                            "_powerpoint_presentation_" +
+                            date_7 +
+                            "." +
+                            link_1.extension;
                 }
                 else if (link_1.fileType === "image") {
-                    name_13 = "Images/" + team.location + "_" + product_1.startupName + "_products_image_" + link_1.uuid[0] + link_1.uuid[1] + link_1.uuid[2] + "_" + date_7 + "." + link_1.extension;
+                    name_13 =
+                        "Images/" +
+                            team.location +
+                            "_" +
+                            product_1.startupName +
+                            "_products_image_" +
+                            link_1.uuid[0] +
+                            link_1.uuid[1] +
+                            link_1.uuid[2] +
+                            "_" +
+                            date_7 +
+                            "." +
+                            link_1.extension;
                 }
                 else if (link_1.fileType === "logo") {
-                    name_13 = "Images/" + team.location + "_" + product_1.startupName + "_logo_" + date_7 + "." + link_1.extension;
+                    name_13 =
+                        "Images/" +
+                            team.location +
+                            "_" +
+                            product_1.startupName +
+                            "_logo_" +
+                            date_7 +
+                            "." +
+                            link_1.extension;
                 }
                 else {
-                    res.status(400).send('Unidentified link');
+                    res.status(400).send("Unidentified link");
                 }
                 return [4 /*yield*/, uploadDownload.getS3Object(link_1.uuid)];
             case 20:
@@ -2033,7 +2472,7 @@ router.post("/download/team/zip/:type/:date", function (req, res) { return __awa
                     zip.file(name_13, obj, { base64: true });
                 }
                 else {
-                    res.status(404).send('No obj GETS3OBJ');
+                    res.status(404).send("No obj GETS3OBJ");
                 }
                 return [3 /*break*/, 22];
             case 21:
@@ -2100,16 +2539,28 @@ router.post("/download/team/zip/:type/:date", function (req, res) { return __awa
                 if (!!users_8_1.done) return [3 /*break*/, 41];
                 user = users_8_1.value;
                 if (!user) return [3 /*break*/, 40];
-                if (!(user.avatarUu !== '' && user.avatarUu !== null)) return [3 /*break*/, 40];
+                if (!(user.avatarUu !== "" &&
+                    user.avatarUu !== null)) return [3 /*break*/, 40];
                 return [4 /*yield*/, uploadDownload.getS3Object(user.avatarUu)];
             case 39:
                 obj = _j.sent();
-                name_14 = product.teamName + '/UserImages/' + product.location + "_" + product.teamName + '_profile_photo_' + user.firstName + "_" + user.lastName + '.png';
+                name_14 = product.teamName +
+                    "/UserImages/" +
+                    product.location +
+                    "_" +
+                    product.teamName +
+                    "_profile_photo_" +
+                    user.firstName +
+                    "_" +
+                    user.lastName +
+                    ".png";
                 if (obj !== "") {
-                    zip.file(name_14, obj, { base64: true });
+                    zip.file(name_14, obj, {
+                        base64: true
+                    });
                 }
                 else {
-                    res.status(404).send('No obj GETS3OBJ');
+                    res.status(404).send("No obj GETS3OBJ");
                 }
                 _j.label = 40;
             case 40:
@@ -2145,22 +2596,71 @@ router.post("/download/team/zip/:type/:date", function (req, res) { return __awa
                 name_15 = "";
                 console.log(name_15 + " ");
                 if (link_2.fileType === "demoVid") {
-                    name_15 = product.teamName + '/Videos/' + product.location + "_" + product.teamName + "_tehnic_demo_video_" + date_8 + "." + link_2.extension;
+                    name_15 =
+                        product.teamName +
+                            "/Videos/" +
+                            product.location +
+                            "_" +
+                            product.teamName +
+                            "_tehnic_demo_video_" +
+                            date_8 +
+                            "." +
+                            link_2.extension;
                 }
                 else if (link_2.fileType === "presVid") {
-                    name_15 = product.teamName + '/Videos/' + product.location + "_" + product.teamName + "_products_presentation_video_" + date_8 + "." + link_2.extension;
+                    name_15 =
+                        product.teamName +
+                            "/Videos/" +
+                            product.location +
+                            "_" +
+                            product.teamName +
+                            "_products_presentation_video_" +
+                            date_8 +
+                            "." +
+                            link_2.extension;
                 }
                 else if (link_2.fileType === "pres") {
-                    name_15 = product.teamName + '/PowerPoint/' + product.location + "_" + product.teamName + "_powerpoint_presentation_" + date_8 + "." + link_2.extension;
+                    name_15 =
+                        product.teamName +
+                            "/PowerPoint/" +
+                            product.location +
+                            "_" +
+                            product.teamName +
+                            "_powerpoint_presentation_" +
+                            date_8 +
+                            "." +
+                            link_2.extension;
                 }
                 else if (link_2.fileType === "image") {
-                    name_15 = product.teamName + '/Images/' + product.location + "_" + product.teamName + "_products_image_" + link_2.uuid[0] + link_2.uuid[1] + link_2.uuid[2] + "_" + date_8 + "." + link_2.extension;
+                    name_15 =
+                        product.teamName +
+                            "/Images/" +
+                            product.location +
+                            "_" +
+                            product.teamName +
+                            "_products_image_" +
+                            link_2.uuid[0] +
+                            link_2.uuid[1] +
+                            link_2.uuid[2] +
+                            "_" +
+                            date_8 +
+                            "." +
+                            link_2.extension;
                 }
                 else if (link_2.fileType === "logo") {
-                    name_15 = product.teamName + '/Images/' + product.location + "_" + product.teamName + "_logo_" + date_8 + "." + link_2.extension;
+                    name_15 =
+                        product.teamName +
+                            "/Images/" +
+                            product.location +
+                            "_" +
+                            product.teamName +
+                            "_logo_" +
+                            date_8 +
+                            "." +
+                            link_2.extension;
                 }
                 else {
-                    res.status(400).send('Unidentified link');
+                    res.status(400).send("Unidentified link");
                 }
                 return [4 /*yield*/, uploadDownload.getS3Object(link_2.uuid)];
             case 47:
@@ -2229,7 +2729,7 @@ router.post("/download/team/zip/:type/:date", function (req, res) { return __awa
                 return [4 /*yield*/, teams.getUsersByTeamId(product.teamId)];
             case 65:
                 users_12 = _j.sent();
-                folder = product.location + '/' + product.teamName;
+                folder = product.location + "/" + product.teamName;
                 if (!(users_12.length !== 0)) return [3 /*break*/, 73];
                 _j.label = 66;
             case 66:
@@ -2240,16 +2740,28 @@ router.post("/download/team/zip/:type/:date", function (req, res) { return __awa
                 if (!!users_9_1.done) return [3 /*break*/, 70];
                 user = users_9_1.value;
                 if (!user) return [3 /*break*/, 69];
-                if (!(user.avatarUu !== '' && user.avatarUu !== null)) return [3 /*break*/, 69];
+                if (!(user.avatarUu !== "" &&
+                    user.avatarUu !== null)) return [3 /*break*/, 69];
                 return [4 /*yield*/, uploadDownload.getS3Object(user.avatarUu)];
             case 68:
                 obj = _j.sent();
-                name_16 = folder + '/UserImages/' + product.location + "_" + product.teamName + '_profile_photo_' + user.firstName + "_" + user.lastName + '.png';
+                name_16 = folder +
+                    "/UserImages/" +
+                    product.location +
+                    "_" +
+                    product.teamName +
+                    "_profile_photo_" +
+                    user.firstName +
+                    "_" +
+                    user.lastName +
+                    ".png";
                 if (obj !== "") {
-                    zip.file(name_16, obj, { base64: true });
+                    zip.file(name_16, obj, {
+                        base64: true
+                    });
                 }
                 else {
-                    res.status(404).send('No obj GETS3OBJ');
+                    res.status(404).send("No obj GETS3OBJ");
                 }
                 _j.label = 69;
             case 69:
@@ -2284,22 +2796,71 @@ router.post("/download/team/zip/:type/:date", function (req, res) { return __awa
                 date_9 = uploadDownload.formatDate(link_3.uploadTime);
                 name_17 = "";
                 if (link_3.fileType === "demoVid") {
-                    name_17 = folder + '/Videos/' + product.location + "_" + product.teamName + "_tehnic_demo_video_" + date_9 + "." + link_3.extension;
+                    name_17 =
+                        folder +
+                            "/Videos/" +
+                            product.location +
+                            "_" +
+                            product.teamName +
+                            "_tehnic_demo_video_" +
+                            date_9 +
+                            "." +
+                            link_3.extension;
                 }
                 else if (link_3.fileType === "presVid") {
-                    name_17 = folder + '/Videos/' + product.location + "_" + product.teamName + "_products_presentation_video_" + date_9 + "." + link_3.extension;
+                    name_17 =
+                        folder +
+                            "/Videos/" +
+                            product.location +
+                            "_" +
+                            product.teamName +
+                            "_products_presentation_video_" +
+                            date_9 +
+                            "." +
+                            link_3.extension;
                 }
                 else if (link_3.fileType === "pres") {
-                    name_17 = folder + '/PowerPoint/' + product.location + "_" + product.teamName + "_powerpoint_presentation_" + date_9 + "." + link_3.extension;
+                    name_17 =
+                        folder +
+                            "/PowerPoint/" +
+                            product.location +
+                            "_" +
+                            product.teamName +
+                            "_powerpoint_presentation_" +
+                            date_9 +
+                            "." +
+                            link_3.extension;
                 }
                 else if (link_3.fileType === "image") {
-                    name_17 = folder + '/Images/' + product.location + "_" + product.teamName + "_products_image_" + link_3.uuid[0] + link_3.uuid[1] + link_3.uuid[2] + "_" + date_9 + "." + link_3.extension;
+                    name_17 =
+                        folder +
+                            "/Images/" +
+                            product.location +
+                            "_" +
+                            product.teamName +
+                            "_products_image_" +
+                            link_3.uuid[0] +
+                            link_3.uuid[1] +
+                            link_3.uuid[2] +
+                            "_" +
+                            date_9 +
+                            "." +
+                            link_3.extension;
                 }
                 else if (link_3.fileType === "logo") {
-                    name_17 = folder + '/Images/' + product.location + "_" + product.teamName + "_logo_" + date_9 + "." + link_3.extension;
+                    name_17 =
+                        folder +
+                            "/Images/" +
+                            product.location +
+                            "_" +
+                            product.teamName +
+                            "_logo_" +
+                            date_9 +
+                            "." +
+                            link_3.extension;
                 }
                 else {
-                    res.status(400).send('Unidentified link');
+                    res.status(400).send("Unidentified link");
                 }
                 return [4 /*yield*/, uploadDownload.getS3Object(link_3.uuid)];
             case 76:
@@ -2308,7 +2869,7 @@ router.post("/download/team/zip/:type/:date", function (req, res) { return __awa
                     zip.file(name_17, obj, { base64: true });
                 }
                 else {
-                    res.status(404).send('No obj GETS3OBJ');
+                    res.status(404).send("No obj GETS3OBJ");
                 }
                 return [3 /*break*/, 78];
             case 77:
@@ -2350,21 +2911,27 @@ router.post("/download/team/zip/:type/:date", function (req, res) { return __awa
                 if (!!exists) return [3 /*break*/, 89];
                 uuid_4 = uuid_1.v4();
                 if (Object.keys(zip.files).length !== 0)
-                    zip.generateNodeStream({ type: 'nodebuffer', streamFiles: true }).pipe(fs_extra_1.default.createWriteStream(path_1.default.join("/tmp", uuid_4 + '.zip'))).on('finish', function () { return __awaiter(void 0, void 0, void 0, function () {
+                    zip.generateNodeStream({
+                        type: "nodebuffer",
+                        streamFiles: true
+                    })
+                        .pipe(fs_extra_1.default.createWriteStream(path_1.default.join("/tmp", uuid_4 + ".zip")))
+                        .on("finish", function () { return __awaiter(void 0, void 0, void 0, function () {
                         var linkUuid, productId, product, city, link, newLink, upload, tmpFile, url;
                         return __generator(this, function (_a) {
                             switch (_a.label) {
                                 case 0:
                                     console.log("Finished writing zip");
                                     console.log("Trying to send zip");
-                                    linkUuid = '';
+                                    linkUuid = "";
                                     if (!(type_2 === "team")) return [3 /*break*/, 2];
                                     productId = req.body.productId;
                                     return [4 /*yield*/, teams.getProductById(productId)];
                                 case 1:
                                     product = _a.sent();
                                     if (product)
-                                        linkUuid = (product).startupName + "_uploads_arhive";
+                                        linkUuid =
+                                            product.startupName + "_uploads_arhive";
                                     return [3 /*break*/, 3];
                                 case 2:
                                     if (type_2 === "city") {
@@ -2409,7 +2976,7 @@ router.post("/download/team/zip/:type/:date", function (req, res) { return __awa
                                     return [4 /*yield*/, fs_extra_1.default.remove(tmpFile)];
                                 case 10:
                                     _a.sent();
-                                    res.status(404).send('No url GETS3URL');
+                                    res.status(404).send("No url GETS3URL");
                                     _a.label = 11;
                                 case 11: return [3 /*break*/, 15];
                                 case 12: return [4 /*yield*/, uploadDownload.deleteLink(newLink.uuid)];
@@ -2418,11 +2985,11 @@ router.post("/download/team/zip/:type/:date", function (req, res) { return __awa
                                     return [4 /*yield*/, fs_extra_1.default.remove(tmpFile)];
                                 case 14:
                                     _a.sent();
-                                    res.status(404).send('Didn\'t upload ADDS3File');
+                                    res.status(404).send("Didn't upload ADDS3File");
                                     _a.label = 15;
                                 case 15: return [3 /*break*/, 17];
                                 case 16:
-                                    res.status(404).send('Didn\'t create link ADDLINK');
+                                    res.status(404).send("Didn't create link ADDLINK");
                                     _a.label = 17;
                                 case 17: return [2 /*return*/];
                             }
@@ -2453,7 +3020,7 @@ router.post("/download/team/zip/:type/:date", function (req, res) { return __awa
                 }
                 _j.label = 92;
             case 92:
-                if (!(uuid !== '')) return [3 /*break*/, 94];
+                if (!(uuid !== "")) return [3 /*break*/, 94];
                 return [4 /*yield*/, uploadDownload.getLinkByUuid(uuid)];
             case 93:
                 newLink = _j.sent();
@@ -2475,7 +3042,7 @@ router.post("/download/team/zip/:type/:date", function (req, res) { return __awa
                 _j.sent();
                 _j.label = 99;
             case 99:
-                res.status(404).send('No url GETS3URL');
+                res.status(404).send("No url GETS3URL");
                 _j.label = 100;
             case 100: return [3 /*break*/, 102];
             case 101:
@@ -2498,11 +3065,11 @@ router.post("/upload/file/chunk", function (req, res) { return __awaiter(void 0,
                 if (!!end) return [3 /*break*/, 5];
                 base64 = req.body.base64Encode;
                 data = Buffer.from(base64, "base64");
-                return [4 /*yield*/, fs_extra_1.default.pathExists('./tmp')];
+                return [4 /*yield*/, fs_extra_1.default.pathExists("./tmp")];
             case 1:
                 checkDir = _a.sent();
                 if (!!checkDir) return [3 /*break*/, 3];
-                return [4 /*yield*/, fs_extra_1.default.mkdir('./tmp')];
+                return [4 /*yield*/, fs_extra_1.default.mkdir("./tmp")];
             case 2:
                 _a.sent();
                 _a.label = 3;
@@ -2514,8 +3081,8 @@ router.post("/upload/file/chunk", function (req, res) { return __awaiter(void 0,
             case 5:
                 fileType_1 = req.body.fileType;
                 productId_1 = req.body.productId;
-                filePath_1 = path_1.default.join('./tmp', fileName);
-                if (!(fileType_1 !== 'pres')) return [3 /*break*/, 11];
+                filePath_1 = path_1.default.join("./tmp", fileName);
+                if (!(fileType_1 !== "pres")) return [3 /*break*/, 11];
                 return [4 /*yield*/, fs_extra_1.default.pathExists(filePath_1)];
             case 6:
                 checkFile = _a.sent();
@@ -2547,7 +3114,8 @@ router.post("/upload/file/chunk", function (req, res) { return __awaiter(void 0,
                                         return [4 /*yield*/, metadata.streams[1].height];
                                     case 4:
                                         height_1 = _a.sent();
-                                        if (!(width_1 === undefined || height_1 === undefined)) return [3 /*break*/, 7];
+                                        if (!(width_1 === undefined ||
+                                            height_1 === undefined)) return [3 /*break*/, 7];
                                         return [4 /*yield*/, metadata.streams[2].width];
                                     case 5:
                                         width_1 = _a.sent();
@@ -2556,7 +3124,9 @@ router.post("/upload/file/chunk", function (req, res) { return __awaiter(void 0,
                                         height_1 = _a.sent();
                                         _a.label = 7;
                                     case 7:
-                                        if (!((width_1 !== 0 && width_1 >= 1920) && (height_1 !== 0 && height_1 >= 1080))) return [3 /*break*/, 34];
+                                        if (!(width_1 !== 0 &&
+                                            width_1 >= 1920 &&
+                                            height_1 !== 0 && height_1 >= 1080)) return [3 /*break*/, 34];
                                         link = {
                                             uuid: "",
                                             productId: productId_1,
@@ -2564,7 +3134,9 @@ router.post("/upload/file/chunk", function (req, res) { return __awaiter(void 0,
                                             extension: req.body.ext,
                                             uploadTime: new Date()
                                         };
-                                        if (!(fileType_1 === "demoVid" || fileType_1 === "presVid" || fileType_1 === "logo")) return [3 /*break*/, 23];
+                                        if (!(fileType_1 === "demoVid" ||
+                                            fileType_1 === "presVid" ||
+                                            fileType_1 === "logo")) return [3 /*break*/, 23];
                                         console.log(fileType_1);
                                         return [4 /*yield*/, uploadDownload.getLinksByProductIdAndFileType(productId_1, fileType_1)];
                                     case 8:
@@ -2594,13 +3166,19 @@ router.post("/upload/file/chunk", function (req, res) { return __awaiter(void 0,
                                         return [4 /*yield*/, fs_extra_1.default.remove(tmpFile)];
                                     case 15:
                                         _a.sent();
-                                        res.status(500).send({ err: 500, data: false });
+                                        res.status(500).send({
+                                            err: 500,
+                                            data: false
+                                        });
                                         _a.label = 16;
                                     case 16: return [3 /*break*/, 19];
                                     case 17: return [4 /*yield*/, fs_extra_1.default.remove(filePath_1)];
                                     case 18:
                                         _a.sent();
-                                        res.status(500).send({ err: 500, data: false });
+                                        res.status(500).send({
+                                            err: 500,
+                                            data: false
+                                        });
                                         _a.label = 19;
                                     case 19: return [3 /*break*/, 23];
                                     case 20: return [4 /*yield*/, uploadDownload.deleteLink(links[0].uuid)];
@@ -2609,7 +3187,10 @@ router.post("/upload/file/chunk", function (req, res) { return __awaiter(void 0,
                                         return [4 /*yield*/, fs_extra_1.default.remove(filePath_1)];
                                     case 22:
                                         _a.sent();
-                                        res.status(500).send({ err: 500, data: false });
+                                        res.status(500).send({
+                                            err: 500,
+                                            data: false
+                                        });
                                         _a.label = 23;
                                     case 23: return [4 /*yield*/, uploadDownload.addLink(link)];
                                     case 24:
@@ -2630,13 +3211,19 @@ router.post("/upload/file/chunk", function (req, res) { return __awaiter(void 0,
                                         return [4 /*yield*/, fs_extra_1.default.remove(filePath_1)];
                                     case 29:
                                         _a.sent();
-                                        res.status(404).send({ err: 404, data: false });
+                                        res.status(404).send({
+                                            err: 404,
+                                            data: false
+                                        });
                                         _a.label = 30;
                                     case 30: return [3 /*break*/, 33];
                                     case 31: return [4 /*yield*/, fs_extra_1.default.remove(filePath_1)];
                                     case 32:
                                         _a.sent();
-                                        res.status(404).send({ err: 404, data: false });
+                                        res.status(404).send({
+                                            err: 404,
+                                            data: false
+                                        });
                                         _a.label = 33;
                                     case 33: return [3 /*break*/, 38];
                                     case 34:
@@ -2702,7 +3289,10 @@ router.post("/upload/file/chunk", function (req, res) { return __awaiter(void 0,
                 return [4 /*yield*/, fs_extra_1.default.remove(tmpFile)];
             case 19:
                 _a.sent();
-                res.status(500).send({ err: 500, data: false });
+                res.status(500).send({
+                    err: 500,
+                    data: false
+                });
                 _a.label = 20;
             case 20: return [3 /*break*/, 23];
             case 21: return [4 /*yield*/, fs_extra_1.default.remove(filePath_1)];
@@ -2766,7 +3356,10 @@ router.post("/upload/file/user/avatar", function (req, res) { return __awaiter(v
                 _a.trys.push([0, 11, , 12]);
                 base64Encode = req.body.base64Encode;
                 userId = req.body.userId;
-                if (!(base64Encode !== "" && base64Encode !== undefined && userId !== "" && userId !== undefined)) return [3 /*break*/, 9];
+                if (!(base64Encode !== "" &&
+                    base64Encode !== undefined &&
+                    userId !== "" &&
+                    userId !== undefined)) return [3 /*break*/, 9];
                 uuid = uuid_1.v4();
                 if (!(uuid !== "")) return [3 /*break*/, 7];
                 return [4 /*yield*/, uploadDownload.addS3File(uuid, base64Encode, "base64")];

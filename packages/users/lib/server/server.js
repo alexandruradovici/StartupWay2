@@ -817,22 +817,25 @@ router.use(function (req, res, next) {
     next();
 });
 router.post("/login", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var session, user, resp, e_3;
+    var user, session, resp, noUserSession, e_3;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                _a.trys.push([0, 5, , 6]);
-                return [4 /*yield*/, usersServer.createSession(req.body.username, req.body.password)];
-            case 1:
-                session = _a.sent();
+                _a.trys.push([0, 6, , 7]);
                 return [4 /*yield*/, usersServer.getUserByUsername(req.body.username)];
-            case 2:
+            case 1:
                 user = _a.sent();
                 if (!user) return [3 /*break*/, 4];
-                user.lastLogin = req.body.lastLogin;
+                return [4 /*yield*/, usersServer.createSession(req.body.username, req.body.password)];
+            case 2:
+                session = _a.sent();
+                console.log("SESSION");
+                console.log(session);
+                console.log("SESSION");
                 return [4 /*yield*/, usersServer.modifyUser(user)];
             case 3:
                 resp = _a.sent();
+                user.lastLogin = req.body.lastLogin;
                 if (resp) {
                     if (session === null) {
                         res.send(null);
@@ -847,14 +850,23 @@ router.post("/login", function (req, res) { return __awaiter(void 0, void 0, voi
                 else {
                     res.send(null);
                 }
-                _a.label = 4;
-            case 4: return [3 /*break*/, 6];
-            case 5:
+                return [3 /*break*/, 5];
+            case 4:
+                noUserSession = {
+                    sessionId: "",
+                    token: "cred",
+                    userId: "",
+                    createdAt: new Date()
+                };
+                res.status(202).send(noUserSession);
+                _a.label = 5;
+            case 5: return [3 /*break*/, 7];
+            case 6:
                 e_3 = _a.sent();
                 console.error(e_3);
                 res.status(500).send({ err: 500, data: null });
-                return [3 /*break*/, 6];
-            case 6: return [2 /*return*/];
+                return [3 /*break*/, 7];
+            case 7: return [2 /*return*/];
         }
     });
 }); });
@@ -969,10 +981,10 @@ router.get("/users", function (req, res) { return __awaiter(void 0, void 0, void
                     // for(let user of usersList) {
                     // 	console.log(user.socialMedia);
                     // 	console.log(typeof user.socialMedia);
-                    // 	if(typeof user.socialMedia === "string") {
+                    // 	if (typeof user.socialMedia === "string") {
                     // 		user.socialMedia = JSON.parse((user.socialMedia as any) as string);
                     // 	}
-                    // 	if(typeof user.userDetails === "string") {
+                    // 	if (typeof user.userDetails === "string") {
                     // 		user.userDetails = JSON.parse((user.userDetails as any) as string);
                     // 	}
                     // }

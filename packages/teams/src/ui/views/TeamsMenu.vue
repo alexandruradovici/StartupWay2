@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<SimpleMenu v-if="teams.length !== 0" :options="options" @click="click"></SimpleMenu>
-		<SnackBar :options="snackOptions" :snackbar="snackbar" @update-prop="update"></SnackBar>
+		<SnackBar :options="snackOptions" v-if="snackbar" @update-snackbar="update"></SnackBar>
 	</div>
 </template>
 
@@ -26,16 +26,16 @@ export default Vue.extend({
 		currentTeam: {
 			immediate: true,
 			async handler (newTeam: Team):Promise<void> {
-				if(newTeam) {
+				if (newTeam) {
 					this.options.menuName = newTeam.teamName;
 					try {
-						if(newTeam.teamId !== "" && newTeam.teamId !== undefined) {
+						if (newTeam.teamId !== "" && newTeam.teamId !== undefined) {
 							const response = await this.ui.api.get<{data:string,type:string,ext:string,uuid:string}[] | null>("/api/v1/uploadDownload/get/file/product/logo/"+ newTeam.productId);
-							if(response.data) {
+							if (response.data) {
 								const aux = this.options;
 								aux.img = response.data[0].data;
 								this.options = aux;
-							} else if(response.status === 500) {
+							} else if (response.status === 500) {
 								this.snackOptions.text = "Server Error while Loading User Avatar. If the error persists, please contact technical support: teams@tech-lounge.ro.";
 								this.snackOptions.type = SnackBarTypes.ERROR;
 								this.snackOptions.timeout = 2000;
@@ -45,7 +45,7 @@ export default Vue.extend({
 							}
 						}
 					} catch (e) {
-						if(e.status === 500) {
+						if (e.status === 500) {
 							console.error(e);
 							this.snackOptions.text = "Server Error while Loading Team Avatar. If the error persists, please contact technical support: teams@tech-lounge.ro.";
 							this.snackOptions.type = SnackBarTypes.ERROR;
@@ -69,21 +69,21 @@ export default Vue.extend({
 						icon: "mdi-group",
 						img:this.img.data
 					}
-					if(this.options.items.find((letter:{id:string}) => {
+					if (this.options.items.find((letter:{id:string}) => {
 						return letter.id === item.id;
 					}) === undefined) {
 						this.options.items.push(item)
 					}
 				}
-				if(this.options.items.length > 0)
+				if (this.options.items.length > 0)
 					this.$store.dispatch("teams/selectTeam", this.options.items[0].id);
 			},
 		},
 		user: {
 			immediate:true,
 			async handler (newUser:User):Promise<void> {	
-				if(newUser) {
-					if( newUser.userId !== "" || newUser.userId )
+				if (newUser) {
+					if ( newUser.userId !== "" || newUser.userId )
 					{
 						try {
 							await this.ui.storeDispatch("teams/loadTeams",newUser.userId);
@@ -127,14 +127,14 @@ export default Vue.extend({
 	},
 	methods: {
 		async getTeamImage(team:Team):Promise<void> {
-			if(team.teamId !== "" && team.teamId !== undefined) {
+			if (team.teamId !== "" && team.teamId !== undefined) {
 				const response = await this.ui.api.get<{data:string,type:string,ext:string,uuid:string}[] | null>("/api/v1/uploadDownload/get/file/product/logo/"+ team.productId);
-				if(response.data) {
-					if(response.data.length > 0)
+				if (response.data) {
+					if (response.data.length > 0)
 					this.img=response.data[0];
 					else 
 					this.img={data:""};
-				} else if(response.status === 500) {
+				} else if (response.status === 500) {
 					// const item: SimpleMenuItem = {
 					// 	id: team.teamId,
 					// 	title: team.teamName,

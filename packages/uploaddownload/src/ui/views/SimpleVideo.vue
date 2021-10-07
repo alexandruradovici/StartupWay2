@@ -74,9 +74,9 @@ export default Vue.extend({
 		async getVideo(productId:string,type:string):Promise<void> {
 			try {
 				let response = await this.ui.api.get<{data:string,type:string,ext:string,uuid:string}[] | null>("/api/v1/uploadDownload/get/file/product/"+ this.type +"/"+ this.productId)
-				if(response.data) {
+				if (response.data) {
 					let video = response.data[0];
-					if(video !== undefined) {
+					if (video !== undefined) {
 						this.videoSource = video.data;
 						this.extension = video.ext;
 						this.uuid = video.uuid;

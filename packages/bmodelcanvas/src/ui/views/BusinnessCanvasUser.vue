@@ -1,5 +1,5 @@
 <template>
-	<v-app>
+	<div>
 		<v-container v-if="!loadingPage">
 			<v-container>
 				<v-card flat outlined color="#fcfcfc" class="justify-center">
@@ -247,7 +247,7 @@
 				</v-col>
 			</v-row>
 		</v-container>
-	</v-app>
+	</div>
 </template>
 
 <script lang="ts">
@@ -277,10 +277,10 @@ export default Vue.extend({
 			immediate: true,
 			async handler(newTeam: Team | null):Promise<void> {
 				this.loadingPage = true;
-				if(newTeam) {
+				if (newTeam) {
 				this.teamId = newTeam.teamId;
 					if (this.teamId === "") {
-						if(this.$route.path!=="/workspace")
+						if (this.$route.path!=="/workspace")
 							this.$router.push("/workspace");
 					} else {
 						try {
@@ -300,7 +300,7 @@ export default Vue.extend({
 		product: {
 			immediate: true,
 			handler(newProduct: Product | null):void {
-				if(newProduct)
+				if (newProduct)
 					this.productId = newProduct.productId;
 			}
 		},
@@ -381,17 +381,17 @@ export default Vue.extend({
 	},
 	methods: {
 		countdown(type: string, model: string):void {
-			if(model.length > 250) {
+			if (model.length > 250) {
 				this.checkLength = true;
-				if(!this.types.find(el => el === type)) {
+				if (!this.types.find(el => el === type)) {
 					this.types.push(type);
 				}
 			}
 			else {
-				if(this.types.find(el => el === type)) {
+				if (this.types.find(el => el === type)) {
 					this.types = this.types.filter(el => el !== type)
 				}
-				if(this.types.length === 0)
+				if (this.types.length === 0)
 					this.checkLength = false;
 			}
 		},
@@ -401,7 +401,7 @@ export default Vue.extend({
 		},
 		isToday(someDate: Date):boolean {
 			const today = new Date();
-			if(typeof someDate === "string") {
+			if (typeof someDate === "string") {
 				someDate = new Date(someDate);
 			}
 			return someDate.getDate() == today.getDate() &&
@@ -455,7 +455,7 @@ export default Vue.extend({
 			}
 			try {
 				let product = await this.ui.api.get<Product | null>("/api/v1/teams/product/" + this.teamId);
-				if(product.data) {
+				if (product.data) {
 					product.data.updatedAt = (this.formatDate(new Date()) as unknown as Date) ;
 					try {
 						await this.ui.api.post<Product | null>("/api/v1/teams/product/update", {

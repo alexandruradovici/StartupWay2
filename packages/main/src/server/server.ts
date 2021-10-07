@@ -34,7 +34,7 @@ export class Server {
 		}
 	}
 
-    async start (port:number = 8080):Promise<void> {
+    async start (port:number = 9090):Promise<void> {
 		this.app.use ('/api/v1', express.json({limit:314572800}));
 		this.app.use ('/api/v1', this.apiv1);
 		const server = createServer(this.app);

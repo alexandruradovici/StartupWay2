@@ -1,8 +1,11 @@
 import Vue from "vue";
 import { UI } from "@startupway/main/lib/ui";
-declare const _default: import("vue/types/vue").ExtendedVue<Vue, {
+import { SnackBarOptions } from "@startupway/menu/lib/ui";
+interface EditAccount {
     ui: UI;
-    extendedImage: string;
+    snackOptions: SnackBarOptions;
+    snackbar: boolean;
+    extendedImage: string | null;
     extendDialog: boolean;
     loadingPage: boolean;
     show: boolean;
@@ -22,17 +25,18 @@ declare const _default: import("vue/types/vue").ExtendedVue<Vue, {
     details: string;
     faculty: string;
     group: string;
-    imageRules: ((value: File) => true | "Image size should be less than 5 MB!")[];
-    characterRules: ((f: string) => true | "Filed cannot be empty!")[];
-    phoneRules: ((v: string) => true | "Phone number is not valid")[];
-    file: File;
+    imageRules: ((param: File) => boolean | string)[];
+    characterRules: ((param: string) => boolean | string)[];
+    phoneRules: ((param: string) => boolean | string)[];
+    file: File | undefined;
     encoded: boolean;
     base64Encode: string;
     ext: string;
-    profileImage: {};
-    imgData: string;
+    imgData: string | null;
     valid: boolean;
-}, {
+}
+declare const _default: import("vue/types/vue").ExtendedVue<Vue, EditAccount, {
+    updateSnack(prop: boolean): void;
     extendImage(image: string): void;
     _toBase64(file: File): boolean;
     goToSecurity(): void;
