@@ -1,0 +1,12 @@
+.bg {
+  background-image: linear-gradient(to right top, #ffffff, #fafbfe, #f4f8fc, #ecf5fa, #e4f2f6, #d2e7eb, #c0dcde, #aed1d1, #8dbcbc, #6ca7a8, #499294, #197e81);
+}
+
+.zoom {
+  transition: transform 0.2s;
+  /* Animation */
+}
+
+.zoom:hover {
+  transform: scale(1.2);
+}

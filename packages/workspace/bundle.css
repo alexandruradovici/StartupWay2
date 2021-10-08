@@ -1,0 +1,18 @@
+.zoom {
+  transition: transform 0.2s;
+  /* Animation */
+}
+
+.zoom:hover {
+  transform: scale(1.2);
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s;
+}
+
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
+}

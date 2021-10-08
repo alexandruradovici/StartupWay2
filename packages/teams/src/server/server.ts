@@ -15,7 +15,7 @@ export class TeamsServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if (conn) {
+			if(conn) {
 				await conn.beginTransaction();
 				let o: Team & Product;
 				const queryOptions: QueryOptions = {
@@ -54,7 +54,7 @@ export class TeamsServer {
 							updatedAt: product.updatedAt,
 							lastMentorUpdate: product.lastMentorUpdate
 						}
-						if (o) {
+						if(o) {
 							await conn.commit();
 							return o;
 						} else {
@@ -78,7 +78,7 @@ export class TeamsServer {
 			}
 		} catch (error) {
 			console.error(error);
-			if (conn) {
+			if(conn) {
 				await conn.rollback();
 			}
 			return null;
@@ -92,7 +92,7 @@ export class TeamsServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if (conn) {
+			if(conn) {
 				await conn.beginTransaction();
 				const queryOptions: QueryOptions = {
 					namedPlaceholders: true,
@@ -101,17 +101,17 @@ export class TeamsServer {
 				await conn.query(queryOptions,{ teamId: team.teamId });
 				queryOptions.sql = "SELECT teamId as deleted_id FROM userTeams WHERE teamId=:teamId";
 				const deleteUT:{deleted_id:string}[] = await conn.query(queryOptions, { teamId: team.teamId });
-				if (deleteUT && deleteUT.length === 0) {
+				if(deleteUT && deleteUT.length === 0) {
 					queryOptions.sql = "DELETE FROM teams WHERE teams.teamId=:teamId";
 					await conn.query(queryOptions,{ teamId: team.teamId });
 					queryOptions.sql = "SELECT teamId as deleted_id FROM teams WHERE teamId=:teamId";
 					const deleteT:{deleted_id:string}[] = await conn.query(queryOptions, { teamId: team.teamId });
-					if (deleteT && deleteT.length === 0) {
+					if(deleteT && deleteT.length === 0) {
 						queryOptions.sql = "DELETE FROM products WHERE product.productId=:productId";
 						await conn.query(queryOptions,{ teamId: team.teamId });
 						queryOptions.sql = "SELECT productId as deleted_id FROM products WHERE productId=:productId";
 						const deleteP:{deleted_id:string}[] = await conn.query(queryOptions, { productId: team.productId });
-						if (deleteP && deleteP.length === 0) {
+						if(deleteP && deleteP.length === 0) {
 							await conn.commit();
 							return true;
 						}
@@ -124,7 +124,7 @@ export class TeamsServer {
 			}
 		} catch (error) {
 			console.error(error);
-			if (conn) {
+			if(conn) {
 				await conn.rollback();
 			}
 			return false;
@@ -138,7 +138,7 @@ export class TeamsServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if (conn) {
+			if(conn) {
 				await conn.beginTransaction();
 				const queryOptions: QueryOptions = {
 					namedPlaceholders: true,
@@ -160,7 +160,7 @@ export class TeamsServer {
 			}
 		} catch (e) {
 			console.error(e);
-			if (conn){
+			if(conn){
 				await conn.rollback();
 			}
 			return null
@@ -174,7 +174,7 @@ export class TeamsServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if (conn) {
+			if(conn) {
 				await conn.beginTransaction();
 				const queryOptions: QueryOptions = {
 					namedPlaceholders: true,
@@ -183,7 +183,7 @@ export class TeamsServer {
 				await conn.query(queryOptions, { userId: user.userId, teamId: team.teamId});
 				queryOptions.sql = "SELECT userProductId as deleted_id FROM userTeams WHERE userTeams.userId=:userId AND teamId=:teamId";
 				const response:{deleted_id:string}[] = await conn.query(queryOptions, { userId: user.userId, teamId: team.teamId });
-				if (response && response.length === 0) {
+				if(response && response.length === 0) {
 					await conn.commit();
 					return true;
 				} else {
@@ -195,7 +195,7 @@ export class TeamsServer {
 			}
 		} catch (e) {
 			console.error(e);
-			if (conn) {
+			if(conn) {
 				await conn.rollback();
 			}
 			return false
@@ -209,7 +209,7 @@ export class TeamsServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if (conn) {
+			if(conn) {
 				const queryOptions: QueryOptions = {
 					namedPlaceholders: true,
 					sql: "SELECT teams.*, userTeams.userProductId, userTeams.role, userTeams.userId FROM teams INNER JOIN userTeams ON userTeams.teamId = teams.teamId WHERE userTeams.userId=:userId"
@@ -225,8 +225,6 @@ export class TeamsServer {
 			}
 		} catch (e) {
 			console.error(e);
-			if (conn)
-				await conn.release();
 			return [];
 		} finally {
 			if(conn)
@@ -238,7 +236,7 @@ export class TeamsServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if (conn) {
+			if(conn) {
 				const queryOptions: QueryOptions = {
 					namedPlaceholders: true,
 					sql: "SELECT teams.teamId, teams.teamName, teams.teamDetails, teams.location, teams.year, products.* FROM teams INNER JOIN products ON teams.productId = products.productId"
@@ -254,8 +252,6 @@ export class TeamsServer {
 			}
 		} catch (e) {
 			console.error(e);
-			if (conn)
-				await conn.release();
 			return [];
 		} finally {
 			if(conn)
@@ -267,7 +263,7 @@ export class TeamsServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if (conn) {
+			if(conn) {
 				const queryOptions: QueryOptions = {
 					namedPlaceholders: true,
 					sql: "SELECT teams.teamId, teams.teamName, teams.teamDetails, teams.location, teams.year, products.* FROM teams INNER JOIN products ON teams.productId = products.productId and teams.location=:location"
@@ -283,8 +279,34 @@ export class TeamsServer {
 			}
 		} catch (e) {
 			console.error(e);
-			if (conn)
-				await conn.release();
+			return [];
+		} finally {
+			if(conn)
+				conn.release();
+		}
+	}
+
+	async getTeamsByLocationBtFinals(location: string, businessTrack:string, semifinals:boolean, finals:boolean): Promise<(Team & Product)[]> {
+		let conn:PoolConnection | null = null;
+		try {
+			conn = await getPool().getConnection();
+			if(conn) {
+				const queryOptions: QueryOptions = {
+					namedPlaceholders: true,
+					sql:
+						"SELECT teams.teamId, teams.teamName, teams.teamDetails, teams.location, teams.year, products.* FROM teams INNER JOIN products ON teams.productId = products.productId and teams.location=:location and product.businessTrack=:businessTrack and AND JSON_EXTRACT(productDetails,'$.assessmentSemifinals') = :semifinals AND JSON_EXTRACT(productDetails,'$.assessmentFinals') = :finals)"
+				};
+				const teamsReponse: (Team & Product)[] = await conn.query(queryOptions, { location, businessTrack, semifinals, finals});
+				if (teamsReponse && teamsReponse.length > 0) {
+					return teamsReponse;
+				} else {
+					return [];
+				}
+			} else {
+				return [];
+			}
+		} catch (e) {
+			console.error(e);
 			return [];
 		} finally {
 			if(conn)
@@ -296,7 +318,7 @@ export class TeamsServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if (conn) {
+			if(conn) {
 				if (teamId && teamId !== "") {
 					const queryOptions: QueryOptions = {
 						namedPlaceholders: true,
@@ -317,8 +339,6 @@ export class TeamsServer {
 		} catch (e) {
 			console.log("GetTeamByID");
 			console.error(e);
-			if (conn)
-				await conn.release();
 			return null;
 		} finally {
 			if(conn)
@@ -330,7 +350,7 @@ export class TeamsServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if (conn) {
+			if(conn) {
 				if (productId && productId !== "") {
 					const queryOptions: QueryOptions = {
 						namedPlaceholders: true,
@@ -350,8 +370,6 @@ export class TeamsServer {
 			}
 		} catch (e) {
 			console.error(e);
-			if (conn)
-				await conn.release();
 			return null;
 		} finally {
 			if(conn)
@@ -363,7 +381,7 @@ export class TeamsServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if (conn) {
+			if(conn) {
 				const queryOptions: QueryOptions = {
 					namedPlaceholders: true,
 					sql: "SELECT * FROM teams WHERE teams.teamId IN (:...list)"
@@ -379,8 +397,6 @@ export class TeamsServer {
 			}
 		} catch (e) {
 			console.error(e);
-			if (conn)
-				await conn.release();
 			return [];
 		} finally {
 			if(conn)
@@ -409,7 +425,7 @@ export class TeamsServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if (conn) {
+			if(conn) {
 				const tList: string[] = [];
 				const queryOptions: QueryOptions = {
 					namedPlaceholders: true,
@@ -429,8 +445,6 @@ export class TeamsServer {
 			}
 		} catch (e) {
 			console.error(e);
-			if (conn)
-				await conn.release();
 			return [];
 		} finally {
 			if(conn)
@@ -442,7 +456,7 @@ export class TeamsServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if (conn) {
+			if(conn) {
 				if (productId && productId !== "") {
 					const queryOptions: QueryOptions = {
 						namedPlaceholders: true,
@@ -462,8 +476,6 @@ export class TeamsServer {
 			}
 		} catch (e) {
 			console.error(e);
-			if (conn)
-				await conn.release();
 			return null;
 		} finally {
 			if(conn)
@@ -474,7 +486,7 @@ export class TeamsServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if (conn) {
+			if(conn) {
 				const queryOptions: QueryOptions = {
 					namedPlaceholders: true,
 					sql: "SELECT * FROM userTeams WHERE userTeams.userId=:userId AND userTeams.teamId=:teamId"
@@ -490,8 +502,6 @@ export class TeamsServer {
 			}
 		} catch (e) {
 			console.error(e);
-			if (conn)
-				await conn.release();
 			return null;
 		} finally {
 			if(conn)
@@ -503,7 +513,7 @@ export class TeamsServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if (conn) {
+			if(conn) {
 				const queryOptions: QueryOptions = {
 					namedPlaceholders: true,
 					sql: "SELECT products.timestamp FROM products WHERE products.productId=:productId"
@@ -519,8 +529,6 @@ export class TeamsServer {
 			}
 		} catch (e) {
 			console.error(e);
-			if (conn)
-				await conn.release();
 			return null;
 		} finally {
 			if(conn)
@@ -531,7 +539,7 @@ export class TeamsServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if (conn) {
+			if(conn) {
 				const queryOptions: QueryOptions = {
 					namedPlaceholders: true,
 					sql: "SELECT * FROM teams WHERE teams.year=:year AND teams.location=:location AND teams.teamName=:teamName"
@@ -547,8 +555,6 @@ export class TeamsServer {
 			}
 		} catch (e) {
 			console.error(e);
-			if (conn)
-				await conn.release();
 			return null;
 		} finally {
 			if(conn)
@@ -560,7 +566,7 @@ export class TeamsServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if (conn) {
+			if(conn) {
 				const queryOptions: QueryOptions = {
 					namedPlaceholders: true,
 					sql: ""
@@ -587,8 +593,6 @@ export class TeamsServer {
 			}
 		} catch (e) {
 			console.error(e);
-			if (conn)
-				await conn.release();
 			return false;
 		} finally {
 			if(conn)
@@ -599,7 +603,7 @@ export class TeamsServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if (conn) {
+			if(conn) {
 				const queryOptions: QueryOptions = {
 					namedPlaceholders: true,
 					sql: "SELECT userTeams.userProductId, userTeams.teamId, users.* FROM userTeams INNER JOIN users ON users.userId=userTeams.userId WHERE userTeams.teamId=:teamId"
@@ -615,8 +619,6 @@ export class TeamsServer {
 			}
 		} catch (e) {
 			console.error(e);
-			if (conn)
-				await conn.release();
 			return [];
 		} finally {
 			if(conn)
@@ -628,7 +630,7 @@ export class TeamsServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if (conn) {
+			if(conn) {
 				const teamById: Team | null = await this.getTeamById(teamId);
 				if (teamById) {
 					const queryOptions: QueryOptions = {
@@ -650,8 +652,6 @@ export class TeamsServer {
 		} catch (e) {
 			console.log("getProductByTeamId");
 			console.error(e);
-			if (conn)
-				await conn.release();
 			return null;
 		} finally {
 			if(conn)
@@ -662,7 +662,7 @@ export class TeamsServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if (conn) {
+			if(conn) {
 				const queryOptions: QueryOptions = {
 					namedPlaceholders: true,
 					sql: "SELECT teams.teamId, teams.teamName, teams.teamDetails, teams.location, teams.year, products.* FROM teams INNER JOIN products ON teams.productId=products.productId AND products.mentorId=:mentorId"
@@ -678,8 +678,6 @@ export class TeamsServer {
 			}
 		} catch (error) {
 			console.error(error);
-			if (conn)
-				await conn.release();
 			return [];
 		} finally {
 			if(conn)
@@ -690,7 +688,7 @@ export class TeamsServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if (conn) {
+			if(conn) {
 				const queryOptions: QueryOptions = {
 					namedPlaceholders: true,
 					sql: "SELECT teams.* FROM teams INNER JOIN products ON products.productId=teams.productId WHERE products.mentorId=:mentorId"
@@ -706,8 +704,6 @@ export class TeamsServer {
 			}
 		} catch (error) {
 			console.error(error);
-			if (conn)
-				await conn.release();
 			return [];
 		} finally {
 			if(conn)
@@ -718,7 +714,7 @@ export class TeamsServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if (conn) {
+			if(conn) {
 				const queryOptions: QueryOptions = {
 					namedPlaceholders: true,
 					sql: "SELECT * FROM products WHERE mentorId=:mentorId"
@@ -734,8 +730,6 @@ export class TeamsServer {
 			}
 		} catch (error) {
 			console.error(error);
-			if (conn)
-				await conn.release();
 			return [];
 		} finally {
 			if(conn)
@@ -746,7 +740,7 @@ export class TeamsServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if (conn) {
+			if(conn) {
 				await conn.beginTransaction();
 				const queryOptions: QueryOptions = {
 					namedPlaceholders: true,
@@ -767,7 +761,7 @@ export class TeamsServer {
 			}
 		} catch (error) {
 			console.error(error);
-			if (conn) {
+			if(conn) {
 				await conn.rollback();
 			}
 			return null;
@@ -780,7 +774,7 @@ export class TeamsServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if (conn) {
+			if(conn) {
 				await conn.beginTransaction();
 				const queryOptions: QueryOptions = {
 					namedPlaceholders: true,
@@ -801,7 +795,7 @@ export class TeamsServer {
 			}
 		} catch (error) {
 			console.error(error);
-			if (conn) {
+			if(conn) {
 				await conn.rollback();
 			}
 			return null;
@@ -834,7 +828,7 @@ export class TeamsServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if (conn) {
+			if(conn) {
 				const queryOptions: QueryOptions = {
 					namedPlaceholders: true,
 					sql: "SELECT * FROM userActivities WHERE userActivities.userId=:userId AND userActivities.teamId=:teamId ORDER BY date ASC"
@@ -850,8 +844,6 @@ export class TeamsServer {
 			}
 		} catch (error) {
 			console.error(error);
-			if (conn)
-				await conn.release();
 			return [];
 		} finally {
 			if(conn)
@@ -863,7 +855,7 @@ export class TeamsServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if (conn) {
+			if(conn) {
 				await conn.beginTransaction();
 				const queryOptions: QueryOptions = {
 					namedPlaceholders: true,
@@ -891,7 +883,7 @@ export class TeamsServer {
 			}
 		} catch (error) {
 			console.error(error);
-			if (conn) {
+			if(conn) {
 				await conn.rollback();
 			}
 			return null;
@@ -905,7 +897,7 @@ export class TeamsServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if (conn) {
+			if(conn) {
 				await conn.beginTransaction();
 				const queryOptions: QueryOptions = {
 					namedPlaceholders: true,
@@ -933,7 +925,7 @@ export class TeamsServer {
 			}
 		} catch (error) {
 			console.error(error);
-			if (conn) {
+			if(conn) {
 				await conn.rollback();
 			}
 			return null;
@@ -946,7 +938,7 @@ export class TeamsServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if (conn) {
+			if(conn) {
 				await conn.beginTransaction();
 				const queryOptions: QueryOptions = {
 					namedPlaceholders: true,
@@ -967,7 +959,7 @@ export class TeamsServer {
 			}
 		} catch (e) {
 			console.error(e);
-			if (conn) {
+			if(conn) {
 				await conn.rollback();
 			}
 			return null;
@@ -980,7 +972,7 @@ export class TeamsServer {
 		let conn:PoolConnection | null = null;
 		try {
 			conn = await getPool().getConnection();
-			if (conn) {
+			if(conn) {
 				await conn.beginTransaction();
 				const queryOptions: QueryOptions = {
 					namedPlaceholders: true,
@@ -1001,7 +993,7 @@ export class TeamsServer {
 			}
 		} catch (e) {
 			console.error(e);
-			if (conn) {
+			if(conn) {
 				await conn.rollback();
 			}
 			return null;

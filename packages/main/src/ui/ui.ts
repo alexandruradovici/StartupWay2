@@ -3,7 +3,7 @@ import VueRouter, { RouteConfig } from "vue-router";
 import Vuex, { Module, StoreOptions, Store } from "vuex";
 import { UserVuetifyPreset } from "vuetify";
 import Vuetify from "vuetify/lib/framework";
-import 'vuetify/dist/vuetify.min.css';
+// import 'vuetify/dist/vuetify.min.css';
 import axios, {AxiosInstance} from "axios";
 // import '@mdi/font/css/materialdesignicons.css';
 import Application from "./views/Application.vue";

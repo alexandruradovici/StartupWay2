@@ -26,7 +26,6 @@ export class FeedServer {
 				if (feeds) {
 					if (feeds.length > 3) {
 						await conn.commit();
-						await conn.release();
 						return null;
 					} else {
 						queryOptions.sql = "INSERT INTO feeds (feedId, teamId, feedType, text, date) VALUES(:feedId,:teamId,:feedType,:text,:date)";
@@ -35,17 +34,14 @@ export class FeedServer {
 						const resp: Feed[] = await conn.query(queryOptions,{feedId:feedParam.feedId});
 						if (resp && resp.length > 0 && resp[0]) {
 							await conn.commit();
-							await conn.release();
 							return resp[0];
 						} else {
 							await conn.rollback();
-							await conn.release();
 							return null
 						}
 					}
 				} else {
 					await conn.rollback();
-					await conn.release();
 					return null;
 				}
 			} else {
@@ -55,9 +51,12 @@ export class FeedServer {
 			console.error(e);
 			if (conn) {
 				await conn.rollback();
-				await conn.release();
 			}
 			return null;
+		} finally {
+			if (conn) {
+				await conn.release();
+			}
 		}
 	}
 
@@ -76,11 +75,9 @@ export class FeedServer {
 				const resp:Feed[] = await conn.query(queryOptions,feedParam);
 				if (resp && resp.length > 0 && resp[0]) {
 					await conn.commit();
-					await conn.release();
 					return resp[0];
 				} else {
 					await conn.rollback();
-					await conn.release();
 					return null;
 				}
 			} else {
@@ -90,9 +87,12 @@ export class FeedServer {
 			console.error(e);
 			if (conn) {
 				await conn.rollback();
-				await conn.release();
 			}
 			return null;
+		} finally {
+			if (conn) {
+				await conn.release();
+			}
 		}
 	}
 

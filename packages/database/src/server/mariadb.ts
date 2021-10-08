@@ -84,7 +84,7 @@ export class MariaDBServer {
 				sql: `SELECT schema_name FROM information_schema.schemata WHERE schema_name = :db`
 			};
 			// Get DB schemba name 
-			const r:any[] = await auxConn.query(queryOptions, {db:process.env.DB_NAME});
+			const r:any[] = await auxPool.query(queryOptions, {db:process.env.DB_NAME});
 			if (r[0] === undefined || r[0].length < 1) {
 				queryOptions = {
 					namedPlaceholders:true,

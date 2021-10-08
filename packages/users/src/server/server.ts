@@ -62,25 +62,16 @@ export class UsersServer {
 				sql: "SELECT users.*, userTeams.teamId, userTeams.role FROM users INNER JOIN userTeams ON user.userId!=:userTeams.userId"
 			}
 			const allUserTeams:(User&UserTeams)[] = await conn.query(queryOptions);
-<<<<<<< HEAD
-			if (allUserTeams && allUserTeams.length > 0) {
-				await conn.release();
-=======
 			if(allUserTeams && allUserTeams.length > 0) {
->>>>>>> 35cc021fa611c0ae7f844bd4d43310f77554b955
 				return allUserTeams;
 			} else {
 				return [];
 			}
 		} catch (error) {
 			console.error(error);
-<<<<<<< HEAD
-			if (conn)
-=======
 			return [];
 		} finally {
 			if(conn)
->>>>>>> 35cc021fa611c0ae7f844bd4d43310f77554b955
 				await conn.release();
 		}
 	}
@@ -181,21 +172,11 @@ export class UsersServer {
 				createdAt: new Date(),
 			};
 			errorSession.token = "error";
-<<<<<<< HEAD
-			if (conn)
-				await conn.release();
-=======
->>>>>>> 35cc021fa611c0ae7f844bd4d43310f77554b955
 			return errorSession;
 		} finally {
 			if(conn)
 				conn.release();
 		}
-<<<<<<< HEAD
-		if (conn)
-			await conn.release();
-=======
->>>>>>> 35cc021fa611c0ae7f844bd4d43310f77554b955
 		return null;
 	}
 
@@ -231,13 +212,7 @@ export class UsersServer {
 			if(conn)
 				conn.release();
 		}
-<<<<<<< HEAD
-		if (conn)
-			await conn.release();
-			return false;
-=======
 		return false;
->>>>>>> 35cc021fa611c0ae7f844bd4d43310f77554b955
 	}
 
 	async getUserByUsername(username: string): Promise<User | null> {
@@ -260,11 +235,6 @@ export class UsersServer {
 			if(conn)
 				await conn.release();
 		}
-<<<<<<< HEAD
-		if (conn)
-			await conn.release();
-=======
->>>>>>> 35cc021fa611c0ae7f844bd4d43310f77554b955
 		return null;
 	}
 	async getUserByEmail(email: string): Promise<User | null> {
@@ -288,11 +258,6 @@ export class UsersServer {
 			if(conn)
 				conn.release();
 		}
-<<<<<<< HEAD
-		if (conn)
-			await conn.release();
-=======
->>>>>>> 35cc021fa611c0ae7f844bd4d43310f77554b955
 		return null;
 	}
 
@@ -316,11 +281,6 @@ export class UsersServer {
 			if(conn)
 				conn.release();
 		}
-<<<<<<< HEAD
-		if (conn)
-			await conn.release();
-=======
->>>>>>> 35cc021fa611c0ae7f844bd4d43310f77554b955
 		return null;
 	}
 
@@ -368,11 +328,6 @@ export class UsersServer {
 			if(conn)
 				conn.release();
 		}
-<<<<<<< HEAD
-		if (conn)
-			await conn.release();
-=======
->>>>>>> 35cc021fa611c0ae7f844bd4d43310f77554b955
 		return false;
 	}
 
@@ -386,12 +341,7 @@ export class UsersServer {
 				sql: "SELECT * FROM session where userId=:userId"
 			}
 			const session:Session[] = await conn.query(queryOptions,{userId}) as Session[];
-<<<<<<< HEAD
-			if (session && session.length > 0 && session[0]) {
-				await conn.release();
-=======
 			if(session && session.length > 0 && session[0]) {
->>>>>>> 35cc021fa611c0ae7f844bd4d43310f77554b955
 				return session[0];
 			}
 		} catch (error) {
@@ -400,11 +350,6 @@ export class UsersServer {
 			if(conn)
 				conn.release();
 		}
-<<<<<<< HEAD
-		if (conn)
-			await conn.release();
-=======
->>>>>>> 35cc021fa611c0ae7f844bd4d43310f77554b955
 		return null;
 	}
 
@@ -431,11 +376,6 @@ export class UsersServer {
 			if(conn)
 				conn.release();
 		}
-<<<<<<< HEAD
-		if (conn)
-			await conn.release();
-=======
->>>>>>> 35cc021fa611c0ae7f844bd4d43310f77554b955
 		return [];
 	}
 	async getAllUsers():Promise<User[]> {
@@ -446,12 +386,7 @@ export class UsersServer {
 				sql: "SELECT * FROM users"
 			}
 			const users:User[] = await conn.query(queryOptions) as User[];
-<<<<<<< HEAD
-			if (users && users.length > 0) {
-				await conn.release();
-=======
 			if(users && users.length > 0) {
->>>>>>> 35cc021fa611c0ae7f844bd4d43310f77554b955
 				return users;
 			}
 		} catch (error) {
@@ -460,11 +395,6 @@ export class UsersServer {
 			if(conn)
 				conn.release();
 		}
-<<<<<<< HEAD
-		if (conn)
-			await conn.release();
-=======
->>>>>>> 35cc021fa611c0ae7f844bd4d43310f77554b955
 		return [];
 	}
 
@@ -483,12 +413,7 @@ export class UsersServer {
 					sql: "SELECT * FROM users WHERE userId=:userId"
 				}
 				const user:User[] = await conn.query(queryOptions,{userId:session[0].userId}) as User[];// where data de azi mai noua decat expirare
-<<<<<<< HEAD
-				if (user && user.length > 0 && user[0]) {
-					await conn.release();
-=======
 				if(user && user.length > 0 && user[0]) {
->>>>>>> 35cc021fa611c0ae7f844bd4d43310f77554b955
 					return user[0];
 				}
 			}
@@ -498,11 +423,6 @@ export class UsersServer {
 			if(conn)
 				conn.release();
 		}
-<<<<<<< HEAD
-		if (conn)
-			await conn.release();
-=======
->>>>>>> 35cc021fa611c0ae7f844bd4d43310f77554b955
 		return null;
 	}
 

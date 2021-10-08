@@ -382,13 +382,13 @@ export default Vue.extend({
 						cityOrTeam:this.city
 					}; 
 				
-				else if (type === 'preset')
-					body = {
-						type:type,
-						date:'none',
-						cityOrTeam:this.preset,
-						option:option
-					};  
+				// else if (type === 'preset')
+				// 	body = {
+				// 		type:type,
+				// 		date:'none',
+				// 		cityOrTeam:this.preset,
+				// 		option:option
+				// 	};  
 				
 				const response = await this.ui.api.post<string | null>("/api/v1/uploadDownload/download/zip/",body);
 				if (response.status === 200) {
@@ -431,7 +431,7 @@ export default Vue.extend({
 									this.openUrl(response.data);
 									return;
 								}
-								if (!this.toStop)
+								if (!this.toStop) {
 									setTimeout(statusFunction,1000);
 								}
 							}
