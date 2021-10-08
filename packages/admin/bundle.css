@@ -1,14 +1,3 @@
-.contained .v-col .v-card {
-  min-height: 10%;
-  background-color: red;
-  height: clamp(10%, 248px, 50%);
-}
-
-.export-grid {
-  display: grid;
-  grid-template-columns: 5fr 5fr 5fr;
-}
-
 .active-element {
   color: #197E81;
   font-size: 20px;

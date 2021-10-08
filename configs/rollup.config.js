@@ -20,12 +20,11 @@ export default {
 	output: {
 		dir: 'lib'
 	},
-	external: ["vuetify"],
 	plugins: [
 		rename(),
 		scss(),
 		vue({
-			css: false
+			css: true
 		}),
 		image(),
 		commonjs(),
@@ -38,6 +37,6 @@ export default {
 				include: ['src/ui', 'src/common']
 			}
 		}),
-		css({ output: false }),
+		css({ output: true }),
 	],
 };
