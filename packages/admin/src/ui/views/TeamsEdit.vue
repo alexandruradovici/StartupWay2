@@ -1,40 +1,54 @@
 <template>
-	<v-card flat width="800" style="margin-left: auto; margin-right: auto; padding-top: 20px; background-color: #fcfcfc;">
-		<v-card-title class="justify-center" style=" font-weight: bold;">
-			Manage Teams
-		</v-card-title>
-		<v-divider></v-divider>
-		
-		<v-card-text>
-			<div align="center" style="margin-top: 20px; margin-bottom: 20px;">Please select a team from the list to review its members.</div>
-			<v-select
-				:items="viewTeams"
-				item-text="name"
-				item-value="value"
-				v-model="selectedTeam"
-				label="All Teams"
-				style="width: 500px; margin: 0 auto;"
-				class="justify-center"
-			></v-select>
-			<v-container grid-list-xs>
-				<v-card flat>
-					<v-card-title class="justify-center" style="">Team Composition</v-card-title>
-					<v-divider></v-divider>
+	<v-container>
+		<v-card flat min-width="500">
+			<v-card max-height="60" dark style="background-color:#ffb100">
+				<v-card-title class="justify-center">
+					Manage Teams
+				</v-card-title>
+			</v-card>
+			<v-container>
+				<v-card>
 					<v-card-text>
-						<v-text-field
-							v-model="search"
-							append-icon="mdi-magnify"
-							label="Search"
-							single-line
-							hide-details
-							class="justify-center"
-						></v-text-field>
-						<v-data-table item-key="email" :headers="headers" :items="users" :search="search" :loading="users.length <= 0" loading-text="Loading users"> </v-data-table>
+						<v-row class="md-6">
+							<v-col>
+								<div align="center" style="margin-top: 20px; margin-bottom: 20px;">
+									Please select a team from the list to review its members.
+								</div>
+								<v-select
+									:items="viewTeams"
+									item-text="name"
+									item-value="value"
+									v-model="selectedTeam"
+									label="All Teams"
+									style="width: 500px; margin: 0 auto;"
+									class="justify-center"
+								></v-select>
+							</v-col>
+						</v-row>
+						<v-row>
+							<v-col>
+								<v-card flat>
+									<v-card-title class="justify-center">Team Composition</v-card-title>
+									<v-divider></v-divider>
+									<v-card-text>
+										<v-text-field
+											v-model="search"
+											append-icon="mdi-magnify"
+											label="Search"
+											single-line
+											hide-details
+											class="justify-center"
+										></v-text-field>
+										<v-data-table item-key="email" :headers="headers" :items="users" :search="search" :loading="users.length <= 0" loading-text="Loading users"> </v-data-table>
+									</v-card-text>
+								</v-card>
+							</v-col>
+						</v-row>
 					</v-card-text>
 				</v-card>
 			</v-container>
-		</v-card-text>
-	</v-card>
+		</v-card>
+	</v-container>
 </template>
 
 <script lang="ts">
@@ -83,17 +97,17 @@ export default Vue.extend({
 		user: {
 			immediate:true,
 			async handler (newUser:User):Promise<void>  {
-				if (newUser.role === "SuperAdmin" || newUser.role === "Admin"){
+				if(newUser.role === "SuperAdmin" || newUser.role === "Admin"){
 					try {
 						const response = await this.ui.api.get<(Team & Product)[]>("/api/v1/admin/teams/"+newUser.userDetails["location"]);
-						if (response) {
+						if(response) {
 							this.teams = response.data;
 						}
 					} catch(e) {
 						console.error(e);
 					}
 				} else {
-					if (this.$route.path!=="/workspace")
+					if(this.$route.path!=="/workspace")
 						this.$router.push("/workspace");
 				}
 				
@@ -121,7 +135,7 @@ export default Vue.extend({
 			try {
 				this.users = [];
 				const response = await this.ui.api.get<(User & UserTeams)[]>("/api/v1/teams/team/users/" + teamId);
-				if (response) {
+				if(response) {
 					for(let us of response.data)
 						this.users.push(us);
 				}

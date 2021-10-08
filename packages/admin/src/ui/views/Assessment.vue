@@ -3,54 +3,56 @@
 		<v-container background-color="#fcfcfc">
 			<div class="justify-center">
 				<v-row class="mb-6" justify="center" no-gutters>
-					<v-col>
-						<v-row class="justify-center" align="center">
-							<h1 class="landing-message">Assessment View</h1>
-						</v-row>
-						<v-row>
-							<v-divider></v-divider>
-						</v-row>
-					</v-col>
+					<v-card color="primary" flat shaped outlined width="100%">
+						<v-card flat shaped outlined width="100%" class="pa-2">
+							<v-col>
+								<v-row class="justify-center" align="center">
+									<h1 class="landing-message">Assessment View</h1>
+								</v-row>
+							</v-col>
+						</v-card>
+					</v-card>
 				</v-row>
-				<v-row class="mb-6" justify="center" >
-					<v-card class="mx-auto" flat>
-						<v-data-table
-							item-key="startupName"
-							:headers="headers"
-							:items="filteredTeams"
-							:search="searchAssessment"
-							multi-sort
-							:itemsPerPage="-1"
-							:sort-by.sync="sortByAssessment"
-							:sort-desc.sync="sortDescAssessment"
-							:loading="filteredTeams.length <= 0"
-							loading-text="Loading teams"
-						>
-							<template v-slot:top>
-								<v-text-field
-									v-model="searchAssessment"
-									append-icon="mdi-magnify"
-									label="Search"
-									single-line
-									hide-details
-								></v-text-field>
-							</template>
-							<template v-slot:[`item.assesSemiFinals`]="{ item }">
-								<v-simple-checkbox
-								color="#197E81"
-								v-model="item.assesSemiFinals"
-								@input="updateProduct(item)"
-								></v-simple-checkbox>
-							</template>
-							<template v-slot:[`item.assesFinals`]="{ item }">
-								<v-simple-checkbox
-								color="#197E81"
-								v-model="item.assesFinals"
-								@input="updateProduct(item)"
-								></v-simple-checkbox>
-							</template>
-						</v-data-table>
-						<v-divider style="margin-top: 30px; margin-bottom: 30px;"></v-divider>
+				<v-row class="mb-6" justify="center">
+					<v-card color="primary" flat shaped outlined width="100%">
+						<v-card flat shaped outlined width="100%" class="pa-2">
+							<v-data-table
+								item-key="startupName"
+								:headers="headers"
+								:items="filteredTeams"
+								:search="searchAssessment"
+								multi-sort
+								:itemsPerPage="-1"
+								:sort-by.sync="sortByAssessment"
+								:sort-desc.sync="sortDescAssessment"
+								:loading="filteredTeams.length <= 0"
+								loading-text="Loading teams"
+							>
+								<template v-slot:top>
+									<v-text-field
+										v-model="searchAssessment"
+										append-icon="mdi-magnify"
+										label="Search"
+										single-line
+										hide-details
+									></v-text-field>
+								</template>
+								<template v-slot:[`item.assesSemiFinals`]="{ item }">
+									<v-simple-checkbox
+									color="#197E81"
+									v-model="item.assesSemiFinals"
+									@input="updateProduct(item)"
+									></v-simple-checkbox>
+								</template>
+								<template v-slot:[`item.assesFinals`]="{ item }">
+									<v-simple-checkbox
+									color="#197E81"
+									v-model="item.assesFinals"
+									@input="updateProduct(item)"
+									></v-simple-checkbox>
+								</template>
+							</v-data-table>
+						</v-card>
 					</v-card>
 				</v-row>
 			</div>

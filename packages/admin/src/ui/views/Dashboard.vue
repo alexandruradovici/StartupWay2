@@ -168,7 +168,7 @@
 														prepend-icon="mdi-script-text-outline"
 														:rules="rulesDesc"
 														v-model="team.description" 
-														label="Description" 
+														label="Description English" 
 														optional
 													></v-textarea>
 													<v-select 
