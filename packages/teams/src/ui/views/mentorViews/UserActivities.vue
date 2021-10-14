@@ -28,122 +28,123 @@
 						</v-list-item>
 					</v-list>
 				</v-card>
-					<v-divider></v-divider>
-					<v-card  v-if="mentoredUser.userId" flat style="margin: auto; padding-top: 20px;" >
-						
-						<v-card-title class="justify-center">
-							<v-list-item-avatar size="60">
-								<v-img v-if="mentoredUser.image !== ''" :src="mentoredUser.image" @click="extendImage(mentoredUser.image)"></v-img>
-								<v-icon v-else color="primary">mdi-account-circle mdi-48px</v-icon>
-							</v-list-item-avatar>
-							{{mentoredUser.firstName}} {{mentoredUser.lastName}}
-						</v-card-title>
+				<v-divider></v-divider>
+				<v-card  v-if="mentoredUser.userId" flat style="margin: auto; padding-top: 20px;" >
+					
+					<v-card-title class="justify-center">
+						<v-list-item-avatar size="60">
+							<v-img v-if="mentoredUser.image !== ''" :src="mentoredUser.image" @click="extendImage(mentoredUser.image)"></v-img>
+							<v-icon v-else color="primary">mdi-account-circle mdi-48px</v-icon>
+						</v-list-item-avatar>
+						{{mentoredUser.firstName}} {{mentoredUser.lastName}}
+					</v-card-title>
 
+					<v-card-text>
+						<div>
+							<v-row v-if="weeks.length > 0">
+								<v-col cols="12" sm="6" md="4" lg="4" xl="4" v-for="week in weeks" :key="week.activityId">
+									<v-card flat outlined>
+										<v-card-title class="justify-center" style="font-size: 15px; font-weight: bold;">
+											{{ formatDate(week.date) }}
+										</v-card-title>
+										<v-divider></v-divider>
+										<v-card-text style="margin-top: 30px;">
+											<div style="text-align: center;">Number of hours worked: {{week.noOfHours}}</div>
+											<div style="text-align: center;">Work Description: {{week.description}}</div>
+										</v-card-text>
+										<v-card-actions class="justify-center">
+											<v-btn icon fab @click="editActivity(week)">
+												<v-icon color="primary">mdi-pencil-circle-outline</v-icon>
+											</v-btn>
+											<v-btn icon fab @click="viewActivity(week)">
+												<v-icon color="primary">mdi-calendar-month</v-icon>
+											</v-btn>
+										</v-card-actions>
+									</v-card>
+								</v-col>
+							</v-row>
+							<v-row v-else justify="center" no-gutters>
+								<v-col md="auto">
+									<h1 class="landing-message">
+										{{mentoredUser.firstName}} {{mentoredUser.lastName}} has no activities in this team so far.
+									</h1>
+								</v-col>
+							</v-row>
+						</div>
+					</v-card-text>
+				</v-card>
+				<v-dialog v-model="editDialog" max-width="450">
+					<v-card flat width="450" v-if="edited">
+						<v-card-title class="justify-center" style="">
+							Edit {{mentoredUser.firstName}}'s activity
+						</v-card-title>
+						<v-card-subtitle>
+							<div style="text-align: center;">
+								{{ formatDate(edited.date) }}
+							</div>
+						</v-card-subtitle>
+						<v-divider></v-divider>
 						<v-card-text>
-							<div>
-								<v-row v-if="weeks.length > 0">
-									<v-col cols="12" sm="6" md="4" lg="4" xl="4" v-for="week in weeks" :key="week.activityId">
-										<v-card flat outlined>
-											<v-card-title class="justify-center" style="font-size: 15px; font-weight: bold;">
-												{{ formatDate(week.date) }}
-											</v-card-title>
-											<v-divider></v-divider>
-											<v-card-text style="margin-top: 30px;">
-												<div style="text-align: center;">Number of hours worked: {{week.noOfHours}}</div>
-												<div style="text-align: center;">Work Description: {{week.description}}</div>
-											</v-card-text>
-											<v-card-actions class="justify-center">
-												<v-btn icon fab @click="editActivity(week)">
-													<v-icon color="primary">mdi-pencil-circle-outline</v-icon>
-												</v-btn>
-												<v-btn icon fab @click="viewActivity(week)">
-													<v-icon color="primary">mdi-calendar-month</v-icon>
-												</v-btn>
-											</v-card-actions>
-										</v-card>
-									</v-col>
-								</v-row>
-								<v-row v-else justify="center" no-gutters>
-									<v-col md="auto">
-										<h1 class="landing-message">
-											{{mentoredUser.firstName}} {{mentoredUser.lastName}} has no activities in this team so far.
-										</h1>
-									</v-col>
-								</v-row>
+							<div class="details">
+								Please submit the number of worked hours for {{mentoredUser.firstName}}.
+							</div>
+							<v-text-field
+								v-model="edited.noOfHours"
+								append-icon="mdi-calendar-clock"
+								single-line
+								color="primary"
+							></v-text-field>
+							<div class="details">
+								Add work description for {{mentoredUser.firstName}}.
+							</div>
+							<v-text-field
+								v-model="edited.description"
+								append-icon="mdi-calendar-clock"
+								single-line
+								color="primary"
+							></v-text-field>
+						</v-card-text>
+
+						<v-card-actions class="justify-center">
+							<v-btn color="primary" rounded @click="saveActivity(edited)">Update progress</v-btn>
+							<v-btn color="primary" text @click="denyActivity()">Exit</v-btn>
+						</v-card-actions>
+					</v-card>
+				</v-dialog>
+				<v-dialog v-model="extendDialog" max-width="450">
+					<v-card flat max-width="450">
+						<v-img :src="extendedImage"></v-img>
+						<v-card-actions class="justify-center">
+							<v-btn text color="primary" @click="extendDialog=false">Exit</v-btn>
+						</v-card-actions>
+					</v-card>
+				</v-dialog>
+				<v-dialog v-model="viewDialog" max-width="450">
+					<v-card flat width="450" v-if="edited">
+						<v-card-title class="justify-center" style="">
+							View {{mentoredUser.firstName}}'s activity
+						</v-card-title>
+						<v-card-subtitle>
+							<div style="text-align: center;">
+								{{ formatDate(edited.date) }}
+							</div>
+						</v-card-subtitle>
+						<v-divider></v-divider>
+						<v-card-text>
+							<div class="details">
+								Number of worked hours for during this week: {{edited.noOfHours}}
+							</div>
+							<div class="details">
+								Work description: {{edited.description}}
 							</div>
 						</v-card-text>
+
+						<v-card-actions class="justify-center">
+							<v-btn color="primary" text @click="closeView()">Exit</v-btn>
+						</v-card-actions>
 					</v-card>
-					<v-dialog v-model="editDialog" max-width="450">
-						<v-card flat width="450" v-if="edited">
-							<v-card-title class="justify-center" style="">
-								Edit {{mentoredUser.firstName}}'s activity
-							</v-card-title>
-							<v-card-subtitle>
-								<div style="text-align: center;">
-									{{ formatDate(edited.date) }}
-								</div>
-							</v-card-subtitle>
-							<v-divider></v-divider>
-							<v-card-text>
-								<div class="details">
-									Please submit the number of worked hours for {{mentoredUser.firstName}}.
-								</div>
-								<v-text-field
-									v-model="edited.noOfHours"
-									append-icon="mdi-calendar-clock"
-									single-line
-									color="primary"
-								></v-text-field>
-								<div class="details">
-									Add work description for {{mentoredUser.firstName}}.
-								</div>
-								<v-text-field
-									v-model="edited.description"
-									append-icon="mdi-calendar-clock"
-									single-line
-									color="primary"
-								></v-text-field>
-							</v-card-text>
-
-							<v-card-actions class="justify-center">
-								<v-btn color="primary" rounded @click="saveActivity(edited)">Update progress</v-btn>
-								<v-btn color="primary" text @click="denyActivity()">Exit</v-btn>
-							</v-card-actions>
-						</v-card>
-					</v-dialog>
-					<v-dialog v-model="extendDialog" max-width="450">
-						<v-card flat max-width="450">
-							<v-img :src="extendedImage"></v-img>
-							<v-card-actions class="justify-center">
-								<v-btn text color="primary" @click="extendDialog=false">Exit</v-btn>
-							</v-card-actions>
-						</v-card>
-					</v-dialog>
-					<v-dialog v-model="viewDialog" max-width="450">
-						<v-card flat width="450" v-if="edited">
-							<v-card-title class="justify-center" style="">
-								View {{mentoredUser.firstName}}'s activity
-							</v-card-title>
-							<v-card-subtitle>
-								<div style="text-align: center;">
-									{{ formatDate(edited.date) }}
-								</div>
-							</v-card-subtitle>
-							<v-divider></v-divider>
-							<v-card-text>
-								<div class="details">
-									Number of worked hours for during this week: {{edited.noOfHours}}
-								</div>
-								<div class="details">
-									Work description: {{edited.description}}
-								</div>
-							</v-card-text>
-
-							<v-card-actions class="justify-center">
-								<v-btn color="primary" text @click="closeView()">Exit</v-btn>
-							</v-card-actions>
-						</v-card>
-					</v-dialog>
+				</v-dialog>
+			<SnackBar :options="snackOptions" :snackbar="snackbar" @update-snackbar="updateSnack"></SnackBar>
 		</v-container>
 		<v-container v-else>
 			<v-row justify="center">
@@ -166,6 +167,28 @@ import { Team, Product, UserActivity } from "../../../common";
 import { User, UserTeams} from "@startupway/users/lib/ui";
 import moment from "moment";
 import { UI } from '@startupway/main/lib/ui';
+import { SnackBarOptions, SnackBarTypes, SnackBarHorizontal, SnackBarVertical } from "@startupway/menu/lib/ui";
+interface IUserActivities {
+	ui: UI,
+	teams: Team[] | (Team&Product)[],
+	location: string,
+	activities: UserActivity[],
+	weeks: UserActivity[],
+	editDialog: boolean,
+	viewDialog: boolean,
+	users: User[],
+	allUsers: User[],
+	userId: string,
+	teamId: string,
+	edited: UserActivity | null,
+	mentoredUser: User | undefined,
+	team: string,
+	loadingPage: boolean,
+	extendedImage:  string,
+	extendDialog: boolean,
+	snackbar: boolean,
+	snackOptions: SnackBarOptions
+}
 export default Vue.extend({
 	name: "UserActivities",
 	watch: {
@@ -259,7 +282,7 @@ export default Vue.extend({
 			user: "users/user",
 		})
 	},
-	data() {
+	data(): IUserActivities {
 		return {
 			ui: UI.getInstance(),
 			teams: [] as (Team[] | (Team&Product)[]),
@@ -273,14 +296,26 @@ export default Vue.extend({
 			userId:"",
 			teamId:"",
 			edited:null as UserActivity | null,
-			mentoredUser:{},
+			mentoredUser: undefined,
 			team:"",
 			loadingPage:false,
 			extendedImage: "",
 			extendDialog: false,
+			snackbar: false,
+			snackOptions: {
+				text:"",
+				type: SnackBarTypes.INFO,
+				timeout:2000,
+				horizontal: SnackBarHorizontal.RIGHT,
+				vertical: SnackBarVertical.BOTTOM
+			}
 		};
 	},
 	methods: {
+		updateSnack (prop:boolean): void {
+			console.log("got update event");
+			this.snackbar = prop;
+		},
 		extendImage(image: string):void {
 			this.extendedImage = image;
 			this.extendDialog = true;
@@ -350,10 +385,10 @@ export default Vue.extend({
 						if (response.data) {
 							return response.data;
 						} else if (response.status === 500) {
-							// this.snackOptions.text = "Server Error while Loading User Avatar";
-							// this.snackOptions.type = SnackBarTypes.ERROR;
-							// this.snackOptions.timeout = 2000;
-							// this.snackbar = true;
+							this.snackOptions.text = "Server Error while Loading User Avatar";
+							this.snackOptions.type = SnackBarTypes.ERROR;
+							this.snackOptions.timeout = 2000;
+							this.snackbar = true;
 							return "";
 						} else {
 							return "";
@@ -361,10 +396,10 @@ export default Vue.extend({
 					} catch (e) {
 						if (e.status === 500) {
 							console.error(e);
-							// this.snackOptions.text = "Server Error while Loading User Avatar";
-							// this.snackOptions.type = SnackBarTypes.ERROR;
-							// this.snackOptions.timeout = 2000;
-							// this.snackbar = true;
+							this.snackOptions.text = "Server Error while Loading User Avatar";
+							this.snackOptions.type = SnackBarTypes.ERROR;
+							this.snackOptions.timeout = 2000;
+							this.snackbar = true;
 						}
 						return "";
 					}
@@ -403,10 +438,19 @@ export default Vue.extend({
 				});
 				if (respArr) {
 					this.activities = respArr.data;
+					this.snackOptions.text = "Activity Update has been successful";
+					this.snackOptions.type = SnackBarTypes.SUCCESS;
+					this.snackOptions.timeout = 2000;
+					this.snackbar = true;
 				}
 				this.edited=null;
-			} catch (e) {
+			} catch (error) {
+				const e: Error = error as Error;
 				console.error(e);
+				this.snackOptions.text = e.message;
+				this.snackOptions.type = SnackBarTypes.ERROR;
+				this.snackOptions.timeout = 2000;
+				this.snackbar = true;
 			}
 			this.loadingPage=false;
 		

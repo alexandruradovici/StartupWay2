@@ -201,7 +201,7 @@
 				</v-col>
 			</v-row>
 		</v-container>
-		<SnackBar :options="snackOptions" v-if="snackbar" @update-snackbar="update"></SnackBar>
+		<SnackBar :options="snackOptions" :snackbar="snackbar" @update-snackbar="updateSnack"></SnackBar>
 	</div>
 </template>
 
@@ -211,8 +211,43 @@ import { mapGetters } from "vuex";
 import moment from "moment";
 import { Team, Product, UserActivity, VisualUser } from "../../../common";
 import { User, UserTeams, universities } from "@startupway/users/lib/ui";
-import { SnackBarOptions, SnackBarTypes } from "@startupway/menu/lib/ui";
+import { SnackBarOptions, SnackBarTypes, SnackBarHorizontal, SnackBarVertical } from "@startupway/menu/lib/ui";
 import { UI } from '@startupway/main/lib/ui';
+interface ITeamComposition {
+	ui: UI,
+	emailRules: ((e: string) => string | boolean)[],
+	userValid:boolean,
+	extendedImage: string,
+	extendDialog: boolean,
+	roles: string[],
+	teams: Team[],
+	team: string,
+	location:  string,
+	users: User[] | (User&UserTeams)[],
+	allUsers: User[] | (User&UserTeams)[],
+	teamId: string,
+	item: (User&UserTeams&VisualUser),
+	dialog: boolean,
+	universities: string[],
+	search2: string,
+	headers2: {text?:string, align?:string, sortable?: boolean, value?:string}[],
+	remove: boolean,
+	add: boolean,
+	addUsersDialog: boolean,
+	acceptDialog: boolean,
+	createNewUserDialog: boolean,
+	createFirstName: string,
+	createLastName: string,
+	createEmail: string,
+	createRole: string,
+	toRemove: (User&UserTeams)[],
+	toAdd: User[],
+	loading: boolean,
+	loadingPage: boolean,
+	toDel: User&UserTeams,
+	snackOptions: SnackBarOptions,
+	snackbar: boolean,
+};
 export default Vue.extend({
 	name: "TeamComposition",
 	watch: {
@@ -272,7 +307,7 @@ export default Vue.extend({
 			user: "users/user",
 		})
 	},
-	data() {
+	data (): ITeamComposition {
 		return {
 			ui: UI.getInstance(),
 			emailRules: [
@@ -340,15 +375,21 @@ export default Vue.extend({
 			loading:false,
 			loadingPage:false,
 			toDel:{} as User&UserTeams,
+			snackbar:false,
 			snackOptions: {
 				text:"",
-				type:"info",
-				timeout:2000
-			} as SnackBarOptions,
-			snackbar:false,
+				type: SnackBarTypes.INFO,
+				timeout:2000,
+				horizontal: SnackBarHorizontal.RIGHT,
+				vertical: SnackBarVertical.BOTTOM
+			}
 		};
 	},
 	methods: {
+		updateSnack (prop:boolean): void {
+			console.log("got update event");
+			this.snackbar = prop;
+		},
 		extendImage(image: string):void {
 			this.extendedImage = image;
 			this.extendDialog = true;
@@ -710,6 +751,7 @@ export default Vue.extend({
 					allActivities.push(userActivity);
 					
 				}
+				console.log(allActivities);
 				try {
 					this.loadingPage = false;
 					await this.ui.api.post<UserActivity | null>("/api/v1/admin/newUserActivity", {
@@ -792,9 +834,6 @@ export default Vue.extend({
 			} else {
 				return "";
 			}
-		},
-		update(prop:boolean):void {
-			this.snackbar = prop;
 		},
 		async refreshLists():Promise<boolean> {
 			this.teamId = this.$route.params.teamId;

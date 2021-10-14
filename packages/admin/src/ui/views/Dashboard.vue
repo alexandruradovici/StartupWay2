@@ -511,6 +511,7 @@
 				</v-list-item>
 			</v-list>
 		</v-navigation-drawer>
+		<SnackBar :options="snackOptions"  @update-snackbar="updateSnack" :snackbar="snackbar"/>
 	</div>
 </template>
 
@@ -522,6 +523,60 @@ import { UI } from "@startupway/main/lib/ui";
 import { User } from "@startupway/users/lib/ui";
 import { Team, Product, TeamType, WorkshopDay, BusinessTrack, Tab } from "@startupway/teams/lib/ui";
 import { ModifiedTeam, Review } from "../../common";
+import { SnackBarOptions, SnackBarTypes, SnackBarHorizontal, SnackBarVertical } from "@startupway/menu/lib/ui";
+interface IDashboard {
+	ui: UI,
+	changed: boolean,
+	allTeams: (Team & Product)[],
+	startupRules: ((value: string) => string | boolean)[],
+	rulesDesc: ((value: string) => string | boolean)[],
+	drawer: boolean,
+	mini: boolean,
+	valid: boolean,
+	validDesc: boolean,
+	teamId: string,
+	role: string,
+	menuName:{
+		title:"",
+	},
+	router: boolean,
+	show: boolean,
+	currentRoute: string,
+	mentoredTeams: (ModifiedTeam)[],
+	selectedMentoredTeam: Team | undefined,
+	id: string,
+	tabs: Tab[],
+	editElement: boolean,
+	dialog: boolean,
+	team: (Team & Product) | null,
+	values: {text: string, value: boolean | null}[],
+	teamTypes: string[],
+	businessTracks: string[],
+	workshopDays: string[],
+	locations: string[],
+	reviews: Review[],
+	type: string,
+	loadingPage: boolean,
+	loading: boolean,
+	expanded: Review[],
+	singleSelect:  boolean,
+	headers: 
+		{
+			text: string,
+			align?: string,
+			sortable?: boolean,
+			value: string
+		}[],
+	tableOptions: {},
+	existsUpdate: boolean,
+	approveDescriptions: (Team & Product)[],
+	updated: (Team & Product) | null,
+	approveDialog: boolean,
+	selectedTeam: string,
+	allDescriptions: {[key:string]:string},
+	snackOptions: SnackBarOptions,
+	snackbar: boolean,
+}
 export default Vue.extend({
 	name: "Dashboard",
 	components: {},
@@ -539,7 +594,7 @@ export default Vue.extend({
 		// 	console.error(e);
 		// }
 	},
-	data() {
+	data (): IDashboard {
 		return {
 			ui:UI.getInstance(),
 			changed:false,
@@ -560,13 +615,13 @@ export default Vue.extend({
 			valid:true,
 			validDesc:true,
 			teamId: "",
-			role:"" as string,
+			role: "",
 			menuName:{
 				title:"",
 			},
 			router:false,
 			show:true,
-			currentRoute:"" as string,
+			currentRoute: "",
 			mentoredTeams:[] as (ModifiedTeam)[],
 			selectedMentoredTeam: {} as Team,
 			id:"",
@@ -621,8 +676,8 @@ export default Vue.extend({
 				{ text: "Business Track", value: "businessTrack" },
 				{ text: "Startup Name", value: "startupName" },
 				{ text: "Web Page Link", value: "webLink"},
-				{ text: "Assessment Finals", value:"assessmentSemifinals"},
-				{ text: "Assessment SemiFinals", value:"assessmentFinals"},
+				{ text: "Assessment Semifinals", value:"assessmentSemifinals"},
+				{ text: "Assessment Finals", value:"assessmentFinals"},
 				{ text: "Actions", value: "actions", sortable: false },
 				{ text: "Updated Description", value: "updated", sortable: false },
 				{ text: "Last Team Update", value: "updatedAt", sortable: false},
@@ -634,7 +689,15 @@ export default Vue.extend({
 			updated: null as (Team & Product) | null,
 			approveDialog: false,
 			selectedTeam: "",
-			allDescriptions: {} as {[key:string]:string}
+			allDescriptions: {} as {[key:string]:string},
+			snackbar: false,
+			snackOptions: {
+				text:"",
+				type: SnackBarTypes.INFO,
+				timeout:2000,
+				horizontal: SnackBarHorizontal.RIGHT,
+				vertical: SnackBarVertical.BOTTOM
+			}
 		};
 	},
 	filters: {
@@ -904,6 +967,10 @@ export default Vue.extend({
 		}
 	},
 	methods: {
+		updateSnack (prop:boolean): void {
+			console.log("got update event");
+			this.snackbar = prop;
+		},
 		moment() {
 			return moment();
 		},
@@ -1005,9 +1072,10 @@ export default Vue.extend({
 				});
 				if (response) {
 					this.reviews = response.data;
-					
-					let productToUpdate = this.allTeams.findIndex((el: Team & Product) => el.startupName === (this.allTeams[productIndex] as Team & Product).startupName);
-					if (productToUpdate !== undefined) {
+					let productToUpdate = this.allTeams.findIndex((el: Team & Product) => {
+						return  el.startupName === (this.reviews[productIndex] as Review).startupName
+					});
+					if (productToUpdate !== -1) {
 						try {
 							let product = await this.ui.api.get<Product | null>("/api/v1/teams/product/" + this.allTeams[productToUpdate].teamId);
 							if (product.data) {
@@ -1034,6 +1102,10 @@ export default Vue.extend({
 							}
 						} catch (e) {
 							console.error(e);
+							this.snackOptions.text = "Server Error. If the error persists, please contact technical support: teams@tech-lounge.ro.";
+							this.snackOptions.type = SnackBarTypes.ERROR;
+							this.snackOptions.timeout = 2000;
+							this.snackbar = true;
 						}
 						let prd = {
 							productId: this.allTeams[productToUpdate].productId,
@@ -1050,21 +1122,30 @@ export default Vue.extend({
 							lastMentorUpdate: (this.formatDate(new Date()) as unknown as Date),
 							updatedAt: this.allTeams[productToUpdate].updatedAt
 						} as Product;
-					try {
-						await this.ui.storeDispatch("teams/updateProduct", {
-							product: prd,
-							teamId: this.allTeams[productToUpdate].teamId
-						});
-					} catch (e) {
-						console.error(e);
-					}
+						try {
+							await this.ui.storeDispatch("teams/updateProduct", {
+								product: prd,
+								teamId: this.allTeams[productToUpdate].teamId
+							});
+						} catch (e) {
+							console.error(e);
+							this.snackOptions.text = "Server Error. If the error persists, please contact technical support: teams@tech-lounge.ro.";
+							this.snackOptions.type = SnackBarTypes.ERROR;
+							this.snackOptions.timeout = 2000;
+							this.snackbar = true;
+						}
 					}
 				}
-
+				
+				this.snackOptions.text = "Update Successful";
+				this.snackOptions.type = SnackBarTypes.SUCCESS;
+				this.snackOptions.timeout = 2000;
+				this.snackbar = true;
 				this.dialog = false;
 				this.$forceUpdate();
 				this.loadingPage = false;
 				this.loading = false;
+				
 			}
 		},
 		editTeam(team: Team & Product) {
@@ -1112,45 +1193,53 @@ export default Vue.extend({
 							lastMentorUpdate: (this.formatDate(new Date()) as unknown as Date),
 							updatedAt: this.updated.updatedAt
 						})
-					if (response.data) {
-						
-						let res = await this.ui.api.get<Product | null>("/api/v1/teams/product/" + this.selectedTeam);
-							if (res) {
-								let product = response.data;
-								if (this.updated) {
-									this.updated.productId = product.productId;
-									this.updated.startupName = product.startupName;
-									this.updated.businessTrack = product.businessTrack;
-									this.updated.teamType = product.teamType;
-									this.updated.workshopDay = product.workshopDay;
-									this.updated.mentorId = product.mentorId;
-									this.updated.descriptionRO = product.descriptionRO;
-									this.updated.descriptionEN = product.descriptionEN;
-									this.updated.pendingDescriptionRO = product.pendingDescriptionRO;
-									this.updated.pendingDescriptionEN = product.pendingDescriptionEN;
-									this.updated.productDetails = product.productDetails;
-									this.updated.lastMentorUpdate = product.lastMentorUpdate;
-									this.updated.updatedAt = product.updatedAt;
-									// let found = this.filteredReviews.findIndex((el: any) => el.teamId === this.updated.teamId);
-									// this.filteredReviews[found] = this.updated;
+						if (response.data) {
+							
+							let res = await this.ui.api.get<Product | null>("/api/v1/teams/product/" + this.selectedTeam);
+								if (res) {
+									let product = response.data;
+									if (this.updated) {
+										this.updated.productId = product.productId;
+										this.updated.startupName = product.startupName;
+										this.updated.businessTrack = product.businessTrack;
+										this.updated.teamType = product.teamType;
+										this.updated.workshopDay = product.workshopDay;
+										this.updated.mentorId = product.mentorId;
+										this.updated.descriptionRO = product.descriptionRO;
+										this.updated.descriptionEN = product.descriptionEN;
+										this.updated.pendingDescriptionRO = product.pendingDescriptionRO;
+										this.updated.pendingDescriptionEN = product.pendingDescriptionEN;
+										this.updated.productDetails = product.productDetails;
+										this.updated.lastMentorUpdate = product.lastMentorUpdate;
+										this.updated.updatedAt = product.updatedAt;
+										// let found = this.filteredReviews.findIndex((el: any) => el.teamId === this.updated.teamId);
+										// this.filteredReviews[found] = this.updated;
 
-									// as any because error that it's null
-									let found2 = this.approveDescriptions.findIndex((el: Team & Product) => el.teamId === (this.updated as any).teamId);
-									this.approveDescriptions.splice(found2, 1);
-									this.disabledIcon(null);
-									this.allDescriptions[product.productId] = product.descriptionEN;
-									// this.description = product.descriptionEN;
+										// as any because error that it's null
+										let found2 = this.approveDescriptions.findIndex((el: Team & Product) => el.teamId === (this.updated as any).teamId);
+										this.approveDescriptions.splice(found2, 1);
+										this.disabledIcon(null);
+										this.allDescriptions[product.productId] = product.descriptionEN;
+										// this.description = product.descriptionEN;
 
-									// as any because error that it's null
-									let productIndex = this.reviews.findIndex((el: Review) => el.teamId === (this.updated as any).teamId);
-									(this.reviews[productIndex] as Review).lastMentorUpdate = (this.formatDate(new Date()) as unknown as Date).toString();
+										// as any because error that it's null
+										let productIndex = this.reviews.findIndex((el: Review) => el.teamId === (this.updated as any).teamId);
+										(this.reviews[productIndex] as Review).lastMentorUpdate = (this.formatDate(new Date()) as unknown as Date).toString();
+									}
 								}
-							}
-						this.$forceUpdate();
-					}
+							this.$forceUpdate();
+							this.snackOptions.text = "Description approved successfully";
+							this.snackOptions.type = SnackBarTypes.SUCCESS;
+							this.snackOptions.timeout = 2000;
+							this.snackbar = true;
+						}
 					}
 			} catch (e) {
 				console.error(e);
+				this.snackOptions.text = "Server Error. If the error persists, please contact technical support: teams@tech-lounge.ro.";
+				this.snackOptions.type = SnackBarTypes.ERROR;
+				this.snackOptions.timeout = 2000;
+				this.snackbar = true;
 			}
 			this.approveDialog = false;
 		},
@@ -1208,8 +1297,6 @@ export default Vue.extend({
 				}
 				newArray.push(newTeam);
 			}
-			let found = this.allTeams.findIndex((el: Team & Product) => el.startupName === "");
-			this.allTeams.splice(found, 1);
 			this.allTeams = this.allTeams.sort(function(a, b) {
 				var nameA = a.startupName.toUpperCase();
 				var nameB = b.startupName.toUpperCase();
@@ -1236,7 +1323,7 @@ export default Vue.extend({
 			this.$router.go(-1);
 		},
 		changeRoute(link:string):void {
-			if ((this.role==="Mentor" || this.role==="Admin" || this.role ==="SuperAdmin") && this.selectedMentoredTeam.teamId !== "" && link.split("/")[1] === "viewTeam") {
+			if ((this.role==="Mentor" || this.role==="Admin" || this.role ==="SuperAdmin") && this.selectedMentoredTeam && this.selectedMentoredTeam.teamId !== "" && link.split("/")[1] === "viewTeam") {
 				if (this.$route.path !== link + "/" + this.id)
 					this.$router.push(link + "/" + this.id);
 			}

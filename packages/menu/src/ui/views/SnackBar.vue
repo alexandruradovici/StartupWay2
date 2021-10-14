@@ -23,12 +23,17 @@ interface ISnackbar {
 export default Vue.extend({
 	name: "SnackBar",
 	watch: {
-		snackbar () {
-			if (this.snackbar) {
-				const timeout = (this.options.timeout && this.options.timeout !== -1 ? this.options.timeout : 3000);
-				setTimeout(() => {
-					this.$emit("update-snackbar", false);
-				}, timeout);
+		snackbar: {
+			immediate: true,
+			handler () {
+				console.log(this.snackbar);
+				if (this.snackbar) {
+					const timeout = (this.options.timeout && this.options.timeout !== -1 ? this.options.timeout : 3000);
+					setTimeout(() => {
+						console.log("emmited event");
+						this.$emit("update-snackbar", false);
+					}, timeout);
+				}
 			}
 		},
 		options: {
@@ -36,7 +41,7 @@ export default Vue.extend({
 			deep: true,
 			handler () {
 				console.log("options changed");
-		console.log(this.options);
+				console.log(this.options);
 				switch (this.options.horizontal) {
 					case SnackBarHorizontal.LEFT:
 						this.left = true;

@@ -34,7 +34,7 @@
 						<v-list-item-title>Workshops</v-list-item-title>
 					</v-list-item-content>
 				</v-list-item> -->
-				<v-list-item class="menu-item" link to="/admin/csv">
+				<v-list-item class="menu-item" link to="/admin/imports">
 					<v-list-item-icon>
 						<v-icon color="primary">mdi-file-import-outline</v-icon>
 					</v-list-item-icon> 

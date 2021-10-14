@@ -23,6 +23,7 @@
   "dependencies": {
     "@startupway/main": "*",
     "@startupway/database": "*",
+    "@startupway/menu": "*",
     "@startupway/users": "*",
     "@startupway/workspace": "*",
     "@startupway/teams": "*",

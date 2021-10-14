@@ -236,7 +236,7 @@
 				</v-col>
 			</v-row>
 		</v-container> 
-		<SnackBar :options="snackOptions" v-if="snackbar" @update-snackbar="update"></SnackBar>
+		<SnackBar :options="snackOptions"  @update-snackbar="updateSnack" :snackbar="snackbar"/>
 	</div>
 </template>
 
@@ -247,7 +247,49 @@ import moment from "moment";
 import { UI } from '@startupway/main/lib/ui';
 import { Team, VisualUser} from "../../common";
 import { User, UserTeams, universities } from "@startupway/users/lib/ui";
-import { SnackBarOptions, SnackBarTypes } from "@startupway/menu/lib/ui";
+import { SnackBarOptions, SnackBarTypes, SnackBarHorizontal, SnackBarVertical } from "@startupway/menu/lib/ui";
+interface ITeam {
+	ui: UI,
+	emailRules: (((e: string) => string | boolean) | undefined) [],
+	userValid: boolean,
+	extendedImage: string,
+	extendDialog: boolean,
+	toDel: (User & UserTeams),
+	faculty: string,
+	group: string,
+	email: string,
+	role: string,
+	universities: string[],
+	roles: string[],
+	teamId: string,
+	userRole: string,
+	selected: [],
+	singleSelect: boolean,
+	users: (User & UserTeams)[] | User[],
+	search1: string,
+	item: (User & UserTeams & VisualUser),
+	loadingPage: boolean,
+	dialog: boolean,
+	remove: boolean,
+	add: boolean,
+	allUsers: (User & UserTeams)[] | User[],
+	addUsersDialog: boolean,
+	acceptDialog: boolean,
+	singleSelect2: boolean,
+	singleSelect1: boolean,
+	loading: boolean,
+	toAdd:(User & UserTeams)[] | User[],
+	toRemove:(User & UserTeams)[] | User[],
+	headers1: {text?:string, align?:string, sortable?: boolean, value?:string}[],
+	search2: string,
+	headers2: {text?:string, align?:string, sortable?: boolean, value?:string}[],
+	requestFirstName: string,
+	requestLastName: string,
+	requestEmail: string,
+	requestDialog: boolean,
+	snackbar: boolean,
+	snackOptions: SnackBarOptions
+}
 export default Vue.extend({
 	name: "Team",
 	watch: {
@@ -280,7 +322,7 @@ export default Vue.extend({
 			user: "users/user"
 		})
 	},
-	data() {
+	data (): ITeam {
 		return {
 			ui: UI.getInstance(),
 			emailRules: [
@@ -367,15 +409,21 @@ export default Vue.extend({
 			requestLastName:"",
 			requestEmail:"",
 			requestDialog:false,
+			snackbar: false,
 			snackOptions: {
 				text:"",
-				type:"info",
-				timeout:2000
-			} as SnackBarOptions,
-			snackbar:false,
+				type: SnackBarTypes.INFO,
+				timeout:2000,
+				horizontal: SnackBarHorizontal.RIGHT,
+				vertical: SnackBarVertical.BOTTOM
+			}
 		};
 	},
 	methods: {
+		updateSnack (prop:boolean): void {
+			console.log("got update event");
+			this.snackbar = prop;
+		},
 		extendImage(image: string):void {
 			this.extendedImage = image;
 			this.extendDialog = true;
@@ -496,7 +544,7 @@ export default Vue.extend({
 				});
 				if (response.data) {
 					this.loading = true;
-					this.snackOptions.text = "Remove User Successful";
+					this.snackOptions.text = "User/s removed successfully";
 					this.snackOptions.type = SnackBarTypes.SUCCESS;
 					this.snackOptions.timeout = 2000;
 					this.snackbar = true;
@@ -725,7 +773,7 @@ export default Vue.extend({
 					const newResponse = await this.refreshLists();
 					if (newResponse) {
 						this.loading = false;
-						this.snackOptions.text = "Add Users Successful";
+						this.snackOptions.text = "User/s added successfully";
 						this.snackOptions.type = SnackBarTypes.SUCCESS;
 						this.snackOptions.timeout = 2000;
 						this.snackbar = true;
@@ -774,6 +822,7 @@ export default Vue.extend({
 					allActivities.push(userActivity);
 					
 				}
+				console.log(allActivities);
 				try {
 					this.loadingPage = false;
 					await this.ui.api.post<boolean>("/api/v1/admin/newUserActivity", {

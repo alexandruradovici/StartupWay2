@@ -246,6 +246,7 @@
 					</v-card-actions>
 				</v-card>
 			</v-dialog>
+			<SnackBar :options="snackOptions"  @update-snackbar="updateSnack" :snackbar="snackbar"/>
 		</v-container>
 		<v-container v-else>
 			<v-row justify="center">
@@ -268,6 +269,34 @@ import { mapGetters } from "vuex";
 import { Team, Product, BusinessTrack, TeamType, WorkshopDay, UserTeams } from "../../../common";
 import { User } from "@startupway/users/lib/ui";
 import { UI } from '@startupway/main/lib/ui';
+import { SnackBarOptions, SnackBarTypes, SnackBarHorizontal, SnackBarVertical } from "@startupway/menu/lib/ui";
+interface IProductDetails {
+	ui: UI,
+	productValid: boolean,
+	startupRules: ((value: string) => string | boolean) [],
+	rulesDesc: ((value: string) => string | boolean) [],
+	extendedImage: string,
+	extendDialog: boolean,
+	teams: (Team[] | (Team & Product)[]),
+	location: string,
+	users: User[],
+	allUsers: User[],
+	teamId: string,
+	team: string,
+	product: Product | undefined,
+	teamTracks: string[],
+	businessTracks: string[],
+	teamTypes: string[],
+	workshopDays: string[],
+	loadingPage: boolean,
+	images: {data:string,type:string,ext:string,uuid:string}[],
+	logo: {data:string,type:string,ext:string,uuid:string},
+	presVid: {data:string,type:string,ext:string,uuid:string},
+	demoVid: {data:string,type:string,ext:string,uuid:string},
+	pres: {data:string,type:string,ext:string,uuid:string},
+	snackbar: boolean,
+	snackOptions: SnackBarOptions
+};
 export default Vue.extend({
 	name: "ProductDetails",
 	mounted() {
@@ -358,7 +387,7 @@ export default Vue.extend({
 			user: "users/user",
 		})
 	},
-	data() {
+	data (): IProductDetails {
 		return {
 			ui: UI.getInstance(),
 			productValid:true,
@@ -375,13 +404,13 @@ export default Vue.extend({
 			],
 			extendedImage: "",
 			extendDialog: false,
-			teams: [] as (Team[] | (Team & Product)[]),
-			location: "" as string,
-			users:[] as User[],
-			allUsers:[] as User[],
+			teams: [],
+			location: "",
+			users:[],
+			allUsers:[],
 			teamId:"",
 			team:"",
-			product:{} as Product,
+			product:undefined,
 			teamTracks:[],
 			businessTracks:[],
 			teamTypes:[],
@@ -392,9 +421,21 @@ export default Vue.extend({
 			presVid:{} as {data:string,type:string,ext:string,uuid:string},
 			demoVid:{} as {data:string,type:string,ext:string,uuid:string},
 			pres:{} as {data:string,type:string,ext:string,uuid:string},
+			snackbar: false,
+			snackOptions: {
+				text:"",
+				type: SnackBarTypes.INFO,
+				timeout:2000,
+				horizontal: SnackBarHorizontal.RIGHT,
+				vertical: SnackBarVertical.BOTTOM
+			}
 		};
 	},
 	methods: {
+		updateSnack (prop:boolean): void {
+			console.log("got update event");
+			this.snackbar = prop;
+		},
 		extendImage(image: string):void {
 			this.extendedImage = image;
 			this.extendDialog = true;
@@ -472,8 +513,17 @@ export default Vue.extend({
 						ext: ".pptx",
 						teamId: this.teamId
 					});
-				} catch (e) {
-					console.error(e);
+					this.snackOptions.text = "Product Update has been successful!";
+					this.snackOptions.type = SnackBarTypes.SUCCESS;
+					this.snackOptions.timeout = 2000;
+					this.snackbar = true;
+				} catch (error) {
+					const e: Error = error;
+					console.error(e.message);
+					this.snackOptions.text = e.message;
+					this.snackOptions.type = SnackBarTypes.ERROR;
+					this.snackOptions.timeout = 2000;
+					this.snackbar = true;
 				}
 			}
 				this.loadingPage = false;
@@ -486,11 +536,20 @@ export default Vue.extend({
 					const res = await this.ui.api.get<Product | null>("/api/v1/teams/product/"+this.teamId);
 						if (res.data) {
 							this.product = res.data;
+							this.snackOptions.text = "Description approval has been successful!";
+							this.snackOptions.type = SnackBarTypes.SUCCESS;
+							this.snackOptions.timeout = 2000;
+							this.snackbar = true;
 						}
 					this.$forceUpdate();
 				}
-			} catch (e) {
-				console.error(e);
+			} catch (error) {
+				const e: Error = error;
+				console.error(e.message);
+				this.snackOptions.text = e.message;
+				this.snackOptions.type = SnackBarTypes.ERROR;
+				this.snackOptions.timeout = 2000;
+				this.snackbar = true;
 			}
 			this.loadingPage = false;
 		},
@@ -515,11 +574,20 @@ export default Vue.extend({
 				if (response.data) {
 					const url = response.data;
 					window.open(url, '_blank');
+					this.snackOptions.text = "Download has been successful";
+					this.snackOptions.type = SnackBarTypes.SUCCESS;
+					this.snackOptions.timeout = 2000;
+					this.snackbar = true;
 				} else {
 
 				}
-			} catch (e) {
-				console.error(e);
+			} catch (error) {
+				const e: Error = error;
+				console.error(e.message);
+				this.snackOptions.text = e.message;
+				this.snackOptions.type = SnackBarTypes.ERROR;
+				this.snackOptions.timeout = 2000;
+				this.snackbar = true;
 			}
 			this.loadingPage = false;
 		},

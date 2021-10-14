@@ -22,6 +22,7 @@
   "license": "ISC",
   "dependencies": {
     "@startupway/main": "*",
+    "@startupway/menu": "*",
     "@startupway/database": "*",
     "@startupway/workspace": "*",
     "@startupway/users": "*",

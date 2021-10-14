@@ -440,7 +440,7 @@
 					</v-layout>
 				</v-form>
 			</v-card>
-			<SnackBar :options="snackOptions" v-if="snackbar" @update-snackbar="update"></SnackBar>
+			<SnackBar :options="snackOptions"  @update-snackbar="updateSnack" :snackbar="snackbar"/>
 			<v-dialog v-model="extendDialog" max-width="900">
 				<v-card flat max-width="900">
 					<v-img :src="extendedImage"></v-img>
@@ -451,10 +451,10 @@
 			</v-dialog>
 		</v-container>
 		<v-container v-else>
-			<v-row class="justify-center">
-				<v-col>
+			<v-row justify="center">
+				<v-col md="auto">
 					<v-progress-circular
-					:size="250"
+					:size="500"
 					color="primary"
 					indeterminate
 					></v-progress-circular>
@@ -468,9 +468,84 @@
 import Vue from "vue";
 import { mapGetters } from "vuex";
 import { Team, Product, WorkshopDay, BusinessTrack, TeamType, ProductDetails } from "../../common";
-import { SnackBarOptions, SnackBarTypes } from "@startupway/menu/lib/ui";
 import { v4 as uiidv4} from "uuid";
 import { UI } from '@startupway/main/lib/ui';
+import { SnackBarOptions, SnackBarTypes, SnackBarHorizontal, SnackBarVertical } from "@startupway/menu/lib/ui";
+interface IProductSummary {
+	ui: UI,
+	//Page Loadings and Dialogs
+	productValid: boolean,
+	loadingUpload: boolean,
+	loadingPage: boolean,
+	extendedImage: string,
+	extendDialog: boolean,
+	//Enums
+	teamTypes: string[],
+	businessTracks: string[],
+	workshopDays: string[],
+	workshops: string[],
+	teamId: string,
+	productId: string,
+	//Product settings
+	startupRules: ((value: string) => string | boolean)[],
+	startupName: string,
+	businessTrack: string, //enum
+	teamType: string, //enum
+	workshopDay: typeof WorkshopDay,
+	workshop_day: string,
+	workshop_nr: string,
+	descr_ENG: string, //600char
+	descr_RO: string, //600char
+	last_presentation: string,
+	link_website: string,
+	link_linkedin: string,
+	link_facebook: string,
+	assessmentFinals: string,
+	assessmentSemifinals: string,
+	pending_descr_RO: string,
+	pending_descr_ENG: string,
+	//File upload
+	rulesPres: ((value: File) => string | boolean)[],
+	rulesDemoVid: ((value: File) => string | boolean)[],
+	rulesPresVid: ((value: File) => string | boolean)[],
+	// rulesFiles: [
+	// 	(array:File[]) => !array || array.length < 10 || 'No more than 10 files at once',
+	// ],
+	rulesFiles: ((value: File) => string | boolean)[],
+	rulesLogo: ((value: File) => string | boolean)[],
+	rulesDesc: ((value: string) => string | boolean)[],
+	validPres: boolean,
+	validDemoVid: boolean,
+	validPresVid: boolean,
+	validLogo: boolean,
+	validFiles: boolean,
+	presFile: File | undefined,
+	demoVidFile: File | undefined,
+	presVidFile: File | undefined,
+	logoFile: File | undefined,
+	imgFiles: File | undefined,
+	uuidTemp: string,
+	partTotal: number | string,
+	parts: number,
+	increment: number,
+	//File Display
+	images: {data:string,type:string,ext:string,uuid:string}[],
+	logo: {data:string,type:string,ext:string,uuid:string},
+	presVid: {data:string,type:string,ext:string,uuid:string},
+	demoVid: {data:string,type:string,ext:string,uuid:string},
+	pres: {data:string,type:string,ext:string,uuid:string},
+	showDeletePresentation: boolean,
+	showDownloadPresentation: boolean, 
+	showDeleteVideo: boolean,
+	showDownloadVideo: boolean, 
+	showDeleteDemo: boolean,
+	showDownloadDemo: boolean, 
+	showDeleteLogo: boolean,
+	showDownloadLogo: boolean, 
+	//SnackBar popup
+	snackOptions: SnackBarOptions,
+	snackbar: boolean,
+}
 export default Vue.extend({
 	name: "ProductSummary",
 	async mounted() {
@@ -631,7 +706,7 @@ export default Vue.extend({
 			product: "teams/product"
 		}),
 	},
-	data() {
+	data(): IProductSummary {
 		return {
 			ui: UI.getInstance(),
 			//Page Loadings and Dialogs
@@ -723,15 +798,21 @@ export default Vue.extend({
 			showDeleteLogo: false,
 			showDownloadLogo: false, 
 			//SnackBar popup
+			snackbar: false,
 			snackOptions: {
 				text:"",
-				type:"info",
-				timeout:2000
-			} as SnackBarOptions,
-			snackbar:false,
+				type: SnackBarTypes.INFO,
+				timeout:2000,
+				horizontal: SnackBarHorizontal.RIGHT,
+				vertical: SnackBarVertical.BOTTOM
+			}
 		};
 	},
 	methods: {
+		updateSnack (prop:boolean): void {
+			console.log("got update event");
+			this.snackbar = prop;
+		},
 		// as any to transform enum to data property
 		_enumToData(enumData: any, name: string):void {
 			name = name.replace(/^\w/, c => c.toLowerCase()) + "s";
@@ -805,8 +886,18 @@ export default Vue.extend({
 					product: product,
 					teamId: this.teamId
 				});
+				this.snackOptions.text = "Update Successful";
+				this.snackOptions.type = SnackBarTypes.SUCCESS;
+				this.snackOptions.timeout = 2000;
+				this.snackbar = true;
+				this.loadingPage = false;
 			} catch (e) {
 				console.error(e);
+				this.snackOptions.text = "Server Error. If the error persists, please contact technical support: teams@tech-lounge.ro.";
+				this.snackOptions.type = SnackBarTypes.ERROR;
+				this.snackOptions.timeout = 2000;
+				this.snackbar = true;
+				this.loadingPage = false;
 			}
 			this.loadingPage = false;
 		},

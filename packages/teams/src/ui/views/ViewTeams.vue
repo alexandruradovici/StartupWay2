@@ -1,12 +1,14 @@
 <template>
 	<div>
-		<v-navigation-drawer v-if="role" clipped app permanent expand-on-hover>
-			<v-list>
-				<v-list-item>
-					<v-list-item-avatar>
-						<v-img :src="badge"></v-img>
+		<v-navigation-drawer v-if="role" clipped app permanent expand-on-hover width="15%">
+			<v-list dense>
+				<v-list-item class="px-2" justify-center align-center>
+					<v-list-item-avatar justify-center align-center>
+						<v-img width="75%" :src="badge"></v-img>
 					</v-list-item-avatar>
-					<v-list-item-content>
+				</v-list-item>
+				<v-list-item>
+					<v-list-item-content justify-center align-center>
 						<div v-if="role==='Mentor'">
 							<v-list-item-title id="user-title">Mentor View</v-list-item-title>
 						</div>

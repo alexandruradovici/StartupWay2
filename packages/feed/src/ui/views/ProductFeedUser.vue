@@ -93,6 +93,7 @@
 					</v-dialog>
 				</v-container>
 			</v-card>
+			<SnackBar :options="snackOptions"  @update-snackbar="updateSnack" :snackbar="snackbar"/>
 		</v-container>
 		<v-container v-else>
 			<v-row justify="center">
@@ -116,6 +117,24 @@ import { Team, Product } from "@startupway/teams/lib/ui";
 import { mapGetters } from "vuex";
 import moment from "moment";
 import { v4 as uiidv4 } from 'uuid';
+import { SnackBarOptions, SnackBarTypes, SnackBarHorizontal, SnackBarVertical } from "@startupway/menu/lib/ui";
+interface IProductFeedUser {
+	ui:UI,
+	productUpdates: Feed[],
+	items: {name: string, value:string}[],
+	teamId: string,
+	value: string,
+	text: string,
+	amount: string,
+	newFeedUpdate: string,
+	FeedTypes: typeof FeedTypes,
+	editDialog: boolean,
+	loadingPage: boolean,
+	edited: Feed | null,
+	removeDialog: boolean,
+	snackbar: boolean,
+	snackOptions: SnackBarOptions
+}
 export default Vue.extend({
 	name: "ProductFeedUser",
 	async mounted() {
@@ -167,7 +186,7 @@ export default Vue.extend({
 			feed: "feed/feed"
 		})
 	},
-	data() {
+	data(): IProductFeedUser {
 		return {
 			ui:UI.getInstance(),
 			productUpdates: [] as Feed[],
@@ -190,18 +209,30 @@ export default Vue.extend({
 				}
 			],
 			teamId: "",
-			value: "" as string,
-			text: "" as string,
-			amount: "" as string,
+			value: "",
+			text: "",
+			amount: "",
 			newFeedUpdate: "",
 			FeedTypes: FeedTypes,
 			editDialog: false,
 			loadingPage: false,
 			edited: null as Feed | null,
-			removeDialog: false
+			removeDialog: false,
+			snackbar: false,
+			snackOptions: {
+				text:"",
+				type: SnackBarTypes.INFO,
+				timeout:2000,
+				horizontal: SnackBarHorizontal.RIGHT,
+				vertical: SnackBarVertical.BOTTOM
+			}
 		};
 	},
 	methods: {
+		updateSnack (prop:boolean): void {
+			console.log("got update event");
+			this.snackbar = prop;
+		},
 		accept(feed: Feed):void {
 			this.deleteFeed(feed);
 			this.removeDialog = false;
@@ -214,9 +245,17 @@ export default Vue.extend({
 				let response = await this.ui.storeDispatch("feed/deleteFeed", feed);
 				if (response) {
 					await this.ui.storeDispatch("feed/loadFeed", feed.teamId);
+					this.snackOptions.text = "Feed deleted successfully";
+					this.snackOptions.type = SnackBarTypes.SUCCESS;
+					this.snackOptions.timeout = 2000;
+					this.snackbar = true;
 				}
 			} catch (e) {
 				console.error(e);
+				this.snackOptions.text = "Server Error while Deleting the feed. If the error persists, please contact technical support: teams@tech-lounge.ro.",
+				this.snackOptions.type = SnackBarTypes.ERROR;
+				this.snackOptions.timeout = 2000;
+				this.snackbar = true;
 			}
 			this.$forceUpdate();
 			
@@ -239,9 +278,17 @@ export default Vue.extend({
 				});	
 				if (response.data) {
 					await this.ui.storeDispatch("feed/loadFeed", feed.teamId);
+					this.snackOptions.text = "Feed deleted successfully";
+					this.snackOptions.type = SnackBarTypes.SUCCESS;
+					this.snackOptions.timeout = 2000;
+					this.snackbar = true;
 				}
 			} catch (e) {
 				console.error(e);
+				this.snackOptions.text = "Server Error while Updating the feed. If the error persists, please contact technical support: teams@tech-lounge.ro.",
+				this.snackOptions.type = SnackBarTypes.ERROR;
+				this.snackOptions.timeout = 2000;
+				this.snackbar = true;
 			}
 
 			this.editDialog=false;
@@ -282,9 +329,17 @@ export default Vue.extend({
 				let response = await this.ui.storeDispatch("feed/addFeed", feed);
 				if (response) {
 					await this.ui.storeDispatch("feed/loadFeed", this.teamId);
+					this.snackOptions.text = "Feed deleted successfully";
+					this.snackOptions.type = SnackBarTypes.SUCCESS;
+					this.snackOptions.timeout = 2000;
+					this.snackbar = true;
 				}
 			} catch (e) {
 				console.error(e);
+				this.snackOptions.text = "Server Error while Adding a new feed. If the error persists, please contact technical support: teams@tech-lounge.ro.",
+				this.snackOptions.type = SnackBarTypes.ERROR;
+				this.snackOptions.timeout = 2000;
+				this.snackbar = true;
 			}
 			try {
 				let product = await this.ui.api.get<Product | null>("/api/v1/teams/product/" + this.teamId);

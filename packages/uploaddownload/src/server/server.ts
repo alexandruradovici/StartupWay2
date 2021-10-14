@@ -283,6 +283,48 @@ export class UploadDownloadServer {
 		}
 	}
 
+	async getLinks(city: string, fileType: string, teamType: string): Promise<UploadDownloadLink[]> {
+		let conn:PoolConnection | null = null;
+		try {
+			conn = await getPool().getConnection();
+			if(conn) {
+				const queryOptions:QueryOptions = {
+					namedPlaceholders:true,
+					sql: ""
+				};
+				if (teamType === "none") {
+					queryOptions.sql = "SELECT uuid, fileType, extension, uploadTime, products.*, teams.location FROM uploadDownload inner join products on products.productId=uploadDownload.productId inner join teams on teams.location=:city and teams.productId = products.productId  where fileType = :fileType;";
+				} else if (teamType === "semifinals") {
+					queryOptions.sql = "SELECT uuid, fileType, extension, uploadTime, products.*, teams.location FROM uploadDownload inner join products on products.productId=uploadDownload.productId AND JSON_EXTRACT(productDetails,'$.assessmentSemifinals') = true inner join teams on teams.location=:city and teams.productId = products.productId  where fileType = :fileType;";
+				} else if (teamType === "finals") {
+					queryOptions.sql = "SELECT uuid, fileType, extension, uploadTime, products.*, teams.location FROM uploadDownload inner join products on products.productId=uploadDownload.productId AND JSON_EXTRACT(productDetails,'$.assessmentSemifinals') = true AND JSON_EXTRACT(productDetails,'$.assessmentFinals') = true inner join teams on teams.location=:city and teams.productId = products.productId  where fileType = :fileType;";
+				}
+				let links:UploadDownloadLink[] = [];
+				let params: {city?: string, fileType?: string} = {};
+				if (city === "All") {
+					queryOptions.sql = queryOptions.sql.replace(" teams.location=:city and", "");
+				} else {
+					params.city = city;
+				}
+				params.fileType = fileType
+				links = await conn.query(queryOptions, params);
+				if(links) {
+					return links;
+				} else {
+					return [];
+				}
+			} else {
+				return [];
+			}
+		} catch (e) {
+			console.error(e);
+			return [];
+		} finally {
+			if(conn)
+				conn.release();
+		}
+	}
+
 	async addS3File(uuid:string,fileData:string, fileType:string): Promise<Boolean> {
 		try {
 			await AWS.config.update({region: process.env.REGION, accessKeyId: process.env.AKEY, secretAccessKey: process.env.ASECRETKEY});
@@ -347,7 +389,6 @@ export class UploadDownloadServer {
 				};
 				let utf8Data;
 				const response:AWS.S3.GetObjectOutput = await s3.getObject(BucketParams).promise();
-				console.log(response.Body);
 				if(response.Body !== undefined) {
 					utf8Data = response.Body.toString("base64");
 				}
@@ -1202,31 +1243,67 @@ router.get("/download/file/:uuid", async(req:ApiRequest<undefined>, res:ApiRespo
 		res.status(500).send({err:500,data:null});
 	}
 });
-router.get("/download/zip/:type/:date", async(req:ApiRequest<undefined>, res:ApiResponse<string | null>) => {
+
+router.get("/download/unbulkable/:city/:teamType/:exportType", async(req:ApiRequest<undefined>, res:ApiResponse<string[] | null>) => {
 	try {
-		const type = req.params.type;
-		const date = req.params.date;
-		let links = await uploadDownload.getLinksByFileTypePass(type,date);
+		const city = req.params.city
+		const teamType = req.params.teamType;
+		const exportType = req.params.exportType;
+		let links = await uploadDownload.getLinks(city,exportType,teamType);
 		if(links.length !== 0) {
+			const prevZip = await uploadDownload.getLinkByUuid(`${city}_${teamType}_${exportType}`);
+			if (prevZip && await uploadDownload.deleteS3File(prevZip.uuid)) {
+				await uploadDownload.deleteLink(prevZip.uuid);
+			}
+			const urls:string[] = [];
+			for(const link of links) {
+				const url = await uploadDownload.getS3Url(link.uuid);
+				urls.push(url);
+			}
+			res.status(200).send(urls);
+		} else {
+			res.status(204).send(null);
+		}
+	} catch (e) {
+		console.error(e);
+		res.status(500).send({err:500,data:null});
+	}
+});
+router.get("/download/zip/:city/:teamType/:exportType", async(req:ApiRequest<undefined>, res:ApiResponse<string | null>) => {
+	try {
+		const city = req.params.city
+		const teamType = req.params.teamType;
+		const exportType = req.params.exportType;
+		console.log(city);
+		console.log(teamType);
+		console.log(exportType);
+		let links = await uploadDownload.getLinks(city,exportType,teamType);
+		console.log(links);
+		if(links.length !== 0) {
+			const prevZip = await uploadDownload.getLinkByUuid(`${city}_${teamType}_${exportType}`);
+			if (prevZip && await uploadDownload.deleteS3File(prevZip.uuid)) {
+				await uploadDownload.deleteLink(prevZip.uuid);
+			}
 			let zip = new jszip();
 			for(const link of links) {
 				const product = await teams.getProductById(link.productId);
 				if(product) {
 					const date = uploadDownload.formatDate(link.uploadTime);
 					let name = "";
-					if(type === "demoVid") {
-						name = product.startupName + "_tehnic_demo_video_" + date + "." + link.extension;
-					} else if(type ==="presVid") {
-						name = product.startupName + "_products_presentation_video_" + date + "." + link.extension;
-					} else if(type ==="pres") {
-						name = product.startupName + "_powerpoint_presentation_" + date + "."  + link.extension;
-					} else if(type ==="image") {
+					// if(exportType === "demoVid") {
+					// 	name = `${product.startupName}_tehnic_demo_video_${date}.${link.extension}`;
+					// } else if(exportType ==="presVid") {
+					// 	name = `${product.startupName}_products_presentation_video_${date}.${link.extension}`;
+					// } else 
+					if(exportType ==="pres") {
+						name = `${product.startupName}_powerpoint_presentation_${date}.${link.extension}`;
+					} else if(exportType ==="image") {
 						zip.folder(product.startupName);
-						name = product.startupName + "/" + product.startupName + "_products_image_"+ link.uuid[0] +link.uuid[1] + link.uuid[2] + "_" + date + "."  + link.extension;
-					} else if(type ==="logo") {
-						name = product.startupName + "_logo_" + date + "."  + link.extension;
+						name = `${product.startupName}/${product.startupName}_products_image_${link.uuid[0]}${link.uuid[1]}${link.uuid[2]}_${date}.${link.extension}`;
+					} else if(exportType ==="logo") {
+						name = `${product.startupName}_logo_${date}.${link.extension}`;
 					} else {
-						name = type + link.extension;
+						name = exportType + link.extension;
 					}
 					const obj:string = await uploadDownload.getS3Object(link.uuid);
 					if(obj !== "") {
@@ -1243,9 +1320,9 @@ router.get("/download/zip/:type/:date", async(req:ApiRequest<undefined>, res:Api
 				console.log("Finished writing zip");
 
 				const link:UploadDownloadLink = {
-					uuid:type,
+					uuid:`${city}_${teamType}_${exportType}`,
 					productId:"7051998",
-					fileType:type+"_zip",
+					fileType:`${exportType}_zip`,
 					extension:".zip",
 					uploadTime: new Date()
 				}

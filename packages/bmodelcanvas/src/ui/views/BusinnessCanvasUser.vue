@@ -235,6 +235,7 @@
 					<v-btn :disabled="checkLength" color="primary" rounded type="submit" @click="updateCanvas()">Submit Canvas</v-btn>
 				</v-card-actions>
 			</v-card>
+			<SnackBar :options="snackOptions"  @update-snackbar="updateSnack" :snackbar="snackbar"/>
 		</v-container>
 		<v-container v-else>
 			<v-row justify="center">
@@ -257,6 +258,33 @@ import { UI } from "@startupway/main/lib/ui";
 import { Team, Product} from "@startupway/teams/lib/ui";
 import { BModelCanvas, CanvasField } from "../../common";
 import { v4 as uiidv4 } from 'uuid';
+import { SnackBarOptions, SnackBarTypes, SnackBarHorizontal, SnackBarVertical } from "@startupway/menu/lib/ui";
+interface IBModelCanvasUser {
+	ui:UI,
+	checkLength: boolean,
+	types: string[],
+	lengthRules: ((v:string|null)=>string|boolean)[],
+	loadingPage:boolean,
+	edit: boolean ,
+	teamId: string,
+	productId: string,
+	canvas: BModelCanvas | undefined,
+	canvases: BModelCanvas[],
+	problem: string,
+	segment: string,
+	alternatives: string,
+	adaptors: string,
+	proposition: string,
+	concept: string,
+	solution: string,
+	advantage: string,
+	cost: string,
+	channels: string,
+	metrics: string,
+	revenue: string,
+	snackOptions: SnackBarOptions,
+	snackbar: boolean,
+}
 export default Vue.extend({
 	name: "BusinnessCanvasUser",
 	async mounted() {
@@ -353,33 +381,45 @@ export default Vue.extend({
 			product: "teams/product"
 		})
 	},
-	data() {
+	data (): IBModelCanvasUser {
 		return {
 			ui:UI.getInstance(),
 			checkLength: false,
-			types: [] as string[],
+			types: [],
 			lengthRules: [(v: string | null) => (v || '' ).length <= 250 || 'Description must be 250 characters or less'],
 			loadingPage:false,
-			edit: false as boolean,
+			edit: false,
 			teamId: "",
 			productId: "",
-			canvas: {} as BModelCanvas,
-			canvases: [] as BModelCanvas[],
-			problem: "" as string,
-			segment: "" as string,
-			alternatives: "" as string,
-			adaptors: "" as string,
-			proposition: "" as string,
-			concept: "" as string,
-			solution: "" as string,
-			advantage: "" as string,
-			cost: "" as string,
-			channels: "" as string,
-			metrics: "" as string,
-			revenue: "" as string
+			canvas: undefined,
+			canvases: [],
+			problem: "",
+			segment: "",
+			alternatives: "",
+			adaptors: "",
+			proposition: "",
+			concept: "",
+			solution: "",
+			advantage: "",
+			cost: "",
+			channels: "",
+			metrics: "",
+			revenue: "",
+			snackbar:false,
+			snackOptions: {
+				text:"",
+				type: SnackBarTypes.INFO,
+				timeout:2000,
+				horizontal: SnackBarHorizontal.RIGHT,
+				vertical: SnackBarVertical.BOTTOM
+			}
 		};
 	},
 	methods: {
+		updateSnack (prop:boolean): void {
+			console.log("got update event");
+			this.snackbar = prop;
+		},
 		countdown(type: string, model: string):void {
 			if (model.length > 250) {
 				this.checkLength = true;
@@ -436,6 +476,10 @@ export default Vue.extend({
 					let res = await this.ui.api.get<BModelCanvas[]>("/api/v1/canvas/" + this.teamId);
 					if (res.data) {
 						this.canvases = res.data;
+						this.snackOptions.text = "Canvas updated successfully";
+						this.snackOptions.type = SnackBarTypes.SUCCESS;
+						this.snackOptions.timeout = 2000;
+						this.snackbar = true;
 					}
 					this.problem = "";
 					this.segment = "";
@@ -452,6 +496,10 @@ export default Vue.extend({
 				}
 			} catch (e) {
 				console.error(e);
+				this.snackOptions.text = "Server Error while updateing the canvas. If the error persists, please contact technical support: teams@tech-lounge.ro.";
+				this.snackOptions.type = SnackBarTypes.ERROR;
+				this.snackOptions.timeout = 2000;
+				this.snackbar = true;
 			}
 			try {
 				let product = await this.ui.api.get<Product | null>("/api/v1/teams/product/" + this.teamId);

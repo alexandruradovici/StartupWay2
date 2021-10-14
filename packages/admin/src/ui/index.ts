@@ -6,10 +6,10 @@ import { WorkspaceUI, ToolbarButtonPosition } from '@startupway/workspace/lib/ui
 import Admin from "./views/Admin.vue";
 import UsersEdit from "./views/UsersEdit.vue";
 import TeamsEdit from "./views/TeamsEdit.vue";
-import CSV from "./views/CSV.vue";
+import Imports from "./views/Imports.vue";
 import WorkshopsEdit from "./views/WorkshopsEdit.vue";
 import AdminMenu from "./views/AdminMenu.vue";
-import ExportView from "./views/ExportView.vue";
+import Exports from "./views/Exports.vue";
 import Dashboard from "./views/Dashboard.vue";
 import Assessment from "./views/Assessment.vue";
 import store from "./store";
@@ -30,7 +30,7 @@ routes.push(
 	{
 		path:'/admin/exports',
 		name:"Admin - Exports",
-		component:ExportView
+		component:Exports
 	},
 	{
 		path:'/admin/workshops',
@@ -43,9 +43,9 @@ routes.push(
 		component:TeamsEdit
 	},
 	{
-		path: "/admin/csv",
-		name:"CSV Upload",
-		component: CSV
+		path: "/admin/imports",
+		name:"Admin - Imports",
+		component: Imports
 	}
 );
 

@@ -491,8 +491,8 @@ export default Vue.extend({
 		modifyTeams(newTeams:(Team & Product & {assesFinals:boolean,assesSemiFinals:boolean})[]):(Team & Product & {assesFinals:boolean,assesSemiFinals:boolean})[] {
 			let newArray:(Team & Product & {assesFinals:boolean,assesSemiFinals:boolean})[]=[];
 			for(let team of newTeams) {
-				team.assesSemiFinals = team.productDetails["assessmentFinals"];
-				team.assesFinals = team.productDetails["assessmentSemifinals"];
+				team.assesSemiFinals = team.productDetails["assessmentSemifinals"];
+				team.assesFinals = team.productDetails["assessmentFinals"];
 				newArray.push(team);
 			}
 			newArray = newArray.sort(function(a, b) {
@@ -515,14 +515,14 @@ export default Vue.extend({
 				const response = await this.ui.api.get<Product | null>("/api/v1/teams/product/" + item.teamId);
 				const product = response.data;
 				if (product) {
-					product.productDetails.assessment20May = item.assesFinals;
-					product.productDetails.assessment12Oct = item.assesSemiFinals;
+					product.productDetails.assessmentFinals = item.assesFinals;
+					product.productDetails.assessmentSemifinals = item.assesSemiFinals;
 					const resp:Product | null = await this.ui.api.post("/api/v1/teams/product/update", {teamId:item.teamId, product:product});
 					if (!resp){
-						console.log("ERROR");
+						console.error("ERROR");
 					}
 				} else {
-					console.log("ERROR");
+					console.error("ERROR");
 				}
 			} catch (error) {
 				console.error(error);

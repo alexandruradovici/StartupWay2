@@ -130,7 +130,7 @@ export class MariaDBServer {
 
 				await tablePool.end();
 
-				console.log("Database created succsessfuly");
+				console.log("Database created successfully");
 			}
 
 			await auxPool.end();

@@ -49,20 +49,37 @@ import Vue from "vue";
 import { mapGetters } from "vuex";
 import { User } from "@startupway/users/lib/ui"; 
 import { UI } from "@startupway/main/lib/ui";
+import { SnackBarOptions, SnackBarTypes, SnackBarHorizontal, SnackBarVertical } from "@startupway/menu/lib/ui";
+interface IImports {
+	ui: UI,
+	fileImport: File | undefined,
+	fileUpdate: File | undefined,
+	encodedImport: boolean,
+	encodedUpdate: boolean,
+	base64EncodeImport: string,
+	base64EncodeUpdate: string,
+	snackOptions: SnackBarOptions,
+	snackbar: boolean,
+}
 export default Vue.extend({
-	name: "CSV",
-	async mounted() {
-		
-	},
-	data() {
+	name: "Imports",
+	data (): IImports {
 		return {
 			ui: UI.getInstance(),
-			fileImport:(undefined  as unknown) as File,
-			fileUpdate:(undefined  as unknown) as File,
-			encodedImport:false,
-			encodedUpdate:false,
-			base64EncodeImport:"" as string,
-			base64EncodeUpdate:"" as string,
+			fileImport: undefined,
+			fileUpdate: undefined,
+			encodedImport: false,
+			encodedUpdate: false,
+			base64EncodeImport: "",
+			base64EncodeUpdate: "",
+			snackbar: false,
+			snackOptions: {
+				text:"",
+				type: SnackBarTypes.INFO,
+				timeout:2000,
+				horizontal: SnackBarHorizontal.RIGHT,
+				vertical: SnackBarVertical.BOTTOM
+			},
 		};
 	},
 	watch: {
@@ -124,16 +141,24 @@ export default Vue.extend({
 		}),
 	},
 	methods: {
+		updateSnack (prop:boolean): void {
+			console.log("got update event");
+			this.snackbar = prop;
+		},
 		async submitFileImport():Promise<void> {
 			try {
-				await this.ui.api.post<unknown>("/api/v1/admin/uploadCSV", {encode: this.base64EncodeImport});		
+				await this.ui.api.post<unknown>("/api/v1/admin/uploadCSV", {encode: this.base64EncodeImport});
+				this.snackOptions.text = "Teams successfully imported";
+				this.snackOptions.type = SnackBarTypes.SUCCESS;
+				this.snackOptions.timeout = 2000;		
 			} catch (e) {
 				console.error(e);
 			}
 		},
 		async submitFileUpdate():Promise<void> {
 			try {
-				await this.ui.api.post<unknown>("/api/v1/admin/updateDescriptionCSV", {encode: this.base64EncodeUpdate});		
+				await this.ui.api.post<unknown>("/api/v1/admin/updateDescriptionCSV", {encode: this.base64EncodeUpdate});
+				this.snackOptions.text = "Descriptions successfully imported";
 			} catch (e) {
 				console.error(e);
 			}

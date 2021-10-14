@@ -94,6 +94,7 @@
 					</v-card-actions>
 				</v-card>
 			</v-dialog>
+			<SnackBar :options="snackOptions"  @update-snackbar="updateSnack" :snackbar="snackbar"/>
 		</v-container>
 		<v-container v-else>
 			<v-row justify="center">
@@ -115,7 +116,26 @@ import { mapGetters } from "vuex";
 import { User } from "@startupway/users/lib/ui";
 import { UI } from '@startupway/main/lib/ui';
 import { UserActivity, Team, Product } from "../../common";
+import { SnackBarOptions, SnackBarTypes, SnackBarHorizontal, SnackBarVertical } from "@startupway/menu/lib/ui";
 import moment from "moment";
+interface IWeeklyUpdates {
+	ui: UI,
+	loadingPage: boolean,
+	activities:UserActivity[],
+	teamId: string,
+	userId: string,
+	date: Date,
+	//date:"2020-03-15T22:00:00.000Z",
+	edited: UserActivity | null,
+	tab: null,
+	editDialog: boolean,
+	viewDialog: boolean,
+	hoursWorked: number,
+	description: string,
+	weeks: UserActivity[],
+	snackbar: boolean,
+	snackOptions: SnackBarOptions
+}
 export default Vue.extend({
 	name: "WeeklyUpdates",
 	async mounted() {
@@ -198,25 +218,37 @@ export default Vue.extend({
 			user: "users/user"
 		}),
 	},
-	data() {
+	data (): IWeeklyUpdates {
 		return {
 			ui: UI.getInstance(),
 			loadingPage:false,
-			activities:[] as UserActivity[],
+			activities:[],
 			teamId:"",
 			userId:"",
-			date: Date(),
+			date: new Date(),
 			//date:"2020-03-15T22:00:00.000Z",
 			edited:null as UserActivity | null,
 			tab: null,
-			editDialog: false as boolean,
-			viewDialog: false as boolean,
-			hoursWorked:0 as number,
-			description:"" as string,
-			weeks:[] as UserActivity[]
+			editDialog: false,
+			viewDialog: false,
+			hoursWorked:0,
+			description:"",
+			weeks:[],
+			snackbar: false,
+			snackOptions: {
+				text:"",
+				type: SnackBarTypes.INFO,
+				timeout:2000,
+				horizontal: SnackBarHorizontal.RIGHT,
+				vertical: SnackBarVertical.BOTTOM
+			}
 		};
 	},
 	methods: {
+		updateSnack (prop:boolean): void {
+			console.log("got update event");
+			this.snackbar = prop;
+		},
 		moment() {
 			return moment();
 		},
@@ -268,11 +300,19 @@ export default Vue.extend({
 				});
 				if (response.data) {
 					this.activities = response.data;
+					this.snackOptions.text = "Activity successfully updated!";
+					this.snackOptions.type = SnackBarTypes.SUCCESS;
+					this.snackOptions.timeout = 2000;
+					this.snackbar = true;
 				}
 				this.editDialog=false;
 				this.edited=null;
 			} catch (e) {
 				console.error(e);
+				this.snackOptions.text = "Server Error while Updating the activity. If the error persists, please contact technical support: teams@tech-lounge.ro.",
+				this.snackOptions.type = SnackBarTypes.ERROR;
+				this.snackOptions.timeout = 2000;
+				this.snackbar = true;
 			}
 			try {
 				const resp = await this.ui.api.get<Product | null>("/api/v1/teams/product/" + this.teamId);

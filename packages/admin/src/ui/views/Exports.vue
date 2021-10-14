@@ -35,12 +35,98 @@
 					</v-card>
 					<v-card>
 						<v-card-title class="justify-center">
+							Zippable exports
+						</v-card-title>
+						<v-card-text>
+							<v-row>
+								<v-select
+									v-model="city"
+									:items="cities"
+									label="Select the city you wish to export"
+									item-text="text"
+									item-value="value"
+									hint="Please make sure to select a value"
+									persistent-hint
+								></v-select>
+							</v-row>
+							<v-row>
+								<v-select
+									v-model="teamType"
+									:items="teamTypes"
+									label="Select what kind of teams you want to be exported"
+									item-text="text"
+									item-value="value"
+									hint="Please make sure to select a value"
+									persistent-hint
+								></v-select>
+							</v-row>
+							<v-row>
+								<v-select
+									v-model="exportType"
+									:items="bulkableExportTypes"
+									label="Select what kind of resource you want to export"
+									item-text="text"
+									item-value="value"
+									hint="Please make sure to select a value"
+									persistent-hint
+								></v-select>
+							</v-row>
+						</v-card-text>
+						<v-card-actions class="justify-center">
+							<v-btn :disabled="city === '' || teamType === '' || exportType === ''" rounded color="primary" @click="exportBulkableZip(city, teamType, exportType)"> <v-icon>mdi-download</v-icon> Download </v-btn>
+						</v-card-actions>
+					</v-card>
+					<v-card>
+						<v-card-title class="justify-center">
+							Unzippable exports
+						</v-card-title>
+						<v-card-text>
+							<v-row>
+								<v-select
+									v-model="unCity"
+									:items="cities"
+									label="Select the city you wish to export"
+									item-text="text"
+									item-value="value"
+									hint="Please make sure to select a value"
+									persistent-hint
+								></v-select>
+							</v-row>
+							<v-row>
+								<v-select
+									v-model="unTeamType"
+									:items="teamTypes"
+									label="Select what kind of teams you want to be exported"
+									item-text="text"
+									item-value="value"
+									hint="Please make sure to select a value"
+									persistent-hint
+								></v-select>
+							</v-row>
+							<v-row>
+								<v-select
+									v-model="unExportType"
+									:items="unbulkabkeExportTypes"
+									label="Select what kind of resource you want to export"
+									item-text="text"
+									item-value="value"
+									hint="Please make sure to select a value"
+									persistent-hint
+								></v-select>
+							</v-row>
+						</v-card-text>
+						<v-card-actions class="justify-center">
+							<v-btn :disabled="unCity === '' || unTeamType === '' || unExportType === ''" rounded color="primary" @click="exportUnbulkableZip(unCity, unTeamType, unExportType)"> <v-icon>mdi-download</v-icon> Download </v-btn>
+						</v-card-actions>
+					</v-card>
+					<!--<v-card>
+						<v-card-title class="justify-center">
 							All teams | All resources
 						</v-card-title>
 						<v-card-text>
 							<v-select
 								v-model="teamDate"
-								:items="dates"
+								:items="teamTypes"
 								label="Select which teams to export"
 								item-text="text"
 								item-value="value"
@@ -72,8 +158,8 @@
 							</v-row>
 							<v-row>
 								<v-select
-									v-model="cityDate"
-									:items="dates"
+									v-model="teamType"
+									:items="teamTypes"
 									label="Select type of exports for city teams"
 									item-text="text"
 									item-value="value"
@@ -83,7 +169,7 @@
 							</v-row>
 						</v-card-text>
 						<v-card-actions class="justify-center">
-							<v-btn :disabled="city==='' || cityDate === ''" rounded color="primary" @click="exportTeamZip('city')">
+							<v-btn :disabled="city==='' || teamType === ''" rounded color="primary" @click="exportTeamZip('city')">
 								<v-icon>mdi-download</v-icon> Download
 							</v-btn>
 						</v-card-actions>
@@ -96,7 +182,7 @@
 							<v-row>
 								<v-select
 									v-model="date"
-									:items="dates"
+									:items="teamTypes"
 									label="Select which type of teams to export"
 									item-text="text"
 									item-value="value"
@@ -107,7 +193,7 @@
 							<v-row>
 								<v-select
 									v-model="exportType"
-									:items="exportTypes"
+									:items="bulkableExportTypes"
 									label="Select the type of exports for resource"
 									item-text="text"
 									item-value="value"
@@ -117,7 +203,7 @@
 							</v-row>
 						</v-card-text>
 						<v-card-actions class="justify-center">
-							<v-btn :disabled="date === '' || exportType === ''" rounded color="primary" @click="exportCertainZip(exportType)"> <v-icon>mdi-download</v-icon> Download </v-btn>
+							<v-btn :disabled="date === '' || exportType === ''" rounded color="primary" @click="exportBulkableZip(exportType)"> <v-icon>mdi-download</v-icon> Download </v-btn>
 						</v-card-actions>
 					</v-card>
 					<v-card>
@@ -173,7 +259,7 @@
 								<v-icon>mdi-download</v-icon> Download
 							</v-btn>
 						</v-card-actions>
-					</v-card>
+					</v-card> -->
 				</div>
 			</v-container>
 			<v-container v-show="loadingPage">
@@ -198,28 +284,59 @@
 				</v-row>
 			</v-container>
 		</v-card>
-		<SnackBar :options="snackOptions" :snackbar="snackbar" @update-prop="update"></SnackBar>
+		<SnackBar :options="snackOptions"  @update-snackbar="updateSnack" :snackbar="snackbar"/>
 	</v-app>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
 import { mapGetters } from "vuex";
-import { User } from "@startupway/users/lib/ui"; 
-import { Team } from "@startupway/teams/lib/ui"; 
-import { SnackBarOptions, SnackBarTypes } from "@startupway/menu/lib/ui";
+import { User } from "@startupway/users/lib/ui";
+import { Team } from "@startupway/teams/lib/ui";
+import { SnackBarOptions, SnackBarTypes, SnackBarHorizontal, SnackBarVertical } from "@startupway/menu/lib/ui";
 import { UI } from "@startupway/main/lib/ui";
 import "../style/style.css";
+interface IExportView {
+	ui: UI,
+	city: string,
+	cityExp: string,
+	cities:string[],
+	workshopNo: string,
+	days: {value:string,text:string}[],
+	businessTrack: string,
+	businessTracks: string[],
+	semiFinals: boolean,
+	finals: boolean,
+	teamDate: string,
+	teamType: string,
+	date: string,
+	exportType: string,
+	bulkableExportTypes: {text:string, value:string}[],
+	unExportType: string,
+	unbulkabkeExportTypes: {text:string, value:string}[],
+	unTeamType: string,
+	unCity: string,
+	teamTypes: {text:string, value:string}[],
+	team: string,
+	teams: Team[],
+	loadingPage: boolean,
+	//SnackBar popup
+	snackbar: boolean,
+	snackOptions: SnackBarOptions,
+	responded: boolean,
+	toStop: boolean,
+	option: string,
+	options: {text:string, value:string}[],
+}
 export default Vue.extend({
 	name: "ExportView",
-	async mounted() {
-	},
-	data() {
+	data (): IExportView {
 		return {
 			ui: UI.getInstance(),
 			city:'',
 			cityExp:'',
 			cities:[
+				"All",
 				"Bucharest",
 				"Cluj",
 				"Iasi",
@@ -263,21 +380,25 @@ export default Vue.extend({
 			semiFinals: false,
 			finals: false,
 			teamDate:'',
-			cityDate:'',
+			teamType:'',
 			date:'',
 			exportType:'',
-			exportTypes:[
+			bulkableExportTypes: [
+				// {
+				// 	text: "All Resources",
+				// 	value:"all"
+				// },
+				// {
+				// 	text:'Presentation Video',
+				// 	value:'presVid'
+				// },
+				// {
+				// 	text:'Tehnic Demo Video',
+				// 	value:'demoVid'
+				// },
 				{
 					text:'PowerPoint Presentation',
 					value:'pres'
-				},
-				{
-					text:'Presentation Video',
-					value:'presVid'
-				},
-				{
-					text:'Tehnic Demo Video',
-					value:'demoVid'
 				},
 				{
 					text:'Images',
@@ -288,30 +409,49 @@ export default Vue.extend({
 					value:'logo'
 				}
 			],
-			dates:[
+			unExportType: '',
+			unbulkabkeExportTypes: [
+				// {
+				// 	text: "All Resources",
+				// 	value:"all"
+				// },
+				{
+					text:'Presentation Video',
+					value:'presVid'
+				},
+				{
+					text:'Tehnic Demo Video',
+					value:'demoVid'
+				},
+			],
+			unTeamType: '',
+			unCity: '',
+			teamTypes:[
 				{
 					text:'All Teams',
 					value:'none'
 				},
 				{
-					text:'Teams that passed 20th of May assessment',
-					value:'may'
+					text:'Teams that passed in to the semifinals',
+					value:'semifinals'
 				},
 				{
-					text:'Teams that passed 12th of October assessment',
-					value:'oct'
+					text:'Teams that passed in to the finals',
+					value:'finals'
 				}
 			],
 			team:'',
 			teams:[] as Team[],
 			loadingPage:false,
 			//SnackBar popup
+			snackbar:false,
 			snackOptions: {
 				text:"",
-				type:"info",
-				timeout:2000
-			} as SnackBarOptions,
-			snackbar:false,
+				type: SnackBarTypes.INFO,
+				timeout:2000,
+				horizontal: SnackBarHorizontal.RIGHT,
+				vertical: SnackBarVertical.BOTTOM
+			},
 			responded: false,
 			toStop:false,
 			option:'',
@@ -370,7 +510,8 @@ export default Vue.extend({
 	created() {
 	},
 	methods: {
-		update(prop:boolean):void {
+		updateSnack (prop:boolean): void {
+			console.log("got update event");
 			this.snackbar = prop;
 		},
 		async exportCEO() {
@@ -408,7 +549,7 @@ export default Vue.extend({
 				else if(type === 'city')
 					body = {
 						type:type,
-						date:this.cityDate,
+						date:this.teamType,
 						city:this.city,
 						team:null
 					};
@@ -484,13 +625,40 @@ export default Vue.extend({
 				console.error(e);
 			}
 		},
-		async exportCertainZip(type:string) {
+		async exportBulkableZip(city: string, teamType: string, exportType: string) {
 			try {
 				this.loadingPage = true;
-				const response = await this.ui.api.get<string | null>("/api/v1/uploadDownload/download/zip/" + type + "/" + this.date);
+				const response = await this.ui.api.get<string | null>(`/api/v1/uploadDownload/download/zip/${city}/${teamType}/${exportType}`);
 				if(response.status === 200 && response.data) {
 					const url = response.data;
 					window.open(url, '_blank');
+				} else if(response.status === 204) {
+					this.snackOptions.text = "There are no files uploaded for any of the teams";
+					this.snackOptions.type = SnackBarTypes.INFO;
+					this.snackOptions.timeout = 2000;
+					this.snackbar = true;
+				} else {
+					this.snackOptions.text = "Server ERROR; Please contact teams@tech-lounge.ro for more information";
+					this.snackOptions.type = SnackBarTypes.ERROR;
+					this.snackOptions.timeout = 2000;
+					this.snackbar = true;
+				}
+			} catch (e) {
+				console.error(e);
+			}
+			this.loadingPage = false;
+		},
+		async exportUnbulkableZip(city: string, teamType: string, exportType: string) {
+			try {
+				this.loadingPage = true;
+				const response = await this.ui.api.get<string[] | null>(`/api/v1/uploadDownload/download/unbulkable/${city}/${teamType}/${exportType}`);
+				if(response.status === 200 && response.data) {
+					const urls = response.data;
+					if (urls) {
+						for (const url of urls) {
+							window.open(url, '_blank');
+						}
+					}
 				} else if(response.status === 204) {
 					this.snackOptions.text = "There are no files uploaded for any of the teams";
 					this.snackOptions.type = SnackBarTypes.INFO;

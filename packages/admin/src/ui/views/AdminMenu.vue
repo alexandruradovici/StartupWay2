@@ -34,7 +34,7 @@ export default Vue.extend({
 						id: MENU.CSV,
 						title:"Imports",
 						icon:"mdi-file-delimited",
-						link:"/admin/csv"
+						link:"/admin/imports"
 					}
 				]
 			} as SimpleMenuOptions

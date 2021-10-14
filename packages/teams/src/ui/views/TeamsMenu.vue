@@ -11,7 +11,9 @@ import { Team } from "../../common";
 import { mapGetters } from "vuex";
 import { UI } from '@startupway/main/lib/ui';
 import { User } from '@startupway/users/lib/ui';
-import { SnackBarOptions, SnackBarTypes, SimpleMenuItem, SimpleMenuOptions } from "@startupway/menu/lib/ui";
+import { SimpleMenuItem, SimpleMenuOptions } from "@startupway/menu/lib/ui";
+import { SnackBarTypes, SnackBarHorizontal, SnackBarVertical } from "@startupway/menu/lib/ui";
+// import { SnackBarOptions, SnackBarTypes, SnackBarHorizontal, SnackBarVertical } from "@startupway/menu/lib/ui";
 
 export default Vue.extend({
 	name: "TeamsMenu",
@@ -116,12 +118,14 @@ export default Vue.extend({
 				menuTooltip:"View Your Teams",
 				items: []
 			} as SimpleMenuOptions,
+			snackbar:false,
 			snackOptions: {
 				text:"",
-				type:"info",
-				timeout:2000
-			} as SnackBarOptions,
-			snackbar:false,
+				type: SnackBarTypes.INFO,
+				timeout:2000,
+				horizontal: SnackBarHorizontal.RIGHT,
+				vertical: SnackBarVertical.BOTTOM
+			},
 			img:{data:""},
 		}
 	},
