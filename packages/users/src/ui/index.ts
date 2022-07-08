@@ -46,8 +46,8 @@ const redirect: RouteConfig = {
 	path: "/",
 	redirect: "/login",
 	beforeEnter: (to, from, next) => {
-		window.location.href = to.fullPath.substring(1); 
-	} 
+		window.location.href = to.fullPath.substring(1);
+	}
 };
 ui.registerRoute(route);
 ui.registerRoute(redirect);

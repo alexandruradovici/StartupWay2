@@ -25,10 +25,10 @@ export class UI {
 	private store: Store<RootState>;
 	/**
 	 * #01939A	#167C81	#017177	#20B5BB	#39B6BB
-		Secondary Color A:
-		#FFAB00	#D59B23	#C48400	#FFB92A	#FFC44C
-		Secondary Color B:
-		#FF0700	#D52823	#C40500	#FF302A	#FF504C
+	 *	Secondary Color A:
+	 *	#FFAB00	#D59B23	#C48400	#FFB92A	#FFC44C
+	 *	Secondary Color B:
+	 *	#FF0700	#D52823	#C40500	#FF302A	#FF504C
 	 */
 	private vuetifyOptions: Partial<UserVuetifyPreset> = {
 		theme: {

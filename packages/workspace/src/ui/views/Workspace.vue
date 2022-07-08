@@ -236,7 +236,7 @@ export default Vue.extend({
 	}
 });
 </script>
-<style lang="less">
+<style lang="css">
 .zoom {
   transition: transform .2s; /* Animation */
 }

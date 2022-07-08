@@ -9,8 +9,13 @@ export enum BusinessTrack {
     RETAIL = "Retail",
     SMARTCITIES = "SmartCities",
     SMARTMOBILITY = "SmartMobility",
-	OTHER = "Other"
-	
+	OTHER = "Other",
+	DIGITALHEALTH = "DigitalHealth",
+	"SMARTCITY&INDUSTRY4.0" = "Smart City & Industry 4.0",
+	SUSTAINABILITY = "Sustainability",
+	DIGITALCOMMERCE = "Digital Commerce",
+	DEVTOOLS = "DevTools",
+	LIFESTYLE = "Lifestyle"
 }
 
 export enum TeamType {
@@ -109,4 +114,16 @@ export interface VisualUser {
 	pitcher:string,
 	transport:string,
 	image:string
+}
+
+export enum KPI_TYPE {
+	REALIZED = "REALIZED",
+	ONGOING = "ONGOING"
+}
+export interface KPI {
+	kpiId: string,
+	teamId: string,
+	text: string,
+	type: KPI_TYPE,
+	date: Date
 }

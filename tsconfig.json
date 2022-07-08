@@ -22,6 +22,9 @@
         "@startupway/main/*": [
             "packages/main/*"
         ],
+        "@startupway/public/*": [
+            "packages/public/*"
+        ],
         "@startupway/workspace/*": [
             "packages/workspace/*"
         ],

@@ -97,6 +97,14 @@
 												></v-text-field>
 												<v-text-field
 													v-if="item.userId !== 0"
+													v-model="item.socialMedia.instagram"
+													label="Instagram Link"
+													optional
+													color="primary"
+													prepend-icon="mdi-instagram"
+												></v-text-field>
+												<v-text-field
+													v-if="item.userId !== 0"
 													v-model="item.socialMedia.webpage"
 													label="Webpage Link"
 													optional
@@ -218,6 +226,7 @@ export default Vue.extend({
 			birthDate: {} as Date,
 			facebookLink: "" as string,
 			linkedinLink: "" as string,
+			instagramLink: "" as string,
 			webpageLink: "" as string,
 			details: "" as string
 		};

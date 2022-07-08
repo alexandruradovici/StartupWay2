@@ -10,88 +10,89 @@
 					</v-card-text>
 				</v-card>
 			</v-container>
-			<v-card flat style="margin: auto; margin-top: 20px;"  max-width="1000" >
-				<v-divider></v-divider>
-				<div align="center" style="margin-top: 20px; margin-bottom: 20px;">Please select the type of update you would like to publish.</div>
-				<v-container pr-7 pl-7 fluid>
-					<v-select v-model="value" :items="items" item-text="name" item-value="value" label="Update"> </v-select>
-					<div v-if="value === FeedTypes.INVESTMENT">
-						<v-textarea v-model="text" name="Investments" label="Investments" counter="400"></v-textarea>
-						<v-text-field v-model="amount" name="Details" label="Amount" counter="10"></v-text-field>
-					</div>
-					<div v-else-if="value === FeedTypes.AWARD || value === FeedTypes.UPDATE">
-						<v-textarea v-model="text" :name="value" :label="value" counter="600"></v-textarea>
-					</div>
-					<div v-else-if="value === FeedTypes.COLLABORATORS">
-						<v-textarea v-model="text" :name="value" :label="value" counter="400"></v-textarea>
-					</div>
-					<v-card-actions class="justify-center" v-model="value">
-						<v-btn color="primary" @click="addFeed()">Submit</v-btn>
-					</v-card-actions>
-				</v-container>
+			<v-card color="primary" flat shaped outlined width="100%" class="ma-5">
+				<v-card flat shaped outlined width="100%" class="pa-4">
+					<div align="center" style="margin-top: 20px; margin-bottom: 20px;">Please select the type of update you would like to publish.</div>
+					<v-container pr-7 pl-7 fluid>
+						<v-select v-model="value" :items="items" item-text="name" item-value="value" label="Update"> </v-select>
+						<div v-if="value === FeedTypes.INVESTMENT">
+							<v-textarea v-model="text" name="Investments" label="Investments" counter="400"></v-textarea>
+							<v-text-field v-model="amount" name="Details" label="Amount" counter="10"></v-text-field>
+						</div>
+						<div v-else-if="value === FeedTypes.AWARD || value === FeedTypes.UPDATE">
+							<v-textarea v-model="text" :name="value" :label="value" counter="600"></v-textarea>
+						</div>
+						<div v-else-if="value === FeedTypes.COLLABORATORS">
+							<v-textarea v-model="text" :name="value" :label="value" counter="400"></v-textarea>
+						</div>
+						<v-card-actions class="justify-center" v-model="value">
+							<v-btn color="primary" @click="addFeed()">Submit</v-btn>
+						</v-card-actions>
+					</v-container>
 
-				<v-container pr-7 pl-7 fluid>
-					<v-card v-for="(item, index) in productUpdates" :key="index" class="mb-4">
-						<v-card-title style="font-weight: bold;">
-							<v-icon large left color="#22542b" v-if="item.feedType===FeedTypes.INVESTMENT">mdi-account-cash</v-icon>
-							<v-icon large left color="#e0ac1b" v-if="item.feedType===FeedTypes.AWARD">mdi-trophy</v-icon>
-							<v-icon large left color="#9e2219" v-if="item.feedType===FeedTypes.UPDATE">mdi-update</v-icon>
-							<v-icon large left color="#202b4f" v-if="item.feedType===FeedTypes.COLLABORATORS">mdi-account-tie</v-icon>
-							
-							{{ item.feedType }}
-							<br/>
-						</v-card-title>
-						<v-card-subtitle v-if="item && item.date" style="font-size: 15px; font-weight: bold;">
-							{{ formatDate(item.date) }}
-						</v-card-subtitle>
-						<v-card-text>
-							<span>{{ item.text["text"] }}</span>
-							<v-spacer></v-spacer>
-							<span v-if="item.feedType === FeedTypes.INVESTMENT"> Amount:{{ item.text["amount"] }} </span>
-						</v-card-text>
-					</v-card>
-					<v-dialog v-model="editDialog" max-width="450">
-						<v-card flat width="450" v-if="edited">
-							<v-card-title class="justify-center" style=" font-weight: bold;">
-								Edit {{edited.feedType}} 
+					<v-container pr-7 pl-7 fluid>
+						<v-card v-for="(item, index) in productUpdates" :key="index" class="mb-4">
+							<v-card-title style="font-weight: bold;">
+								<v-icon large left color="#22542b" v-if="item.feedType===FeedTypes.INVESTMENT">mdi-account-cash</v-icon>
+								<v-icon large left color="#e0ac1b" v-if="item.feedType===FeedTypes.AWARD">mdi-trophy</v-icon>
+								<v-icon large left color="#9e2219" v-if="item.feedType===FeedTypes.UPDATE">mdi-update</v-icon>
+								<v-icon large left color="#202b4f" v-if="item.feedType===FeedTypes.COLLABORATORS">mdi-account-tie</v-icon>
+								
+								{{ item.feedType }}
+								<br/>
 							</v-card-title>
-							<v-card-subtitle class="justify-center" style="font-weight: bold;">
-								{{formatDate(edited.date)}}
+							<v-card-subtitle v-if="item && item.date" style="font-size: 15px; font-weight: bold;">
+								{{ formatDate(item.date) }}
 							</v-card-subtitle>
-							<v-divider></v-divider>
 							<v-card-text>
-								<div v-if="edited.feedType === FeedTypes.INVESTMENT">
-									<v-textarea v-model="text" name="Investments" label="Investments" counter="400"></v-textarea>
-									<v-text-field v-model="amount" name="Details" label="Amount" counter="10"></v-text-field>
-								</div>
-								<div v-else-if="edited.feedType === FeedTypes.AWARD || edited.feedType === FeedTypes.UPDATE">
-									<v-textarea v-model="text" :name="edited.feedType" :label="edited.feedType" counter="600"></v-textarea>
-								</div>
-								<div v-else-if="edited.feedType === FeedTypes.COLLABORATORS">
-									<v-textarea v-model="text" :name="edited.feedType" :label="edited.feedType" counter="400"></v-textarea>
-								</div>
+								<span>{{ item.text["text"] }}</span>
+								<v-spacer></v-spacer>
+								<span v-if="item.feedType === FeedTypes.INVESTMENT"> Amount:{{ item.text["amount"] }} </span>
 							</v-card-text>
-							<v-card-actions class="justify-center">
-								<v-btn icon fab @click="enableEdit(item)">
-									<v-icon>mdi-pencil-circle-outline</v-icon>
-								</v-btn>
-								<v-btn icon fab @click="edited=item, removeDialog=true">
-									<v-icon>mdi-close-circle</v-icon>
-								</v-btn>
-							</v-card-actions>
 						</v-card>
-					</v-dialog>
-					<v-dialog v-model="removeDialog" persistent max-width="290">
-						<v-card>
-							<v-card-title class="justify-center" style="">Remove Feed</v-card-title>
-							<v-card-text>Are you sure you want to remove this update form your team's feed list?</v-card-text>
-							<v-card-actions class="justify-center">
-								<v-btn color="#32a852" text @click="accept(edited)">Yes</v-btn>
-								<v-btn color="#a83232" text @click="deny()">No</v-btn>
-							</v-card-actions>
-						</v-card>
-					</v-dialog>
-				</v-container>
+						<v-dialog v-model="editDialog" max-width="450">
+							<v-card flat width="450" v-if="edited">
+								<v-card-title class="justify-center" style=" font-weight: bold;">
+									Edit {{edited.feedType}} 
+								</v-card-title>
+								<v-card-subtitle class="justify-center" style="font-weight: bold;">
+									{{formatDate(edited.date)}}
+								</v-card-subtitle>
+								<v-divider></v-divider>
+								<v-card-text>
+									<div v-if="edited.feedType === FeedTypes.INVESTMENT">
+										<v-textarea v-model="text" name="Investments" label="Investments" counter="400"></v-textarea>
+										<v-text-field v-model="amount" name="Details" label="Amount" counter="10"></v-text-field>
+									</div>
+									<div v-else-if="edited.feedType === FeedTypes.AWARD || edited.feedType === FeedTypes.UPDATE">
+										<v-textarea v-model="text" :name="edited.feedType" :label="edited.feedType" counter="600"></v-textarea>
+									</div>
+									<div v-else-if="edited.feedType === FeedTypes.COLLABORATORS">
+										<v-textarea v-model="text" :name="edited.feedType" :label="edited.feedType" counter="400"></v-textarea>
+									</div>
+								</v-card-text>
+								<v-card-actions class="justify-center">
+									<v-btn icon fab @click="enableEdit(item)">
+										<v-icon>mdi-pencil-circle-outline</v-icon>
+									</v-btn>
+									<v-btn icon fab @click="edited=item, removeDialog=true">
+										<v-icon>mdi-close-circle</v-icon>
+									</v-btn>
+								</v-card-actions>
+							</v-card>
+						</v-dialog>
+						<v-dialog v-model="removeDialog" persistent max-width="290">
+							<v-card>
+								<v-card-title class="justify-center" style="">Remove Feed</v-card-title>
+								<v-card-text>Are you sure you want to remove this update form your team's feed list?</v-card-text>
+								<v-card-actions class="justify-center">
+									<v-btn color="#32a852" text @click="accept(edited)">Yes</v-btn>
+									<v-btn color="#a83232" text @click="deny()">No</v-btn>
+								</v-card-actions>
+							</v-card>
+						</v-dialog>
+					</v-container>
+				</v-card>
 			</v-card>
 			<SnackBar :options="snackOptions"  @update-snackbar="updateSnack" :snackbar="snackbar"/>
 		</v-container>
@@ -230,7 +231,6 @@ export default Vue.extend({
 	},
 	methods: {
 		updateSnack (prop:boolean): void {
-			console.log("got update event");
 			this.snackbar = prop;
 		},
 		accept(feed: Feed):void {

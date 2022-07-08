@@ -1,8 +1,99 @@
 <template>
 	<div>
 		<v-container v-if="!loadingPage" class="content" fluid pl-7 pr-7 >
-			<v-divider></v-divider>
-			<v-card flat style="margin: auto;" max-width="1000" >
+			<v-card color="primary" flat shaped outlined width="100%" class="ma-5">
+				<v-card flat shaped outlined width="100%" class="pa-4">
+					<v-card-title>
+						<v-row justify="center">
+							<v-col>
+								<h3 style=" text-align: center;, font-size: 20px;">
+									Add Key Performance Indicators for the team
+								</h3>
+							</v-col>
+						</v-row>	
+					</v-card-title>
+					<v-card-text v-if="ongoingKPIs.length > 0 || realizedKPIs.length > 0">
+						<v-card v-if="ongoingKPIs.length > 0">
+							<v-card-title>
+								Ongoing KPIS
+							</v-card-title>
+							<v-card-text>
+								<template v-for="kpi in ongoingKPIs">
+									<v-row :key="kpi.kpiId">
+										<v-col md="10">
+											<h4 style="text-align: left">
+												{{kpi.text}}
+											</h4>
+										</v-col>
+										<v-col md="2" style="text-align: right" right>
+											<v-tooltip bottom>
+												<template v-slot:activator="{on, attrs}">
+													<v-icon v-on="on" v-bind="attrs" @click="checkKPI(kpi)" medium color="#32a852">mdi-check</v-icon>
+												</template>
+												<span>Validate KPI</span>
+											</v-tooltip>
+											<v-tooltip bottom>
+												<template v-slot:activator="{on, attrs}">
+													<v-icon  v-on="on" v-bind="attrs"  @click="updateKPIDialog = true; updateKPI = kpi" medium color="secondaryDark1">mdi-pencil</v-icon>
+												</template>
+												<span>Edit KPI</span>
+											</v-tooltip>
+											<v-tooltip bottom>
+												<template v-slot:activator="{on, attrs}">
+													<v-icon  v-on="on" v-bind="attrs"  @click="deleteKPI(kpi.kpiId)" medium color="accent">mdi-delete</v-icon>
+												</template>
+												<span>Delete KPI</span>
+											</v-tooltip>
+										</v-col>
+									</v-row>
+								</template>
+							</v-card-text>
+						</v-card>
+						<v-card v-if="realizedKPIs.length > 0">
+							<v-card-title>
+								Realized KPIS
+							</v-card-title>
+							<v-card-text>
+								<template v-for="kpi in realizedKPIs">
+									<v-row :key="kpi.kpiId">
+										<v-col md="10">
+											<h4 style="text-align: left">
+												{{kpi.text}}
+											</h4>
+										</v-col>
+										<v-col md="2" style="text-align: right" right>
+											<v-tooltip bottom>
+												<template v-slot:activator="{on, attrs}">
+													<v-icon  v-on="on" v-bind="attrs"  @click="updateKPIDialog = true; updateKPI = kpi" medium color="secondaryDark1">mdi-pencil</v-icon>
+												</template>
+												<span>Edit KPI</span>
+											</v-tooltip>
+											<v-tooltip bottom>
+												<template v-slot:activator="{on, attrs}">
+													<v-icon  v-on="on" v-bind="attrs"  @click="deleteKPI(kpi.kpiId)" medium color="accent">mdi-delete</v-icon>
+												</template>
+												<span>Delete KPI</span>
+											</v-tooltip>
+										</v-col>
+									</v-row>
+								</template>
+							</v-card-text>
+						</v-card>
+						<v-card v-if="realizedKPIs.length < 1 && ongoingKPIs.length < 1">
+							<v-card-text>
+								<h3 style=" text-align: center;, font-size: 20px;">
+									{{kpiLoadingText}}
+								</h3>
+							</v-card-text>
+						</v-card>
+					</v-card-text>
+					<v-card-actions class="justify-center">
+						<v-btn large color="secondary" @click="addKPIDialog = true">Add a KPI</v-btn>
+					</v-card-actions>
+				</v-card>
+			</v-card>
+			<v-card color="primary" flat shaped outlined width="100%" class="ma-5">
+				<v-card flat shaped outlined width="100%" class="pa-4">
 					<v-list nav dense >
 						<v-list-item
 						v-for="user in users"
@@ -52,6 +143,9 @@
 									</v-icon>
 									<v-icon v-if="user.socialMedia.linkedin !== '' && user.socialMedia.linkedin !== undefined " small @click="openLink(user.socialMedia.linkedin)">
 										mdi-linkedin
+									</v-icon>
+									<v-icon v-if="user.socialMedia.instagram !== '' && user.socialMedia.instagram !== undefined " small @click="openLink(user.socialMedia.instagram)">
+										mdi-instagram
 									</v-icon>
 									<v-icon v-if="user.socialMedia.webpage !== '' && user.socialMedia.webpage !== undefined " small @click="openLink(user.socialMedia.webpage)">
 										mdi-web
@@ -109,6 +203,7 @@
 					<v-card-actions class="justify-center">
 						<v-btn color="primary" @click="addUsersDialog = true; add=true">Add Users</v-btn>	
 					</v-card-actions>
+				</v-card>
 			</v-card>
 			<v-dialog v-model="acceptDialog" persistent max-width="350">
 				<v-card v-if="remove">
@@ -189,6 +284,64 @@
 					</v-card-actions>
 				</v-card>
 			</v-dialog>
+			<v-dialog v-model="addKPIDialog" persistent max-width="500">
+				<v-card>
+					<v-card-title class="justify-center">
+						Add a KPI
+					</v-card-title>
+					<v-divider></v-divider>
+					<v-card-text>
+						<v-textarea
+							v-model="kpiText"
+							label="KPI text"
+							placeholder="Write the KPI text"
+							rows="3"
+						></v-textarea>
+						<v-select
+							v-model="kpiType"
+							label="KPI type"
+							placeholder="Select the KPI type"
+							:items="KPI_TYPES"
+							item-text="text"
+							item-value="value"
+						>
+						</v-select>
+					</v-card-text>
+					<v-card-actions class="justify-center">
+						<v-btn color="primary" @click="addKPI()">Add</v-btn>	
+						<v-btn color="accent" text @click="addKPIDialog = false">Cancel</v-btn>
+					</v-card-actions>
+				</v-card>
+			</v-dialog>
+			<v-dialog v-model="updateKPIDialog" persistent max-width="500">
+				<v-card>
+					<v-card-title class="justify-center">
+						Update a KPI
+					</v-card-title>
+					<v-divider></v-divider>
+					<v-card-text>
+						<v-textarea
+							v-model="updateKPI.text"
+							label="KPI text"
+							placeholder="Write the KPI text"
+							rows="3"
+						></v-textarea>
+						<v-select
+							v-model="updateKPI.type"
+							label="KPI type"
+							placeholder="Select the KPI type"
+							:items="KPI_TYPES"
+							item-text="text"
+							item-value="value"
+						>
+						</v-select>
+					</v-card-text>
+					<v-card-actions class="justify-center">
+						<v-btn color="primary" @click="updateKPI()">Update</v-btn>	
+						<v-btn color="accent" text @click="updateKPIDialog = false">Cancel</v-btn>
+					</v-card-actions>
+				</v-card>
+			</v-dialog>
 		</v-container>
 		<v-container v-else>
 			<v-row justify="center">
@@ -213,6 +366,7 @@ import { Team, Product, UserActivity, VisualUser } from "../../../common";
 import { User, UserTeams, universities } from "@startupway/users/lib/ui";
 import { SnackBarOptions, SnackBarTypes, SnackBarHorizontal, SnackBarVertical } from "@startupway/menu/lib/ui";
 import { UI } from '@startupway/main/lib/ui';
+import { KPI, KPI_TYPE } from '../../../common/index';
 interface ITeamComposition {
 	ui: UI,
 	emailRules: ((e: string) => string | boolean)[],
@@ -247,13 +401,22 @@ interface ITeamComposition {
 	toDel: User&UserTeams,
 	snackOptions: SnackBarOptions,
 	snackbar: boolean,
+	addKPIDialog: boolean,
+	realizedKPIs: KPI[],
+	ongoingKPIs: KPI[],
+	kpiType: KPI_TYPE,
+	kpiText: string,
+	KPI_TYPES: {text: string, value: KPI_TYPE}[],
+	updateKPIDialog: boolean,
+	updateKpi: KPI | null,
+	kpiLoadingText: string
 };
 export default Vue.extend({
 	name: "TeamComposition",
 	watch: {
 		$route:{
 			immediate:true,
-			async handler(newRoute):Promise<void>  {
+			async handler(newRoute): Promise<void>  {
 				this.loadingPage = true;
 				this.teamId = this.$route.params.teamId;
 				try {
@@ -265,6 +428,14 @@ export default Vue.extend({
 					if (found.data) {
 						this.team = found.data.teamName;
 					}
+					const realizedKPIsData = await this.ui.api.get<KPI[]>(`/api/v1/teams/kpi/${KPI_TYPE.REALIZED}/${this.teamId}`);
+					if (realizedKPIsData && realizedKPIsData.data) {
+						this.realizedKPIs = realizedKPIsData.data;
+					}
+					const ongoingKPIData = await this.ui.api.get<KPI[]>(`/api/v1/teams/kpi/${KPI_TYPE.ONGOING}/${this.teamId}`);
+					if (ongoingKPIData && ongoingKPIData.data) {
+						this.ongoingKPIs = ongoingKPIData.data;
+					}
 				} catch (e) {
 					console.error(e);
 				}
@@ -273,7 +444,7 @@ export default Vue.extend({
 		},
 		user: {
 			immediate: true,
-			async handler(newUser: User):Promise<void>  {
+			async handler(newUser: User): Promise<void>  {
 				this.loadingPage = true;
 				if (newUser) {
 					if (newUser.role === "Admin" || newUser.role === "SuperAdmin") {
@@ -382,12 +553,29 @@ export default Vue.extend({
 				timeout:2000,
 				horizontal: SnackBarHorizontal.RIGHT,
 				vertical: SnackBarVertical.BOTTOM
-			}
+			},
+			addKPIDialog: false,
+			ongoingKPIs: [],
+			realizedKPIs: [],
+			KPI_TYPES: [
+				{
+					text: "Ongoing",
+					value: KPI_TYPE.ONGOING
+				},
+				{
+					text: "Realized",
+					value: KPI_TYPE.REALIZED
+				}
+			],
+			kpiType: KPI_TYPE.ONGOING,
+			kpiText: "",
+			updateKpi: null,
+			updateKPIDialog: false,
+			kpiLoadingText: "There are no KPIs set yet!"
 		};
 	},
 	methods: {
 		updateSnack (prop:boolean): void {
-			console.log("got update event");
 			this.snackbar = prop;
 		},
 		extendImage(image: string):void {
@@ -402,7 +590,7 @@ export default Vue.extend({
 			}
 			return false;
 		},
-		async getUsers(teamId: string):Promise<boolean>  {
+		async getUsers(teamId: string): Promise<boolean>  {
 			try {
 				const response = await this.ui.api.get<(User&UserTeams)[]>(
 					"/api/v1/teams/team/users/" + teamId
@@ -427,7 +615,7 @@ export default Vue.extend({
 			}
 			return false;
 		},
-		async getAllUsers():Promise<boolean>  {
+		async getAllUsers(): Promise<boolean>  {
 			try {
 				const response = await this.ui.api.get<User[]>("/api/v1/users/users");
 				if (response.status === 200) {
@@ -452,7 +640,7 @@ export default Vue.extend({
 				return false;
 			}
 		},
-		async modifyUsers(users: (User[] | (User&UserTeams)[])):Promise<(User[] | (User & UserTeams)[])>  {
+		async modifyUsers(users: (User[] | (User&UserTeams)[])): Promise<(User[] | (User & UserTeams)[])>  {
 			for(let user of users) {
 				user = user as (User & {});
 				if (user.userDetails["faculty"] !== undefined) {
@@ -506,7 +694,7 @@ export default Vue.extend({
 			}
 			window.open(webLink, "_blank");
 		},
-		async updateUserInfo():Promise<void> {
+		async updateUserInfo(): Promise<void> {
 			this.loadingPage = true;
 			let user: Partial<User> | null = null;
 			this.item = this.item
@@ -648,7 +836,7 @@ export default Vue.extend({
 			this.addUsersDialog = false;
 		},
 		
-		async createUser():Promise<void> {
+		async createUser(): Promise<void> {
 			this.loadingPage = true;
 			try {
 				const role = this.createRole;
@@ -661,6 +849,7 @@ export default Vue.extend({
 					socialMedia:{
 						facebook:"",
 						linkedin:"",
+						instagram:"",
 						website:"",
 					},
 					birthDate: new Date(),
@@ -689,7 +878,7 @@ export default Vue.extend({
 			}
 			this.loadingPage = false;
 		},
-		async addUsers():Promise<void> {
+		async addUsers(): Promise<void> {
 			this.loadingPage = true;
 			try {
 				const response = await this.ui.api.post<boolean>("/api/v1/teams/team/add/users", {
@@ -751,7 +940,6 @@ export default Vue.extend({
 					allActivities.push(userActivity);
 					
 				}
-				console.log(allActivities);
 				try {
 					this.loadingPage = false;
 					await this.ui.api.post<UserActivity | null>("/api/v1/admin/newUserActivity", {
@@ -765,7 +953,7 @@ export default Vue.extend({
 
 			this.loadingPage = false;
 		},
-		async removeUsers():Promise<void> {
+		async removeUsers(): Promise<void> {
 			this.loadingPage = true;
 			this.toRemove.push(this.toDel);
 			try {
@@ -802,7 +990,7 @@ export default Vue.extend({
 			this.toRemove = [];
 			this.loadingPage = false;
 		},
-		async getUserImage(avatar:string,userId:string):Promise<string> {
+		async getUserImage(avatar:string,userId:string): Promise<string> {
 			if (avatar !== "" && avatar !== null) {
 				if (userId !== "") {
 					try {
@@ -835,7 +1023,7 @@ export default Vue.extend({
 				return "";
 			}
 		},
-		async refreshLists():Promise<boolean> {
+		async refreshLists(): Promise<boolean> {
 			this.teamId = this.$route.params.teamId;
 			try {
 				if (await this.getUsers(this.teamId))
@@ -849,7 +1037,124 @@ export default Vue.extend({
 				console.error(e);
 				return false;
 			}
-		}
+		},
+		async addKPI(): Promise<void> {
+			this.loadingPage = true;
+			try {
+				const newKpi = await this.ui.api.post<KPI | null>("/api/v1/teams/kpi/add", {
+					teamId: this.teamId,
+					text: this.kpiText,
+					type: this.kpiType,
+					date: new Date(),
+				});
+				if (newKpi && newKpi.data) {
+					if (this.kpiType === KPI_TYPE.REALIZED) {
+						this.realizedKPIs.push(newKpi.data);
+					} else {
+						this.ongoingKPIs.push(newKpi.data);
+					}
+					this.snackOptions.text = "KPI added successfuly!";
+					this.snackOptions.type = SnackBarTypes.SUCCESS;
+					this.snackOptions.timeout = 2000;
+					this.snackbar = true;
+				} else {
+					this.snackOptions.text = "Server Error while adding the kpi. If the error persists, please contact technical support: teams@tech-lounge.ro.";
+					this.snackOptions.type = SnackBarTypes.ERROR;
+					this.snackOptions.timeout = 2000;
+					this.snackbar = true;
+				}
+				this.kpiType = KPI_TYPE.ONGOING;
+				this.kpiText = "";
+				this.addKPIDialog = false;
+			} catch (e) {
+				console.error(e);
+				this.snackOptions.text = "Server Error while adding the kpi. If the error persists, please contact technical support: teams@tech-lounge.ro.";
+				this.snackOptions.type = SnackBarTypes.ERROR;
+				this.snackOptions.timeout = 2000;
+				this.snackbar = true;
+			}
+			this.loadingPage = false;
+		},
+		
+		async deleteKPI(kpiId: string): Promise<void> {
+			this.loadingPage = true;
+			try {
+				const kpiDeleted = await this.ui.api.post<boolean>("/api/v1/teams/kpi/delete", {
+					kpiId,
+				});
+				if (kpiDeleted && kpiDeleted.data) {
+					const realizedKPIsData = await this.ui.api.get<KPI[]>(`/api/v1/teams/kpi/${KPI_TYPE.REALIZED}/${this.teamId}`);
+					if (realizedKPIsData && realizedKPIsData.data) {
+						this.realizedKPIs = realizedKPIsData.data;
+					}
+					const ongoingKPIData = await this.ui.api.get<KPI[]>(`/api/v1/teams/kpi/${KPI_TYPE.ONGOING}/${this.teamId}`);
+					if (ongoingKPIData && ongoingKPIData.data) {
+						this.ongoingKPIs = ongoingKPIData.data;
+					}
+					this.snackOptions.text = "KPI deleted successfuly!";
+					this.snackOptions.type = SnackBarTypes.SUCCESS;
+					this.snackOptions.timeout = 2000;
+					this.snackbar = true;
+				} else {
+					this.snackOptions.text = "Server Error while deleting the kpi. If the error persists, please contact technical support: teams@tech-lounge.ro.";
+					this.snackOptions.type = SnackBarTypes.ERROR;
+					this.snackOptions.timeout = 2000;
+					this.snackbar = true;
+				}
+			} catch (e) {
+				console.error(e);
+				this.snackOptions.text = "Server Error while deleting the kpi. If the error persists, please contact technical support: teams@tech-lounge.ro.";
+				this.snackOptions.type = SnackBarTypes.ERROR;
+				this.snackOptions.timeout = 2000;
+				this.snackbar = true;
+			}
+			this.loadingPage = false;
+		},
+		async updateKPI(): Promise<void> {
+			this.loadingPage = true;
+			try {
+				if (this.updateKpi) {
+					const updatedKpi = await this.ui.api.post<KPI | null>("/api/v1/teams/kpi/update", {kpi: this.updateKpi});
+					if (updatedKpi && updatedKpi.data) {
+						const realizedKPIsData = await this.ui.api.get<KPI[]>(`/api/v1/teams/kpi/${KPI_TYPE.REALIZED}/${this.teamId}`);
+						if (realizedKPIsData && realizedKPIsData.data) {
+							this.realizedKPIs = realizedKPIsData.data;
+						}
+						const ongoingKPIData = await this.ui.api.get<KPI[]>(`/api/v1/teams/kpi/${KPI_TYPE.ONGOING}/${this.teamId}`);
+						if (ongoingKPIData && ongoingKPIData.data) {
+							this.ongoingKPIs = ongoingKPIData.data;
+						}
+						this.snackOptions.text = "KPI updated successfuly!";
+						this.snackOptions.type = SnackBarTypes.SUCCESS;
+						this.snackOptions.timeout = 2000;
+						this.snackbar = true;
+					} else {
+						this.snackOptions.text = "Server Error while updating the kpi. If the error persists, please contact technical support: teams@tech-lounge.ro.";
+						this.snackOptions.type = SnackBarTypes.ERROR;
+						this.snackOptions.timeout = 2000;
+						this.snackbar = true;
+					}
+					this.updateKpi = null;
+				} else {
+					this.snackOptions.text = "Server Error while updating the kpi. If the error persists, please contact technical support: teams@tech-lounge.ro.";
+					this.snackOptions.type = SnackBarTypes.ERROR;
+					this.snackOptions.timeout = 2000;
+					this.snackbar = true;
+				}
+			} catch (e) {
+				console.error(e);
+				this.snackOptions.text = "Server Error while updating the kpi. If the error persists, please contact technical support: teams@tech-lounge.ro.";
+				this.snackOptions.type = SnackBarTypes.ERROR;
+				this.snackOptions.timeout = 2000;
+				this.snackbar = true;
+			}
+			this.loadingPage = false;
+		},
+		async checkKPI(kpi: KPI): Promise<void> {
+			kpi.type = KPI_TYPE.REALIZED;
+			this.updateKpi = kpi;
+			await this.updateKPI();
+		},
 		
 	}
 });

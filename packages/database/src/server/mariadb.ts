@@ -127,6 +127,8 @@ export class MariaDBServer {
 				await tablePool.query("CREATE TABLE `feeds` (`feedId` varchar(100) NOT NULL,  `teamId` varchar(100) NOT NULL, `feedType` varchar(30) NOT NULL, `text` text NOT NULL, `date` datetime NOT NULL, PRIMARY KEY (`feedId`), KEY `FK_87caf98485e27800f1e171ccf6c` (`teamId`), CONSTRAINT `FK_87caf98485e27800f1e171ccf6c` FOREIGN KEY (`teamId`) REFERENCES `teams` (`teamId`) ON DELETE NO ACTION ON UPDATE NO ACTION) ENGINE=InnoDB")
 				// notifications
 				await tablePool.query("CREATE TABLE `notifications` (`email` varchar(100) NOT NULL,  `notifyType` varchar(30) NOT NULL, `msgType` varchar(30) NOT NULL, `text` text NOT NULL, `date` datetime NOT NULL, PRIMARY KEY (`email`,`msgType`,`notifyType`))")
+				// kpis
+				await tablePool.query("CREATE TABLE `kpis` (`kpiId` varchar(100) NOT NULL,  `teamId` varchar(100) NOT NULL,  `text` text NOT NULL,  `type` varchar(100) NOT NULL, `date` datetime NOT NULL, PRIMARY KEY (`kpiId`),  FOREIGN KEY (`teamId`) REFERENCES `teams` (`teamId`))")
 
 				await tablePool.end();
 

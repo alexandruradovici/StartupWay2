@@ -1,8 +1,6 @@
-export class AdminUi {
+export class AdminUi {}
 
-}
-
-const UI:AdminUi = new AdminUi();;
-export function getAdminUi (): AdminUi {
-    return UI;
+const UI: AdminUi = new AdminUi();
+export function getAdminUi(): AdminUi {
+	return UI;
 }

@@ -212,6 +212,7 @@ async function emailDaemon():Promise<void> {
 		try {
 			conn = await getPool().getConnection();
 			if (conn) {
+				console.log("Daemon Started");
 				while(true){
 					await conn.beginTransaction();
 					const queryOptions: QueryOptions = {
@@ -239,6 +240,9 @@ async function emailDaemon():Promise<void> {
 									case "REQUESTUSER":
 										subject = "Teams Innovation Labs User Request";
 										break;
+									case "NOTIFICATION":
+										subject = "Teams Innovation Labs Notification";
+										break;
 								
 									default:
 										break;
@@ -248,6 +252,7 @@ async function emailDaemon():Promise<void> {
 									const transporter = daemon.createMailTransporter();
 									if (mailOptions !== null && transporter !== null) {
 										const resp = await daemon.sendMail(transporter,mailOptions);
+										console.log(resp);
 										await daemon.delay(2000);
 										if (resp) {
 											await conn.commit();
@@ -258,7 +263,7 @@ async function emailDaemon():Promise<void> {
 											await daemon.updateNotificationDate(notification);
 										}
 									} else {
-										console.error("NO MAIL OPTIONS");		
+										console.error("NO MAIL OPTIONS");
 										await conn.rollback();
 									}
 								}

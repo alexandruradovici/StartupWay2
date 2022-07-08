@@ -33,7 +33,7 @@
 							</v-btn>
 						</v-card-actions>
 					</v-card>
-					<v-card>
+					<!-- <v-card>
 						<v-card-title class="justify-center">
 							Zippable exports
 						</v-card-title>
@@ -75,7 +75,7 @@
 						<v-card-actions class="justify-center">
 							<v-btn :disabled="city === '' || teamType === '' || exportType === ''" rounded color="primary" @click="exportBulkableZip(city, teamType, exportType)"> <v-icon>mdi-download</v-icon> Download </v-btn>
 						</v-card-actions>
-					</v-card>
+					</v-card> -->
 					<v-card>
 						<v-card-title class="justify-center">
 							Unzippable exports
@@ -416,6 +416,10 @@ export default Vue.extend({
 				// 	value:"all"
 				// },
 				{
+					text:'PowerPoint Presentation',
+					value:'pres'
+				},
+				{
 					text:'Presentation Video',
 					value:'presVid'
 				},
@@ -511,7 +515,6 @@ export default Vue.extend({
 	},
 	methods: {
 		updateSnack (prop:boolean): void {
-			console.log("got update event");
 			this.snackbar = prop;
 		},
 		async exportCEO() {
@@ -718,11 +721,6 @@ export default Vue.extend({
 </script>
 
 <style lang="less">
-.contained .v-col .v-card {
-	min-height: 10%;
-	background-color: red;
-	height: clamp(10%,248px,50%);
-}
 .export-grid {
 	display: grid;
 	grid-template-columns: 5fr 5fr 5fr;

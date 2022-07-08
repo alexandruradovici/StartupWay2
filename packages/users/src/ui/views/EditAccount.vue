@@ -2,173 +2,185 @@
 	<div>
 		<v-container v-if="!loadingPage">
 			<v-form v-model="valid" lazy-validation> 
-				<v-card flat style="margin: auto; padding-top: 20px;" max-width="1200" elevation-1>
-					<v-card-title class="justify-center">
-						<v-list-item-avatar size="60">
-							<v-img class="zoom" v-if="imgData && imgData !== ''" :src="imgData" @click="extendImage(imgData)"></v-img>
-							<v-icon v-else>mdi-account-circle mdi-48px</v-icon>
-						</v-list-item-avatar>
-						{{user.firstName}} {{user.lastName}}
-					</v-card-title>
-					<v-divider></v-divider>
-					<v-card-text>
-						<v-row justify="center"> 
-							<v-col cols="6" align="center">
-								<v-file-input 
-									type="file" 
-									prepend-icon="mdi-camera"
-									v-model="file"
-									:rules="imageRules"
-									filled 
-									auto-grow 
-									accept="image/*"
-									label="Profile Photo"
-									color="primary"
-								></v-file-input>
-								<v-btn rounded color="primary" @click="uploadImage()" justify="center">Upload</v-btn>
-							</v-col>
-						</v-row>
-						<v-row>
-							<v-col cols="6" align="center">
-								<v-text-field
-									v-model="firstName"
-									:rules="characterRules"
-									label="First Name"
-									:placeholder="user.firstName"
-									color="primary"
-									prepend-icon="mdi-account-badge-outline"
-								></v-text-field>
-							</v-col>
-							<v-col cols="6" align="center">
-								<v-text-field
-									v-model="lastName"
-									:rules="characterRules"
-									label="Last Name"
-									:placeholder="user.lastName"
-									color="primary"
-									prepend-icon="mdi-account-badge"
-								></v-text-field>
-							</v-col>
-						</v-row>
+				<v-card color="primary" flat shaped outlined width="100%" class="ma-5">
+					<v-card flat shaped outlined width="100%" class="pa-4">
+						<v-card-title class="justify-center">
+							<v-list-item-avatar size="60">
+								<v-img class="zoom" v-if="imgData && imgData !== ''" :src="imgData" @click="extendImage(imgData)"></v-img>
+								<v-icon v-else>mdi-account-circle mdi-48px</v-icon>
+							</v-list-item-avatar>
+							{{user.firstName}} {{user.lastName}}
+						</v-card-title>
+						<v-divider></v-divider>
+						<v-card-text>
+							<v-row justify="center"> 
+								<v-col cols="6" align="center">
+									<v-file-input 
+										type="file" 
+										prepend-icon="mdi-camera"
+										v-model="file"
+										:rules="imageRules"
+										filled 
+										auto-grow 
+										accept="image/*"
+										label="Profile Photo"
+										color="primary"
+									></v-file-input>
+									<v-btn rounded color="primary" @click="uploadImage()" justify="center">Upload</v-btn>
+								</v-col>
+							</v-row>
+							<v-row>
+								<v-col cols="6" align="center">
+									<v-text-field
+										v-model="firstName"
+										:rules="characterRules"
+										label="First Name"
+										:placeholder="user.firstName"
+										color="primary"
+										prepend-icon="mdi-account-badge-outline"
+									></v-text-field>
+								</v-col>
+								<v-col cols="6" align="center">
+									<v-text-field
+										v-model="lastName"
+										:rules="characterRules"
+										label="Last Name"
+										:placeholder="user.lastName"
+										color="primary"
+										prepend-icon="mdi-account-badge"
+									></v-text-field>
+								</v-col>
+							</v-row>
 
-						<v-row>
-							<v-col cols="6" align="center">
-								<v-text-field	
-									v-model="phone"
-									label="Phone"
-									:placeholder="user.phone"
-									:rules="phoneRules"
-									color="primary"
-									prepend-icon="mdi-phone"
-								></v-text-field>
-							</v-col>
-							<v-col cols="6" align="center">
-								
-								<v-btn @click="goToSecurity()" color = primary rounded>
-									<v-icon>
-										mdi-cog
-									</v-icon>
- 									Change Security Settings
-								</v-btn>
-							</v-col>
-						</v-row>
+							<v-row>
+								<v-col cols="6" align="center">
+									<v-text-field	
+										v-model="phone"
+										label="Phone"
+										:placeholder="user.phone"
+										:rules="phoneRules"
+										color="primary"
+										prepend-icon="mdi-phone"
+									></v-text-field>
+								</v-col>
+								<v-col cols="6" align="center">
+									
+									<v-btn @click="goToSecurity()" color = primary rounded>
+										<v-icon>
+											mdi-cog
+										</v-icon>
+										Change Security Settings
+									</v-btn>
+								</v-col>
+							</v-row>
 
-						<v-row>
-							<v-col cols="6" align="center">
-								<v-menu
-									ref="dateMenu"
-									v-model="dateMenu"
-									:close-on-content-click="false"
-									:return-value.sync="date"
-									transition="scale-transition"
-									offset-y
-									min-width="auto"
-								>
-									<template v-slot:activator = "{ on }">
-										<v-text-field
-											v-model="date"
-											label="Birthdate"
-											persistent-hint
-											prepend-icon="mdi-calendar"
-											v-on="on"
-										></v-text-field>
-									</template>
-									<v-date-picker v-model="date" no-title>
-										<v-spacer></v-spacer>
-										<v-btn text color="primary" @click="dateMenu = false">Cancel</v-btn>
-										<v-btn text color="primary" @click="$refs.dateMenu.save(date)">OK</v-btn>
-									</v-date-picker>
-								</v-menu>
-							</v-col>
-							<v-col cols="6" align="center">
-								<v-text-field 
-									v-model="details" 
-									label="User Details" 
+							<v-row>
+								<v-col cols="6" align="center">
+									<v-menu
+										ref="dateMenu"
+										v-model="dateMenu"
+										:close-on-content-click="false"
+										:return-value.sync="date"
+										transition="scale-transition"
+										offset-y
+										min-width="auto"
+									>
+										<template v-slot:activator = "{ on }">
+											<v-text-field
+												v-model="date"
+												label="Birthdate"
+												persistent-hint
+												prepend-icon="mdi-calendar"
+												v-on="on"
+											></v-text-field>
+										</template>
+										<v-date-picker v-model="date" no-title>
+											<v-spacer></v-spacer>
+											<v-btn text color="primary" @click="dateMenu = false">Cancel</v-btn>
+											<v-btn text color="primary" @click="$refs.dateMenu.save(date)">OK</v-btn>
+										</v-date-picker>
+									</v-menu>
+								</v-col>
+								<v-col cols="6" align="center">
+									<v-text-field 
+										v-model="details" 
+										label="User Details" 
+										optional
+										prepend-icon="mdi-information-outline"
+										color="primary"
+									></v-text-field>
+								</v-col>
+							</v-row>
+
+							<v-row>
+								<v-col cols="6" align="center">
+									<v-select 
+										v-model="faculty" 
+										:items="universities" 
+										label="Faculty"
+										optional
+										prepend-icon="mdi-school"
+										color="primary"
+									></v-select>
+								</v-col>
+								<v-col cols="6" align="center">
+									<v-text-field 
+										v-model="group" 
+										label="Group" 
+										optional
+										prepend-icon="mdi-group"
+										color="primary"
+									></v-text-field>
+								</v-col>
+							</v-row>
+
+							<v-row justify="space-around">
+								<v-col cols="6">
+									<v-text-field 
+									v-model="webpage" 
+									label="Webpage Link" 
 									optional
-									prepend-icon="mdi-information-outline"
+									prepend-icon="mdi-web"
 									color="primary"
-								></v-text-field>
-							</v-col>
-						</v-row>
-
-						<v-row>
-							<v-col cols="6" align="center">
-								<v-select 
-									v-model="faculty" 
-									:items="universities" 
-									label="Faculty"
+									style="width: 250px;"
+									></v-text-field>
+								</v-col>
+								<v-col cols="6">
+									<v-text-field 
+									v-model="facebook" 
+									label="Facebook Link"
 									optional
-									prepend-icon="mdi-school"
+									prepend-icon="mdi-facebook-box"
 									color="primary"
-								></v-select>
-							</v-col>
-							<v-col cols="6" align="center">
-								<v-text-field 
-									v-model="group" 
-									label="Group" 
+									style="width: 250px;"
+									></v-text-field>
+								</v-col>
+								<v-col cols="6">
+									<v-text-field 
+									v-model="linkedin" 
+									label="Linkedin Link" 
 									optional
-									prepend-icon="mdi-group"
+									prepend-icon="mdi-linkedin-box"
 									color="primary"
-								></v-text-field>
-							</v-col>
-						</v-row>
-
-						<v-row justify="space-around">
-							<v-col cols="4">
-								<v-text-field 
-								v-model="webpage" 
-								label="Webpage Link" 
-								optional
-								prepend-icon="mdi-web"
-								color="primary"
-								style="width: 250px;"
-								></v-text-field>
-							</v-col>
-							<v-col cols="4">
-								<v-text-field 
-								v-model="facebook" 
-								label="Facebook Link"
-								optional
-								prepend-icon="mdi-facebook-box"
-								color="primary"
-								style="width: 250px;"
-								></v-text-field>
-							</v-col>
-							<v-col cols="4">
-								<v-text-field 
-								v-model="linkedin" 
-								label="Linkedin Link" 
-								optional
-								prepend-icon="mdi-linkedin-box"
-								color="primary"
-								style="width: 250px;"
-								></v-text-field>
-							</v-col>
-						</v-row>
-					</v-card-text>
-					<v-card-actions class="justify-center">
-						<v-btn :disabled="!valid" rounded color="primary" @click="update()" justify="center">Submit</v-btn>
-					</v-card-actions>
+									style="width: 250px;"
+									></v-text-field>
+								</v-col>
+								<v-col cols="6">
+									<v-text-field 
+									v-model="instagram" 
+									label="Instagram Link" 
+									optional
+									prepend-icon="mdi-instagram-box"
+									color="primary"
+									style="width: 250px;"
+									></v-text-field>
+								</v-col>
+							</v-row>
+						</v-card-text>
+						<v-card-actions class="justify-center">
+							<v-btn :disabled="!valid" rounded color="primary" @click="update()" justify="center">Submit</v-btn>
+						</v-card-actions>
+					</v-card>
 				</v-card>
 			</v-form>
 			<v-dialog v-model="extendDialog" max-width="450">
@@ -222,6 +234,7 @@ interface EditAccount {
 	birthDate: Date,
 	facebook: string,
 	linkedin: string,
+	instagram: string,
 	webpage: string,
 	details: string,
 	faculty: string,
@@ -242,7 +255,6 @@ export default Vue.extend({
 	async mounted() {
 		try {
 			if (await this.ui.storeDispatch("users/load", {})) {
-				console.log(this.user);
 				this.firstName = this.user.firstName;
 				this.lastName = this.user.lastName;
 				this.username = this.user.username;
@@ -251,6 +263,7 @@ export default Vue.extend({
 				this.date = new Date(this.user.birthDate).toISOString().substr(0, 10);
 				this.facebook = this.user.socialMedia.facebook;
 				this.linkedin = this.user.socialMedia.linkedin;
+				this.instagram = this.user.socialMedia.instagram;
 				this.webpage = this.user.socialMedia.webpage;
 				this.faculty = this.user.userDetails.faculty;
 				this.group = this.user.userDetails.group;
@@ -307,6 +320,7 @@ export default Vue.extend({
 			birthDate: {} as Date,
 			facebook: "",
 			linkedin: "",
+			instagram: "",
 			webpage: "",
 			details: "",
 			faculty: "",
@@ -373,7 +387,6 @@ export default Vue.extend({
 	},
 	methods: {
 		updateSnack (prop:boolean): void {
-			console.log("got update event");
 			this.snackbar = prop;
 		},
 		extendImage(image: string):void {
@@ -417,6 +430,7 @@ export default Vue.extend({
 						this.date = new Date((this.user as User).birthDate).toISOString().substr(0, 10);
 						this.facebook = (this.user as User).socialMedia.facebook;
 						this.linkedin = (this.user as User).socialMedia.linkedin;
+						this.instagram = (this.user as User).socialMedia.instagram;
 						this.webpage = (this.user as User).socialMedia.webpage;
 						this.details = (this.user as User).userDetails.details;
 						this.faculty = (this.user as User).userDetails.faculty;
@@ -456,6 +470,7 @@ export default Vue.extend({
 			let socialMedia: UserSocialMedia = {
 				facebook: this.facebook,
 				linkedin: this.linkedin,
+				instagram: this.instagram,
 				webpage: this.webpage
 			};
 			let userDetails: UserDetails = {
@@ -517,6 +532,7 @@ export default Vue.extend({
 						this.date = new Date(this.user.birthDate).toISOString().substr(0, 10);
 						this.facebook = this.user.socialMedia.facebook;
 						this.linkedin = this.user.socialMedia.linkedin;
+						this.instagram = this.user.socialMedia.instagram;
 						this.webpage = this.user.socialMedia.webpage;
 						this.details = this.user.userDetails.details;
 						this.faculty = this.user.userDetails.faculty;

@@ -1,444 +1,455 @@
 <template>
 	<div>							
 		<v-container pr-7 pl-7 v-if="!loadingPage">
-			<v-card flat style="margin: auto; padding-top: 20px;" >
-				<v-form v-model="productValid" lazy-validation v-if="product">
-					<v-divider></v-divider>
-					<div class="details">Startup name</div>
-					<v-text-field 
-						:rules="startupRules"
-						outlined
-						rounded 
-						color="primary" 
-						v-model="startupName"> 
-					</v-text-field>
+			<v-card color="primary" flat shaped outlined width="100%" class="ma-5">
+				<v-card flat shaped outlined width="100%" class="pa-4">
+					<v-form v-model="productValid" lazy-validation v-if="product">
+						<div class="details">Startup name</div>
+						<v-text-field 
+							:rules="startupRules"
+							outlined
+							rounded 
+							color="primary" 
+							v-model="startupName"> 
+						</v-text-field>
 
-					<div class="details">Workshop Day</div>
-					<v-select
-						disabled
-						v-model="workshop_day"
-						:items="workshopDays"
-						label="Workshop Day"
-					></v-select>
+						<div class="details">Workshop Day</div>
+						<v-select
+							disabled
+							v-model="workshop_day"
+							:items="workshopDays"
+							label="Workshop Day"
+						></v-select>
 
-					<div class="details">Business Track</div>
-					<v-select
-						disabled
-						v-model="businessTrack"
-						:items="businessTracks"
-						label="Business Track"
-					></v-select>
+						<div class="details">Business Track</div>
+						<v-select
+							disabled
+							v-model="businessTrack"
+							:items="businessTracks"
+							label="Business Track"
+						></v-select>
 
-					<div class="details">Team Type</div>
-					<v-select
-						disabled
-						v-model="teamType"
-						:items="teamTypes"
-						label="Team Type"
-					></v-select>
+						<div class="details">Team Type</div>
+						<v-select
+							disabled
+							v-model="teamType"
+							:items="teamTypes"
+							label="Team Type"
+						></v-select>
 
-					<div class="details">Workshop Number</div>
-					<v-select 
-						v-model="workshop_nr" 
-						disabled 
-						:items="workshops" 
-						label="Workshop Number"
-					></v-select>
+						<div class="details">Workshop Number</div>
+						<v-select 
+							v-model="workshop_nr" 
+							disabled 
+							:items="workshops" 
+							label="Workshop Number"
+						></v-select>
 
-					<div class="details">English Description</div>
-					<v-textarea 
-						outlined 
-						color="primary" 
-						v-model="product.descriptionEN" 
-						auto-grow 
-						disabled
-					></v-textarea>
-					
-					<div class="details">Romanian Description</div>
-					<v-textarea 
-						outlined 
-						color="primary" 
-						v-model="product.descriptionRO" 
-						auto-grow 
-						style="margin-bottom: 20px;"
-						disabled
-					></v-textarea>
-					
-					<v-divider></v-divider>
-					
-					<v-container>
-						<v-card flat outlined  class="justify-center">
-							<v-card-text class="justify-center">
-								<v-row align="center" justify="center">
-									<strong color="accent">Note: Maximum image/video resolution is 8K UHD</strong>
-								</v-row>
-							</v-card-text>
-						</v-card>
-					</v-container>
-					<v-container v-if="!loadingUpload">
-						<v-row no-gutters style="margin-top: 20px; margin-bottom: 20px;">
-							<v-col cols="12" sm="12" md="6" lg="4" xl="4">
-								<v-card flat outlined class="justify-center" >
-									<div v-if="pres !== undefined">
-										<v-card-title class="justify-center">Power Point Presentation</v-card-title>
-										<v-divider></v-divider>
-										<v-card-text class="justify-center">
-											<v-row align="center" justify="center">
-												<v-tooltip v-model="showDeletePresentation" bottom>
-													<template v-slot:activator="{ on }">
-														<v-btn icon v-on="on" @click="deleteObj(pres.uuid)">
-															<v-icon color="primary">mdi-delete</v-icon>
-														</v-btn>
-													</template>
-													<span>Delete Existing <br/> Presentation</span>
-												</v-tooltip> 
-												<v-tooltip v-model="showDownloadPresentation" bottom>
-													<template v-slot:activator="{ on }">
-														<v-btn icon v-on="on" @click="download(pres.uuid)">
-															<v-icon color="primary">mdi-arrow-down</v-icon>
-														</v-btn>
-													</template>
-													<span>Download <br/> Presentation</span>
-												</v-tooltip> 
-											</v-row>	
-										</v-card-text>
-									</div>
-									<v-card-text>
-										<v-file-input 
-											type="file" 
-											v-model="presFile" 
-											outlined 
-											auto-grow 
-											counter 
-											:rules="rulesPres"
-											accept=".pptx, .ppt" 
-											label="Upload Last Presentation"
-											color="primary"
-											prepend-icon="mdi-presentation-play"
-										></v-file-input>
-									</v-card-text>
-									<v-card-actions class="justify-center">
-										<v-btn text :disabled="!validPres" color="primary" @click="upload('pres')">Upload</v-btn>
-									</v-card-actions>
-								</v-card>
-							</v-col>
-							<v-col cols="12" sm="12" md="6" lg="4" xl="4">
-								<v-card flat outlined >
-									<div v-if="demoVid !== undefined">
-										<v-card-title class="justify-center">
-											Tehnic Demo Video
-										</v-card-title>
-										<v-divider></v-divider>
-										<v-card-text class="justify-center">
-											<v-card outlined flat>
-												<video
-													:src="demoVid.data" 
-													width="100%"
-													controls
-												></video>
-												<v-card-actions>
-												<v-spacer></v-spacer>
-												<v-tooltip v-model="showDownloadDemo" bottom>
-													<template v-slot:activator="{ on }">
-														<v-btn icon v-on="on" @click="download(demoVid.uuid)">
-															<v-icon color="primary">mdi-arrow-down</v-icon>
-														</v-btn>
-													</template>
-													<span>Download <br/>Technical Demo</span>
-												</v-tooltip> 
-												<v-tooltip v-model="showDeleteDemo" bottom>
-													<template v-slot:activator="{ on }">
-														<v-btn icon v-on="on" @click="deleteObj(demoVid.uuid)">
-															<v-icon color="primary">mdi-delete</v-icon>
-														</v-btn>
-													</template>
-													<span>Delete <br/> Technical Demo</span>
-												</v-tooltip> 
-												</v-card-actions>
-											</v-card>
-										</v-card-text>
-									</div>
-									<v-card-text class="justify-center" >
-										<v-file-input 
-											type="file" 
-											v-model="demoVidFile" 
-											outlined 
-											auto-grow 
-											counter 
-											:rules="rulesDemoVid"
-											accept=".mp4, .ogg, .webm" 
-											label="Upload Demo Video"
-											color="primary"
-											prepend-icon="mdi-file-video-outline"
-										></v-file-input>
-									</v-card-text>
-									<v-card-actions class="justify-center">
-										<v-btn text :disabled="!validDemoVid" color="primary" @click="upload('demoVid')">Upload</v-btn>
-									</v-card-actions>
-								</v-card>
-							</v-col>
-							<v-col cols="12" sm="12" md="6" lg="4" xl="4">
-								<v-card flat outlined >
-									<div v-if="presVid !== undefined">
-										<v-card-title class="justify-center">Product Presentation Video</v-card-title>
-										<v-divider></v-divider>
-										<v-card-text class="justify-center">
-											<v-card outlined flat >
-												<video
-													:src="presVid.data" 
-													width="100%"
-													controls
-												></video>
-												<v-card-actions>
-												<v-spacer></v-spacer>
-												<v-tooltip v-model="showDownloadVideo" bottom>
-													<template v-slot:activator="{ on }">
-														<v-btn icon v-on="on" @click="download(presVid.uuid)">
-															<v-icon color="primary">mdi-arrow-down</v-icon>
-														</v-btn>
-													</template>
-													<span>Download <br/>Presentation Video</span>
-												</v-tooltip> 
-												<v-tooltip v-model="showDeleteVideo" bottom>
-													<template v-slot:activator="{ on }">
-														<v-btn icon v-on="on" @click="deleteObj(presVid.uuid)">
-															<v-icon color="primary">mdi-delete</v-icon>
-														</v-btn>
-													</template>
-													<span>Delete <br/>Presentation Video</span>
-												</v-tooltip> 
-												</v-card-actions>
-											</v-card>
-										</v-card-text>
-									</div>
-									<v-card-text class="justify-center">
-										<v-file-input 
-											type="file" 
-											v-model="presVidFile" 
-											outlined 
-											auto-grow 
-											counter 
-											:rules="rulesPresVid"
-											accept=".mp4, .ogg, .webm" 
-											label="Upload Presentation Video"
-											color="primary"
-											prepend-icon="mdi-video-account"
-										></v-file-input>
-									</v-card-text>
-									<v-card-actions class="justify-center">
-										<v-btn text :disabled="!validPresVid" color="primary" @click="upload('presVid')">Upload</v-btn>
-									</v-card-actions>
-								</v-card>
-							</v-col>
-						</v-row>
-
+						<div class="details">English Description</div>
+						<v-textarea 
+							outlined 
+							color="primary" 
+							v-model="product.descriptionEN" 
+							auto-grow 
+							disabled
+						></v-textarea>
+						
+						<div class="details">Romanian Description</div>
+						<v-textarea 
+							outlined 
+							color="primary" 
+							v-model="product.descriptionRO" 
+							auto-grow 
+							style="margin-bottom: 20px;"
+							disabled
+						></v-textarea>
+						
 						<v-divider></v-divider>
 						
-						<v-row align="center" justify="center" no-gutters style="margin-top: 20px; margin-bottom: 20px;">
-							<v-col cols="12" sm="12" md="8" lg="8" xl="8">
-								<v-card flat outlined  align="center" justify="center">
-									<div v-if="logo !== undefined" >
-										<v-card-title align="center" justify="center">Product Logo</v-card-title>
-										<v-divider></v-divider>
-										<v-card-text align="center" justify="center">
-											<div style="max-width: 200px;">
-												<v-card outlined flat >
-													<v-hover v-slot:default="{ hover }" >
-														<v-card flat  @click="extendImage(logo.data)"  rounded :elevation="hover ? 16 : 0">
-															<v-img :src="logo.data" max-width="200" max-height="200"  ></v-img>
-														</v-card>
-													</v-hover>
-
-													<v-card-actions>
-													<v-spacer></v-spacer>
-													<v-tooltip v-model="showDownloadLogo" bottom>
+						<v-container>
+							<v-card flat outlined  class="justify-center">
+								<v-card-text class="justify-center">
+									<v-row align="center" justify="center">
+										<strong color="accent">Note: Maximum image/video resolution is 8K UHD</strong>
+									</v-row>
+								</v-card-text>
+							</v-card>
+						</v-container>
+						<v-container v-if="!loadingUpload">
+							<v-row no-gutters style="margin-top: 20px; margin-bottom: 20px;">
+								<v-col cols="12" sm="12" md="6" lg="4" xl="4">
+									<v-card flat outlined class="justify-center" >
+										<div v-if="pres !== undefined">
+											<v-card-title class="justify-center">Power Point Presentation</v-card-title>
+											<v-divider></v-divider>
+											<v-card-text class="justify-center">
+												<v-row align="center" justify="center">
+													<v-tooltip v-model="showDeletePresentation" bottom>
 														<template v-slot:activator="{ on }">
-															<v-btn icon v-on="on" @click="download(logo.uuid)">
-																<v-icon color="primary">mdi-arrow-down</v-icon>
-															</v-btn>
-														</template>
-														<span>Download <br/> Logo</span>
-													</v-tooltip> 
-													<v-tooltip v-model="showDeleteLogo" bottom>
-														<template v-slot:activator="{ on }">
-															<v-btn icon v-on="on" @click="deleteObj(logo.uuid)">
+															<v-btn icon v-on="on" @click="deleteObj(pres.uuid)">
 																<v-icon color="primary">mdi-delete</v-icon>
 															</v-btn>
 														</template>
-														<span>Delete <br/>Logo</span>
+														<span>Delete Existing <br/> Presentation</span>
+													</v-tooltip> 
+													<v-tooltip v-model="showDownloadPresentation" bottom>
+														<template v-slot:activator="{ on }">
+															<v-btn icon v-on="on" @click="download(pres.uuid)">
+																<v-icon color="primary">mdi-arrow-down</v-icon>
+															</v-btn>
+														</template>
+														<span>Download <br/> Presentation</span>
+													</v-tooltip> 
+												</v-row>	
+											</v-card-text>
+										</div>
+										<v-card-text>
+											<v-file-input 
+												type="file" 
+												v-model="presFile" 
+												outlined 
+												auto-grow 
+												counter 
+												:rules="rulesPres"
+												accept=".pptx, .ppt, .pdf" 
+												label="Upload Last Presentation"
+												color="primary"
+												prepend-icon="mdi-presentation-play"
+											></v-file-input>
+										</v-card-text>
+										<v-card-actions class="justify-center">
+											<v-btn text :disabled="!validPres" color="primary" @click="upload('pres')">Upload</v-btn>
+										</v-card-actions>
+									</v-card>
+								</v-col>
+								<v-col cols="12" sm="12" md="6" lg="4" xl="4">
+									<v-card flat outlined >
+										<div v-if="demoVid !== undefined">
+											<v-card-title class="justify-center">
+												Tehnic Demo Video
+											</v-card-title>
+											<v-divider></v-divider>
+											<v-card-text class="justify-center">
+												<v-card outlined flat>
+													<video
+														:src="demoVid.data" 
+														width="100%"
+														controls
+													></video>
+													<v-card-actions>
+													<v-spacer></v-spacer>
+													<v-tooltip v-model="showDownloadDemo" bottom>
+														<template v-slot:activator="{ on }">
+															<v-btn icon v-on="on" @click="download(demoVid.uuid)">
+																<v-icon color="primary">mdi-arrow-down</v-icon>
+															</v-btn>
+														</template>
+														<span>Download <br/>Technical Demo</span>
+													</v-tooltip> 
+													<v-tooltip v-model="showDeleteDemo" bottom>
+														<template v-slot:activator="{ on }">
+															<v-btn icon v-on="on" @click="deleteObj(demoVid.uuid)">
+																<v-icon color="primary">mdi-delete</v-icon>
+															</v-btn>
+														</template>
+														<span>Delete <br/> Technical Demo</span>
 													</v-tooltip> 
 													</v-card-actions>
 												</v-card>
-											</div>
+											</v-card-text>
+										</div>
+										<v-card-text class="justify-center" >
+											<v-file-input 
+												type="file" 
+												v-model="demoVidFile" 
+												outlined 
+												auto-grow 
+												counter 
+												:rules="rulesDemoVid"
+												accept=".mp4, .ogg, .webm" 
+												label="Upload Demo Video"
+												color="primary"
+												prepend-icon="mdi-file-video-outline"
+											></v-file-input>
 										</v-card-text>
-									</div>
-									<v-card-text>
-										<v-file-input 
-											type="file" 
-											v-model="logoFile" 
-											outlined 
-											auto-grow 
-											counter 
-											:rules="rulesLogo"
-											accept="image/*" 
-											label="Upload Logo"
-											color="primary"
-											prepend-icon="mdi-camera"
-										></v-file-input>
-									</v-card-text>
-									<v-card-actions class="justify-center">
-										<v-btn :disabled="!validLogo" text color="primary" @click="upload('logo')">Upload</v-btn>
-									</v-card-actions>
-								</v-card>
-							</v-col>
-							
-						</v-row>
-						
-						<v-divider></v-divider>
-						
-						<v-row align="center" justify="center" no-gutters style="margin-top: 20px; margin-bottom: 20px;">
-							<v-col cols="12" sm="12" md="8" lg="10" xl="10">
-								<v-card outlined flat >
-									<div v-if="images.length > 0">
-										<v-card-title class="justify-center">Product Images</v-card-title>
-										<v-card-text>
-											<v-row>
-												<v-col v-for="image in images" :key="image.uuid">
-													<div style="max-width: 200px;">
-														<v-card outlined flat>
-															<v-hover v-slot:default="{ hover }">
-																<v-card style="max-width: 200px;"  flat  @click="extendImage(image.data)" rounded :elevation="hover ? 16 : 0">
-																	<v-img class="align-end" :src="image.data" max-width="200" max-height="200"></v-img>
-																</v-card>
-															</v-hover>
-
-															<v-card-actions>
-															<v-spacer></v-spacer> 
-															<v-btn icon @click="download(image.uuid)">
+										<v-card-actions class="justify-center">
+											<v-btn text :disabled="!validDemoVid" color="primary" @click="upload('demoVid')">Upload</v-btn>
+										</v-card-actions>
+									</v-card>
+								</v-col>
+								<v-col cols="12" sm="12" md="6" lg="4" xl="4">
+									<v-card flat outlined >
+										<div v-if="presVid !== undefined">
+											<v-card-title class="justify-center">Product Presentation Video</v-card-title>
+											<v-divider></v-divider>
+											<v-card-text class="justify-center">
+												<v-card outlined flat >
+													<video
+														:src="presVid.data" 
+														width="100%"
+														controls
+													></video>
+													<v-card-actions>
+													<v-spacer></v-spacer>
+													<v-tooltip v-model="showDownloadVideo" bottom>
+														<template v-slot:activator="{ on }">
+															<v-btn icon v-on="on" @click="download(presVid.uuid)">
 																<v-icon color="primary">mdi-arrow-down</v-icon>
 															</v-btn>
-															<v-btn icon color="primary" @click="deleteObj(image.uuid)">
-																<v-icon>mdi-delete</v-icon>
+														</template>
+														<span>Download <br/>Presentation Video</span>
+													</v-tooltip> 
+													<v-tooltip v-model="showDeleteVideo" bottom>
+														<template v-slot:activator="{ on }">
+															<v-btn icon v-on="on" @click="deleteObj(presVid.uuid)">
+																<v-icon color="primary">mdi-delete</v-icon>
 															</v-btn>
-															</v-card-actions>
-														</v-card>
-													</div>
-												</v-col>
-											</v-row>
+														</template>
+														<span>Delete <br/>Presentation Video</span>
+													</v-tooltip> 
+													</v-card-actions>
+												</v-card>
+											</v-card-text>
+										</div>
+										<v-card-text class="justify-center">
+											<v-file-input 
+												type="file" 
+												v-model="presVidFile" 
+												outlined 
+												auto-grow 
+												counter 
+												:rules="rulesPresVid"
+												accept=".mp4, .ogg, .webm" 
+												label="Upload Presentation Video"
+												color="primary"
+												prepend-icon="mdi-video-account"
+											></v-file-input>
 										</v-card-text>
-									</div>
-									<v-card-text>
-										<v-file-input 
-											type="file" 
-											v-model="imgFiles" 
-											outlined 
-											auto-grow 
-											counter
-											:rules="rulesFiles"
-											accept="image/*" 
-											label="Upload Product Images"
-											color="primary"
-											prepend-icon="mdi-camera-burst"
-										></v-file-input>
-									</v-card-text>
-									<v-card-actions class="justify-center">
-										<v-btn :disabled="!validFiles" text color="primary" @click="upload('files')">Upload</v-btn>
-									</v-card-actions>
-								</v-card>
+										<v-card-actions class="justify-center">
+											<v-btn text :disabled="!validPresVid" color="primary" @click="upload('presVid')">Upload</v-btn>
+										</v-card-actions>
+									</v-card>
+								</v-col>
+							</v-row>
+
+							<v-divider></v-divider>
+							
+							<v-row align="center" justify="center" no-gutters style="margin-top: 20px; margin-bottom: 20px;">
+								<v-col cols="12" sm="12" md="8" lg="8" xl="8">
+									<v-card flat outlined  align="center" justify="center">
+										<div v-if="logo !== undefined" >
+											<v-card-title align="center" justify="center">Product Logo</v-card-title>
+											<v-divider></v-divider>
+											<v-card-text align="center" justify="center">
+												<div style="max-width: 200px;">
+													<v-card outlined flat >
+														<v-hover v-slot:default="{ hover }" >
+															<v-card flat  @click="extendImage(logo.data)"  rounded :elevation="hover ? 16 : 0">
+																<v-img :src="logo.data" max-width="200" max-height="200"  ></v-img>
+															</v-card>
+														</v-hover>
+
+														<v-card-actions>
+														<v-spacer></v-spacer>
+														<v-tooltip v-model="showDownloadLogo" bottom>
+															<template v-slot:activator="{ on }">
+																<v-btn icon v-on="on" @click="download(logo.uuid)">
+																	<v-icon color="primary">mdi-arrow-down</v-icon>
+																</v-btn>
+															</template>
+															<span>Download <br/> Logo</span>
+														</v-tooltip> 
+														<v-tooltip v-model="showDeleteLogo" bottom>
+															<template v-slot:activator="{ on }">
+																<v-btn icon v-on="on" @click="deleteObj(logo.uuid)">
+																	<v-icon color="primary">mdi-delete</v-icon>
+																</v-btn>
+															</template>
+															<span>Delete <br/>Logo</span>
+														</v-tooltip> 
+														</v-card-actions>
+													</v-card>
+												</div>
+											</v-card-text>
+										</div>
+										<v-card-text>
+											<v-file-input 
+												type="file" 
+												v-model="logoFile" 
+												outlined 
+												auto-grow 
+												counter 
+												:rules="rulesLogo"
+												accept="image/*" 
+												label="Upload Logo"
+												color="primary"
+												prepend-icon="mdi-camera"
+											></v-file-input>
+										</v-card-text>
+										<v-card-actions class="justify-center">
+											<v-btn :disabled="!validLogo" text color="primary" @click="upload('logo')">Upload</v-btn>
+										</v-card-actions>
+									</v-card>
+								</v-col>
+								
+							</v-row>
+							
+							<v-divider></v-divider>
+							
+							<v-row align="center" justify="center" no-gutters style="margin-top: 20px; margin-bottom: 20px;">
+								<v-col cols="12" sm="12" md="8" lg="10" xl="10">
+									<v-card outlined flat >
+										<div v-if="images.length > 0">
+											<v-card-title class="justify-center">Product Images</v-card-title>
+											<v-card-text>
+												<v-row>
+													<v-col v-for="image in images" :key="image.uuid">
+														<div style="max-width: 200px;">
+															<v-card outlined flat>
+																<v-hover v-slot:default="{ hover }">
+																	<v-card style="max-width: 200px;"  flat  @click="extendImage(image.data)" rounded :elevation="hover ? 16 : 0">
+																		<v-img class="align-end" :src="image.data" max-width="200" max-height="200"></v-img>
+																	</v-card>
+																</v-hover>
+
+																<v-card-actions>
+																<v-spacer></v-spacer> 
+																<v-btn icon @click="download(image.uuid)">
+																	<v-icon color="primary">mdi-arrow-down</v-icon>
+																</v-btn>
+																<v-btn icon color="primary" @click="deleteObj(image.uuid)">
+																	<v-icon>mdi-delete</v-icon>
+																</v-btn>
+																</v-card-actions>
+															</v-card>
+														</div>
+													</v-col>
+												</v-row>
+											</v-card-text>
+										</div>
+										<v-card-text>
+											<v-file-input 
+												type="file" 
+												v-model="imgFiles" 
+												outlined 
+												auto-grow 
+												counter
+												:rules="rulesFiles"
+												accept="image/*" 
+												label="Upload Product Images"
+												color="primary"
+												prepend-icon="mdi-camera-burst"
+											></v-file-input>
+										</v-card-text>
+										<v-card-actions class="justify-center">
+											<v-btn :disabled="!validFiles" text color="primary" @click="upload('files')">Upload</v-btn>
+										</v-card-actions>
+									</v-card>
+								</v-col>
+							</v-row>
+						</v-container>
+						<v-container v-else>
+							<v-card flat outlined  class="justify-center">
+								<v-card-text class="justify-center">
+									<v-row align="center" justify="center">
+										<strong color="accent">Your upload is being processed, this might take a few minutes.</strong>
+									</v-row>
+									<v-row align="center" justify="center">
+										<strong color="accent">Please do not close or refresh the page!</strong>
+									</v-row>
+								</v-card-text>
+							</v-card>
+							<v-card flat outlined  v-if=" Math.floor(partTotal) < 100">
+								<v-progress-linear 
+									v-model="partTotal"
+									height="25"
+									color="accent"
+									>
+									<strong>{{ Math.floor(partTotal) }}%</strong>
+								</v-progress-linear>
+							</v-card>
+							<v-card class="justify-center" flat outlined  v-else>
+								<v-card-text class="justify-center">
+									<v-row align="center" justify="center">
+										<v-progress-circular
+										:size="50"
+										color="accent"
+										indeterminate
+										></v-progress-circular>
+									</v-row>	
+								</v-card-text>
+							</v-card>
+						</v-container>
+						<v-divider style="margin-bottom: 30px;"></v-divider>
+			
+
+						<div class="details">Pending English Description</div>
+						<v-textarea 
+							v-model="pending_descr_ENG" 
+							outlined 
+							auto-grow 
+							rows="4" 
+							:rules="rulesDesc"
+							no-resize counter="600"
+						></v-textarea>
+
+						<div class="details">Pending Romanian Description</div>
+						<v-textarea 
+							v-model="pending_descr_RO" 
+							outlined 
+							auto-grow 
+							rows="4"
+							:rules="rulesDesc"
+							no-resize counter="600"
+						></v-textarea>
+
+						<v-row>
+							<v-col cols="3">
+								<div class="details">Website Link</div>
+								<v-text-field
+									v-model="link_website"
+									outlined
+									rounded
+									color="primary"
+									prepend-icon="mdi-web"
+								></v-text-field>
+							</v-col>
+							<v-col cols="3">
+								<div class="details">Linkedin</div>
+								<v-text-field
+									v-model="link_linkedin"
+									outlined
+									rounded
+									color="primary"
+									prepend-icon="mdi-linkedin"
+								></v-text-field>									
+							</v-col>
+							<v-col cols="3">
+								<div class="details">Instagram</div>
+								<v-text-field
+									v-model="link_instagram"
+									outlined
+									rounded
+									color="primary"
+									prepend-icon="mdi-instagram"
+								></v-text-field>									
+							</v-col>
+							<v-col cols="3">
+								<div class="details">Facebook Link</div>	
+								<v-text-field
+									v-model="link_facebook"
+									outlined
+									rounded
+									color="primary"
+									prepend-icon="mdi-facebook"
+								></v-text-field>
 							</v-col>
 						</v-row>
-					</v-container>
-					<v-container v-else>
-						<v-card flat outlined  class="justify-center">
-							<v-card-text class="justify-center">
-								<v-row align="center" justify="center">
-									<strong color="accent">Your upload is being processed, this might take a few minutes.</strong>
-								</v-row>
-								<v-row align="center" justify="center">
-									<strong color="accent">Please do not close or refresh the page!</strong>
-								</v-row>
-							</v-card-text>
-						</v-card>
-						<v-card flat outlined  v-if=" Math.floor(partTotal) < 100">
-							<v-progress-linear 
-								v-model="partTotal"
-								height="25"
-								color="accent"
-								>
-								<strong>{{ Math.floor(partTotal) }}%</strong>
-							</v-progress-linear>
-						</v-card>
-						<v-card class="justify-center" flat outlined  v-else>
-							<v-card-text class="justify-center">
-								<v-row align="center" justify="center">
-									<v-progress-circular
-									:size="50"
-									color="accent"
-									indeterminate
-									></v-progress-circular>
-								</v-row>	
-							</v-card-text>
-						</v-card>
-					</v-container>
-					<v-divider style="margin-bottom: 30px;"></v-divider>
-		
-
-					<div class="details">Pending English Description</div>
-					<v-textarea 
-						v-model="pending_descr_ENG" 
-						outlined 
-						auto-grow 
-						rows="4" 
-						:rules="rulesDesc"
-						no-resize counter="600"
-					></v-textarea>
-
-					<div class="details">Pending Romanian Description</div>
-					<v-textarea 
-						v-model="pending_descr_RO" 
-						outlined 
-						auto-grow 
-						rows="4"
-						:rules="rulesDesc"
-						no-resize counter="600"
-					></v-textarea>
-
-					<v-row>
-						<v-col cols="4">
-							<div class="details">Website Link</div>
-							<v-text-field
-								v-model="link_website"
-								outlined
-								rounded
-								color="primary"
-								prepend-icon="mdi-web"
-							></v-text-field>
-						</v-col>
-						<v-col cols="4">
-							<div class="details">Linkedin</div>
-							<v-text-field
-								v-model="link_linkedin"
-								outlined
-								rounded
-								color="primary"
-								prepend-icon="mdi-linkedin"
-							></v-text-field>									
-						</v-col>
-						<v-col cols="4">
-							<div class="details">Facebook Link</div>	
-							<v-text-field
-								v-model="link_facebook"
-								outlined
-								rounded
-								color="primary"
-								prepend-icon="mdi-facebook"
-							></v-text-field>
-						</v-col>
-					</v-row>
-					<v-layout class="justify-center">
-						<v-btn :disabled="!productValid" color="primary" @click="updateProduct()">Update Product</v-btn>
-					</v-layout>
-				</v-form>
+						<v-layout class="justify-center">
+							<v-btn :disabled="!productValid" color="primary" @click="updateProduct()">Update Product</v-btn>
+						</v-layout>
+					</v-form>
+				</v-card>
 			</v-card>
 			<SnackBar :options="snackOptions"  @update-snackbar="updateSnack" :snackbar="snackbar"/>
 			<v-dialog v-model="extendDialog" max-width="900">
@@ -499,6 +510,7 @@ interface IProductSummary {
 	last_presentation: string,
 	link_website: string,
 	link_linkedin: string,
+	link_instagram: string,
 	link_facebook: string,
 	assessmentFinals: string,
 	assessmentSemifinals: string,
@@ -602,6 +614,7 @@ export default Vue.extend({
 					this.last_presentation = newProduct.productDetails["presentation"];
 					this.link_website = newProduct.productDetails["website"];
 					this.link_linkedin = newProduct.productDetails["linkedin"];
+					this.link_instagram = newProduct.productDetails["instagram"];
 					this.link_facebook = newProduct.productDetails["facebook"];
 					this.assessmentFinals = newProduct.productDetails["assessmentFinals"];
 					this.assessmentSemifinals = newProduct.productDetails["assessmentSemifinals"];
@@ -742,6 +755,7 @@ export default Vue.extend({
 			last_presentation: "" as string,
 			link_website: "" as string,
 			link_linkedin: "" as string,
+			link_instagram: "" as string,
 			link_facebook: "" as string,
 			assessmentFinals: "" as string,
 			assessmentSemifinals: "" as string,
@@ -810,7 +824,6 @@ export default Vue.extend({
 	},
 	methods: {
 		updateSnack (prop:boolean): void {
-			console.log("got update event");
 			this.snackbar = prop;
 		},
 		// as any to transform enum to data property
@@ -858,6 +871,7 @@ export default Vue.extend({
 			const productDetails: ProductDetails = {
 				website: this.link_website,
 				linkedin: this.link_linkedin,
+				instagram: this.link_instagram,
 				facebook: this.link_facebook,
 				assessmentFinals:this.assessmentFinals,
 				assessmentSemifinals:this.assessmentSemifinals
@@ -1065,7 +1079,7 @@ export default Vue.extend({
 				if ( e.response.status === 406) {
 					this.snackOptions.text = "Could not upload the file. Please upload only files in full HD format (min 1920 width and min. 1080 height). If the error persists, please contact technical support: teams@tech-lounge.ro.";
 					this.snackOptions.type = SnackBarTypes.ERROR;
-					this.snackOptions.timeout = 2000;
+					this.snackOptions.timeout = 4000;
 					this.snackbar = true;
 					this.loadingUpload = false;
 					this.uuidTemp = "";

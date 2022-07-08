@@ -142,7 +142,6 @@ export default Vue.extend({
 	},
 	methods: {
 		updateSnack (prop:boolean): void {
-			console.log("got update event");
 			this.snackbar = prop;
 		},
 		async submitFileImport():Promise<void> {

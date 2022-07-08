@@ -26,11 +26,9 @@ export default Vue.extend({
 		snackbar: {
 			immediate: true,
 			handler () {
-				console.log(this.snackbar);
 				if (this.snackbar) {
 					const timeout = (this.options.timeout && this.options.timeout !== -1 ? this.options.timeout : 3000);
 					setTimeout(() => {
-						console.log("emmited event");
 						this.$emit("update-snackbar", false);
 					}, timeout);
 				}
@@ -40,8 +38,6 @@ export default Vue.extend({
 			immediate: true,
 			deep: true,
 			handler () {
-				console.log("options changed");
-				console.log(this.options);
 				switch (this.options.horizontal) {
 					case SnackBarHorizontal.LEFT:
 						this.left = true;

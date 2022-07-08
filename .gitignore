@@ -114,3 +114,4 @@ database.sql
 # Windows Scripts
 docker_build.ps1
 # lib
+package.json

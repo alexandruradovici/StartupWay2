@@ -37,7 +37,8 @@ export class Server {
     async start (port:number = 8080):Promise<void> {
 		this.app.use ('/api/v1', express.json({limit:314572800}));
 		this.app.use ('/api/v1', this.apiv1);
-		const server = createServer(this.app);
+		let server = createServer(this.app);
+		server = server.setTimeout(180000);
 		const serverListener = server.listen (process.env.PORT || port, () => {
 			let n = 0;
 			const networks = networkInterfaces();

@@ -193,7 +193,6 @@ export default Vue.extend({
 	},
 	methods: {
 		update (prop:boolean): void {
-			console.log("got update event");
 			this.snackbar = prop;
 		},
 		// as any -> Google api, to reseach into response type.

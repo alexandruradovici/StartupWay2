@@ -1,156 +1,180 @@
 <template>
 	<div>
 		<v-container fluid pl-7 pr-7 v-if="!loadingPage">
-			<v-card color="#fcfcfc" flat style="margin: auto; margin-top: 50px;">
-				<v-divider></v-divider>
-				<v-card-text>
-					<v-list nav dense >
-						<v-list-item
-						v-for="user in users"
-						:key="user.email"
-						>
-							
-							<v-list-item-avatar size="60">
-								<v-img v-if="user.image !== ''" :src="user.image" @click="extendImage(user.image)"></v-img>
-								<v-icon v-else large>mdi-account</v-icon>
-							</v-list-item-avatar>
+			<v-card color="primary" flat shaped outlined width="100%" class="ma-5">
+				<v-card flat shaped outlined width="100%" class="pa-4">
+					<v-card-title>
+						<v-row justify="center">
+							<v-col>
+								<h3 style=" text-align: center;, font-size: 20px;">
+									You can add new members to your team by using the "Add Users" button.
+								</h3>
+							</v-col>
+						</v-row>
+						<v-row justify="center">
+							<v-col>
+								<h3 style=" text-align: center;, font-size: 20px;">
+									If you can't find the person you're looking for in the list, make sure to request a new user for the team.
+								</h3>
+							</v-col>
+						</v-row>	
+					</v-card-title>
+					<v-card-actions class="justify-center">
+						<v-btn large color="secondary" @click="addUsersDialog = true; add=true">Add Users</v-btn>
+					</v-card-actions>
+				</v-card>
+			</v-card>
+			<v-card color="primary" flat shaped outlined width="100%" class="ma-5">
+				<v-card flat shaped outlined width="100%" class="pa-4">
+					<v-card-text>
+						<v-list nav dense >
+							<v-list-item
+							v-for="user in users"
+							:key="user.email"
+							>
+								
+								<v-list-item-avatar size="60">
+									<v-img v-if="user.image !== ''" :src="user.image" @click="extendImage(user.image)"></v-img>
+									<v-icon v-else large>mdi-account</v-icon>
+								</v-list-item-avatar>
 
-							<v-list-item-content>
-								<v-list-item-title style=" font-size: 17px; font-weight: 700;"> {{ user.firstName }} {{ user.lastName }}</v-list-item-title>
-								<v-list-item-subtitle style=" font-size: 15px; font-weight: 550;">{{ user.email }}</v-list-item-subtitle>
-								<v-list-item-subtitle style=" font-size: 15px; font-weight: 550;">{{ user.phone }}</v-list-item-subtitle>
-								<v-row>
-									<v-col md4 class="justify-center">
-										<v-list-item-subtitle style=" font-size: 15px; font-weight: 550;">{{ user.faculty }}</v-list-item-subtitle>
-									</v-col>
-									<v-col md4 class="justify-center">
-										<v-list-item-subtitle style=" font-size: 15px; font-weight: 550;">{{ user.group }}</v-list-item-subtitle>
-									</v-col>
-									<v-col md4 class="justify-center">
-										<v-list-item-subtitle style=" font-size: 15px; font-weight: 550;">{{ user.role }}</v-list-item-subtitle>
-									</v-col>
-								</v-row>
-								<v-row>
-									<v-col md4 class="justify-center">
-										<v-checkbox
-											:disabled="userRole !== 'CEO'"
-											color="#197E81"
-											v-model="user.pitcher"
-											label="Is Pitcher?"
-											@change="updateUserInfo(user)"
-										></v-checkbox>
-									</v-col>
-									<v-col md4 class="justify-center">
-										<v-checkbox
-											:disabled="userRole !== 'CEO'"
-											color="#197E81"
-											v-model="user.participant"
-											label="Comes to DemoDay?"
-											@change="updateUserInfo(user)"
-										></v-checkbox>
-									</v-col>
-									<v-col v-if="user.participant" md4 class="justify-center">
+								<v-list-item-content>
+									<v-list-item-title style=" font-size: 17px; font-weight: 700;"> {{ user.firstName }} {{ user.lastName }}</v-list-item-title>
+									<v-list-item-subtitle style=" font-size: 15px; font-weight: 550;">{{ user.email }}</v-list-item-subtitle>
+									<v-list-item-subtitle style=" font-size: 15px; font-weight: 550;">{{ user.phone }}</v-list-item-subtitle>
+									<v-row>
+										<v-col md4 class="justify-center">
+											<v-list-item-subtitle style=" font-size: 15px; font-weight: 550;">{{ user.faculty }}</v-list-item-subtitle>
+										</v-col>
+										<v-col md4 class="justify-center">
+											<v-list-item-subtitle style=" font-size: 15px; font-weight: 550;">{{ user.group }}</v-list-item-subtitle>
+										</v-col>
+										<v-col md4 class="justify-center">
+											<v-list-item-subtitle style=" font-size: 15px; font-weight: 550;">{{ user.role }}</v-list-item-subtitle>
+										</v-col>
+									</v-row>
+									<v-row>
+										<v-col md4 class="justify-center">
+											<v-checkbox
+												:disabled="userRole !== 'CEO'"
+												color="#197E81"
+												v-model="user.pitcher"
+												label="Is Pitcher?"
+												@change="updateUserInfo(user)"
+											></v-checkbox>
+										</v-col>
+										<v-col md4 class="justify-center">
+											<v-checkbox
+												:disabled="userRole !== 'CEO'"
+												color="#197E81"
+												v-model="user.participant"
+												label="Comes to DemoDay?"
+												@change="updateUserInfo(user)"
+											></v-checkbox>
+										</v-col>
+										<v-col v-if="user.participant" md4 class="justify-center">
+											<v-select 
+												:disabled="userRole !== 'CEO'"
+												v-model="user.transport" 
+												:items="['Train','Car','Plane','Other']" 
+												label="Means of Transport"
+												@change="updateUserInfo(user)"
+											></v-select>
+										</v-col>
+									</v-row>
+								</v-list-item-content>
+
+								<v-list-item-action>
+									<v-btn v-if="userRole" icon @click="openDialog(user)">
+										<v-icon small>mdi-pencil</v-icon>
+									</v-btn>
+									<v-spacer></v-spacer>
+									<div v-if="user.socialMedia !== undefined">
+										<v-icon small v-if="user.socialMedia['facebook'] !== '' && user.socialMedia.facebook !== undefined" @click="openLink(user.socialMedia.facebook)">
+											mdi-facebook
+										</v-icon>
+										<v-icon small v-if="user.socialMedia['linkedin'] !== '' && user.socialMedia.linkedin !== undefined" @click="openLink(user.socialMedia.linkedin)">
+											mdi-linkedin
+										</v-icon>
+										<v-icon small v-if="user.socialMedia['instagram'] !== '' && user.socialMedia.instagram !== undefined" @click="openLink(user.socialMedia.instagram)">
+											mdi-instagram
+										</v-icon>
+										<v-icon small v-if="user.socialMedia['webpage'] !== '' && user.socialMedia.webpage !== undefined" @click="openLink(user.socialMedia.webpage)">
+											mdi-web
+										</v-icon>
+									</div>
+									<v-spacer></v-spacer>
+									<v-btn v-if="userRole" icon @click="acceptDialog = true; remove=true, toDel = user">
+										<v-icon small>mdi-close-circle</v-icon>
+									</v-btn>
+								</v-list-item-action>
+							</v-list-item>
+							<v-dialog v-model="extendDialog" max-width="450">
+								<v-card flat max-width="450">
+									<v-img :src="extendedImage"></v-img>
+									<v-card-actions class="justify-center">
+										<v-btn text color="primary" @click="extendDialog=false">Exit</v-btn>
+									</v-card-actions>
+								</v-card>
+							</v-dialog>
+							<v-dialog v-model="dialog" max-width="500px">
+								<!-- <v-card v-if="user.userId !== undefined"> -->
+								<v-card flat>
+									<v-form v-model="userValid" lazy-validation>
+									<v-card-title class="justify-center" style="">Edit User Details</v-card-title>
+									<v-card-text style="margin-top: 50px;">
+										<div class="details">Faculty</div>
 										<v-select 
-											:disabled="userRole !== 'CEO'"
-											v-model="user.transport" 
-											:items="['Train','Car','Plane','Other']" 
-											label="Means of Transport"
-											@change="updateUserInfo(user)"
-										></v-select>
-									</v-col>
-								</v-row>
-							</v-list-item-content>
+										v-model="item.faculty" 
+										:items="universities" 
+										label="Faculty" optional>
+										</v-select>
 
-							<v-list-item-action>
-								<v-btn v-if="userRole" icon @click="openDialog(user)">
-									<v-icon small>mdi-pencil</v-icon>
-								</v-btn>
-								<v-spacer></v-spacer>
-								<div v-if="user.socialMedia !== undefined">
-									<v-icon small v-if="user.socialMedia['facebook'] !== '' && user.socialMedia.facebook !== undefined" @click="openLink(user.socialMedia.facebook)">
-										mdi-facebook
-									</v-icon>
-									<v-icon small v-if="user.socialMedia['linkedin'] !== '' && user.socialMedia.linkedin !== undefined" @click="openLink(user.socialMedia.linkedin)">
-										mdi-linkedin
-									</v-icon>
-									<v-icon small v-if="user.socialMedia['webpage'] !== '' && user.socialMedia.webpage !== undefined" @click="openLink(user.socialMedia.webpage)">
-										mdi-web
-									</v-icon>
-								</div>
-								<v-spacer></v-spacer>
-								<v-btn v-if="userRole" icon @click="acceptDialog = true; remove=true, toDel = user">
-									<v-icon small>mdi-close-circle</v-icon>
-								</v-btn>
-							</v-list-item-action>
-						</v-list-item>
-						<v-dialog v-model="extendDialog" max-width="450">
-							<v-card flat max-width="450">
-								<v-img :src="extendedImage"></v-img>
-								<v-card-actions class="justify-center">
-									<v-btn text color="primary" @click="extendDialog=false">Exit</v-btn>
-								</v-card-actions>
-							</v-card>
-						</v-dialog>
-						<v-dialog v-model="dialog" max-width="500px">
-							<!-- <v-card v-if="user.userId !== undefined"> -->
-							<v-card flat>
-								<v-form v-model="userValid" lazy-validation>
-								<v-card-title class="justify-center" style="">Edit User Details</v-card-title>
-								<v-card-text style="margin-top: 50px;">
-									<div class="details">Faculty</div>
-									<v-select 
-									v-model="item.faculty" 
-									:items="universities" 
-									label="Faculty" optional>
-									</v-select>
+										<div class="details">Group</div>
+										<v-text-field 
+										v-model="item.group" 
+										outlined rounded color="primary"
+										optional>
+										</v-text-field>
 
-									<div class="details">Group</div>
-									<v-text-field 
-									v-model="item.group" 
-									outlined rounded color="primary"
-									optional>
-									</v-text-field>
-
-									<div class="details">Email</div>
-									<v-text-field 
-									v-model="item.email" 
-									:rules="emailRules"
-									outlined rounded color="primary" 
-									optional>
-									</v-text-field>
-									
-									<div class="details">Role</div>
-									<v-select 
-									v-model="item.role"
-									:items="roles" 
-									label="Role" optional>
-									</v-select>
-									
-									<div class="details">
-										Is Pitcher? <v-checkbox v-model="item.pitcher"></v-checkbox>
-									</div>
-									<div class="details">
-										Comes to DemoDay?<v-checkbox v-model="item.participant"></v-checkbox>
-									</div>
-									<div v-if="item.participant || item.pitcher">
-										<div class="details" >
-											Means of transport to DemoDay
+										<div class="details">Email</div>
+										<v-text-field 
+										v-model="item.email" 
+										:rules="emailRules"
+										outlined rounded color="primary" 
+										optional>
+										</v-text-field>
+										
+										<div class="details">Role</div>
+										<v-select 
+										v-model="item.role"
+										:items="roles" 
+										label="Role" optional>
+										</v-select>
+										
+										<div class="details">
+											Is Pitcher? <v-checkbox v-model="item.pitcher"></v-checkbox>
 										</div>
-										<v-select v-model="item.transport" :items="['Train','Car','Plane','Other']" label="Transport" optional></v-select>
-									</div>
-								</v-card-text>
-								<v-card-actions class="justify-center">
-									<v-btn v-if="(!item.pitcher && !item.participant)  ||  ((item.pitcher || item.participant) && item.transport !=='')" :disabled="!userValid" rounded color="primary" @click="updateUserInfo()">Apply changes</v-btn>
-									<v-btn outlined rounded color="primary" @click="exitDialog()">Exit</v-btn>
-								</v-card-actions>
-								</v-form>
-							</v-card>
-						</v-dialog>
-					</v-list>
-				</v-card-text>
-				<v-card-actions class="justify-center" v-if="userRole">
-					<v-btn color="primary" @click="addUsersDialog = true; add=true">Add Users</v-btn>	
-				</v-card-actions>
+										<div class="details">
+											Comes to DemoDay?<v-checkbox v-model="item.participant"></v-checkbox>
+										</div>
+										<div v-if="item.participant || item.pitcher">
+											<div class="details" >
+												Means of transport to DemoDay
+											</div>
+											<v-select v-model="item.transport" :items="['Train','Car','Plane','Other']" label="Transport" optional></v-select>
+										</div>
+									</v-card-text>
+									<v-card-actions class="justify-center">
+										<v-btn v-if="(!item.pitcher && !item.participant)  ||  ((item.pitcher || item.participant) && item.transport !=='')" :disabled="!userValid" rounded color="primary" @click="updateUserInfo()">Apply changes</v-btn>
+										<v-btn outlined rounded color="primary" @click="exitDialog()">Exit</v-btn>
+									</v-card-actions>
+									</v-form>
+								</v-card>
+							</v-dialog>
+						</v-list>
+					</v-card-text>
+				</v-card>
 			</v-card>
 			<v-dialog v-model="addUsersDialog" persistent max-width="1000">
 				<v-card>
@@ -182,10 +206,10 @@
 					<v-card-actions class="justify-center">
 						<v-row>
 							<v-col cols="4" align="center">
-								<v-btn color="primary" @click="acceptDialog = true; add=true">Add Users</v-btn>
+								<v-btn :disabled="toAdd.length < 1" color="primary" @click="acceptDialog = true; add=true">Add Users</v-btn>
 							</v-col>
 							<v-col cols="4" align="center">
-								<v-btn color="primary" @click="openRequestDialog()">Request new user <br/> for the Team</v-btn>
+								<v-btn color="secondary" @click="openRequestDialog()">Request new user <br/> for the Team</v-btn>
 							</v-col>
 							<v-col cols="4" align="center">
 								<v-btn text color="primary" @click="addUsersDialog = false">Exit</v-btn>
@@ -421,7 +445,6 @@ export default Vue.extend({
 	},
 	methods: {
 		updateSnack (prop:boolean): void {
-			console.log("got update event");
 			this.snackbar = prop;
 		},
 		extendImage(image: string):void {
@@ -822,7 +845,6 @@ export default Vue.extend({
 					allActivities.push(userActivity);
 					
 				}
-				console.log(allActivities);
 				try {
 					this.loadingPage = false;
 					await this.ui.api.post<boolean>("/api/v1/admin/newUserActivity", {

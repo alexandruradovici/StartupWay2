@@ -2,87 +2,84 @@
 	<div>
 		<v-container v-if="!loadingPage">
 			<v-form v-model="valid" lazy-validation>
-				<v-card
-					flat
-					style="margin: auto; padding-top: 20px;"
-					max-width="900"
-					color="#fcfcfc"
-				>
-					<v-card-title class="justify-center">
-						<v-list-item-avatar size="60">
-							<v-hover v-slot:default="{ hover }">
-								<v-img
-									:elevation="hover ? 16 : 0"
-									v-if="imgData && imgData !== ''"
-									:src="imgData"
-									@click="extendImage(imgData)"
-								></v-img>
-								<v-icon v-else
-									>mdi-account-circle mdi-48px</v-icon
-								>
-							</v-hover>
-						</v-list-item-avatar>
-						{{ user.firstName }} {{ user.lastName }}
-					</v-card-title>
+				<v-card color="primary" flat shaped outlined width="100%" class="ma-5">
+					<v-card flat shaped outlined width="100%" class="pa-4">
+						<v-card-title class="justify-center">
+							<v-list-item-avatar size="60">
+								<v-hover v-slot:default="{ hover }">
+									<v-img
+										:elevation="hover ? 16 : 0"
+										v-if="imgData && imgData !== ''"
+										:src="imgData"
+										@click="extendImage(imgData)"
+									></v-img>
+									<v-icon v-else
+										>mdi-account-circle mdi-48px</v-icon
+									>
+								</v-hover>
+							</v-list-item-avatar>
+							{{ user.firstName }} {{ user.lastName }}
+						</v-card-title>
 
-					<v-list-item-subtitle>
-						Security Settings
-					</v-list-item-subtitle>
+						<v-list-item-subtitle>
+							Security Settings
+						</v-list-item-subtitle>
 
-					<v-divider></v-divider>
-					<v-card-text>
-						<v-row justify="space-around">
-							<v-col cols="4" align="center">
-								<v-text-field
-									v-model="username"
-									label="Username"
-									:placeholder="user.username"
-									:rules="characterRules"
-									color="primary"
-									prepend-icon="mdi-account-convert"
-								></v-text-field>
-							</v-col>
+						<v-divider></v-divider>
+						<v-card-text>
+							<v-row justify="space-around">
+								<v-col cols="4" align="center">
+									<v-text-field
+										v-model="username"
+										label="Username"
+										:placeholder="user.username"
+										:rules="characterRules"
+										color="primary"
+										prepend-icon="mdi-account-convert"
+									></v-text-field>
+								</v-col>
 
-							<v-col cols="4" aling="center">
-								<v-text-field
-									v-model="email"
-									label="Email"
-									:placeholder="user.email"
-									:rules="emailRules"
-									color="primary"
-									prepend-icon="mdi-email"
-								></v-text-field>
-							</v-col>
+								<v-col cols="4" aling="center">
+									<v-text-field
+										v-model="email"
+										label="Email"
+										:placeholder="user.email"
+										:rules="emailRules"
+										color="primary"
+										prepend-icon="mdi-email"
+									></v-text-field>
+								</v-col>
 
-							<v-col cols="4" align="center">
-								<v-text-field
-									v-model="passwordNew"
-									:prepend-icon="
-										showNew ? 'mdi-eye' : 'mdi-eye-off'
-									"
-									@click:prepend="showNew = !showNew"
-									:rules="passwordRules"
-									:type="showNew ? 'text' : 'password'"
-									label="New Password"
-									color="primary"
-								></v-text-field>
-							</v-col>
-						</v-row>
-					</v-card-text>
-					<v-card-actions class="justify-center">
-						<v-btn @click="back()" color="secondary">
-							Back
-						</v-btn>
-						<v-spacer></v-spacer>
-						<v-btn
-							:disabled="!valid"
-							rounded
-							color="primary"
-							@click="update()"
-							justify="center"
-							>Submit</v-btn
-						>
-					</v-card-actions>
+								<v-col cols="4" align="center">
+									<v-text-field
+										v-model="passwordNew"
+										:prepend-icon="
+											showNew ? 'mdi-eye' : 'mdi-eye-off'
+										"
+										@click:prepend="showNew = !showNew"
+										:rules="passwordRules"
+										:type="showNew ? 'text' : 'password'"
+										label="New Password"
+										color="primary"
+									></v-text-field>
+								</v-col>
+							</v-row>
+						</v-card-text>
+						<v-card-actions class="justify-center">
+							<v-btn @click="back()" color="secondary">
+								Back
+							</v-btn>
+							<v-spacer></v-spacer>
+							<v-btn
+								:disabled="!valid"
+								rounded
+								color="primary"
+								@click="update()"
+								justify="center"
+								>Submit</v-btn
+							>
+						</v-card-actions>
+					</v-card>
 				</v-card>
 			</v-form>
 			<v-dialog v-model="extendDialog" max-width="450">
@@ -143,6 +140,7 @@ interface EditSecuritySettings {
 	birthDate: Date,
 	facebook: string,
 	linkedin: string,
+	instagram: string,
 	webpage: string,
 	details: string,
 	faculty: string,
@@ -170,6 +168,7 @@ export default Vue.extend({
 							.user as User).socialMedia.facebook;
 						this.linkedin = (this
 							.user as User).socialMedia.linkedin;
+						this.instagram = (this.user as User).socialMedia.instagram;
 						this.webpage = (this.user as User).socialMedia.webpage;
 						this.faculty = (this.user as User).userDetails.faculty;
 						this.group = (this.user as User).userDetails.group;
@@ -230,6 +229,7 @@ export default Vue.extend({
 			birthDate: {} as Date,
 			facebook: "" as string,
 			linkedin: "" as string,
+			instagram: "" as string,
 			webpage: "" as string,
 			details: "" as string,
 			faculty: "" as string,
@@ -288,7 +288,6 @@ export default Vue.extend({
 			}
 		},
 		updateSnack (prop:boolean): void {
-			console.log("got update event");
 			this.snackbar = prop;
 		},
 		extendImage (image: string | null): void {
@@ -300,6 +299,7 @@ export default Vue.extend({
 			let socialMedia: UserSocialMedia = {
 				facebook: this.facebook,
 				linkedin: this.linkedin,
+				instagram: this.instagram,
 				webpage: this.webpage
 			};
 			let userDetails: UserDetails = {
@@ -366,6 +366,7 @@ export default Vue.extend({
 							.substr(0, 10);
 						this.facebook = this.user.socialMedia.facebook;
 						this.linkedin = this.user.socialMedia.linkedin;
+						this.instagram = this.user.socialMedia.instagram;
 						this.webpage = this.user.socialMedia.webpage;
 						this.details = this.user.userDetails.details;
 						this.faculty = this.user.userDetails.faculty;

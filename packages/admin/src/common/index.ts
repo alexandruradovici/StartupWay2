@@ -12,7 +12,8 @@ export enum NotificationType {
 export enum MessageType {
 	WELCOME = "WELCOME",
 	RESETPASS = "RESETPASS",
-	REQUESTUSER = "REQUESTUSER"
+	REQUESTUSER = "REQUESTUSER",
+	NOTIFICATION = "NOTIFICATION"
 } 
 export interface SWNotify {
 	email:string,

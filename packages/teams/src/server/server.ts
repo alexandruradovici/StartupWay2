@@ -3,9 +3,12 @@ import { Server, ApiRequest, ApiResponse } from "@startupway/main/lib/server";
 import { getPool } from "@startupway/database/lib/server";
 import { QueryOptions, PoolConnection } from "mariadb";
 import { getAuthorizationFunction } from "@startupway/users/lib/server";
-import { Team, UserTeams, UserActivity, Product } from "../common";
+import { DaemonServer } from "@startupway/daemons/lib/server";
+import { Team, UserTeams, UserActivity, Product, KPI } from "../common";
 import { User } from "@startupway/users/lib/server";
 import { v4 as uiidv4 } from 'uuid';
+import { MessageType, NotificationType, SWNotify } from "@startupway/daemons/lib/common";
+import { KPI_TYPE } from '../common/index';
 
 export class TeamsServer {
 
@@ -1002,7 +1005,146 @@ export class TeamsServer {
 				conn.release();
 		}
 	}
-
+	async addKPI(kpiId: string, teamId: string, text: string, type: string, date: Date): Promise<KPI | null> {
+		let conn:PoolConnection | null = null;
+		try {
+			conn = await getPool().getConnection();
+			if(conn) {
+				await conn.beginTransaction();
+				const queryOptions: QueryOptions = {
+					namedPlaceholders: true,
+					sql: "INSERT INTO kpis (kpiId,teamId,text,type,date) VALUES(:kpiId,:teamId,:text,:type,:date)"
+				};
+				await conn.query(queryOptions, {
+					kpiId,
+					teamId,
+					text,
+					type,
+					date
+				});
+				queryOptions.sql = "SELECT kpiId,teamId,text,type,date FROM kpis WHERE kpiId=:kpiId";
+				const kpi: KPI[] = await conn.query(queryOptions, { kpiId });
+				if (kpi && kpi.length > 0 && kpi[0]) {
+					await conn.commit();
+					return kpi[0];
+				} else {
+					await conn.rollback();
+					return null;
+				}
+			} else {
+				return null;
+			}
+		} catch (e) {
+			console.error(e);
+			if(conn) {
+				await conn.rollback();
+			}
+			return null;
+		} finally {
+			if(conn)
+				conn.release();
+		}
+	}
+	async updateKPI(kpi: KPI): Promise<KPI | null> {
+		let conn:PoolConnection | null = null;
+		try {
+			conn = await getPool().getConnection();
+			if(conn) {
+				await conn.beginTransaction();
+				const queryOptions: QueryOptions = {
+					namedPlaceholders: true,
+					sql: "UPDATE kpis SET teamId=:teamId, text=:text, type=:type, date=:date WHERE kpiId=:kpiId"
+				};
+				await conn.query(queryOptions, {
+					kpiId: kpi.kpiId,
+					teamId: kpi.teamId,
+					text: kpi.text,
+					type: kpi.type,
+					date: kpi.date
+				});
+				queryOptions.sql = "SELECT kpiId,teamId,text,type,date FROM kpis WHERE kpiId=:kpiId";
+				const updatedKPI: KPI[] = await conn.query(queryOptions, { kpiId: kpi.kpiId });
+				if (updatedKPI && updatedKPI.length > 0 && updatedKPI[0]) {
+					await conn.commit();
+					return updatedKPI[0];
+				} else {
+					await conn.rollback();
+					return null;
+				}
+			} else {
+				return null;
+			}
+		} catch (e) {
+			console.error(e);
+			if(conn) {
+				await conn.rollback();
+			}
+			return null;
+		} finally {
+			if(conn)
+				conn.release();
+		}
+	}
+	async deleteKPI(kpiId: string): Promise<boolean> {
+		let conn:PoolConnection | null = null;
+		try {
+			conn = await getPool().getConnection();
+			if(conn) {
+				await conn.beginTransaction();
+				const queryOptions: QueryOptions = {
+					namedPlaceholders: true,
+					sql: "DELETE FROM kpis WHERE kpis.kpiId=:kpiId"
+				};
+				await conn.query(queryOptions, { kpiId });
+				queryOptions.sql = "SELECT kpiId as deleted_id FROM kpis WHERE kpis.kpiId=:kpiId";
+				const response:{deleted_id:string}[] = await conn.query(queryOptions, { kpiId });
+				if(response && response.length === 0) {
+					await conn.commit();
+					return true;
+				} else {
+					await conn.rollback();
+					return false;
+				}
+			} else {
+				return false;
+			}
+		} catch (e) {
+			console.error(e);
+			if(conn) {
+				await conn.rollback();
+			}
+			return false
+		} finally {
+			if(conn)
+				conn.release();
+		}
+	}
+	async getKPI(teamId: string, type: KPI_TYPE): Promise<KPI[]> {
+		let conn:PoolConnection | null = null;
+		try {
+			conn = await getPool().getConnection();
+			if(conn) {
+				const queryOptions: QueryOptions = {
+					namedPlaceholders: true,
+					sql: "SELECT kpiId,teamId,text,type,date FROM kpis WHERE kpis.teamId=:teamId AND kpis.type=:type"
+				};
+				const kpiResponse: KPI[] = await conn.query(queryOptions, { teamId, type });
+				if (kpiResponse && kpiResponse.length > 0) {
+					return kpiResponse;
+				} else {
+					return [];
+				}
+			} else {
+				return [];
+			}
+		} catch (e) {
+			console.error(e);
+			return [];
+		} finally {
+			if(conn)
+				conn.release();
+		}
+	}
 	public static getInstance(): TeamsServer {
 		if (!this.INSTANCE) {
 			this.INSTANCE = new TeamsServer();
@@ -1013,6 +1155,7 @@ export class TeamsServer {
 }
 const router = Router();
 const teams = TeamsServer.getInstance();
+const daemon = DaemonServer.getInstance();
 
 const authFunct = getAuthorizationFunction();
 if (authFunct)
@@ -1022,7 +1165,7 @@ if (authFunct)
 router.get("/teams:userId", async (req: ApiRequest<undefined>, res: ApiResponse<(Team & UserTeams)[]>) => {
 	try {
 		const all_teams: (Team & UserTeams)[] = await teams.getUserTeams(req.params.userId);
-		
+
 		for(let team of all_teams) {
 			team.teamDetails = JSON.parse((team.teamDetails as any) as string);
 		}
@@ -1035,12 +1178,131 @@ router.get("/teams:userId", async (req: ApiRequest<undefined>, res: ApiResponse<
 		res.status(500).send({ err: 500, data: [] });
 	}
 });
+
+router.post("/email", async (req: ApiRequest<{
+	title: string,
+	text: string,
+	location: string,
+	assessmentSemifinals: boolean,
+	assessmentFinals: boolean
+}>, res: ApiResponse<(Team & UserTeams)[]>) => {
+	try {
+		const email = req.body;
+		const allTeams: (Team & Product)[] = await teams.getTeamsByLocation(email.location);
+		let filteredTeams: (Team & Product)[] = [];
+		if (!email.assessmentFinals) {
+			if (!email.assessmentSemifinals) {
+				filteredTeams = allTeams;
+			} else {
+				filteredTeams = allTeams.filter((t) => {
+					const details = JSON.parse((t.productDetails as any) as string);
+					return details.assessmentSemifinals;
+				});
+			}
+		} else {
+			if (!email.assessmentSemifinals) {
+				filteredTeams = allTeams.filter((t) => {
+					const details = JSON.parse((t.productDetails as any) as string);
+					return details.assessmentFinals;
+				});
+			} else {
+				filteredTeams = allTeams.filter((t) => {
+					const details = JSON.parse((t.productDetails as any) as string);
+					return details.assessmentFinals && details.assessmentSemifinals;
+				});
+			}
+		}
+		res.status(200).send({ err: 200, data: true });
+		for(const team of filteredTeams) {
+			const users = await teams.getUsersByTeamId(team.teamId);
+			for (const user of users) {
+				const notify: SWNotify = {
+					email: user.email,
+					notifyType: NotificationType.EMAIL,
+					msgType: MessageType.NOTIFICATION,
+					text: `${email.title}\n\n${email.text}`,
+					date: new Date()
+				};
+				const notification = await daemon.addNotification(notify);
+				if (notification) {
+					console.log("Mail added in route \"/teams/email\"|\"team\"")
+				} else {
+					console.error("Error in route \"/teams/email\"|\"team\"")
+				}
+			}
+		}
+	} catch (e) {
+		console.error(e);
+		res.status(500).send({ err: 500, data: false });
+	}
+});
+
+router.post("/kpi/add/", async (req: ApiRequest<{
+	teamId: string,
+	text: string,
+	type: KPI_TYPE,
+	date: Date
+ }>, res: ApiResponse<KPI | null>) => {
+	try {
+		const kpiData = req.body;
+		const kpi: KPI | null = await teams.addKPI(uiidv4(), kpiData.teamId, kpiData.text, kpiData.type, kpiData.date);
+		if (kpi)
+			res.status(200).send(kpi);
+		else
+			res.status(400).send(null);
+	} catch (e) {
+		console.error(e);
+		res.status(500).send({ err: 500, data: null });
+	}
+});
+
+router.post("/kpi/update/", async (req: ApiRequest<{kpi: KPI}>, res: ApiResponse<KPI | null>) => {
+	try {
+		const kpi: KPI | null = await teams.updateKPI(req.body.kpi);
+		if (kpi)
+			res.status(200).send(kpi);
+		else
+			res.status(400).send(null);
+	} catch (e) {
+		console.error(e);
+		res.status(500).send({ err: 500, data: null });
+	}
+});
+
+router.post("/kpi/delete/", async (req: ApiRequest<{kpiId: string}>, res: ApiResponse<boolean>) => {
+	try {
+		const kpi: boolean = await teams.deleteKPI(req.body.kpiId);
+		if (kpi)
+			res.status(200).send(true);
+		else
+			res.status(400).send(false);
+	} catch (e) {
+		console.error(e);
+		res.status(500).send({ err: 500, data: false });
+	}
+});
+
+router.get("/kpi/:type/:teamId", async (req: ApiRequest<undefined>, res: ApiResponse<KPI[]>) => {
+	try {
+		const type = req.params.type;
+		const teamId = req.params.teamId;
+		if (type && teamId) {
+			const kpis: KPI[] = await teams.getKPI(teamId, type as KPI_TYPE)
+			res.status(200).send(kpis);
+		} else {
+			res.status(204).send([]);
+		}
+	} catch (e) {
+		console.error(e);
+		res.status(500).send({ err: 500, data: [] });
+	}
+});
 // List all teams
 router.get("/mentor/teamsAndProduct/:mentorId", async (req: ApiRequest<undefined>, res: ApiResponse<(Team & Product)[]>) => {
 	try {
 		const allTeams: (Team & Product)[] = await teams.getTeamAndProductByMentorId(req.params.mentorId);
-		
-		for(let team of allTeams) {
+
+		for(const team of allTeams) {
 			team.productDetails = JSON.parse((team.productDetails as any) as string);
 			team.teamDetails = JSON.parse((team.teamDetails as any) as string);
 		}
@@ -1058,7 +1320,7 @@ router.get("/mentor/teamsAndProduct/:mentorId", async (req: ApiRequest<undefined
 router.get("/mentor/teams/:mentorId", async (req: ApiRequest<undefined>, res: ApiResponse<(Team)[]>) => {
 	try {
 		const allTeams: (Team)[] = await teams.getTeamByMentorId(req.params.mentorId);
-		
+
 		for(let team of allTeams) {
 			team.teamDetails = JSON.parse((team.teamDetails as any) as string);
 		}

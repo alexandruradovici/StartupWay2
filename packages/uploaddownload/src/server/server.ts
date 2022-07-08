@@ -448,7 +448,7 @@ export class UploadDownloadServer {
 					Key: uuid,
 					Expires: signedUrlExpireSeconds,
 					ResponseContentDisposition: 'attachment; filename ="' + name + '"'
-				})
+				});
 				if(url !== undefined)
 					return url;
 				else 
@@ -946,15 +946,12 @@ export class UploadDownloadServer {
 											console.error('Unidentified link');
 										}
 									}
-									
 									const obj:string = await uploadDownload.getS3Object(link.uuid);
 									if(obj !== "" && zip) {
 										zip.file(name, obj, {base64:true});
 									} else {
 										console.error('No obj GETS3OBJ')
 										}
-									
-									
 								} else {
 									console.error('No Product');
 								}
@@ -1029,7 +1026,6 @@ export class UploadDownloadServer {
 			const tf = finals? "t":"f";
 			uuid = uuid+"_"+tsf+tf; 
 
-			
 			let link:UploadDownloadLink | null = await uploadDownload.getLinkByUuid(uuid);
 			let truthful = false;
 			if(link) {
@@ -1274,11 +1270,7 @@ router.get("/download/zip/:city/:teamType/:exportType", async(req:ApiRequest<und
 		const city = req.params.city
 		const teamType = req.params.teamType;
 		const exportType = req.params.exportType;
-		console.log(city);
-		console.log(teamType);
-		console.log(exportType);
 		let links = await uploadDownload.getLinks(city,exportType,teamType);
-		console.log(links);
 		if(links.length !== 0) {
 			const prevZip = await uploadDownload.getLinkByUuid(`${city}_${teamType}_${exportType}`);
 			if (prevZip && await uploadDownload.deleteS3File(prevZip.uuid)) {

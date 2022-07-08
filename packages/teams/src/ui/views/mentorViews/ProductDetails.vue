@@ -1,242 +1,252 @@
 <template>
 	<div>
 		<v-container v-if="!loadingPage" class="content" fluid pl-7 pr-7>
-			<v-divider></v-divider>
-			<v-card flat style="margin: auto;" max-width="1000" >
-				<v-form v-model="productValid" lazy-validation>
-					<div class="details">Startup name</div>
-					<v-text-field 
-						:rules="startupRules"
-						outlined 
-						rounded 
-						color="primary" 
-						v-model="product.startupName"
-					></v-text-field>
-
-					<div class="details">Workshop Day</div>
-					<v-select
-						v-model="product.workshopDay"
-						:items="workshopDays"
-						label="Workshop Day"
-					></v-select>
-
-					<div class="details">Business Track</div>
-					<v-select
-						v-model="product.businessTrack"
-						:items="businessTracks"
-						label="Business Track"
-					></v-select>
-
-					<div class="details">Team Type</div>
-					<v-select
-						v-model="product.teamType"
-						:items="teamTypes"
-						label="Team Type"
-					></v-select>
-
-					<div v-if="product.productDetails !== 0">
-						<h3 class="text-md-center">Current Official Description</h3>
-
-						<div class="details">English Description</div>
-						<v-textarea 
+			<v-card color="primary" flat shaped outlined width="100%" class="ma-5">
+				<v-card flat shaped outlined width="100%" class="pa-4">
+					<v-form v-model="productValid" lazy-validation>
+						<div class="details">Startup name</div>
+						<v-text-field 
+							:rules="startupRules"
 							outlined 
+							rounded 
 							color="primary" 
-							v-model="product.descriptionEN" 
-							auto-grow 
-							:rules="rulesDesc"
-							no-resize counter="600"
-						></v-textarea>
-						
-						<div class="details">Romanian Description</div>
-						<v-textarea
-							outlined 
-							color="primary" 
-							v-model="product.descriptionRO" 
-							auto-grow 
-							style="margin-bottom: 20px;"
-							:rules="rulesDesc"
-							no-resize counter="600"
-						></v-textarea>
-						
-						<v-divider></v-divider>
-					</div>
+							v-model="product.startupName"
+						></v-text-field>
 
-					<div v-if="product.pendingDescriptionEN !== '' || product.pendingDescriptionRO !== ''">
-						<h3 class="text-md-center">Description Pending for Appropval</h3>
+						<div class="details">Workshop Day</div>
+						<v-select
+							v-model="product.workshopDay"
+							:items="workshopDays"
+							label="Workshop Day"
+						></v-select>
+
+						<div class="details">Business Track</div>
+						<v-select
+							v-model="product.businessTrack"
+							:items="businessTracks"
+							label="Business Track"
+						></v-select>
+
+						<div class="details">Team Type</div>
+						<v-select
+							v-model="product.teamType"
+							:items="teamTypes"
+							label="Team Type"
+						></v-select>
 
 						<div v-if="product.productDetails !== 0">
-							<div v-if="product.pendingDescriptionEN !== ''"> Pending English Description
-								<v-textarea 
-									v-model="product.pendingDescriptionEN" 
-									outlined 
-									color="primary"
-									:rules="rulesDesc"
-									no-resize counter="600"
-								></v-textarea>
-							</div>
+							<h3 class="text-md-center">Current Official Description</h3>
 
-							<div v-if="product.pendingDescriptionRO !== ''"> Pending Romanian Description
-								<v-textarea 
-									v-model="product.pendingDescriptionRO" 
-									outlined 
-									color="primary"
-									:rules="rulesDesc"
-									no-resize counter="600"
-								></v-textarea>
+							<div class="details">English Description</div>
+							<v-textarea 
+								outlined 
+								color="primary" 
+								v-model="product.descriptionEN" 
+								auto-grow 
+								:rules="rulesDesc"
+								no-resize counter="600"
+							></v-textarea>
+							
+							<div class="details">Romanian Description</div>
+							<v-textarea
+								outlined 
+								color="primary" 
+								v-model="product.descriptionRO" 
+								auto-grow 
+								style="margin-bottom: 20px;"
+								:rules="rulesDesc"
+								no-resize counter="600"
+							></v-textarea>
+							
+							<v-divider></v-divider>
+						</div>
+
+						<div v-if="product.pendingDescriptionEN !== '' || product.pendingDescriptionRO !== ''">
+							<h3 class="text-md-center">Description Pending for Appropval</h3>
+
+							<div v-if="product.productDetails !== 0">
+								<div v-if="product.pendingDescriptionEN !== ''"> Pending English Description
+									<v-textarea 
+										v-model="product.pendingDescriptionEN" 
+										outlined 
+										color="primary"
+										:rules="rulesDesc"
+										no-resize counter="600"
+									></v-textarea>
+								</div>
+
+								<div v-if="product.pendingDescriptionRO !== ''"> Pending Romanian Description
+									<v-textarea 
+										v-model="product.pendingDescriptionRO" 
+										outlined 
+										color="primary"
+										:rules="rulesDesc"
+										no-resize counter="600"
+									></v-textarea>
+								</div>
 							</div>
 						</div>
-					</div>
 
-					
-
-					<div v-if="product.productDetails !== {} && product.productDetails !== undefined" style="margin-top: 20px;">
-						<v-divider></v-divider>
-						<v-row>
-							<v-col cols="4">
-								<div class="details">Website Link</div>
-								<v-text-field
-									v-model="product.productDetails['website']"
-									outlined
-									rounded
-									color="primary"
-								></v-text-field>
-							</v-col>
-							<v-col cols="4">
-								<div class="details">Linkedin</div>
-								<v-text-field
-									v-model="product.productDetails['linkedin']"
-									outlined
-									rounded
-									color="primary"
-								></v-text-field>									
-							</v-col>
-							<v-col cols="4">
-								<div class="details">Facebook Link</div>	
-								<v-text-field
-									v-model="product.productDetails['facebook']"
-									outlined
-									rounded
-									color="primary"
-								></v-text-field>
-							</v-col>
-						</v-row>
-					</div>
-
-					<v-divider></v-divider>
-					<v-row no-gutters style="margin-top: 20px; margin-bottom: 20px;" v-if="pres !== undefined">
-						<v-col cols="12" sm="12" md="12" lg="12" xl="12" align="center">
-							<v-btn v-if="pres !== undefined" text @click="download(pres.uuid)" color="primary" justify="center" style="margin-top: 20px; margin-bottom: 20px;">
-								<v-icon left color="primary">mdi-attachment mdi-rotate-90</v-icon>
-								Download PowerPoint Presentation
-							</v-btn>
-						</v-col>
 						
-					</v-row>
-					<v-row no-gutters align="center" justify="center" style="margin-top: 20px; margin-bottom: 20px;">
-						<v-col cols="12" sm="12" md="6" lg="6" xl="6">
-							<div v-if="demoVid !== undefined">
-								<v-card flat outlined>
-									<v-card-title class="justify-center">Tehnic Demo Video</v-card-title>
-									<v-divider></v-divider>
-									<v-card-text>
-										<video
-											:src="demoVid.data" 
-											width="100%"
-											controls
-										></video>
-									</v-card-text>
-									
-									<v-card-actions class="justify-center">
-										<v-btn text @click="download(demoVid.uuid)" color="primary" justify="center" style="margin-top: 20px; margin-bottom: 20px;">
-											<v-icon left color="primary">mdi-file-video-outline</v-icon>
-											Download Demo Video
-										</v-btn>
-									</v-card-actions>
-								</v-card>
-							</div>
-						</v-col>
-						<v-col cols="12" sm="12" md="6" lg="6" xl="6">
-							<div v-if="presVid !== undefined">
-								<v-card flat outlined>	
-									<v-card-title class="justify-center">Product Presentation Video</v-card-title>
-									<v-divider></v-divider>
-									<v-card-text>
-										<video
-											:src="presVid.data" 
-											width="100%"
-											controls
-										></video>
-									</v-card-text>
-									<v-card-actions class="justify-center">
-										<v-btn text @click="download(presVid.uuid)" color="primary" justify="center" style="margin-top: 20px; margin-bottom: 20px;">
-											<v-icon left color="primary">mdi-video-account</v-icon>
-											Download Presentation Video
-										</v-btn>
-									</v-card-actions>
-								</v-card>
-							</div>
-						</v-col>
-					</v-row>
-					<v-row align="center" justify="center" no-gutters style="margin-top: 20px; margin-bottom: 30px;">
-						<v-col cols="12" sm="12" md="6" lg="6" xl="6">
-							<div v-if="logo !== undefined" align="center" justify="center">
-								<div style="max-width: 200px;" align="center" justify="center">
-									<v-card outlined flat align="center" justify="center">
-										<v-hover v-slot:default="{ hover }" >
-											<v-card flat  @click="extendImage(logo.data)"  rounded :elevation="hover ? 16 : 0">
-												<v-img :src="logo.data" max-width="200" max-height="200"></v-img>
-											</v-card>
-										</v-hover>
 
+						<div v-if="product.productDetails !== {} && product.productDetails !== undefined" style="margin-top: 20px;">
+							<v-divider></v-divider>
+							<v-row>
+								<v-col cols="3">
+									<div class="details">Website Link</div>
+									<v-text-field
+										v-model="product.productDetails['website']"
+										outlined
+										rounded
+										color="primary"
+									></v-text-field>
+								</v-col>
+								<v-col cols="3">
+									<div class="details">Linkedin</div>
+									<v-text-field
+										v-model="product.productDetails['linkedin']"
+										outlined
+										rounded
+										color="primary"
+									></v-text-field>									
+								</v-col>
+								<v-col cols="3">
+									<div class="details">Instagram</div>
+									<v-text-field
+										v-model="product.productDetails['instagram']"
+										outlined
+										rounded
+										color="primary"
+									></v-text-field>									
+								</v-col>
+								<v-col cols="3">
+									<div class="details">Facebook Link</div>	
+									<v-text-field
+										v-model="product.productDetails['facebook']"
+										outlined
+										rounded
+										color="primary"
+									></v-text-field>
+								</v-col>
+							</v-row>
+						</div>
+
+						<v-divider></v-divider>
+						<v-row no-gutters style="margin-top: 20px; margin-bottom: 20px;" v-if="pres !== undefined">
+							<v-col cols="12" sm="12" md="12" lg="12" xl="12" align="center">
+								<v-btn v-if="pres !== undefined" text @click="download(pres.uuid)" color="primary" justify="center" style="margin-top: 20px; margin-bottom: 20px;">
+									<v-icon left color="primary">mdi-attachment mdi-rotate-90</v-icon>
+									Download PowerPoint Presentation
+								</v-btn>
+							</v-col>
+							
+						</v-row>
+						<v-row no-gutters align="center" justify="center" style="margin-top: 20px; margin-bottom: 20px;">
+							<v-col cols="12" sm="12" md="6" lg="6" xl="6">
+								<div v-if="demoVid !== undefined">
+									<v-card flat outlined>
+										<v-card-title class="justify-center">Tehnic Demo Video</v-card-title>
+										<v-divider></v-divider>
+										<v-card-text>
+											<video
+												:src="demoVid.data" 
+												width="100%"
+												controls
+											></video>
+										</v-card-text>
+										
 										<v-card-actions class="justify-center">
-											<v-btn text @click="download(logo.uuid)" color="primary" justify="center" style="margin-top: 20px; margin-bottom: 20px;">
-												<v-icon left color="primary">mdi-camera</v-icon>
-												Download Logo
+											<v-btn text @click="download(demoVid.uuid)" color="primary" justify="center" style="margin-top: 20px; margin-bottom: 20px;">
+												<v-icon left color="primary">mdi-file-video-outline</v-icon>
+												Download Demo Video
 											</v-btn>
 										</v-card-actions>
 									</v-card>
 								</div>
-							</div>
-						</v-col>
-					</v-row>
-					<v-row align="center" justify="center" no-gutters style="margin-top: 20px; margin-bottom: 20px;">
-						<v-col cols="12" sm="12" md="8" lg="10" xl="10">
-							<!-- <div v-if="images.length > 0"> -->
-								<v-card flat outlined v-if="images.length > 0" >
-									<v-card-title class="justify-center">Product Images</v-card-title>
-									<v-divider></v-divider>
-									<v-card-text>
-										<v-row>
-											<v-col v-for="image in images" :key="image.uuid">
-												<div style="max-width: 200px;">
-													<v-card outlined flat>
-														<v-hover v-slot:default="{ hover }">
-															<v-card style="max-width: 200px;"  flat  @click="extendImage(image.data)" rounded :elevation="hover ? 16 : 0">
-																<v-img :src="image.data" max-width="200" max-height="200"></v-img>
-															</v-card>
-														</v-hover>
+							</v-col>
+							<v-col cols="12" sm="12" md="6" lg="6" xl="6">
+								<div v-if="presVid !== undefined">
+									<v-card flat outlined>	
+										<v-card-title class="justify-center">Product Presentation Video</v-card-title>
+										<v-divider></v-divider>
+										<v-card-text>
+											<video
+												:src="presVid.data" 
+												width="100%"
+												controls
+											></video>
+										</v-card-text>
+										<v-card-actions class="justify-center">
+											<v-btn text @click="download(presVid.uuid)" color="primary" justify="center" style="margin-top: 20px; margin-bottom: 20px;">
+												<v-icon left color="primary">mdi-video-account</v-icon>
+												Download Presentation Video
+											</v-btn>
+										</v-card-actions>
+									</v-card>
+								</div>
+							</v-col>
+						</v-row>
+						<v-row align="center" justify="center" no-gutters style="margin-top: 20px; margin-bottom: 30px;">
+							<v-col cols="12" sm="12" md="6" lg="6" xl="6">
+								<div v-if="logo !== undefined" align="center" justify="center">
+									<div style="max-width: 200px;" align="center" justify="center">
+										<v-card outlined flat align="center" justify="center">
+											<v-hover v-slot:default="{ hover }" >
+												<v-card flat  @click="extendImage(logo.data)"  rounded :elevation="hover ? 16 : 0">
+													<v-img :src="logo.data" max-width="200" max-height="200"></v-img>
+												</v-card>
+											</v-hover>
 
-														<v-card-actions>
-														<v-spacer></v-spacer> 
-														<v-btn icon @click="download(image.uuid)" color="primary" >
-															<v-icon color="primary">mdi-arrow-down</v-icon>
-														</v-btn>
-														</v-card-actions>
-													</v-card>
-												</div>
-											</v-col>
-										</v-row>
-									</v-card-text>
-								</v-card>
-							<!-- </div> -->
-						</v-col>
-					</v-row>
+											<v-card-actions class="justify-center">
+												<v-btn text @click="download(logo.uuid)" color="primary" justify="center" style="margin-top: 20px; margin-bottom: 20px;">
+													<v-icon left color="primary">mdi-camera</v-icon>
+													Download Logo
+												</v-btn>
+											</v-card-actions>
+										</v-card>
+									</div>
+								</div>
+							</v-col>
+						</v-row>
+						<v-row align="center" justify="center" no-gutters style="margin-top: 20px; margin-bottom: 20px;">
+							<v-col cols="12" sm="12" md="8" lg="10" xl="10">
+								<!-- <div v-if="images.length > 0"> -->
+									<v-card flat outlined v-if="images.length > 0" >
+										<v-card-title class="justify-center">Product Images</v-card-title>
+										<v-divider></v-divider>
+										<v-card-text>
+											<v-row>
+												<v-col v-for="image in images" :key="image.uuid">
+													<div style="max-width: 200px;">
+														<v-card outlined flat>
+															<v-hover v-slot:default="{ hover }">
+																<v-card style="max-width: 200px;"  flat  @click="extendImage(image.data)" rounded :elevation="hover ? 16 : 0">
+																	<v-img :src="image.data" max-width="200" max-height="200"></v-img>
+																</v-card>
+															</v-hover>
 
-					<v-card-actions class="justify-center">
-						<v-btn v-if="product.pendingDescriptionRO !== '' || product.pendingDescriptionEN !== ''" color="primary" @click="approveDescription()">Approve Description</v-btn>
-						<v-btn :disabled="!productValid" color="primary" @click="updateProduct(product)">Update Product</v-btn>
-					</v-card-actions>
-				</v-form>
+															<v-card-actions>
+															<v-spacer></v-spacer> 
+															<v-btn icon @click="download(image.uuid)" color="primary" >
+																<v-icon color="primary">mdi-arrow-down</v-icon>
+															</v-btn>
+															</v-card-actions>
+														</v-card>
+													</div>
+												</v-col>
+											</v-row>
+										</v-card-text>
+									</v-card>
+								<!-- </div> -->
+							</v-col>
+						</v-row>
+
+						<v-card-actions class="justify-center">
+							<v-btn v-if="product.pendingDescriptionRO !== '' || product.pendingDescriptionEN !== ''" color="primary" @click="approveDescription()">Approve Description</v-btn>
+							<v-btn :disabled="!productValid" color="primary" @click="updateProduct(product)">Update Product</v-btn>
+						</v-card-actions>
+					</v-form>
+				</v-card>
 			</v-card>
 			<v-dialog v-model="extendDialog" max-width="450">
 				<v-card flat max-width="450">
@@ -433,7 +443,6 @@ export default Vue.extend({
 	},
 	methods: {
 		updateSnack (prop:boolean): void {
-			console.log("got update event");
 			this.snackbar = prop;
 		},
 		extendImage(image: string):void {

@@ -1,41 +1,42 @@
 <template>
 	<div>
 		<v-container v-if="!loadingPage">
-			<v-card flat style="margin: auto; margin-top: 50px;" max-width="1000" >
-				<v-divider></v-divider>
-				<v-card-text style="margin-top: 20px;">
-					<div>
-						<v-row v-if="weeks.length > 0">
-							<v-col cols="12" sm="6" md="4" lg="4" xl="4" v-for="week in weeks" :key="week.activityId">
-								<v-card flat outlined>
-									<v-card-title class="justify-center" style="font-size: 15px; font-weight: bold;">
-										{{formatDate(week.date)}}
-									</v-card-title>
-									<v-divider></v-divider>
-									<v-card-text>
-										<div style="text-align: center;">Number of hours worked: {{week.noOfHours}}</div>
-										<div style="text-align: center;">Work Description: {{week.description}}</div>
-									</v-card-text>
-									<v-card-actions class="justify-center">
-										<v-btn icon fab @click="enableEdit(week)">
-											<v-icon color="primary">mdi-pencil-circle-outline</v-icon>
-										</v-btn>
-										<v-btn icon fab @click="viewActivity(week)">
-											<v-icon color="primary">mdi-calendar-month</v-icon>
-										</v-btn>
-									</v-card-actions>
-								</v-card>
-							</v-col>
-						</v-row>
-						<v-row v-else justify="center" no-gutters>
-							<v-col md="auto">
-								<h1 class="landing-message">
-									You have no activities in this team so far.
-								</h1>
-							</v-col>
-						</v-row>
-					</div>
-				</v-card-text>
+			<v-card color="primary" flat shaped outlined width="100%" class="ma-5">
+				<v-card flat shaped outlined width="100%" class="pa-4">
+					<v-card-text style="margin-top: 20px;">
+						<div>
+							<v-row v-if="weeks.length > 0">
+								<v-col cols="12" sm="6" md="4" lg="4" xl="4" v-for="week in weeks" :key="week.activityId">
+									<v-card flat outlined>
+										<v-card-title class="justify-center" style="font-size: 15px; font-weight: bold;">
+											{{formatDate(week.date)}}
+										</v-card-title>
+										<v-divider></v-divider>
+										<v-card-text>
+											<div style="text-align: center;">Number of hours worked: {{week.noOfHours}}</div>
+											<div style="text-align: center;">Work Description: {{week.description}}</div>
+										</v-card-text>
+										<v-card-actions class="justify-center">
+											<v-btn icon fab @click="enableEdit(week)">
+												<v-icon color="primary">mdi-pencil-circle-outline</v-icon>
+											</v-btn>
+											<v-btn icon fab @click="viewActivity(week)">
+												<v-icon color="primary">mdi-calendar-month</v-icon>
+											</v-btn>
+										</v-card-actions>
+									</v-card>
+								</v-col>
+							</v-row>
+							<v-row v-else justify="center" no-gutters>
+								<v-col md="auto">
+									<h1 class="landing-message">
+										You have no activities in this team so far.
+									</h1>
+								</v-col>
+							</v-row>
+						</div>
+					</v-card-text>
+				</v-card>
 			</v-card>
 			<v-dialog v-model="editDialog" max-width="450">
 				<v-card flat width="450" v-if="edited">
@@ -246,7 +247,6 @@ export default Vue.extend({
 	},
 	methods: {
 		updateSnack (prop:boolean): void {
-			console.log("got update event");
 			this.snackbar = prop;
 		},
 		moment() {

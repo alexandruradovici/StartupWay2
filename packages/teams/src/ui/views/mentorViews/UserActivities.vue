@@ -1,7 +1,6 @@
 <template>
 	<div>
 		<v-container v-if="!loadingPage" class="content" fluid pl-7 pr-7>
-				<v-divider></v-divider>
 				<v-card flat style="margin: auto;" width="800" >
 					<v-list nav dense >
 						<v-list-item v-for="user in users" :key="user.email">
@@ -29,7 +28,7 @@
 					</v-list>
 				</v-card>
 				<v-divider></v-divider>
-				<v-card  v-if="mentoredUser.userId" flat style="margin: auto; padding-top: 20px;" >
+				<v-card  v-if="mentoredUser && mentoredUser.userId" flat style="margin: auto; padding-top: 20px;" >
 					
 					<v-card-title class="justify-center">
 						<v-list-item-avatar size="60">
@@ -313,7 +312,6 @@ export default Vue.extend({
 	},
 	methods: {
 		updateSnack (prop:boolean): void {
-			console.log("got update event");
 			this.snackbar = prop;
 		},
 		extendImage(image: string):void {
