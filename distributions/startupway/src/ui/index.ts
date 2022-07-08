@@ -8,5 +8,6 @@ import "@startupway/teams/lib/ui";
 import "@startupway/feed/lib/ui";
 import "@startupway/bmodelcanvas/lib/ui";
 import "@startupway/users/lib/ui";
+import "@startupway/public/lib/ui";
 // import { getUi } from "@startupway/main/lib/ui";
 // getUi().start();
